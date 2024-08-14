@@ -7,12 +7,12 @@ hero:
   text: "Opshell's life records."
   tagline: My great project tagline
   actions:
-    - theme: brand
+    - theme: alt
       text: Markdown Examples
       link: /markdown-examples
-    - theme: alt
-      text: API Examples
-      link: /api-examples
+    - theme: brand
+      text: Resume
+      link: /resume
 
 features:
   - title: Feature A
@@ -22,4 +22,3 @@ features:
   - title: Feature C
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
-

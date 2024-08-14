@@ -1,12 +1,44 @@
+// 設定卷軸樣式
+@mixin setScroll($size: 10px) {
+    // 卷軸體
+    &::-webkit-scrollbar {
+        background: var(--color-btn-fill);
+        width: $size;
+        border-radius: calc($size / 2);
+    }
 
-//RWD
+    // 卷軸底
+    &::-webkit-scrollbar-thumb {
+        background: var(--color-primary);
+        border: 0.5px solid rgba(153, 153, 153, 25%);
+        border-radius: calc($size / 2);
+
+        // box-shadow: 0 0 10px 2px #20476e;
+    }
+
+    // 卷軸按鈕
+    // &::-webkit-scrollbar-button {
+    //     background: transparent; // 設定transparent會隱藏按鈕
+    //     border-radius: 4px;
+    // }
+    // &::-webkit-scrollbar-track-piece {
+    //     background: transparent; // 設定transparent會隱藏卷軸底
+    // }
+
+    // 卷軸底底 (可以幫卷軸底加陰影
+    // &::-webkit-scrollbar-track {
+    //     box-shadow: transparent;
+    // }
+}
+
+// RWD
 @mixin setRWD($size) {
     @media(max-width: $size){
         @content;
     }
 }
 
-//Browser compatibility
+// Browser compatibility
 @mixin setBC($k, $v){
     -webkit-#{$k}: $v;
        -moz-#{$k}: $v;
@@ -27,7 +59,6 @@
         gap: $gap;
     }
 }
-
 @mixin setBack($rep:no-repeat, $pos:50% 50%, $siz:cover) {
     background : {
         repeat: $rep;
@@ -90,6 +121,7 @@
             @content;
         }
     }
+
     //EX:{
         // @include setStr("::after", "background", "url('../image/contact/line'", 6, ".png')");
     // }
@@ -107,6 +139,7 @@
         }
         @content;
     }
+
     //EX:{
         // .setIntoView{
         //     @include setIntoView(
@@ -126,8 +159,8 @@
 
 // 設定凹陷樣式
 @mixin setSunken() {
-    box-shadow: 1px 1px 2px -1px rgba(0, 0, 0, 0.35) inset,
-                -1px -1px 2px -1px rgba(255, 255, 255, 0.95) inset;
+    box-shadow: 1px 1px 2px -1px rgba(0, 0, 0, 35%) inset,
+                -1px -1px 2px -1px rgba(255, 255, 255, 95%) inset;
 }
 
 // 特殊邊框
@@ -157,3 +190,40 @@
         border-radius: 50%;
     }
 }
+
+// 預設文字樣式
+%baseFont {
+    fill: var(--color-primary);
+    color: var(--color-text);
+    font-family: Roboto, NotoSansTC, '微軟正黑體', Arial, sans-serif;
+    font-weight: 400;
+    -webkit-text-stroke: 0.1px;
+    letter-spacing: 1px;
+}
+
+// 大區域 範圍設定
+%scope {
+    width: 100%;
+    padding-left: calc((100% - 1610px) / 2);
+    padding-right: calc((100% - 1610px) / 2);
+    margin: 0 auto;
+    @include setRWD (1680px) {
+        padding-left: 1.875rem;
+        padding-right: 1.875rem;
+    }
+    @include setRWD (1024px) {
+        padding-left: 1.428rem;
+        padding-right: 1.428rem;
+    }
+    @include setRWD (600px) {
+        padding-left: .83rem;
+        padding-right: .83rem;
+    }
+}
+
+$shadow: 0 0 1px 0 rgba(0, 0, 0, 15%);
+$shadow-in: 0 0 1px 0 rgba(0, 0, 0, 15%) inset;
+$cubic-FiSo: cubic-bezier(.37, .99, .92, .96); // 快進場緩停
+$cubic-FiFo: cubic-bezier(.25, .65, .85, .45); // 快進快出
+$cubic-SiRo: cubic-bezier(.31, 1.26, .19, 1.11); // 快速回彈
+$cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1); // 緩進微彈

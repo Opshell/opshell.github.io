@@ -26,5 +26,9 @@ export default [
                 ]
             }
         ]
+    },
+    {
+        text: 'Resume',
+        link: '/resume'
     }
 ] as DefaultTheme.NavItem[];

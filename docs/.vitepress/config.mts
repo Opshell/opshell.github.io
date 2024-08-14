@@ -141,6 +141,16 @@ export default defineConfig({
             //     inject: 'body-last', // | 'body-first' sprite插入位置
             //     customDomId: '__svg__icons__dom__' // 自訂 Dom ID
             // })
-        ]
+        ],
+        // 共用全域 SCSS
+        css: {
+            devSourcemap: true, // scss sourcemap
+            preprocessorOptions: {
+                scss: {
+                    additionalData: `@import "@vitepress/theme/scss/common.scss";`,
+                    charset: false
+                }
+            }
+        }
     }
 });
