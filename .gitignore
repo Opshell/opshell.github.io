@@ -1,0 +1,6 @@
+docs/.vitepress/cache/*
+
+node_modules
+
+# Editor directories and files
+.vscode/*
