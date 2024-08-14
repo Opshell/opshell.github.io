@@ -221,7 +221,9 @@ export default {
         'scss/at-mixin-pattern': null, // mixin 的命名模式。
         'scss/dollar-variable-pattern': null, // 變數的命名模式。
         'scss/percent-placeholder-pattern': null, // 繼承型變數的命名模式。
-        'value-keyword-case': null // 屬性值的大小寫。
+        'value-keyword-case': null, // 屬性值的大小寫。
+
+        'no-descending-specificity': null, // 低權重選擇器無法宣告在高權重選擇器之後。(檢測邏輯不夠完善 不開啟)
         // 'at-rule-no-unknown': [
         //     true,
         //     {

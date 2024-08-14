@@ -20,7 +20,6 @@ declare module 'vue' {
     ElSvgIcon: typeof import('./../components/el/svgIcon.vue')['default']
     MoleSkillBox: typeof import('./../components/mole/skillBox.vue')['default']
     MoleWorkExperience: typeof import('./../components/mole/workExperience.vue')['default']
-    OrgaResumeHeader: typeof import('./../components/orga/resume-header.vue')['default']
     OrgaSectionBlock: typeof import('./../components/orga/sectionBlock.vue')['default']
     TemplateResume: typeof import('./../components/template/resume.vue')['default']
   }

@@ -3,6 +3,8 @@
     import workExperienceData from '@data/works';
 
     import { withBase } from 'vitepress';
+
+    console.log(new URL('../', import.meta.url).pathname);
 </script>
 
 <template>

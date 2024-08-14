@@ -95,7 +95,6 @@
 
                 /* 主色-黃 */
                 color: #4AA985;
-                font-family: Poppins;
                 font-size: 28px;
                 font-weight: 700;
                 font-style: normal;
@@ -109,7 +108,6 @@
 
                 // text style
                 color: #4AA985;
-                font-family: Inter;
                 font-size: 20px;
                 font-weight: 500;
                 font-style: normal;
@@ -131,9 +129,6 @@
             .job-title ,
             .period {
                 color: #666;
-
-                /* Front-End Developer */
-                font-family: Poppins;
                 font-size: 1.375rem;
                 font-weight: 700;
                 font-style: normal;
@@ -148,7 +143,6 @@
 
             /* 6666 */
             color: #666;
-            font-family: Roboto;
             font-size: 1.125rem;
             font-weight: 400;
             font-style: normal;

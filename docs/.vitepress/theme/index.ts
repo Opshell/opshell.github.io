@@ -10,6 +10,9 @@ import './fonts/font.css';
 // [-]全局樣式引用
 import './scss/style.scss';
 
+// [-]Svg Icon引用
+import 'virtual:svg-icons-register';
+
 export default {
     ...DefaultTheme,
     Layout: () => {
