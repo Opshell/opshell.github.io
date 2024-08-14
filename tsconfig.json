@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "baseUrl": ".",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "allowImportingTsExtensions": false,
+        "paths": {
+            "@/*": ["./docs/*"],
+            "@vitepress/*": ["./docs/.vitepress/*"],
+            "@components/*": ["./docs/components/*"],
+            "@data/*": ["./docs/data/*"],
+            "@hooks/*": ["./docs/hooks/*"],
+            "@pages/*": ["./docs/pages/*"]
+        }
+    },
+    "include": [
+        "docs/.vitepress/*.mts",
+        "docs/.vitepress/theme/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "resource",
+    ]
+}

@@ -1,11 +1,22 @@
 {
+  "type": "module",
+  "name": "opshell-blog",
+  "version": "1.0.0",
+  "description": "Opshell's blog",
+  "main": "index.js",
+  "repository": "https://github.com/Opshell/opshell.github.io.git",
+  "author": "Opshell",
+  "license": "MIT",
   "devDependencies": {
+    "@antfu/eslint-config": "2.24.1",
+    "eslint": "9.5.0",
     "sass": "^1.77.8",
     "vitepress": "^1.3.2"
   },
   "scripts": {
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "lint": "eslint . --fix"
   }
 }
