@@ -1,5 +1,7 @@
-import path from 'node:path';
 import { defineConfig } from 'vitepress';
+
+import AutoImport from 'unplugin-auto-import/vite';
+import Components from 'unplugin-vue-components/vite';
 
 import nav from './theme/configs/nav';
 import sidebar from './theme/configs/sidebar';
@@ -78,6 +80,67 @@ export default defineConfig({
                     ]
                 ];
             }
+            return [];
         });
+    },
+    vite: {
+        resolve: {
+            alias: { // 設定別名
+                '@': new URL('../', import.meta.url).pathname, // docs 當根目錄
+                '@vitepress': new URL('../.vitepress', import.meta.url).pathname, // .vitepress 目錄
+                '@components': new URL('../components', import.meta.url).pathname,
+                '@data': new URL('../data', import.meta.url).pathname,
+                '@pages': new URL('../pages', import.meta.url).pathname
+            }
+        },
+        plugins: [
+            AutoImport({
+                include: [
+                    /\.[tj]sx?$/, // .ts, .tsx, .js, .jsx
+                    /\.vue$/,
+                    /\.vue\?vue/, // .vue
+                    /\.md$/ // .md
+                ],
+                // global imports to register
+                imports: [ // presets
+                    'vue',
+                    { // custom
+                        '@vueuse/core': [
+                            // named imports
+                            'useMouse', // import { useMouse } from '@vueuse/core',
+                            // alias
+                            ['useFetch', 'useMyFetch']
+                        ],
+                        'axios': [
+                            // default imports
+                            ['default', 'axios']
+                        ],
+                        'vue': ['PropType', 'defineProps', 'InjectionKey', 'Ref']
+                    }
+                ],
+                dirs: [],
+                dts: './types/auto-imports.d.ts', // typescript 宣告檔案位置
+                vueTemplate: false,
+                eslintrc: {
+                    enabled: false, // Default `false`
+                    filepath: './.eslintrc-auto-import.json',
+                    globalsPropValue: true
+                }
+            }),
+            Components({
+                dirs: ['./components'], // 指定components位置 預設是'src/components'
+                dts: './types/components.d.ts', // .d.ts生成位置
+                extensions: ['vue'],
+                directoryAsNamespace: true, // 允許子目錄作為命名空間
+                resolvers: [] // 解析規則
+            })
+            // createSvgIconsPlugin({
+            //     iconDirs: [path.resolve(__dirname, '../', 'public/icons')], // 指定需要占存的Icon目錄
+            //     symbolId: '[name]', // 指定symbolId格式 預設：'icon-[dir]-[name]
+
+            //     inject: 'body-last', // | 'body-first' sprite插入位置
+            //     customDomId: '__svg__icons__dom__' // 自訂 Dom ID
+            // })
+        ]
     }
 });

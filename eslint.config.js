@@ -33,6 +33,8 @@ export default antfu(
             'style/semi': ['error', 'always'], // 結束需要分號
             'style/comma-dangle': ['error', 'never'], // 關閉末尾陣列尾隨逗號
             'ts/no-unused-vars': 'off', // 關閉 ts/no-unused-vars 規則
+            'ts/strict-boolean-expressions': 'off',
+            'ts/consistent-type-imports': 'off', // 關閉 ts/consistent-type-imports 規則
             'unused-imports/no-unused-vars': 'off'
         }
     },

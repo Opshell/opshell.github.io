@@ -13,13 +13,16 @@
             "@vitepress/*": ["./docs/.vitepress/*"],
             "@components/*": ["./docs/components/*"],
             "@data/*": ["./docs/data/*"],
-            "@hooks/*": ["./docs/hooks/*"],
             "@pages/*": ["./docs/pages/*"]
         }
     },
     "include": [
         "docs/.vitepress/*.mts",
-        "docs/.vitepress/theme/*.ts"
+        "docs/.vitepress/theme/*.ts",
+        "docs/.vitepress/theme/configs/*.ts",
+
+        "docs/components/**/*.vue",
+        "docs/types/*.d.ts",
     ],
     "exclude": [
         "node_modules",
