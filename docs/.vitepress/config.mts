@@ -1,7 +1,13 @@
 import { defineConfig } from 'vitepress'
 
+import nav from './theme/configs/nav';
+import sidebar from './theme/configs/sidebar';
+import socialLinks from './theme/configs/socialLinks';
+import search from './theme/configs/search';
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  lang: 'zh-Hant',
   title: "Opshell's Blog",
   description: "Opshell's life records.",
   head: [
@@ -19,89 +25,39 @@ export default defineConfig({
     },
 
     // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      {
-        text: 'About Ops',
-        link: '/about-opshell'
-      },
-      {
-        text: 'Article',
-        items: [
-          {
-            text: "Life's Mumurs",
-            link: '/article/life-mumurs/life'
-          },
-          {
-            text: "Code Sea",
-            items: [
-              {
-                text: "typescript",
-                link: '/article/code-sea/typescript/day-1'
-              },
-              {
-                text: "vitepress",
-                link: '/article/code-sea/vitepress/day-1'
-              },
-            ]
-          },
-        ]
-      },
-    ],
+    nav,
+    sidebar,
+    socialLinks,
+    search,
 
-    sidebar: {
-      '/article/code-sea/': [
-        { text: 'Why is Typescript', link: '/article/code-sea/typescript/day-2' },
-        { text: 'Why is Vitepress', link: '/article/code-sea/vitepress/day-2' },
-      ],
-      '/article/code-sea/typescript/': [
-        {
-          text: 'Typescript',
-          items: [
-            { text: '1. 前言', link: '/article/code-sea/typescript/day-1' },
-            { text: 'Enum & 使用情境', link: '/article/code-sea/typescript/enum' }
-          ]
-        },
-      ],
-      '/article/code-sea/vitepress/': [
-        {
-          text: 'Vitepress',
-          items: [
-            { text: '1. Opshell 碎碎念', link: '/article/code-sea/vitepress/day-1' },
-            { text: '2. Why is Vitepress', link: '/article/code-sea/vitepress/day-2' },
-            { text: '3. Home from init', link: '/article/code-sea/vitepress/day-3' },
-            { text: '4. Stylelint', link: '/article/code-sea/vitepress/day-4' }
-          ]
-        },
-      ],
-      '/article/life-mumurs/': [
-        {
-          text: 'Life Mumurs',
-          items: [
-            { text: 'Life is it', link: '/article/life-mumurs/life' },
-          ]
-        }
-      ],
+    footer: {
+      message: 'Released under the MIT License.',
+      copyright: 'Copyright © 2024-present Opshell'
     },
-
-    socialLinks: [
-      {
-        icon: 'github',
-        link: 'https://github.com/Opshell',
-        ariaLabel: "opshell's github"
-      },
-      {
-        icon: 'instagram',
-        link: 'https://www.instagram.com/phenomx9990/',
-        ariaLabel: "opshell's instagram"
-      },
-      {
-        icon: {
-            svg: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M22.5217 7.07507V17.0435C16.8406 16.4368 11.1594 15.8281 5.47827 15.2194V5.25913C5.47827 5.25913 5.47827 5.2571 5.4803 5.25507C6.45016 3.07594 9.12436 1.20725 12.7846 0L22.5217 7.07507Z" "/> <path d="M6.45817 25.7509L7.52136 26.8141C6.78889 27.5465 5.77542 28 4.65846 28C2.42252 28 0.609619 26.1871 0.609619 23.9512C0.609619 21.7152 2.42252 19.9023 4.65846 19.9023C5.77643 19.9023 6.78991 20.3558 7.52136 21.0883L6.45817 22.1515C5.99759 21.6909 5.3615 21.4068 4.65846 21.4068C3.25237 21.4068 2.1131 22.5461 2.1131 23.9522C2.1131 25.3583 3.25237 26.4976 4.65846 26.4976C5.3615 26.4976 5.9986 26.2125 6.45817 25.7529V25.7509Z" "/> <path d="M12.7561 22.2154V22.7014C12.2834 22.254 11.6493 21.9841 10.9047 21.9841C9.24296 21.9841 7.89673 23.3304 7.89673 24.9921C7.89673 26.6538 9.24296 28.0001 10.9047 28.0001C11.6483 28.0001 12.2824 27.7302 12.7561 27.2828V27.7688H14.144V22.2154H12.7561ZM10.9047 26.6122C10.0099 26.6122 9.28455 25.8879 9.28455 24.9921C9.28455 24.0963 10.0099 23.372 10.9047 23.372C11.7995 23.372 12.5248 24.0973 12.5248 24.9921C12.5248 25.8869 11.7995 26.6122 10.9047 26.6122Z" "/> <path d="M27.3333 25.5704C27.3718 25.3857 27.3911 25.1909 27.3911 24.9921C27.3911 23.3304 26.1879 21.9841 24.3253 21.9841C22.4627 21.9841 21.2595 23.3304 21.2595 24.9921C21.2595 26.6538 22.6331 28.0001 24.3253 28.0001C25.4281 28.0001 26.4121 27.6754 27.0594 27.0312L26.121 26.0928C25.7608 26.4773 25.1602 26.6975 24.3253 26.6975C23.4904 26.6975 22.9416 26.2278 22.7539 25.5693H27.3333V25.5704ZM24.3253 23.2857C25.1826 23.2857 25.7091 23.7564 25.8968 24.4138H22.7549C22.9426 23.7564 23.4701 23.2857 24.3263 23.2857H24.3253Z" "/> <path d="M21.3032 27.7687H19.3492L16.9205 25.34V27.7687H15.5327V19.9054C15.9953 19.9551 16.4579 20.0038 16.9205 20.0535V24.4148L19.12 22.2154H21.0739L18.4118 24.8774L21.3032 27.7687Z" "/> </svg>'
-        },
-        link: 'https://www.cakeresume.com/me/Opshell',
-        ariaLabel: "opshell's cakeresume"
-      },
-    ]
+    lastUpdated: {
+      text: 'Last Updated at',
+      formatOptions: {
+          dateStyle: 'medium',
+          timeStyle: 'medium'
+      }
+    },
+    notFound: { // 404
+      title: 'Page Not Found ~!!',
+      quote: '請檢查網址或目前頁面不開放觀看，使用下方按鈕回到首頁。',
+      linkText: '回到首頁'
+    },
+    externalLinkIcon: true
+  },
+  markdown: {
+    theme: 'one-dark-pro',
+    lineNumbers: true,
+    container: {
+      tipLabel: '提示',
+      warningLabel: '警告',
+      dangerLabel: '危險',
+      infoLabel: '簡述',
+      detailsLabel: '詳細'
+    }
   },
   transformHead({ assets }) {
     // adjust the regex accordingly to match your font

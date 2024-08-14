@@ -44,18 +44,18 @@ VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shi
 **Input**
 
 ````md
-```js{3}
+```js{5}
 export default {
   data () {
-    if ('aa' !== 'bb') {
+    if ('aa' !== 'bb') { // [!code ++]
       return {
         msg: 'Highlighted!'
       }
-    } else {
-      return {
-        msg: 'Highlighted!'
-      }
-    }
+    } else { // [!code ++]
+      return { // [!code ++]
+        msg: 'Highlighted!' // [!code ++]
+      } // [!code ++]
+    } // [!code ++]
   }
 }
 ```
@@ -63,18 +63,18 @@ export default {
 
 **Output**
 
-```js{3}
+```js{5}
 export default {
   data () {
-    if ('aa' !== 'bb') {
+    if ('aa' !== 'bb') { // [!code ++]
       return {
         msg: 'Highlighted!'
       }
-    } else {
-      return {
-        msg: 'Highlighted!'
-      }
-    }
+    } else { // [!code ++]
+      return { // [!code ++]
+        msg: 'Highlighted!' // [!code ++]
+      } // [!code ++]
+    } // [!code ++]
   }
 }
 ```
