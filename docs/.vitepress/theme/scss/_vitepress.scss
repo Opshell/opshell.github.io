@@ -1,0 +1,16 @@
+.VPNav {
+    .logo {
+        @include setSize(40px, 40px);
+        border-radius: 50%;
+    }
+}
+
+.VPHome {
+    .VPHomeHero {
+        .text {
+            margin: 20px 0 0;
+            font-size: 2.5rem;
+            line-height: 1.25em;
+        }
+    }
+}

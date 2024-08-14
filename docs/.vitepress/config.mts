@@ -102,5 +102,26 @@ export default defineConfig({
         ariaLabel: "opshell's cakeresume"
       },
     ]
-  }
+  },
+  transformHead({ assets }) {
+    // adjust the regex accordingly to match your font
+    [ 'Roboto', 'NotoSansTC', 'FiraCode' ].map(fontName => {
+
+      const fontFile = assets.find(file => new RegExp(`${fontName}\\-\\w+\\.ttf`).test(file));
+      if (fontFile) {
+        return [
+          [
+            'link',
+            {
+              rel: 'preload',
+              href: fontFile,
+              as: 'fonts',
+              type: 'fonts/ttf',
+              crossorigin: ''
+            }
+          ]
+        ]
+      }
+    });
+  },
 })
