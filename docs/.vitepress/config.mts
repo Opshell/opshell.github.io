@@ -8,6 +8,8 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 // import footnote_plugin from 'markdown-it-footnote';
 import footnote from 'markdown-it-footnote';
 
+import { getSidebar } from '../hooks/sidebar';
+
 import nav from './theme/configs/nav';
 import sidebar from './theme/configs/sidebar';
 import socialLinks from './theme/configs/socialLinks';
@@ -35,9 +37,13 @@ export default defineConfig({
 
         // https://vitepress.dev/reference/default-theme-config
         nav,
-        sidebar,
         socialLinks,
         search,
+        sidebar: {
+            '/article/code-sea/typescript/': getSidebar('/article/code-sea/typescript/'),
+            '/article/code-sea/vitepress/': getSidebar('/article/code-sea/vitepress/'),
+            '/article/life-mumurs/': getSidebar('/article/life-mumurs/')
+        },
 
         footer: {
             message: 'Released under the MIT License.',
@@ -111,6 +117,7 @@ export default defineConfig({
                 '@vitepress': path.resolve(__dirname), // .vitepress 目錄
                 '@components': path.resolve(__dirname, '../', 'components'),
                 '@data': path.resolve(__dirname, '../', 'data'),
+                '@hooks': path.resolve(__dirname, '../', 'hooks'),
                 '@pages': path.resolve(__dirname, '../', 'pages')
 
                 // '@': new URL('../', import.meta.url).pathname, // docs 當根目錄

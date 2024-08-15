@@ -24,6 +24,7 @@
 
         "docs/components/**/*.vue",
         "docs/data/*.data.ts",
+        "docs/hooks/*.ts",
         "docs/types/*.d.ts",
     ],
     "exclude": [
