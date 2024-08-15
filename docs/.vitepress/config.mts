@@ -12,7 +12,8 @@ import search from './theme/configs/search';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-    lang: 'zh-Hant',
+    // lang: 'zh-Hant',
+    lang: 'en',
     title: 'Opshell\'s Blog',
     description: 'Opshell\'s life records.',
     head: [

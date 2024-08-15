@@ -11,8 +11,7 @@ layout: page
 ---
 
 <script setup lang="ts">
-    import Resume from '@components/template/resume.vue';
-
+    import TemplateResume from '@components/template/resume.vue';
 </script>
 
-<Resume />
+<TemplateResume />

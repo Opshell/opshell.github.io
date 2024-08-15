@@ -4,8 +4,8 @@ layout: home
 
 hero:
   name: "Opshell's Blog"
-  text: "Opshell's life records."
-  tagline: My great project tagline
+  text: "A blog to share various thoughts,technologies,front-end develop, and miscellaneous topics to engage more with the world."
+  tagline: Ordinary Is Great.
   actions:
     - theme: alt
       text: Markdown Examples
@@ -15,10 +15,16 @@ hero:
       link: /resume
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - icon: 🛠️
+    title: Code Work & Bug Fix
+    details: The process and documentation of filling in some gaps.
+  - icon: 💡
+    title: Idea
+    details: Some ideas, whether good or bad, should always be put into practice, right?
+  - icon: ⚡️
+    title: A Flash In The Pan
+    details: An interest or hobby sparked by a moment of enthusiasm is always a life experience, isn't it?
+  - icon: 📦
+    title: Life Package
+    details: Firewood, Rice, Oil, Salt, Sauce, Vinegar, And Tea.
 ---

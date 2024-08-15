@@ -1,10 +1,10 @@
 <script setup lang="ts">
-    import skillsData from '@data/skills';
-    import workExperienceData from '@data/works';
-
     import { withBase } from 'vitepress';
 
-    console.log(new URL('../', import.meta.url).pathname);
+    import { data as skillsData } from '@/data/skills.data';
+    import { data as workExperienceData } from '@/data/works.data';
+
+    console.log(skillsData);
 </script>
 
 <template>
@@ -15,7 +15,7 @@
                     <img :src="withBase('images/resume/portrait.png')" alt="Opshell 大頭貼" />
                 </div>
                 <h1 class="name">
-                    <span class="zh">劉 育瑋</span>
+                    <!-- <span class="zh">YuWei Liu</span> -->
                     <span class="en">Opshell</span>
                 </h1>
 

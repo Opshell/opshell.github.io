@@ -22,6 +22,7 @@
         "docs/.vitepress/theme/configs/*.ts",
 
         "docs/components/**/*.vue",
+        "docs/data/*.data.ts",
         "docs/types/*.d.ts",
     ],
     "exclude": [

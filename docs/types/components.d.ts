@@ -18,6 +18,7 @@ declare module 'vue' {
     ElSelect: typeof import('./../components/el/select.vue')['default']
     ElSkill: typeof import('./../components/el/skill.vue')['default']
     ElSvgIcon: typeof import('./../components/el/svgIcon.vue')['default']
+    LayoutResume: typeof import('./../components/layout/resume.vue')['default']
     MoleSkillBox: typeof import('./../components/mole/skillBox.vue')['default']
     MoleWorkExperience: typeof import('./../components/mole/workExperience.vue')['default']
     OrgaSectionBlock: typeof import('./../components/orga/sectionBlock.vue')['default']
