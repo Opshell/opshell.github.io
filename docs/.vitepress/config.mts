@@ -5,6 +5,9 @@ import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 
+// import footnote_plugin from 'markdown-it-footnote';
+import footnote from 'markdown-it-footnote';
+
 import nav from './theme/configs/nav';
 import sidebar from './theme/configs/sidebar';
 import socialLinks from './theme/configs/socialLinks';
@@ -63,6 +66,21 @@ export default defineConfig({
             dangerLabel: '危險',
             infoLabel: '簡述',
             detailsLabel: '詳細'
+        },
+        config: (md) => {
+            md.use(footnote);
+            interface iFootnoteAnchorTokenMeta {
+                id: number
+                subId: number
+                label: string
+            }
+            md.renderer.rules.footnote_anchor = function render_footnote_anchor(tokens, idx, options, env, slf) {
+                let id = slf.rules.footnote_anchor_name?.(tokens, idx, options, env, slf);
+                if ((tokens[idx].meta as iFootnoteAnchorTokenMeta).subId > 0) {
+                    id += `:${(tokens[idx].meta as iFootnoteAnchorTokenMeta).subId}`;
+                }
+                return ` <a href="#fnref${id}" class="footnote-backref"> ⬆️ </a>`;
+            };
         }
     },
     transformHead({ assets }) {

@@ -9,7 +9,9 @@
   "license": "MIT",
   "devDependencies": {
     "@antfu/eslint-config": "2.24.1",
+    "@types/markdown-it-footnote": "^3.0.4",
     "eslint": "9.5.0",
+    "markdown-it-footnote": "^4.0.0",
     "postcss": "^8.4.41",
     "postcss-html": "^1.7.0",
     "postcss-scss": "^4.0.9",
@@ -29,5 +31,6 @@
     "docs:preview": "vitepress preview docs",
     "lint": "eslint . --fix",
     "lint:style": "stylelint --fix '**/*.{css,scss,vue}' --fix"
-  }
+  },
+  "dependencies": {}
 }

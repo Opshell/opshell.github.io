@@ -11,7 +11,6 @@ createdAt: '2024/07/26'
 UpdatedAt: '2024/08/01'
 ---
 
-
 # 鐵人賽 Day01 - Vitepress
 
 鐵人賽 Day01
@@ -39,7 +38,7 @@ UpdatedAt: '2024/08/01'
 
 ## Syntax Highlighting
 
-VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shikijs/shiki), with additional features like line-highlighting:
+VitePress provides Syntax Highlighting powered by Shiki[^1] , with additional features like line-highlighting:
 
 **Input**
 
@@ -130,3 +129,5 @@ This is a details block.
 ## More
 
 Check out the documentation for the [full list of markdown extensions](https://vitepress.dev/guide/markdown).
+
+[^1]: [Shiki](https://github.com/shikijs/shiki)
