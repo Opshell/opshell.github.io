@@ -68,5 +68,11 @@ export default antfu(
                 math: 'always'
             }]
         }
+    },
+    {
+        files: ['**/*.md'],
+        rules: {
+            'no-irregular-whitespace': 'off' // MarkDown 文件中不檢查全形空格
+        }
     }
 );

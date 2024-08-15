@@ -19,7 +19,8 @@
     "include": [
         "docs/.vitepress/*.mts",
         "docs/.vitepress/theme/*.ts",
-        "docs/.vitepress/theme/configs/*.ts",
+        "docs/.vitepress/theme/**/*.ts",
+        "docs/.vitepress/theme/**/*.vue",
 
         "docs/components/**/*.vue",
         "docs/data/*.data.ts",

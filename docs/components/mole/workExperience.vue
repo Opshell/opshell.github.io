@@ -130,8 +130,7 @@
             .period {
                 color: #666;
                 font-size: 1.375rem;
-                font-weight: 700;
-                font-style: normal;
+                font-weight: 500;
                 line-height: 2rem;
             }
         }

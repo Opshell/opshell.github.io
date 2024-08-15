@@ -29,6 +29,19 @@ export default [
     },
     {
         text: 'Resume',
-        link: '/resume'
+        items: [
+            {
+                text: 'resume-vue',
+                link: '/resume-vue'
+            },
+            {
+                text: 'resume-md',
+                link: '/resume-md'
+            },
+            {
+                text: 'resume-layout',
+                link: '/resume-layout'
+            }
+        ]
     }
 ] as DefaultTheme.NavItem[];

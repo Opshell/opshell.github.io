@@ -2,6 +2,8 @@ import { h } from 'vue';
 import type { Theme } from 'vitepress';
 import DefaultTheme from 'vitepress/theme-without-fonts';
 
+import LayoutResume from './layout/resume.vue';
+
 // https://vitepress.dev/guide/custom-theme
 
 // [-]字體引用
@@ -21,6 +23,6 @@ export default {
         });
     },
     enhanceApp({ app, router, siteData }) {
-
+        app.component('resume', LayoutResume);
     }
 } satisfies Theme;

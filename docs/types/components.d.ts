@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    copy: typeof import('./../components/mole/workExperience copy.vue')['default']
     ElBtn: typeof import('./../components/el/btn.vue')['default']
     ElBtnToggle: typeof import('./../components/el/btnToggle.vue')['default']
     ElCheckbox: typeof import('./../components/el/checkbox.vue')['default']
@@ -18,9 +19,9 @@ declare module 'vue' {
     ElSelect: typeof import('./../components/el/select.vue')['default']
     ElSkill: typeof import('./../components/el/skill.vue')['default']
     ElSvgIcon: typeof import('./../components/el/svgIcon.vue')['default']
-    LayoutResume: typeof import('./../components/layout/resume.vue')['default']
     MoleSkillBox: typeof import('./../components/mole/skillBox.vue')['default']
     MoleWorkExperience: typeof import('./../components/mole/workExperience.vue')['default']
+    MoleWorkExperienceMD: typeof import('./../components/mole/workExperienceMD.vue')['default']
     OrgaSectionBlock: typeof import('./../components/orga/sectionBlock.vue')['default']
     TemplateResume: typeof import('./../components/template/resume.vue')['default']
   }
