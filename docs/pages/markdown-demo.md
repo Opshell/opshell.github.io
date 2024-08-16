@@ -1,17 +1,21 @@
 ---
-title: Vitepress's home
-auther: 'Opshell'
-editLink: true
+title: Opshell's mumur about vitepress
+author: 'Opshell'
+createdAt: '2024/07/26'
+
 categories:
-  - vitepress-thirty-days
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - vitepress
-createdAt: '2024/07/26'
-isPublished: true
+  - typescript
+
+editLink: true
+isPublished: false
 ---
 
-# Stylelint
+# 鐵人賽 Day01 - Vitepress
+
+鐵人賽 Day01
 
 喜歡交流、學習技術的Opshell，
 從高中開始對程式語言萌生興趣，獨立製作了一個RPG畢業專題
@@ -34,98 +38,9 @@ isPublished: true
 所以磕磕絆絆先把這個部落格弄出來，
 (偉哉 Vitepress~~
 
-## yarn add package and why.
+## Syntax Highlighting
 
-yarn add
-stylelint 核心
-stylelint-config-standard 常見的css 規範
-stylelint-config-recommended 常見的css 規範
-stylelint-config-recommended-scss scss 用的規範DLC
-stylelint-config-recommended-vue vue 用的規範DLC
-stylelint-config-prettier 關閉不必要的或可能和Prettier 衝突的規則
-stylelint-order 設定屬性排序
-postcss
-postcss-html 解析 HTML 的 PostCSS 語法，判斷 HTML 或 Vue 的CSS
-stylelint-config-html 使 StyleLint 可以解析 HTML XML Vue Svelte php 等檔案
--D
-
-yarn add
-
-postcss
-postcss-scss
-postcss-html
-
-stylelint
-stylelint-scss
-stylelint-order
-
-stylelint-config-standard
-stylelint-config-standard-vue
-stylelint-config-standard-scss
-
-stylelint-config-recess-order
-stylelint-config-recommended
-stylelint-config-recommended-vue
-stylelint-config-recommended-scss
-
--D
-
-yarn add
-
-stylelint
-stylelint-config-standard-scss
-stylelint-config-recommended-vue
-stylelint-order
-
-postcss
-postcss-scss
-
--D
-
-yarn add
-
-stylelint
-stylelint-config-standard-vue
-stylelint-config-standard-scss
-stylelint-order
-postcss
-postcss-scss
-postcss-html
-
--D
-
-yarn add
-
-stylelint@14.x.x
-stylelint-config-recess-order
-stylelint-config-standard-scss
-stylelint-config-standard-vue
-stylelint-order
-
-postcss
-postcss-scss
-postcss-html
-
--D
-
-yarn add
-
-postcss
-postcss-scss
-postcss-html
-
-stylelint
-stylelint-config-standard-vue
-stylelint-config-standard-scss
-stylelint-order
-
--D
-
-"extends": [
-  "stylelint-config-standard-scss",
-  "stylelint-config-standard-vue/scss"
-]
-https://github.com/ota-meshi/stylelint-config-standard-vue
+VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shikijs/shiki), with additional features like line-highlighting:
 
 **Input**
 

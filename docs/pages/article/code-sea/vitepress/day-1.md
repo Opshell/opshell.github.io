@@ -8,9 +8,7 @@ tags:
   - 鐵人賽
   - vitepress
 createdAt: '2024/07/26'
-UpdatedAt: '2024/08/01'
-isPublished: true
-layout: doc
+isPublished: false
 ---
 
 # 鐵人賽 Day01 - Vitepress

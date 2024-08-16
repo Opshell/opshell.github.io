@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
+import matter from 'gray-matter';
 
 import { DefaultTheme, createContentLoader } from 'vitepress';
 
@@ -11,12 +12,12 @@ const isDirectory = (path: string) => fs.lstatSync(path).isDirectory();
 // 取陣列差值
 const intersections = (arr1: string[], arr2: string[]) => Array.from(new Set(arr1.filter(item => !new Set(arr2).has(item))));
 
-// 取得 markdown 的 title
-function getMarkdownTitle(filePath: string): string {
+// 取得 FrontMatter
+function getFrontMatter(filePath: string) {
     const content = fs.readFileSync(filePath, 'utf-8');
-    const match = content.match(/title:\s*(.*)/);
+    const { data } = matter(content);
 
-    return match ? match[1] : path.basename(filePath, '.md');
+    return data || null;
 }
 
 function getList(params: string[], startPathDir: string, startPathName: string): DefaultTheme.SidebarItem[] {
@@ -43,10 +44,14 @@ function getList(params: string[], startPathDir: string, startPathName: string):
                 continue;
             }
 
-            res.push({
-                text: getMarkdownTitle(`${startPathDir}/${file}`),
-                link: `${startPathName}/${fileName}`
-            });
+            const frontmatter = getFrontMatter(`${startPathDir}/${file}`);
+
+            if (frontmatter.isPublished) { // 判斷是否發布
+                res.push({
+                    text: frontmatter.title as string || fileName,
+                    link: `${startPathName}/${fileName}`
+                });
+            }
         }
     }
 
