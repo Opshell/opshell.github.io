@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs';
 import { defineConfig } from 'vitepress';
 
 import AutoImport from 'unplugin-auto-import/vite';
@@ -9,11 +10,15 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import footnote from 'markdown-it-footnote';
 
 import { getSidebar } from '../hooks/sidebar';
+import { getPosts } from '../hooks/post';
 
 import nav from './theme/configs/nav';
 import sidebar from './theme/configs/sidebar';
 import socialLinks from './theme/configs/socialLinks';
 import search from './theme/configs/search';
+
+const startPathDir = path.resolve(__dirname, '../pages'); // 把pages 設定成根目錄
+const mdFiles = fs.readdirSync(startPathDir); // 讀取目錄下的資料夾&文件
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -28,6 +33,7 @@ export default defineConfig({
         'pages/(.*)': '(.*)'
     },
     themeConfig: {
+        posts: await getPosts(mdFiles, startPathDir),
         siteTitle: 'Opshell\'s Blog',
         logo: {
             light: '/logo.jpg',

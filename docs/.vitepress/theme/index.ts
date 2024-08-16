@@ -2,6 +2,7 @@ import { h } from 'vue';
 import type { Theme } from 'vitepress';
 import DefaultTheme from 'vitepress/theme-without-fonts';
 
+import ExpandLayout from './layout/expandLayout.vue';
 import LayoutResume from './layout/resume.vue';
 
 // https://vitepress.dev/guide/custom-theme
@@ -17,11 +18,12 @@ import 'virtual:svg-icons-register';
 
 export default {
     ...DefaultTheme,
-    Layout: () => {
-        return h(DefaultTheme.Layout, null, {
-            // https://vitepress.dev/guide/extending-default-theme#layout-slots
-        });
-    },
+    Layout: ExpandLayout,
+    // Layout: () => {
+    //     return h(DefaultTheme.Layout, null, {
+    //         // https://vitepress.dev/guide/extending-default-theme#layout-slots
+    //     });
+    // },
     enhanceApp({ app, router, siteData }) {
         app.component('resume', LayoutResume);
     }

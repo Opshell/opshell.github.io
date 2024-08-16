@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 
-import { DefaultTheme } from 'vitepress';
+import { DefaultTheme, createContentLoader } from 'vitepress';
 
 const PAGES_PATH = path.resolve(__dirname, '../pages'); // 把pages 設定成根目錄
 const WHITE_LIST = ['index.md']; // 白名單，不需要顯示的文件或者文件夾
@@ -10,6 +10,14 @@ const WHITE_LIST = ['index.md']; // 白名單，不需要顯示的文件或者�
 const isDirectory = (path: string) => fs.lstatSync(path).isDirectory();
 // 取陣列差值
 const intersections = (arr1: string[], arr2: string[]) => Array.from(new Set(arr1.filter(item => !new Set(arr2).has(item))));
+
+// 取得 markdown 的 title
+function getMarkdownTitle(filePath: string): string {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const match = content.match(/title:\s*(.*)/);
+
+    return match ? match[1] : path.basename(filePath, '.md');
+}
 
 function getList(params: string[], startPathDir: string, startPathName: string): DefaultTheme.SidebarItem[] {
     const res = [];
@@ -36,7 +44,7 @@ function getList(params: string[], startPathDir: string, startPathName: string):
             }
 
             res.push({
-                text: fileName,
+                text: getMarkdownTitle(`${startPathDir}/${file}`),
                 link: `${startPathName}/${fileName}`
             });
         }

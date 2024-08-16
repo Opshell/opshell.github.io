@@ -1,6 +1,6 @@
 ---
-title: Docs with VitePress
-auther: 'Opshell'
+title: Opshell's mumur about vitepress
+author: 'Opshell'
 editLink: true
 categories:
   - vitepress-thirty-days
@@ -9,6 +9,8 @@ tags:
   - vitepress
 createdAt: '2024/07/26'
 UpdatedAt: '2024/08/01'
+isPublished: true
+layout: doc
 ---
 
 # 鐵人賽 Day01 - Vitepress

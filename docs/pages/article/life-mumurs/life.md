@@ -1,8 +1,7 @@
 ---
-# layout: layoutest
 layout: doc
 
-title: Docs with VitePress
+title: Life Mumur
 author: 'Opshell'
 editLink: true
 categories:

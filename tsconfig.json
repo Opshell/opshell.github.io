@@ -13,6 +13,7 @@
             "@vitepress/*": ["./docs/.vitepress/*"],
             "@components/*": ["./docs/components/*"],
             "@data/*": ["./docs/data/*"],
+            "@hooks/*": ["./docs/hooks/*"],
             "@pages/*": ["./docs/pages/*"]
         }
     },

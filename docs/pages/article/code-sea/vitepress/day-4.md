@@ -1,3 +1,16 @@
+---
+title: Vitepress's home
+auther: 'Opshell'
+editLink: true
+categories:
+  - vitepress-thirty-days
+tags:
+  - 鐵人賽
+  - vitepress
+createdAt: '2024/07/26'
+UpdatedAt: '2024/08/01'
+---
+
 # Stylelint
 
 喜歡交流、學習技術的Opshell，
@@ -81,7 +94,6 @@ postcss-html
 
 -D
 
-
 yarn add
 
 stylelint@14.x.x
@@ -96,8 +108,6 @@ postcss-html
 
 -D
 
-
-
 yarn add
 
 postcss
@@ -110,7 +120,6 @@ stylelint-config-standard-scss
 stylelint-order
 
 -D
-
 
 "extends": [
   "stylelint-config-standard-scss",
