@@ -7,7 +7,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    copy: typeof import('./../components/mole/workExperience copy.vue')['default']
     ElBtn: typeof import('./../components/el/btn.vue')['default']
     ElBtnToggle: typeof import('./../components/el/btnToggle.vue')['default']
     ElCheckbox: typeof import('./../components/el/checkbox.vue')['default']

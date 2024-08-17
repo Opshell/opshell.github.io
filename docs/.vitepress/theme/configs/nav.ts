@@ -17,7 +17,7 @@ export default [
                 items: [
                     {
                         text: 'typescript',
-                        link: '/article/code-sea/typescript/day-1'
+                        link: '/article/code-sea/typescript/enum'
                     },
                     {
                         text: 'vitepress',

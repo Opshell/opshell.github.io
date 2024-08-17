@@ -49,7 +49,7 @@ function getMarkdown(filePath: string) {
     return data;
 }
 
-interface iPosts {
+export interface iPosts {
     tags: {
         [key: string]: number
     }

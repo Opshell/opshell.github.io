@@ -1,3 +1,15 @@
+---
+title: 'Enum 使用實例'
+author: 'Opshell'
+createdAt: '2024/08/10'
+categories:
+  - 使用實例
+tags:
+  - typescript
+editLink: true
+isPublished: true
+---
+
 # enum 按鍵使用實例
 
 1. 用enum列舉常用modules的參數類別
