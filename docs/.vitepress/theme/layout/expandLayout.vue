@@ -1,9 +1,6 @@
 <script setup lang="ts">
     import DefaultTheme from 'vitepress/theme';
     import { useData } from 'vitepress';
-    import { nextTick, provide } from 'vue';
-
-    import { getPosts, initTags } from '@hooks/post';
 
     const { Layout } = DefaultTheme;
 
@@ -13,7 +10,9 @@
     const params = new URLSearchParams(url);
     const { theme } = useData();
 
-    const data = computed(() => theme.value.posts);
+    console.log('theme', theme.value);
+
+    const classification = computed(() => theme.value.classification);
 
     const lastUpdated = computed(() => {
         // 把 page.value.lastUpdated 從時間戳轉換成 西元年月日
@@ -44,10 +43,15 @@
 
         <template #aside-ads-before>
             <div class="tag-box">
-                <div v-for="(count, tag) in data.tags" :key="`tag-${tag}`" class="tag">
+                <a
+                    v-for="(info, tag) in classification.tags"
+                    :key="`tag-${tag}`"
+                    class="tag"
+                    :href="`tags-list.html?tag=${tag}&page=1`"
+                >
                     <span>{{ tag }}：</span>
-                    <span class="count">{{ count }}</span>
-                </div>
+                    <span class="count">{{ info.count }}</span>
+                </a>
             </div>
         </template>
     </Layout>

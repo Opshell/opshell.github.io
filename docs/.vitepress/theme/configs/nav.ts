@@ -28,6 +28,10 @@ export default [
         ]
     },
     {
+        text: 'Tags',
+        link: '/tags-list'
+    },
+    {
         text: 'Resume',
         items: [
             {

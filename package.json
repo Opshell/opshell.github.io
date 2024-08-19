@@ -12,6 +12,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/markdown-it-footnote": "^3.0.4",
     "eslint": "9.5.0",
+    "globby": "^14.0.2",
     "gray-matter": "^4.0.3",
     "markdown-it-footnote": "^4.0.0",
     "postcss": "^8.4.41",

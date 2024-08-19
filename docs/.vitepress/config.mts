@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { defineConfig, DefaultTheme } from 'vitepress';
+import { DefaultTheme, defineConfig } from 'vitepress';
 
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
@@ -10,8 +10,9 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import footnote from 'markdown-it-footnote';
 
 import { getSidebar } from '../hooks/sidebar';
-import { getPosts, iPosts } from '../hooks/post';
+import { getArticleClassification, iClassification } from '../hooks/useArticleClassification';
 
+import { getPostss } from '../hooks/serverUtils';
 import nav from './theme/configs/nav';
 import sidebar from './theme/configs/sidebar';
 import socialLinks from './theme/configs/socialLinks';
@@ -21,8 +22,11 @@ const startPathDir = path.resolve(__dirname, '../pages'); // 把pages 設定成�
 const mdFiles = fs.readdirSync(startPathDir); // 讀取目錄下的資料夾&文件
 
 interface iThemeConfig extends DefaultTheme.Config {
-    posts: iPosts;
+    classification: iClassification
 }
+
+const classification = await getArticleClassification(mdFiles, startPathDir);
+// console.log('classification:', classification);
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -37,7 +41,7 @@ export default defineConfig({
         'pages/(.*)': '(.*)'
     },
     themeConfig: {
-        posts: await getPosts(mdFiles, startPathDir),
+        classification,
         siteTitle: 'Opshell\'s Blog',
         logo: {
             light: '/logo.jpg',
