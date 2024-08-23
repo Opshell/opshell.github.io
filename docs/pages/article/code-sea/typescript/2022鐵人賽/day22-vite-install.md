@@ -2,8 +2,7 @@
 title:  'Day22 - vite install'
 author: 'Opshell'
 createdAt: '2022/09/22'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

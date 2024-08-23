@@ -2,8 +2,7 @@
 title:  'Day16 - Class X Interface'
 author: 'Opshell'
 createdAt: '2022/09/16'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

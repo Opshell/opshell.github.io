@@ -3,8 +3,7 @@ title: Opshell's mumur about vitepress
 author: 'Opshell'
 createdAt: '2024/07/26'
 
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

@@ -2,8 +2,7 @@
 title: 'Day06 - 複合型別'
 author: 'Opshell'
 createdAt: '2022/09/06'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

@@ -2,8 +2,7 @@
 title:  'Day17 - 泛型 Generics'
 author: 'Opshell'
 createdAt: '2022/09/17'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

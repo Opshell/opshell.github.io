@@ -1,9 +1,11 @@
 import { h } from 'vue';
-import type { Theme } from 'vitepress';
+import { Theme, inBrowser } from 'vitepress';
 import DefaultTheme from 'vitepress/theme-without-fonts';
 
 import ExpandLayout from './layout/expandLayout.vue';
 import LayoutResume from './layout/resume.vue';
+
+import busuanzi from 'busuanzi.pure.js';
 
 // https://vitepress.dev/guide/custom-theme
 
@@ -26,5 +28,11 @@ export default {
     // },
     enhanceApp({ app, router, siteData }) {
         app.component('resume', LayoutResume);
+
+        if (inBrowser) {
+            router.onAfterRouteChanged = () => {
+              busuanzi.fetch();
+            }
+        }
     }
 } satisfies Theme;

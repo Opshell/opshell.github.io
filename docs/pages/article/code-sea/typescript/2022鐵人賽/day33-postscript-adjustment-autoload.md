@@ -2,8 +2,7 @@
 title: 'Day33 - Postscript Adjustment AutoLoad'
 author: 'Opshell'
 createdAt: '2022/10/03'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

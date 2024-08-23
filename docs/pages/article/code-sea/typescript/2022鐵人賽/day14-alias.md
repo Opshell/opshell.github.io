@@ -2,8 +2,7 @@
 title:  'Day14 - 別名 Alias'
 author: 'Opshell'
 createdAt: '2022/09/14'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

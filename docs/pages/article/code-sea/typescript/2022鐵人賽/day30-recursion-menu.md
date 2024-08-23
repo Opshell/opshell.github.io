@@ -2,8 +2,7 @@
 title: 'Day30 - recursion menu'
 author: 'Opshell'
 createdAt: '2022/09/30'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

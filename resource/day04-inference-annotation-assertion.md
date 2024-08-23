@@ -2,8 +2,7 @@
 title:  'Day04 - 推論、註記、斷言'
 author: 'Opshell'
 createdAt: '2022/09/04'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

@@ -2,8 +2,7 @@
 title:  'Day25 - Store'
 author: 'Opshell'
 createdAt: '2022/09/25'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

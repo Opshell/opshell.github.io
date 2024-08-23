@@ -2,8 +2,7 @@
 title:  'Day29 - svg sprite'
 author: 'Opshell'
 createdAt: '2022/09/29'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

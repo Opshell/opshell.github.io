@@ -2,8 +2,7 @@
 title: 'Day02 - 環境安裝'
 author: 'Opshell'
 createdAt: '2022/09/02'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

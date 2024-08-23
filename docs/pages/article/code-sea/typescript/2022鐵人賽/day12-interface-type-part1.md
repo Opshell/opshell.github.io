@@ -2,8 +2,7 @@
 title:  'Day12 - Interface Type Part1'
 author: 'Opshell'
 createdAt: '2022/09/12'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

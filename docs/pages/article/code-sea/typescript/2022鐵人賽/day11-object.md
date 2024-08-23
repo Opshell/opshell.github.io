@@ -2,8 +2,7 @@
 title:  'Day11 - Object Type'
 author: 'Opshell'
 createdAt: '2022/09/11'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

@@ -2,8 +2,7 @@
 title:  'Day09 - Function Type Part1'
 author: 'Opshell'
 createdAt: '2022/09/09'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

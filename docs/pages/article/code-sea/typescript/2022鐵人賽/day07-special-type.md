@@ -2,8 +2,7 @@
 title: "Day07 - TypeScript's 特殊型別"
 author: 'Opshell'
 createdAt: '2022/09/07'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

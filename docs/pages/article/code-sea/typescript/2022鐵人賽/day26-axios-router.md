@@ -2,8 +2,7 @@
 title: 'Day26 - axios & router'
 author: 'Opshell'
 createdAt: '2022/09/26'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

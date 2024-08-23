@@ -2,8 +2,7 @@
 title:  'Day28 - getData Refactoring'
 author: 'Opshell'
 createdAt: '2022/09/28'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

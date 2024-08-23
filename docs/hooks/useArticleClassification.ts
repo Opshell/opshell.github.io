@@ -36,14 +36,14 @@ interface iTags {
 }
 export interface iClassification {
     tags: iTags
-    category: string[]
+    category: string
 }
 
 export async function getArticleClassification(files: string[], startPathName: string, res: iClassification | null = null): Promise<iClassification> {
     if (!res) {
         res = {
             tags: {},
-            category: [] as string[]
+            category: ''
         };
     }
 
@@ -81,9 +81,9 @@ export async function getArticleClassification(files: string[], startPathName: s
                 }
             }
 
-            if (frontmatter.category) {
-                res.category.push(frontmatter.category as string);
-            }
+            // if (frontmatter.category) {
+            //     res.category.push(frontmatter.category as string);
+            // }
         }
     }
 

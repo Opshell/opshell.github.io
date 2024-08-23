@@ -2,8 +2,7 @@
 title:  'Day01 - 前言'
 author: 'Opshell'
 createdAt: '2022/09/01'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

@@ -2,8 +2,7 @@
 title:  'Day19 - Type Guard 型別檢測 & Narrowing'
 author: 'Opshell'
 createdAt: '2022/09/19'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript

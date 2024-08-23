@@ -12,7 +12,6 @@ import footnote from 'markdown-it-footnote';
 import { getSidebar } from '../hooks/sidebar';
 import { getArticleClassification, iClassification } from '../hooks/useArticleClassification';
 
-import { getPostss } from '../hooks/serverUtils';
 import nav from './theme/configs/nav';
 import sidebar from './theme/configs/sidebar';
 import socialLinks from './theme/configs/socialLinks';
@@ -35,7 +34,8 @@ export default defineConfig({
     title: 'Opshell\'s Blog',
     description: 'Opshell\'s life records.',
     head: [
-        ['link', { rel: 'icon', href: '/favicon.ico' }]
+        ['link', { rel: 'icon', href: '/favicon.ico' }],
+        // ['script', {defer: 'true', src: 'https://vercount.one/js'}] // vercount
     ],
     rewrites: { // 我们在nav設定的連結應該要是重寫後的路徑
         'pages/(.*)': '(.*)'
@@ -57,6 +57,12 @@ export default defineConfig({
             '/article/code-sea/typescript/': getSidebar('/article/code-sea/typescript/'),
             '/article/code-sea/vitepress/': getSidebar('/article/code-sea/vitepress/'),
             '/article/life-mumurs/': getSidebar('/article/life-mumurs/')
+        },
+
+        outline: {
+            level: [2, 4], // 显示2-4级标题
+            // level: 'deep', // 显示2-6级标题
+            label: '目錄' // 文字显示
         },
 
         footer: {

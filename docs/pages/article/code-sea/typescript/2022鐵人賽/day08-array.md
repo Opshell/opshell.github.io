@@ -2,8 +2,7 @@
 title:  'Day08 - Array Type'
 author: 'Opshell'
 createdAt: '2022/09/08'
-categories:
-  - typescript-thirty-days
+categories: 'typescript-thirty-days'
 tags:
   - 鐵人賽
   - typescript
