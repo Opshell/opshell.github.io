@@ -10,8 +10,6 @@
     const params = new URLSearchParams(url);
     const { theme } = useData();
 
-    console.log('theme', theme.value);
-
     const classification = computed(() => theme.value.classification);
 
     const lastUpdated = computed(() => {
@@ -20,11 +18,6 @@
 
         return `${timestamp > 0 ? new Date(timestamp).toLocaleDateString() : ''}`;
     });
-
-    // const selectTag = ref(params.get('tag') ? params.get('tag') : '');
-    // function toggleTag(tag: string) {
-    //     selectTag.value = tag;
-    // }
 </script>
 
 <template>
@@ -53,6 +46,10 @@
                     >{{ tag }}</a>
                 </div>
             </div>
+        </template>
+
+        <template #doc-after>
+            <OrgaGiscusComment />
         </template>
 
         <template #aside-ads-before>

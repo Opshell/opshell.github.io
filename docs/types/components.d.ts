@@ -21,6 +21,7 @@ declare module 'vue' {
     MoleSkillBox: typeof import('./../components/mole/skillBox.vue')['default']
     MoleWorkExperience: typeof import('./../components/mole/workExperience.vue')['default']
     MoleWorkExperienceMD: typeof import('./../components/mole/workExperienceMD.vue')['default']
+    OrgaGiscusComment: typeof import('./../components/orga/giscusComment.vue')['default']
     OrgaPagination: typeof import('./../components/orga/pagination.vue')['default']
     OrgaSectionBlock: typeof import('./../components/orga/sectionBlock.vue')['default']
     TemplateResume: typeof import('./../components/template/resume.vue')['default']
