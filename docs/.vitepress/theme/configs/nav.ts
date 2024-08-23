@@ -16,6 +16,10 @@ export default [
                 text: 'Code Sea',
                 items: [
                     {
+                        text: 'javascript',
+                        link: '/article/code-sea/javascript/how-is-this'
+                    },
+                    {
                         text: 'typescript',
                         link: '/article/code-sea/typescript/enum'
                     },

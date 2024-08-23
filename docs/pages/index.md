@@ -6,6 +6,9 @@ hero:
   name: "Opshell's Blog"
   text: "A blog to share various thoughts,technologies,front-end develop, and miscellaneous topics to engage more with the world."
   tagline: Ordinary Is Great.
+  # image:
+  #   src: /opshell3d.png
+  #   alt: Opshell-3D
   actions:
     - theme: alt
       text: Markdown Examples

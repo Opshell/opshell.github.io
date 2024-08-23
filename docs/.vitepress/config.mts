@@ -54,9 +54,22 @@ export default defineConfig({
         socialLinks,
         search,
         sidebar: {
-            '/article/code-sea/typescript/': getSidebar('/article/code-sea/typescript/'),
-            '/article/code-sea/vitepress/': getSidebar('/article/code-sea/vitepress/'),
-            '/article/life-mumurs/': getSidebar('/article/life-mumurs/')
+            '/article/code-sea/javascript/': [{
+                text: 'Jypescript',
+                items: await getSidebar('/article/code-sea/javascript')
+            }],
+            '/article/code-sea/typescript/': [{
+                text: 'Typescript',
+                items: await getSidebar('/article/code-sea/typescript')
+            }],
+            '/article/code-sea/vitepress/': [{
+                text: 'Vitepress',
+                items: await getSidebar('/article/code-sea/vitepress')
+            }],
+            '/article/life-mumurs/': [{
+                text: 'Vitepress',
+                items: await getSidebar('/article/life-mumurs')
+            }]
         },
 
         outline: {
@@ -87,10 +100,10 @@ export default defineConfig({
         theme: 'one-dark-pro',
         lineNumbers: true,
         container: {
-            tipLabel: '提示',
+            infoLabel: 'Do：',
+            tipLabel: '錦囊：',
             warningLabel: '警告',
             dangerLabel: '危險',
-            infoLabel: '簡述',
             detailsLabel: '詳細'
         },
         config: (md) => {

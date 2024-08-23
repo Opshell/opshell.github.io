@@ -32,7 +32,7 @@ function getList(params: string[], startPathDir: string, startPathName: string):
             const files = fs.readdirSync(dir);
             res.push({
                 text: file,
-                collapsed: false,
+                collapsed: true,
                 items: getList(files, dir, `${startPathName}/${file}`)
             });
         } else {
@@ -48,8 +48,8 @@ function getList(params: string[], startPathDir: string, startPathName: string):
 
             if (frontmatter.isPublished) { // 判斷是否發布
                 res.push({
-                    text: frontmatter.title as string || fileName,
-                    link: `${startPathName}/${fileName}`
+                    text: frontmatter.title as string || fileName.replace('.md', ''),
+                    link: `${startPathName}/${fileName.replace('.md', '')}`
                 });
             }
         }
@@ -59,7 +59,7 @@ function getList(params: string[], startPathDir: string, startPathName: string):
 }
 
 //
-export function getSidebar(startPathName: string) {
+export async function getSidebar(startPathName: string) {
     const startPathDir = path.join(PAGES_PATH, startPathName); // 設定起始目錄
 
     const files = fs.readdirSync(startPathDir); // 讀取目錄下的資料夾&文件
