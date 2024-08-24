@@ -1,5 +1,5 @@
 import { h } from 'vue';
-import { Theme, inBrowser } from 'vitepress';
+import { Theme, inBrowser, useRoute } from 'vitepress';
 import DefaultTheme from 'vitepress/theme-without-fonts';
 
 import ExpandLayout from './layout/expandLayout.vue';
@@ -18,6 +18,26 @@ import './scss/style.scss';
 // [-]Svg Icon引用
 import 'virtual:svg-icons-register';
 
+
+function reloadBusuanzi() {
+    const busuanziScriptId = "busuanzi-script";
+
+    // Remove the existing script if it exists
+    const existingScript = document.getElementById(busuanziScriptId);
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    // Create a new script element
+    const script = document.createElement("script");
+    script.id = busuanziScriptId;
+    script.src = "https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js";
+    script.async = true;
+
+    // Append the script to the document body
+    document.body.appendChild(script);
+}
+
 export default {
     ...DefaultTheme,
     Layout: ExpandLayout,
@@ -26,13 +46,19 @@ export default {
     //         // https://vitepress.dev/guide/extending-default-theme#layout-slots
     //     });
     // },
-    enhanceApp({ app, router, siteData }) {
-        app.component('resume', LayoutResume);
+    setup() {
+        const route = useRoute();
 
-        if (inBrowser) {
-            router.onAfterRouteChanged = () => {
-              busuanzi.fetch();
-            }
-        }
+        onMounted(async () => {
+            reloadBusuanzi(); // 初始加载不蒜子
+        });
+        watch(() => route.path, () => {
+            nextTick(() => {
+                reloadBusuanzi(); // 路由切换时重新加载不蒜子
+            });
+        });
+    },
+    enhanceApp({ app }) {
+        app.component('resume', LayoutResume);
     }
 } satisfies Theme;
