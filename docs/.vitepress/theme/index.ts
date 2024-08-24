@@ -5,8 +5,6 @@ import DefaultTheme from 'vitepress/theme-without-fonts';
 import ExpandLayout from './layout/expandLayout.vue';
 import LayoutResume from './layout/resume.vue';
 
-import busuanzi from 'busuanzi.pure.js';
-
 // https://vitepress.dev/guide/custom-theme
 
 // [-]字體引用

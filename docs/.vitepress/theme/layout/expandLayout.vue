@@ -4,10 +4,8 @@
 
     const { Layout } = DefaultTheme;
 
-    const { frontmatter, isDark, page } = useData();
+    const { frontmatter, page } = useData();
 
-    const url = location.href.split('?')[1];
-    const params = new URLSearchParams(url);
     const { theme } = useData();
 
     const classification = computed(() => theme.value.classification);
@@ -32,8 +30,9 @@
                 </div>
 
                 <div class="read">
-                    👀 瀏覽量：
+                    👀 已被閱讀：
                     <span id="busuanzi_value_page_pv">Loading</span>
+                    次
                 </div>
 
                 <div v-if="frontmatter.tags" class="tag-box">
@@ -54,10 +53,11 @@
 
         <template #aside-ads-before>
             <div class="busuanzi-box">
-                <div class="busuanzi">總閱讀數： <span id="busuanzi_value_site_pv" class="number">Loading</span> 次 </div>
-                <div class="busuanzi">總訪客數： <span id="busuanzi_value_site_uv" class="number">Loading</span> 人 </div>
+                <div class="busuanzi">已有： <span id="busuanzi_value_site_pv" class="number">Loading</span> 人來逛逛 </div>
+                <div class="busuanzi">目前有： <span id="busuanzi_value_site_uv" class="number">Loading</span> 人在看文章 </div>
             </div>
         </template>
+
         <template #aside-ads-after>
             <div class="tag-box">
                 <a
@@ -106,10 +106,6 @@
     .busuanzi-box {
         @include setFlex(flex-start, flex-start, 5px, column);
         padding: 10px 0;
-
-        .busuanzi {
-
-        }
 
         .number {
             color: var(--vp-c-brand-1);

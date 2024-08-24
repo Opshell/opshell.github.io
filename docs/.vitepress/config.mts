@@ -13,7 +13,6 @@ import { getSidebar } from '../hooks/sidebar';
 import { getArticleClassification, iClassification } from '../hooks/useArticleClassification';
 
 import nav from './theme/configs/nav';
-import sidebar from './theme/configs/sidebar';
 import socialLinks from './theme/configs/socialLinks';
 import search from './theme/configs/search';
 
@@ -25,8 +24,6 @@ interface iThemeConfig extends DefaultTheme.Config {
 }
 
 const classification = await getArticleClassification(mdFiles, startPathDir);
-// console.log('classification:', classification);
-
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     // lang: 'zh-Hant',
