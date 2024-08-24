@@ -38,7 +38,7 @@
 }
 
 
-// markdown 樣式
+// markdown 引用外連結樣式
 :is(.vp-external-link-icon,
 .vp-doc a[href*='://'],
 .vp-doc a[target='_blank']):not(.no-icon)::after {
@@ -47,7 +47,19 @@
     transform: translateY(6px);
 }
 
+// markdown 圖片樣式
+.medium-zoom-overlay {
+    background-color: var(--vp-c-bg) !important;
+    z-index: 100;
+}
 
+.medium-zoom-overlay ~ img {
+    z-index: 101;
+}
+
+.medium-zoom--opened .medium-zoom-overlay {
+    opacity: 0.9 !important;
+}
 
 
 /* 提示框背景颜色 */

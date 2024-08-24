@@ -1,6 +1,7 @@
 import { h } from 'vue';
-import { Theme, inBrowser, useRoute } from 'vitepress';
+import { Theme, useRoute } from 'vitepress';
 import DefaultTheme from 'vitepress/theme-without-fonts';
+import mediumZoom from 'medium-zoom'
 
 import ExpandLayout from './layout/expandLayout.vue';
 import LayoutResume from './layout/resume.vue';
@@ -47,12 +48,19 @@ export default {
     setup() {
         const route = useRoute();
 
+        // 為所有圖片添加縮放功能
+        const initZoom = () => {
+            mediumZoom('.main img', { background: 'var(--vp-c-bg)' })
+        }
+
         onMounted(async () => {
-            reloadBusuanzi(); // 初始加载不蒜子
+            initZoom();
+            reloadBusuanzi();
         });
         watch(() => route.path, () => {
             nextTick(() => {
-                reloadBusuanzi(); // 路由切换时重新加载不蒜子
+                initZoom();
+                reloadBusuanzi();
             });
         });
     },
