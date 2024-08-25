@@ -3,6 +3,9 @@ import { Theme, useRoute } from 'vitepress';
 import DefaultTheme from 'vitepress/theme-without-fonts';
 import mediumZoom from 'medium-zoom'
 
+import { Sandbox } from 'vitepress-plugin-sandpack';
+import 'vitepress-plugin-sandpack/dist/style.css';
+
 import ExpandLayout from './layout/expandLayout.vue';
 import LayoutResume from './layout/resume.vue';
 
@@ -66,5 +69,6 @@ export default {
     },
     enhanceApp({ app }) {
         app.component('resume', LayoutResume);
+        app.component('Sandbox', Sandbox);
     }
 } satisfies Theme;

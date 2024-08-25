@@ -109,8 +109,8 @@ const ※ = '注意小細節!';
 講了這些，來個例子更清楚：<br />
 做一個簡單的函式 希望他幫我把丟進來的東西都+30，<br />
 
-```JavaScript
-const plusThirty = num => num + 30;
+```javascript
+const plusThirty = (num) => num + 30;
 
 console.log(plusThirty(123));   // 153
 console.log(plusThirty('123')); // 12330
@@ -126,6 +126,7 @@ console.log(plusThirty(Number('123'))); // 153
 簡直一言難盡...。
 
 到了TypeScript，世界都不一樣了!↓↓↓
+
 ```typescript
 const plusThirty = (num: number): number => num + 30;
 

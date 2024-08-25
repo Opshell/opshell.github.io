@@ -1,6 +1,8 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { DefaultTheme, defineConfig } from 'vitepress';
+import container from 'markdown-it-container';
+import { renderSandbox } from 'vitepress-plugin-sandpack';
 
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
@@ -117,6 +119,11 @@ export default defineConfig({
                 }
                 return ` <a href="#fnref${id}" class="footnote-backref"> ⬆️ </a>`;
             };
+            md.use(container, 'sandbox', {
+                render (tokens, idx) {
+                    return renderSandbox(tokens, idx, 'sandbox');
+                },
+            });
         }
     },
     transformHead({ assets }) {
