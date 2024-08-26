@@ -5,9 +5,9 @@ title: Life Mumur
 author: 'Opshell'
 editLink: true
 categories:
-  - vitepress-thirty-days
+  - life murmur
 tags:
-  - Mumur
+  - murmur
 date: '2024.08.12'
 
 ---

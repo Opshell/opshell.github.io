@@ -22,10 +22,10 @@
 
     const pageSize = 10; // 每頁顯示幾筆
 
-     // 總筆數
-    const totalCount = computed(()=> {
+    // 總筆數
+    const totalCount = computed(() => {
         return classification.value.tags[currentTag.value as string].group.length;
-    })
+    });
 
     // 總頁數
     const totalPage = computed(() => {
@@ -130,7 +130,6 @@
                 padding: 10px 20px 15px;
                 border: 1px solid var(--vp-c-divider);
                 border-radius: 10px;
-
 
                 &:hover {
                     .date, .category {

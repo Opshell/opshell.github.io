@@ -33,7 +33,7 @@ export default defineConfig({
     title: 'Opshell\'s Blog',
     description: 'Opshell\'s life records.',
     head: [
-        ['link', { rel: 'icon', href: '/favicon.ico' }],
+        ['link', { rel: 'icon', href: '/favicon.ico' }]
         // ['script', {defer: 'true', src: 'https://vercount.one/js'}] // vercount
     ],
     rewrites: { // 我们在nav設定的連結應該要是重寫後的路徑
@@ -101,9 +101,9 @@ export default defineConfig({
         container: {
             infoLabel: 'Do：',
             tipLabel: '錦囊：',
-            warningLabel: '警告',
-            dangerLabel: '危險',
-            detailsLabel: '詳細'
+            warningLabel: '調整：',
+            dangerLabel: '錯誤：',
+            detailsLabel: '詳細：'
         },
         config: (md) => {
             md.use(footnote);
@@ -120,9 +120,9 @@ export default defineConfig({
                 return ` <a href="#fnref${id}" class="footnote-backref"> ⬆️ </a>`;
             };
             md.use(container, 'sandbox', {
-                render (tokens, idx) {
+                render(tokens, idx) {
                     return renderSandbox(tokens, idx, 'sandbox');
-                },
+                }
             });
         }
     },
@@ -223,5 +223,7 @@ export default defineConfig({
                 }
             }
         }
-    }
+    },
+
+    ignoreDeadLinks: true
 });
