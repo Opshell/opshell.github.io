@@ -25,11 +25,11 @@ export default {
             ]
         }
     ],
-    '/article/life-mumurs/': [
+    '/article/life-murmurs/': [
         {
             text: 'Life Mumurs',
             items: [
-                { text: 'Life is it', link: '/article/life-mumurs/life' }
+                { text: 'Life is it', link: '/article/life-murmurs/life' }
             ]
         }
     ]

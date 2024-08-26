@@ -10,7 +10,7 @@ export default [
         items: [
             {
                 text: 'Life\'s Mumurs',
-                link: '/article/life-mumurs/life'
+                link: '/article/life-murmurs/life'
             },
             {
                 text: 'Code Sea',

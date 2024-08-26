@@ -11,7 +11,7 @@ editLink: true
 isPublished: false
 ---
 
-# [Day02] - 環境準備
+# [Day02] - 環境準備 向右看齊~
 
 ## 環境對齊：
 再開始蓋部落格之前，先對齊一下工程環境。
