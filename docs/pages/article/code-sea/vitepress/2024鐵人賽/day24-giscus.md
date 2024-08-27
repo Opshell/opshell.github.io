@@ -1,5 +1,5 @@
 ---
-title:  'Day24 - comm gis'
+title:  'Day24 - giscus'
 author: 'Opshell'
 createdAt: '2024/09/24'
 categories: 'vitepress-thirty-days'

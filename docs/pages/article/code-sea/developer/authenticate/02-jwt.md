@@ -23,9 +23,6 @@ https://5xcampus.com/posts/what-is-jwt
 
 [討論 OAuth 2 的 token 更新策略](https://editor.leonh.space/2022/oauth-token/)
 
-
-
-
 http only + aouth
 
 原本是(O)
@@ -35,7 +32,6 @@ http only + aouth
 
 你應該會有一個事件是專門在ACCESS TOKEN過期的時候去執行的，這時候才會把REFRESH TOKEN拿出來用
 
-
 也就是說  我會有個 function
 在每次 請求後  都會先過這個判斷
 判斷他是不是有回傳過期給我
@@ -43,7 +39,3 @@ http only + aouth
 我就給他reflash token
 他回來後  我更新token
 再送一次原本的請求
-
-
-
-

@@ -51,3 +51,23 @@ JWT 默认是不加密的，任何人都可以读到，所以不要把秘密信�
 1. [是誰在哈囉? 如何搞定 SPA 與 API Server 的登入驗證](https://5xcampus.com/posts/hello-spa-rails-api-server.html?srsltid=AfmBOoppOY6k8YAlRwwzoovB0v6oa3Uao95lEf6SysnKh-HDJfl33qhg)
 2. [前后端分离常用的认证方式（ Session 、JWT）](https://juejin.cn/post/6972395146599989279)
 2-1. [会话跟踪技术：Cookie 和Session](https://juejin.cn/post/6973982725493506085/)
+
+http only
+
+token放http only cookie阿
+
+反正refresh不是放http only的cookie就是storage
+
+要麼你JWT用來驗證別的不重要的東西，剩下的掛O AUTH看refresh token
+
+這類作法是 MFA 的意思嗎 多因子驗證
+
+這類作法是 MFA 的意思嗎 多因子驗證
+
+如同剛剛阿米大和涉谷大所說，不要直接傳 user 資訊，因為這可以偽造，應該要傳送 access token，後端自行從 token 取得 user 資訊
+
+[前后端分离架构：为何不推荐使用Cookie-Session机制？](https://blog.csdn.net/xycxycooo/article/details/141256384)
+
+使用者的認證方式常用的有2種：Session-cookie` 認證機制 和 Token認證機制（jwt是他具體的實現）。
+
+https://medium.com/@paulyang1234/cookie-session-%E8%88%87-jwt-token-%E5%AE%89%E5%85%A8%E6%80%A7%E5%95%8F%E9%A1%8C-8945a8a579ac

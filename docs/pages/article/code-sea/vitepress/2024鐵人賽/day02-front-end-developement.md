@@ -1,5 +1,5 @@
 ---
-title:  'Day02 - 環境準備'
+title:  'Day02 - 環境準備&對齊'
 author: 'Opshell'
 createdAt: '2024/09/02'
 categories: 'vitepress-thirty-days'
@@ -13,12 +13,11 @@ isPublished: false
 
 # [Day02] - 環境準備 向右看齊~
 
-## 環境對齊：
 再開始蓋部落格之前，先對齊一下工程環境。
 
-### 1. 系統：[Window 11](https://www.microsoft.com/zh-tw/software-download/windows11)
-### 2. 編輯器：[VS Code](https://code.visualstudio.com/)
-### 3. 終端機：[PowerShell 7](https://docs.microsoft.com/zh-tw/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2)
+## 1. 系統：[Window 11](https://www.microsoft.com/zh-tw/software-download/windows11)
+## 2. 編輯器：[VS Code](https://code.visualstudio.com/)
+## 3. 終端機：[PowerShell 7](https://docs.microsoft.com/zh-tw/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2)
 ::: tip
   如果本來是PowerShell 5 要安裝7 可能會有一點點問題 [請參考](https://docs.microsoft.com/zh-tw/powershell/scripting/whats-new/migrating-from-windows-powershell-51-to-powershell-7?view=powershell-7.2)<br />
   查看powershell版本方式：在powershell中輸入：↓↓↓
@@ -34,7 +33,7 @@ isPublished: false
   ![要選PowerShell 7 喔](https://ithelp.ithome.com.tw/upload/images/20220902/20109918wzqmchpUJ1.png)
 :::
 
-### 4. Node版本管理：[NVM](https://github.com/coreybutler/nvm-windows)
+## 4. Node版本管理：[NVM](https://github.com/coreybutler/nvm-windows)
 ::: tip
   `NVM` 建議安裝在C:\
   確認 `NVM` 有沒有安裝好
@@ -47,7 +46,7 @@ isPublished: false
 你的 nvm 指令老是無法成功，或者出現了亂碼，請將 `NVM` 安裝在 `C:\` 下，或者使用系統管理員權限執行。
 :::
 
-### 5. Node.Js：[Node.js](https://nodejs.org/zh-tw/)
+## 5. Node.Js：[Node.js](https://nodejs.org/zh-tw/)
 ::: info
   身為一個會玩前端的園丁，裝個Node.js應該也是很正常的一件事。<br />
   ~~看了前面的環境，你不會以為我下的指令不是在Windows吧?~~<br />
@@ -69,7 +68,7 @@ isPublished: false
   ![node 版本](https://ithelp.ithome.com.tw/upload/images/20220902/20109918ZmCyzv0gIl.png)
 :::
 
-### 6. 套件管理 [yarn](https://ithelp.ithome.com.tw/articles/10191745)
+## 6. 套件管理 [yarn](https://ithelp.ithome.com.tw/articles/10191745)
 ::: info
   抱歉了各位，我還沒有跳槽到 `pnpm` 學不完阿~~~~
   全域安裝 `yarn` ↓↓↓
@@ -83,7 +82,7 @@ isPublished: false
   ```
 :::
 
-### 7. 好用的VS Code 套件推薦：
+## 7. 好用的 VS Code 套件推薦：
 ::: info
   1. [Chinese (Traditional) Language Pack for Visual Studio Code](Chinese (Traditional) Language Pack for Visual Studio Code)
   > 我英文不好，很需要這個。
@@ -107,5 +106,4 @@ isPublished: false
 ## 小結：
 這篇文章，水分大概是99%吧，<br />
 好像對齊了環境，又好像什麼都沒做。<br />
-明天來正式寫一點code吧，<br />
 各位晚安。

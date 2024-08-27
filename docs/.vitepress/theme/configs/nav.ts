@@ -16,6 +16,10 @@ export default [
                 text: 'Code Sea',
                 items: [
                     {
+                        text: 'developer',
+                        link: '/article/code-sea/developer/authenticate/01-session-cookie'
+                    },
+                    {
                         text: 'javascript',
                         link: '/article/code-sea/javascript/how-is-this'
                     },

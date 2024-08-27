@@ -53,6 +53,10 @@ export default defineConfig({
         socialLinks,
         search,
         sidebar: {
+            '/article/code-sea/developer/': [{
+                text: 'Developer',
+                items: await getSidebar('/article/code-sea/developer')
+            }],
             '/article/code-sea/javascript/': [{
                 text: 'Jypescript',
                 items: await getSidebar('/article/code-sea/javascript')
@@ -66,7 +70,7 @@ export default defineConfig({
                 items: await getSidebar('/article/code-sea/vitepress')
             }],
             '/article/life-murmurs/': [{
-                text: 'Vitepress',
+                text: 'Life\'s Mumurs',
                 items: await getSidebar('/article/life-murmurs')
             }]
         },
@@ -103,7 +107,7 @@ export default defineConfig({
             tipLabel: '錦囊：',
             warningLabel: '調整：',
             dangerLabel: '錯誤：',
-            detailsLabel: '詳細：'
+            detailsLabel: '詳細資料：'
         },
         config: (md) => {
             md.use(footnote);

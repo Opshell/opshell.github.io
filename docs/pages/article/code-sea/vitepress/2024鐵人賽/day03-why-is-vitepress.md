@@ -33,19 +33,22 @@ isPublished: false
 向這個世界折射七彩的炫光。
 
 上面說的這麼空泛，寫部落格具體上可以：
-1. `Feynman Technique(費曼學習法)`
+### 1. `Feynman Technique(費曼學習法)`
+> `Feynman Technique(費曼學習法)`[^2]的主要機制：概念 > 回顧 > 簡化 > 傳授<br />
 > 透過把自己的經歷、知識、技術寫出來的過程中，<br />
 > 透過大腦的重新轉換、釐清、重整最後變成我們自己的語言，<br />
 > 鞏固在我們的大腦中，真正的把這些知識、技術變成自己的。
 
-2. 紀錄成長的軌跡：
+### 2. 紀錄成長的軌跡：
 > 這也是我自己架設部落格的最主要目的之一，<br />
 > 很多東西不知道記載哪裡好，用了各種筆記方式，<br />
 > 東西散落的到處都是，遺忘在世界的各個角落，<br />
 > 有一座自己的多媒體圖書館，該是多麼美好的一件事?<br />
 > ~~東西再也不會找不到啦~~
+> 有空還可以回頭看看過去自己種下的，難看的草。
+> 笑一下。
 
-3. 思考：
+### 3. 思考：
 > 人類大腦非常的善於思考，超越了各種超級電腦千萬倍<br />
 > 只要20瓦 就可以處理 1 億億次（billion-billion）浮點運算的數據，<br />
 > 即每秒 10 億次的數學運算。<br />
@@ -79,25 +82,27 @@ isPublished: false
 
 首先就是要租屋、買房、還是自建?
 ### 1. 租屋：
-服務不幹了、租金漲價、<br />
+服務不幹了、租金漲價、房東會在你家貼海報，<br />
 不能隨意動工、到底房子還是人家的。<br />
 遇到一些麻煩問題，房東擺爛你也沒辦法。<br />
 最方便快捷，門檻最低。
 
 - Medium
+- Matters
 - Blogger
 - 痞客邦
 - 方格子
+- WordPress.com
 
 ---
 ### 2. 買房：
 房子是人家設計概好的，<br />
-你能動的部分有限，<br />
+你能改動的部分看建商規劃，<br />
 但是量大，選擇多，配套也多。<br />
-就是比較沒個性，要裝潢比較麻煩。<br />
+客製化程度中等，裝潢比較麻煩。<br />
 門檻中等
 
-- WordPress
+- WordPress.org
 - Wix
 
 ---
@@ -109,12 +114,12 @@ isPublished: false
 就是要顧的東西比較多，門檻最高。
 
 常見的設計師團隊有：
-- WordPress
 - Hexo
-- vitepress[^2] (最近出來的新秀)
+- Hugo
+- vitepress[^3] (最近出來的新秀)
 
 ## 為什麼是`vitepress`?
-1. 我會`Vite`、`vue`、`Markdown` 大幅降低了使用門檻。
+Opshell 會`Vite`、`vue`、`Markdown` 大幅降低了使用門檻。
 ::: tip
 而上面的這些東西帶出了`vitepress`的主要優點：
 - 專注在文章內容：`vitepress`可以只需要`Markdown`就可以輕鬆實踐美觀的畫面，更專注在內容創作上。
@@ -124,10 +129,14 @@ isPublished: false
 - ~~用新技術潮起來：用的人還不夠多，新技術用起來就是潮。~~
 :::
 
+## 小結：
+說了一大堆，
+吹爆`vitepress`之後，
+明天終於要來開架啦~
+~~不能再水了~~
+
 ---
 
-- [Hexo 部落格心得：一週年總結與持續寫作策略](https://blog.kyomind.tw/a-mind-for-blogs/)
-- [使用免費部落格平台還是自架站?](https://yesoffwork.com/free-blog/)
-
 [^1]: [weblog wiki](https://zh.wikipedia.org/zh-tw/%E7%B6%B2%E8%AA%8C)
-[^2]: [Vitepress](https://vitepress.dev/zh/)
+[^2]: [費曼學習法](https://wiki.mbalib.com/zh-tw/%E8%B4%B9%E6%9B%BC%E5%AD%A6%E4%B9%A0%E6%B3%95)
+[^3]: [Vitepress](https://vitepress.dev/zh/)
