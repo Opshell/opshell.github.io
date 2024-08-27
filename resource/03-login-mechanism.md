@@ -71,3 +71,14 @@ token放http only cookie阿
 使用者的認證方式常用的有2種：Session-cookie` 認證機制 和 Token認證機制（jwt是他具體的實現）。
 
 https://medium.com/@paulyang1234/cookie-session-%E8%88%87-jwt-token-%E5%AE%89%E5%85%A8%E6%80%A7%E5%95%8F%E9%A1%8C-8945a8a579ac
+
+
+
+
+
+
+
+
+
+https://medium.com/@osvaldogarcia_67748/setup-oauth2-with-laravel-4df7e96c724f
+https://laravel.com/docs/11.x/passport

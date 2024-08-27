@@ -12,7 +12,7 @@ isPublished: true
 
 ## 摘要
 `HTTP cookie(數位存根)`，後續簡稱 `cookie`
-專門為網頁瀏覽器所建立，用於追蹤、個人化和保存關於每個使用者的`session(會話)`。
+專門為網頁瀏覽器所建立，用於追蹤、個人化和保存關於使用者的資訊、行為。
 
 `session(會話)`後續簡稱 `session`，網站瀏覽期間在伺服端留存的身份識別資訊。
 
@@ -98,35 +98,48 @@ isPublished: true
     - 二進制：例如在 `cookie` 中使用數字證書，提供安全度。使用二進制值時需要使用`base64`編碼。
   :::
 
-- maxAge `as int`：`cookie` 失效的時間，單位秒。預設為-1。<br />
-  通過`getMaxAge()`與`setMaxAge(maxAge as int)`方法來讀寫`maxAge`屬性。
+- MaxAge `as int`：`cookie` 失效的時間，單位秒。預設為-1。<br />
+  通過`getMaxAge()`與`setMaxAge(MaxAge as int)`方法來讀寫`MaxAge`屬性。
   ::: details
-    - 正：則表示該 `cookie` 會在`maxAge`秒之後自動失效。<br />
-    瀏覽器會將`maxAge`為正數的 `cookie` 持久化，寫到對應的 `cookie` 文件(存放在硬碟)中。<br />
-    無論客户關閉了瀏覽器還是電腦，只要還在`maxAge`秒之前，登錄網站時該 `cookie` 仍然有效。
+    - 正：則表示該 `cookie` 會在 `MaxAge` 秒之後自動失效。<br />
+    瀏覽器會將`MaxAge`為正數的 `cookie` 持久化，寫到對應的 `cookie` 文件(存放在硬碟)中。<br />
+    無論客户關閉了瀏覽器還是電腦，只要還在 `MaxAge` 秒之前，登錄網站時該 `cookie` 仍然有效。
     - 負：則表示該 `cookie` 僅在瀏覽器以及該網站打開的網頁內有效，關閉網站後 `cookie` 失效。<br />
-    maxAge為負數的 `cookie` ，為臨時性(存在瀏覽器記憶體中) `cookie`。 關閉瀏覽器 `cookie` 就消失了。 `cookie`
+    `Maxage`為負數的 `cookie` ，為臨時性(存在瀏覽器記憶體中) `cookie`。 關閉瀏覽器 `cookie` 就消失了。
     - 0：則表示刪除該 `cookie` 。 <br />
-    `cookie` 機制沒有提供刪除 `cookie` 的方法，通過設定 `cookie` 即時失效來達到刪除 `cookie` 的效果。
+    `cookie` 機制沒有提供刪除 `cookie` 的方法，通過設定 `cookie` 即時失效來達到刪除 `cookie` 的效果。<br />
     `cookie` 會被瀏覽器從 硬碟或者記憶體中刪除‧
-    - 沒設定：這個`cookie`的生命期為瀏覽器會話期間(稱為`會話cookie`)，關閉瀏覽器時`cookie`就會消失。 會話cookie一般不存儲在硬碟而是保存在記憶體‧
+    - 沒設定：這個`cookie`的生命期為瀏覽器會話期間(稱為`session cookie`)，關閉瀏覽器時`cookie`就會消失。 `session cookie`一般不存儲在硬碟而是保存在記憶體‧
 
     ::: tip
-      HTTP1.0 中使用的是`expires`，是個GMT。HTTP1.1 中 被`max-age`替代了（
+      HTTP1.0 中使用的是`expires`。HTTP1.1 中被`MaxAge`取代了，<br />
+      (ie6、ie7 和 ie8) 不支持 `MaxAge`，所有的瀏覽器都支持 `expires` 但是現在沒人在管IE了啦~~~
+
   :::
 
-- secure `as boolean`： 該 `cookie` 是否僅在有安全協議的情況下傳輸。<br />
-  安全協議如 `HTTPS`，`SSL`等，在網絡上傳輸資料之前先將資料加密。預設為 `false`
+- secure `as boolean`： 該 `cookie` 是否僅能在 `https (被TLS(SSL)安全協議加密過的http通訊)` 的情況下使被取得。預設為 `false`
   ::: details
-    secure 屬性設定為true， 會限制瀏覽器只會在`HTTPS`和`SSL`等安全協議中傳輸 `cookie` 。
+    secure 屬性設定為 true，會限制瀏覽器只會在 `HTTPS` 中傳輸 `cookie` 。
     ::: tip
       如果需要更高安全性，建議在`Server`端程式中對 `cookie` 內容加密、解密，以防泄密。
   :::
-- httponly `as boolean`：啟用時瀏覽器會限制 `cookie` 只能經由 HTTP(S) 協定來存取。
+- HttpOnly `as boolean`：啟用時瀏覽器會限制 `cookie` 只能經由 HTTP(S) 協定來存取。
   ::: warning
     當網站有 `Cross-Site Scripting(XSS)` 弱點時，若 `cookie` 含有 `HttpOnly` flag，<br />
-    攻擊者無法直接經由 JavaScript 存取使用者的 session cookie，<br />
-    因此 HttpOnly 可有效降低 XSS 的影響並提升攻擊難度。
+    攻擊者無法直接經由 JavaScript 存取使用者的 `cookie`，<br />
+    因此 HttpOnly 可有效降低 `XSS` 的影響並提升攻擊難度。
+  :::
+- SameSite `as (Strict | Lax | None)`：瀏覽器會檢查 對這個`cookie`的`request(請求)` 和 `cookie` 本身是否同源，不同源則不給存取該 `cookie` ，預設'Lax'。
+  ::: warning
+    - Strict：會完全禁止第三方的 `cookie request`，基本上只有在 請求網域 和 URL中的網域相同，才會傳遞 `cookie`。
+    - Lax：限制大多數的第三方請求，但 Lax 會允許 Get 的請求
+    - None：不限制 `cookie request` 需 啟用 `secure`，否則等同 'Lax'
+
+    當網站有 `Cross-Site Scripting(XSS)` 弱點時，若 `cookie` 含有 `HttpOnly` flag，<br />
+    攻擊者無法直接經由 JavaScript 存取使用者的 `cookie`，<br />
+    因此 HttpOnly 可有效降低 `XSS` 的影響並提升攻擊難度。
+
+    建議除了設定 SameSite 以外，再加上 `CSRF Token` 會更有效的防範 `CSRF` 的攻擊。
   :::
 
 - domain `as string`： 可以訪問該 `cookie` 的域名。
@@ -156,13 +169,14 @@ isPublished: true
   1：表示遵循 W3C 的 RFC 2109 規範
 
 ::: warning
-  - 修改、刪除 `cookie` 時，新的 `cookie` 除 value、maxAge 之外的所有屬性(ex:name、path、domain)，，都要與原來的 `cookie` 完全一樣，否則瀏覽器會視為兩個不同的 `cookie` 不予覆蓋。導致修改、刪除失敗。
+  - 修改、刪除 `cookie` 時，新的 `cookie` 除 value、MaxAge 之外的所有屬性(ex:name、path、domain)，都要與原來的 `cookie` 完全一樣，<br />
+  否則瀏覽器會視為兩個不同的 `cookie` 不予覆蓋。導致修改、刪除失敗。
 
   - domian、path、expires、secure 都是`Server`給瀏覽器的指示，<br />
   指定何時應該發送 `cookie` 。這些參數不會夾帶進給 `Server` 的請求中，只有 name=value 會被夾帶‧
 
-  - 從 `Client` 讀取 `cookie` 時，包括 `maxAge` 在內的其他屬性都是不可讀的，也不會被提交。<br />
-  瀏覽器提交 `cookie` 時只會提交 `name` 與 `value` 屬性。`maxAge` 屬性只被瀏覽器用來判斷 `cookie` 是否過期。
+  - 從 `Client` 讀取 `cookie` 時，包括 `Max-Age` 在內的其他屬性都是不可讀的，也不會被提交。<br />
+  瀏覽器提交 `cookie` 時只會提交 `name` 與 `value` 屬性。`Max-Age` 屬性只被瀏覽器用來判斷 `cookie` 是否過期。
 
   - 登入人員資料靈活性問題。
 :::
@@ -171,22 +185,22 @@ isPublished: true
 ``` php
   <?php
   $cookie_name = "time";
-  $cookie_value = "20080808";
-  $cookie_domain = ".helloweenvsfei.com";
+  $cookie_value = "20240828";
+  $cookie_expire =  time() + (10 * 365 * 24 * 60 * 60);
+  $cookie_domain = ".opshell.com";
   $cookie_path = "/";
   $cookie_secure = true;
-  $cookie_httponly = true;  // 通常也建議設定為 true，避免通過 JavaScript 訪問
-  $cookie_lifetime = time() + (10 * 365 * 24 * 60 * 60); // 大約等於 Integer.MAX_VALUE
+  $cookie_httponly = true;
 
-  setcookie($cookie_name， $cookie_value， [
-      'expires' => $cookie_lifetime，
-      'path' => $cookie_path，
-      'domain' => $cookie_domain，
-      'secure' => $cookie_secure，
-      'httponly' => $cookie_httponly，
-      'samesite' => 'Strict' // 可以根據需要設定 'Strict'， 'Lax' 或 'None'
+
+  setcookie($cookie_name, $cookie_value, [
+    'expires' => $cookie_expire,
+    'paht' => $cookie_path,
+    'domain' => $cookie_domain,
+    'secure' => $cookie_secure,
+    'httponly' => $cookie_httponly,
+    'samesite' => 'Strict'
   ]);
-
   ?>
 ```
 
