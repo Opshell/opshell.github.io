@@ -18,12 +18,12 @@
     });
 
     //
-    const enableTransitions = () => {
+    function enableTransitions() {
         return (
-            'startViewTransition' in document && // 判斷是否支援 startViewTransition
-            window.matchMedia('(prefers-reduced-motion: no-preference)').matches // 判斷是否支援 prefers-reduced-motion
+            'startViewTransition' in document // 判斷是否支援 startViewTransition
+            && window.matchMedia('(prefers-reduced-motion: no-preference)').matches // 判斷是否支援 prefers-reduced-motion
         );
-    };
+    }
 
     provide('toggle-appearance', async ({ clientX: x, clientY: y }: MouseEvent) => {
         if (!enableTransitions()) {
@@ -90,8 +90,12 @@
 
         <template #aside-ads-before>
             <div class="busuanzi-box">
-                <div class="busuanzi">已有： <span id="busuanzi_value_site_pv" class="number">Loading</span> 人來逛逛 </div>
-                <div class="busuanzi">有： <span id="busuanzi_value_site_uv" class="number">Loading</span> 人正在看文章 </div>
+                <div class="busuanzi">
+                    已有： <span id="busuanzi_value_site_pv" class="number">Loading</span> 人來逛逛
+                </div>
+                <div class="busuanzi">
+                    有： <span id="busuanzi_value_site_uv" class="number">Loading</span> 人正在看文章
+                </div>
             </div>
         </template>
 
@@ -138,8 +142,6 @@
         }
     }
 
-
-
     .busuanzi-box {
         @include setFlex(flex-start, flex-start, 5px, column);
         padding: 10px 0;
@@ -149,7 +151,6 @@
             font-weight: 500;
         }
     }
-
 
     .tag-box {
         @include setFlex(flex-start, flex-start, 5px);
@@ -168,14 +169,11 @@
         }
     }
     .tag-info {
-        background-color: var(--vp-c-text-3);
+        background-color: var(--vp-code-bg);
         padding: 0 5px;
         border-radius: 3px;
         color: var(--vp-c-text-1);
     }
-
-
-
 
     ::view-transition-old(root),
     ::view-transition-new(root) {

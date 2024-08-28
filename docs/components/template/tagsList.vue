@@ -42,7 +42,7 @@
 
 <template>
     <div class="articel-list-block">
-        <div class="tabs-header">
+        <div class="left-block">
             <a
                 v-for="(info, tag) in classification.tags"
                 :key="`tabs-${tag}`"
@@ -54,31 +54,33 @@
             </a>
         </div>
 
-        <ul class="list-block">
-            <li v-for="item in currentPageData" :key="`list-${currentTag}-${currentPage}-${item.title}`">
-                <a :href="`${item.url}`" class="item-box">
-                    <span class="date">{{ item.date }}</span>
-                    <span class="category"> {{ item.category }}</span>
-                    <h3 class="title">{{ item.title }}</h3>
-                    <span class="view">
-                        view
-                        <ElSvgIcon name="eye" />
-                    </span>
-                </a>
-            </li>
-        </ul>
+        <div class="right-block">
+            <ul class="list-block">
+                <li v-for="item in currentPageData" :key="`list-${currentTag}-${currentPage}-${item.title}`">
+                    <a :href="`${item.url}`" class="item-box">
+                        <span class="date">{{ item.date }}</span>
+                        <span class="category"> {{ item.category }}</span>
+                        <h3 class="title">{{ item.title }}</h3>
+                        <span class="view">
+                            view
+                            <ElSvgIcon name="eye" />
+                        </span>
+                    </a>
+                </li>
+            </ul>
 
-        <div class="pagination-box">
-            <template v-for="num in totalPage" :key="`page-${num}`">
-                <a
-                    v-if="num !== currentPage"
-                    :href="`?tag=${currentTag}&page=${num}`"
-                    class="pagination"
-                >
-                    {{ num }}
-                </a>
-                <span v-else class="pagination current">{{ num }}</span>
-            </template>
+            <div class="pagination-box">
+                <template v-for="num in totalPage" :key="`page-${num}`">
+                    <a
+                        v-if="num !== currentPage"
+                        :href="`?tag=${currentTag}&page=${num}`"
+                        class="pagination"
+                    >
+                        {{ num }}
+                    </a>
+                    <span v-else class="pagination current">{{ num }}</span>
+                </template>
+            </div>
         </div>
     </div>
 </template>
@@ -86,20 +88,24 @@
 <style lang="scss" scoped>
     .articel-list-block {
         position: relative;
-        @include setFlex(space-between, stretch, 0, column);
+        @include setFlex(space-between, stretch, 1.5rem);
         width: 100%;
 
         // height: calc(100dvh - var(--vp-nav-height) - 113px);
-        padding: 0 calc((100% - 900px) / 2);
+        padding: 0 calc((100% - 1200px) / 2);
         margin: 0 auto;
 
-        .tabs-header {
+        .left-block {
             position: sticky;
-            top: 0;
+            top: var(--vp-nav-height);
+            @include setFlex(flex-start);
+            flex-wrap: wrap;
             gap: 10px;
             background-color: var(--vp-c-bg);
-            padding: 1.563rem;
-            @include setFlex();
+            @include setSize(100%, 100%);
+            max-width: 300px;
+            padding: 1.5rem 0;
+
             .tab {
                 padding: 5px 10px;
                 border: 1px solid var(--vp-c-divider);
@@ -118,6 +124,12 @@
             }
         }
 
+        .right-block {
+            @include setFlex(flex-start, stretch, 10px, column);
+            gap: 10px;
+            width: 100%;
+            padding: 1.5rem 0;
+        }
         .list-block {
             flex-grow: 1;
             @include setFlex(flex-start, stretch, 10px, column);
@@ -173,7 +185,7 @@
         .pagination-box {
             @include setFlex();
             gap: 5px;
-            @include setSize(100%, 180px);
+            @include setSize(100%, 80px);
 
             .pagination {
                 @include setFlex();
@@ -197,48 +209,6 @@
                     color: var(--vp-c-text-1);
                 }
             }
-        }
-    }
-
-    .posts {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 4px 0 4px 25px;
-
-        &-dot {
-            display: inline-block;
-            background-color: var(--li-dot-color);
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            margin-right: 10px;
-            margin-bottom: 3px;
-        }
-        &-container {
-            color: var(--vp-c-text-2);
-            font-size: 0.9375rem;
-            font-weight: 400;
-            &:hover {
-                color: var(--vp-c-brand);
-            }
-        }
-        &-info {
-            font-size: 12px;
-            span {
-                display: inline-block;
-                background-color: var(--vp-c-bg-alt);
-                padding: 0 8px;
-                border-radius: 2px;
-                margin-right: 10px;
-                color: var(--vp-c-text-1);
-                transition: 0.4s;
-            }
-        }
-
-        .date {
-            color: var(--date-color);
-            font-family: var(--date-font-family);
         }
     }
 </style>

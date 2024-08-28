@@ -68,7 +68,7 @@ isPublished: true
 - `Server` 如果設定了 `httpOnly: true`，那麼帶有該屬性的 `cookie` `Client`將無法讀取(可以預防`XSS`攻擊)。
 
 ## cookie vs session
-|     | cookie                                   | session                      |
+|          | cookie                                   | session                      |
 | -------- | ---------------------------------------- | ---------------------------- |
 | 存放位置 | 資料存在`Client` (硬碟或記憶體)          | 資料存在`Server`             |
 | 存放格式 | 字串                                     | 物件                         |

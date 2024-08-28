@@ -66,7 +66,7 @@ export async function getArticleClassification(files: string[], startPathName: s
 
             const frontmatter = getMarkdown(`${startPathName}/${fileName}`);
 
-            if (frontmatter.tags) {
+            if (frontmatter.tags && frontmatter.isPublished) {
                 const url = `${startPathName.split('\pages')[1]}/${fileName.replace('.md', '.html')}`;
 
                 for (const tag of frontmatter.tags as string[]) {
