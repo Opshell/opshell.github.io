@@ -31,7 +31,7 @@ export default defineConfig({
     // lang: 'zh-Hant',
     lang: 'en',
     title: 'Opshell\'s Blog',
-    description: 'Opshell\'s life records.',
+    description: 'Opshell\'s work and life records.',
     head: [
         ['link', { rel: 'icon', href: '/favicon.ico' }]
         // ['script', {defer: 'true', src: 'https://vercount.one/js'}] // vercount

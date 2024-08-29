@@ -12,53 +12,89 @@ isPublished: false
 
 ## 目標
 
-## 做法
-1. 前置準備
+## 快速安裝
 
-1. 快速安裝
-
-VitePress 可以單獨使用，也可以安裝到現有專案中。在這兩種情況下，都可以使用以下方式安裝它：
-```
-yarn add -D vitepress
+`VitePress` 可以單獨使用，也可以安裝到現有專案中。在這兩種情況下，都可以使用以下方式安裝它：
+```sh
+  yarn add -D vitepress
 ```
 
-2. 安裝精靈
-VitePress 附帶一個命令行設置嚮導，可以説明你構建一個基本專案。安裝後，通過執行以下命令啟動精靈：
-```
-yarn vitepress init
+## 安裝精靈
+`VitePress` 附帶一個命令行生成精靈，可以幫助你生成一個基本專案。安裝後，通過執行以下命令啟動精靈：
+``` sh
+  yarn vitepress init
 ```
 
-將需要回答幾個簡單的問題：
+需要回答幾個簡單的問題：
+``` sh
 ┌  Welcome to VitePress!
 │
 ◇  Where should VitePress initialize the config?
 │  ./docs
 │
 ◇  Site title:
-│  My Awesome Project
+│  Opsehell\'s Blog
 │
 ◇  Site description:
-│  A VitePress Site
+│  Opsehll\'s work and life records
 │
-◆  Theme:
-│  ● Default Theme (Out of the box, good-looking docs)
-│  ○ Default Theme + Customization
-│  ○ Custom Theme
-└
+◇  Theme:
+│  Default Theme + Customization
+│
+◇  Use TypeScript for config and theme files?
+│  Yes
+│
+◇  Add VitePress npm scripts to package.json?
+│  Yes
+│
+└  Done! Now run yarn run docs:dev and start writing.
 
-3. 檔結構
-如果正在構建一個獨立的 VitePress 網站，可以在當前目錄 （） 中搭建網站。但是，如果在現有專案中與其他原始程式碼一起安裝VitePress，建議將網站搭建在嵌套目錄 （例如 ） 中，以便它與專案的其餘部分分開。././docs
+Tips:
+- Since you've chosen to customize the theme, you should also explicitly install vue as a dev dependency.
 
-假設選擇在 中搭建VitePress專案，生成的文件結構應該是這樣的：./docs
+```
+::: tip
+  如果是安裝到現有專案中，可以按照需求調整第一個選項的輸入，從而調整成適合的專案目錄結構。
+:::
 
+## 目錄結構
+在精靈的幫助下，我們成功建立了專案，新生的專案寶寶有著下面的目錄結構：
+
+``` sh
 .
 ├─ docs
 │  ├─ .vitepress
-│  │  └─ config.js
+│  │  ├─ theme
+│  │  │  ├─ index.ts
+│  │  │  └─ style.css
+│  │  └─ config.mts
 │  ├─ api-examples.md
-│  ├─ markdown-examples.md
-│  └─ index.md
+│  ├─ index.md
+│  └─ markdown-examples.md
+├─ node_modules
 └─ package.json
+```
+
+`docs` 目錄是 VitePress 專案的根目錄。
+
+`.vitepress` 目錄是 `config 文件`、`Dev Server 的暫存(cache)`、`build 的輸出(dist)` 和 `theme(自訂主題)` 的位置。
+
+建議將 `.vitepress/cache` `.vitepress/dist` 加入 `.gitignore` 文件中。
+
+## 嘗試啟動
+``` sh
+  yarn docs:dev
+```
+`docs:dev` 會啟動建立在 `Vite` 基礎上，具有即時熱更新的本地開發Server。
+
+官方也提供另外一種直接調用 Vitepress的方式：
+``` sh
+  yarn vitepress dev docs
+```
+雖然我都用第一種~~
+
+沒啥問題的話會看到下面的畫面：
+![啟動畫面](/images/article/day04-init-a-home-1.png)
 
 https://vitepress.dev/reference/default-theme-home-page
 

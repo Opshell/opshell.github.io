@@ -38,12 +38,12 @@ isPublished: false
   `NVM` 建議安裝在C:\
   確認 `NVM` 有沒有安裝好
   ```sh
-  nvm version
+    nvm version
   ```
 :::
 
 ::: warning
-你的 nvm 指令老是無法成功，或者出現了亂碼，請將 `NVM` 安裝在 `C:\` 下，或者使用系統管理員權限執行。
+  你的 nvm 指令老是無法成功，或者出現了亂碼，請將 `NVM` 安裝在 `C:\` 下，或者使用系統管理員權限執行。
 :::
 
 ## 5. Node.Js：[Node.js](https://nodejs.org/zh-tw/)
@@ -53,12 +53,12 @@ isPublished: false
 
   確認安裝了什麼版本的node
   ``` sh
-  nvm list
+    nvm list
   ```
 
-  安裝 Node.js 20.11.1 版本
+  安裝 Node.js 20.11.1 版本 (`Vitepress` 需要 **18** 以上的版本，Opshell 安裝目前自己最常使用的穩定版本。)
   ``` sh
-  nvm install 20.11.1
+    nvm install 20.11.1
   ```
 
   切換到20.11.1版的Node
