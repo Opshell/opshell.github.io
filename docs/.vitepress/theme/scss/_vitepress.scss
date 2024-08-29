@@ -83,7 +83,7 @@
     strong {
         color: var(--vp-c-danger-2);
     }
-    .custom-block p:first-child {
+    .custom-block > p:first-child {
         font-size: 1.125rem;
     }
 }
@@ -110,6 +110,8 @@
 
 /* 提示框 */
 .custom-block.tip {
+    border-left: 3px solid var(--vp-c-brand-3);
+
     // border-color: var(--vp-c-green-2);
     // border-color: var(--vp-c-indigo-2);
 }
