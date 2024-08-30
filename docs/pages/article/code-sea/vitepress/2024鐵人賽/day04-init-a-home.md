@@ -10,7 +10,11 @@ editLink: true
 isPublished: false
 ---
 
-## 目標
+<script setup lang="ts">
+  import {  withBase } from 'vitepress';
+</script>
+
+今天我們要來安裝、啟動還有調整Vitepress的首頁：
 
 ## 快速安裝
 
@@ -96,6 +100,91 @@ Tips:
 沒啥問題的話會看到下面的畫面：
 ![啟動畫面](/images/article/day04-init-a-home-1.png)
 
-https://vitepress.dev/reference/default-theme-home-page
+## 嘗試修改
+既然畫面都看到了，
+當然是要把資料改成我們想要呈現的。
 
-## 結論
+`docs/index.md` 就是我們的首頁檔案，我們把他打開。
+可以看到長下面這樣：
+``` md
+---
+# https://vitepress.dev/reference/default-theme-home-page
+layout: home
+
+hero:
+  name: "Opsehell's Blog"
+  text: "Opsehll's work and life records"
+  tagline: My great project tagline
+  actions:
+    - theme: brand
+      text: Markdown Examples
+      link: /markdown-examples
+    - theme: alt
+      text: API Examples
+      link: /api-examples
+
+features:
+  - title: Feature A
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Feature B
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Feature C
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+---
+```
+### frontmatter：
+在可以看到內容是包在 `---` 和 `---` 之間的，
+而包起來的部分在是所謂的 `YAML frontmatter` (後面簡稱 `frontmatter`)， 並使用 [`gray-matter`](https://github.com/jonschlinkert/gray-matter) 解析他。
+在 `vitepress` 中，用來添加每個頁面自己的設定、資料及訊息，他也可以加入客制的訊息並在頁面中使用他(後面會常提、用到)。
+::: tip
+  有添加 `frontmatter` 的時候，`frontmatter` 區塊必須位於 `Markdown 文件`(後面簡稱 `md`) 的最上面。
+:::
+
+在 `vitepress` 中， 每個 `md` build 的時後，都會解析成一個 `.html` 的靜態網頁，
+而每份 `md` 都可以套用主題佈局、客制內容等，靈活度很高。
+在上面的 `frontmatter` 中可以看到，首頁 `md` 會套用 `layout: home` 這個佈局生成首頁，相信各位看官們也看出來了，他們分別代表：
+
+![home frontmatter 解釋](/images/article/day04-init-a-home-2.png)
+
+於是Opshell 把他改成這樣：
+
+``` md
+---
+# https://vitepress.dev/reference/default-theme-home-page
+layout: home
+
+hero:
+  name: "Opshell's Blog"
+  text: "A blog to share various thoughts,technologies,front-end develop, and miscellaneous topics to engage more with the world."
+  tagline: Ordinary Is Great.
+  # image:
+  #   src: /opshell3d.png
+  #   alt: Opshell-3D
+  actions:
+    - theme: alt
+      text: Markdown Examples
+      link: /markdown-examples
+    - theme: brand
+      text: Resume
+      link: /resume
+
+features:
+  - icon: 🛠️
+    title: Code Work & Bug Fix
+    details: The process and documentation of filling in some gaps.
+  - icon: 💡
+    title: Idea
+    details: Some ideas, whether good or bad, should always be put into practice, right?
+  - icon: ⚡️
+    title: A Flash In The Pan
+    details: An interest or hobby sparked by a moment of enthusiasm is always a life experience, isn't it?
+  - icon: 📦
+    title: Life Package
+    details: Firewood, Rice, Oil, Salt, Sauce, Vinegar, And Tea.
+---
+```
+
+可以看到 Opshell 在 features 的部分用 emoji 添加了 icon，
+當然也可以引用靜態文件(jpg、svg 之類的)，詳細的內容可以參考 [官網的文件](https://vitepress.dev/zh/reference/default-theme-home-page)
+詳細的效果各位可以自行嘗試喔~
+那麼今天就到這邊囉~ 各位晚安~

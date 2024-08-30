@@ -89,6 +89,20 @@
 }
 
 // markdown 圖片樣式
+.medium-zoom-image {
+    position: relative;
+    border: 1px solid var(--vp-c-bg);
+    border-radius: 5px;
+    z-index: 1;
+    &:hover {
+        border-color: var(--vp-c-brand-soft);
+        transform: scale(1.01, 1.01);
+        &::before {
+            @include setSize(calc(100% + 4px), calc(100% + 4px));
+            transform: translate(-2px, -2px);
+        }
+    }
+}
 .medium-zoom-overlay {
     background-color: var(--vp-c-bg) !important;
     z-index: 100;
@@ -96,10 +110,16 @@
         z-index: 101;
     }
 }
-
-.medium-zoom--opened .medium-zoom-overlay {
-    opacity: 0.9 !important;
+.medium-zoom--opened { // class 加在 body 上
+    .medium-zoom-image {
+        border-width: 0;
+    }
+    .medium-zoom-overlay {
+        opacity: 0.9 !important;
+    }
 }
+
+
 
 
 /* 提示框背景颜色 */
