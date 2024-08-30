@@ -11,9 +11,7 @@ createdAt: '2024/07/26'
 isPublished: false
 ---
 
-# 鐵人賽 Day01 - Vitepress
-
-鐵人賽 Day01
+# Vitepress
 
 喜歡交流、學習技術的Opshell，
 從高中開始對程式語言萌生興趣，獨立製作了一個RPG畢業專題
