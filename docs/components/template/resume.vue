@@ -75,7 +75,7 @@
 
         <hr class="divider" />
 
-        <div class="right-block">
+        <div class="right-block vp-doc">
             <OrgaSectionBlock title="About Opshell">
                 <p>喜歡交流、學習技術的我， 從高中開始對程式語言萌生興趣，獨立製作了一個RPG畢業專題， 在大學、實習時期確認了喜愛的程式類型，並完成網頁技術相關的國科會計畫。 在之後的工作中，一頭熱的投入了全端網頁技術的海洋， 熟練HTML、CSS、Javascript、Typescript、Vue等前端語言、框架， 使用PHP、SQL撰寫網站後端，串接各式API，用GCP配合LAMP架站。 對設計美感與使用體驗有要求的我， 持續的學習與成長，面對新的挑戰，一步步超越自己。 不喜歡停滯不前，在時代與技術的洪流中， 只有被沖走或逆流而上兩個選項。</p>
             </OrgaSectionBlock>

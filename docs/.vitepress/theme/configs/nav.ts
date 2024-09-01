@@ -5,6 +5,10 @@ export default [
         text: 'About Ops',
         link: '/about-opshell'
     },
+    // {
+    //     text: 'vitepress-home',
+    //     link: '/vitepress-home'
+    // },
     {
         text: 'Article',
         items: [
@@ -41,19 +45,23 @@ export default [
     },
     {
         text: 'Resume',
-        items: [
-            {
-                text: 'resume-vue',
-                link: '/resume-vue'
-            },
-            {
-                text: 'resume-md',
-                link: '/resume-md'
-            },
-            {
-                text: 'resume-layout',
-                link: '/resume-layout'
-            }
-        ]
-    }
+        link: '/resume-layout'
+    },
+    // {
+    //     text: 'Resume',
+    //     items: [
+    //         {
+    //             text: 'resume-vue',
+    //             link: '/resume-vue'
+    //         },
+    //         {
+    //             text: 'resume-md',
+    //             link: '/resume-md'
+    //         },
+    //         {
+    //             text: 'resume-layout',
+    //             link: '/resume-layout'
+    //         }
+    //     ]
+    // }
 ] as DefaultTheme.NavItem[];

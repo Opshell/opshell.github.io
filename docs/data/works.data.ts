@@ -34,7 +34,7 @@ export default {
                 compImg: 'images/resume/iware.png',
                 company: '馬亞動物園',
                 location: 'Tainan, Taiwan',
-                jobTitle: 'Front-End Developer',
+                jobTitle: 'Full-Stack Developer',
                 period: '2019.10 - 2023.08  3y 11m',
                 description: `一、工作內容概述：<br />
         　協助規劃客戶網站需求，實現網頁需求，串接各式API。<br />

@@ -58,7 +58,7 @@
             <span class="period">{{ period }}</span>
         </header>
 
-        <div ref="descriptionDom" class="description md-block">
+        <div ref="descriptionDom" class="description vp-doc">
             <slot />
         </div>
     </section>
@@ -138,7 +138,7 @@
             box-sizing: border-box;
 
             /* 6666 */
-            color: #666;
+            color: var(--vp-c-text-2);
             font-size: 1.125rem;
             font-weight: 400;
             font-style: normal;
@@ -146,6 +146,10 @@
             letter-spacing: 0.03em;
             transition: .2s $cubic-FiSo;
             overflow: hidden;
+            h4 {
+                color: var(--vp-c-text-1);
+                font-size: 1.25rem;
+            }
         }
 
         &::before {
@@ -153,7 +157,7 @@
             position: absolute;
             inset: -20px;
             display: block;
-            background: #f7f7f7;
+            background: var(--vp-c-bg-soft);
             @include setSize(calc(100% + 2.5rem), calc(100% + 2.5rem));
             border-radius: 10px;
             transition: .3s $cubic-FiSo;
@@ -168,20 +172,25 @@
             }
             .work-experience {
                 .company {
-                    color: #FFC000;
+                    color: var(--vp-c-brand-1);
                 }
             }
         }
 
         &.--is-open {
             .img-box {
-                border-color: #FFC000;
+                border-color: var(--vp-c-brand-1);
             }
             .company {
-                color: #FFC000;
+                color: var(--vp-c-brand-1);
             }
             .description {
                 margin: 1.875rem 0;
+            }
+
+            &::before {
+                border: 1px solid var(--vp-c-brand-3);
+                opacity: 1;
             }
         }
 
