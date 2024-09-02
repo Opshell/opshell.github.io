@@ -10,6 +10,7 @@ editLink: true
 isPublished: false
 ---
 
+## config 拆分
 加完了字型和 SCSS 之後 又要繼續在 `config` 加設定啦~~
 不過現在的 `themeConfig` 由於要一個個連結設定的原因，
 已經是長長長長長的義大利麵的狀態了，
@@ -110,4 +111,87 @@ export default [
 ] as DefaultTheme.SocialLink[];
 ```
 
+``` ts [config.mts]
+import nav from './theme/configs/nav';
+import sidebar from './theme/configs/sidebar';
+import socialLinks from './theme/configs/socialLinks';
+
+export default defineConfig({
+    themeConfig: {
+        nav,
+        socialLinks,
+        sidebar
+    }
+});
+```
+:::
+
+## search
+拆分完之後繼續來補設定吧~
+在一個部落格中，`search(搜尋)`也是很重要的一個功能，能在一大堆的文章中找到相關的內容，
+而 `vitepress` 的搜尋功能是建立在 [minisearch](https://github.com/lucaong/minisearch/) 的架構上，
+所以能夠使用瀏覽器內的索引來模糊全文搜尋。
+所以我們來把 `search`的功能補完吧
+在 `docs/.vitepress/theme/configs` 目錄下，新增檔案 `search.ts` 然後輸入下面的內容：
+
+``` ts
+import { DefaultTheme } from 'vitepress';
+
+// 要排除的目錄
+const ignorePath = [
+    'pages/article/life-murmurs'
+];
+
+export default {
+    provider: 'local', // 啟動 miniSearch
+    options: {
+        translations: {
+            button: {
+                buttonText: '搜尋文章',
+                buttonAriaLabel: '搜尋文章'
+            },
+            modal: {
+                noResultsText: '找不到相關內容',
+                displayDetails: '詳細訊息',
+                resetButtonTitle: '清除搜尋條件',
+                backButtonTitle: '返回搜尋结果',
+                footer: {
+                    selectText: '選擇',
+                    selectKeyAriaLabel: 'enter',
+                    navigateText: '切換',
+                    navigateUpKeyAriaLabel: 'up arrow',
+                    navigateDownKeyAriaLabel: 'down arrow',
+                    closeKeyAriaLabel: 'escape'
+                }
+            }
+        },
+        _render(src, env, md) {
+            const html = md.render(src, env);
+            // 排除 有設定不給搜尋 或者 沒有發布的頁面
+            if (env.frontmatter?.search === false || !env.frontmatter?.isPublished)
+                return '';
+
+            // 要排除特定的目錄
+            for (const path of ignorePath) {
+                if (env.relativePath.startsWith(path)) {
+                    return '';
+                }
+            }
+
+            // 新增錨點
+            if (env.frontmatter?.title)
+                return md.render(`# ${env.frontmatter.title}`) + html;
+
+            return html;
+        }
+    }
+} as DefaultTheme.Config['search'];
+```
+
+除了 `miniSearch` 外， `vitepress` 也提供 `Algolia Search` 當作搜尋核心，
+只要把 `provider` 改成 `'algolia'` 然後把設定改成 [Algolia DocSearch](https://docsearch.algolia.com/docs/what-is-docsearch/) 的樣子即可，
+由於 Opshell 懶惰，所以使用最不需要做什麼的 `miniSearch` 。
+
+::: tip
+如果有自定義 `_render` ，在呼叫 `md.render` 之前，`env` 不會完全填充，所以上面程式中，對 `env` 的屬性操作(如 `env.frontmatter` )，都放在 `const html = md.render(src, env);` 的後面。
 :::

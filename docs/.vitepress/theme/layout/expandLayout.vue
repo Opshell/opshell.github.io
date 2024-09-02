@@ -53,10 +53,12 @@
             }
         );
     });
+
+    console.log('page', page);
 </script>
 
 <template>
-    <Layout>
+    <Layout :class="[frontmatter.class]">
         <template #doc-before>
             <div class="info-box">
                 <span class="info">✍️ {{ frontmatter.author || 'Opsehll' }}</span>

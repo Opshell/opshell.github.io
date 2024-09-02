@@ -1,5 +1,6 @@
 ---
 layout: home
+class: vitepress-thirty-days
 
 hero:
   name: "Day01 - 前言"
@@ -14,32 +15,30 @@ hero:
       link: /article/code-sea/vitepress/2024鐵人賽/day01-preface.html
 ---
 
-<div class="vitepress-thirty-days">
-
-</div>
-
 <style lang="scss">
     :root {
         --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #f4b936 30%, #bd34fe 80%);
         --vp-home-hero-image-background-image: linear-gradient(-45deg, #bd34fe 50%, #f4b936 50%);
     }
 
-    .VPHero {
-        &.has-image {
+    .vitepress-thirty-days {
+        .VPHero {
             transform: translateY(120px);
-            .image {
-                transform: translateY(50px);
-                .image-bg {
-                    width: 350px;
-                    height: 350px;
+            &.has-image {
+                .image {
+                    transform: translateY(50px);
+                    .image-bg {
+                        width: 350px;
+                        height: 350px;
+                    }
+                    .image-src {
+                        max-width: 400px;
+                        max-height: 400px;
+                    }
                 }
-                .image-src {
-                    max-width: 400px;
-                    max-height: 400px;
+                .name, .text {
+                    line-height: 1.5;
                 }
-            }
-            .name, .text {
-                line-height: 1.5;
             }
         }
     }
