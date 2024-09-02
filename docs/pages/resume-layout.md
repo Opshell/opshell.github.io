@@ -70,7 +70,13 @@ contact:
 
 ## About Opshell
 
-喜歡交流、學習技術的我， 從高中開始對程式語言萌生興趣，獨立製作了一個RPG畢業專題， 在大學、實習時期確認了喜愛的程式類型，並完成網頁技術相關的國科會計畫。 在之後的工作中，一頭熱的投入了全端網頁技術的海洋， 熟練HTML、CSS、Javascript、Typescript、Vue等前端語言、框架， 使用PHP、SQL撰寫網站後端，串接各式API，用GCP配合LAMP架站。 對設計美感與使用體驗有要求的我， 持續的學習與成長，面對新的挑戰，一步步超越自己。 不喜歡停滯不前，在時代與技術的洪流中， 只有被沖走或逆流而上兩個選項。
+喜歡交流、學習技術的我，從高中開始對程式語言萌生興趣，獨立製作了一個橫向塔防畢業專題，在大學、實習時期確認了喜愛的程式類型，並完成網頁技術相關的國科會計畫。
+
+在之後的工作中，一頭熱的投入了全端網頁技術的海洋，熟練HTML、CSS、Javascript、Typescript、Vue等前端語言、框架，使用PHP、SQL撰寫網站後端，串接各式API，用GCP配合LAMP架站。
+
+對設計美感與使用體驗有要求的我， 持續的學習與成長，面對新的挑戰，一步步超越自己。
+
+不喜歡停滯不前，在時代與技術的洪流中，只有被沖走或逆流而上兩個選項。
 
 ---
 
@@ -127,7 +133,6 @@ contact:
     - 設計 Developer 開發者 Kit，提高多前端開發效率。
     - 通過無障礙 2A 級審查。
 </MoleWorkExperience>
-
 
 <MoleWorkExperience
   :key="workExperienceData[1].company"
@@ -205,8 +210,8 @@ contact:
     - flex、grid等更具效率，邏輯的現代切版方式。
 
   - [宇軒綠能(全端 & UI/UX)](https://www.solargo.com.tw/)
-    - 太陽能獲利公式UX設計、程式撰寫。
-    - 全站微動畫設計，
+    - 太陽能獲利公式，會員系統 UX 設計、程式撰寫。
+    - 全站微動畫設計、程式撰寫。
 
   - [富德土雞(全端 & UI/UX)](http://www.fu-de.com/)
     - 多套件整合，底層調整，提高互動渲染效能。
@@ -214,12 +219,12 @@ contact:
 
   - [耶路薩冷旅行社(全端協做)](https://www.jrstours.com.tw/)
     - 重構整站後台操作介面、UIUX 優化。
-    - 客製行程頁面
+    - 客製行程頁面，無規則排版、特殊RWD切版。
 
   - [允成建設(全端)](http://www.yun-cheng.com.tw/)
-    - 客製 Slide 特效演算法，並模組化。
-    - 全頁式網站 RWD 設計。
+    - 客製 Slide 特效演算法並模組化。
     - 全站轉場、漸變、過動 特效設計、實踐。
+    - 全頁式網站 RWD 設計。
 </MoleWorkExperience>
 
 <MoleWorkExperience
@@ -236,11 +241,17 @@ contact:
 
 #### 二、使用技能：
   - 影像辨識類
-    - 語言：C#
+    - 語言：C#、C++
   - 網頁相關(含APP)
     - 前端：HTML、CSS、JS、JQ
     - 後端：IIS
     - 資料庫：MySQL
     - Tool：Trello
+
+#### 三、時期貢獻&部分作品：
+  - "客戶試用車牌辨識軟體"硬體金鑰鎖設計及撰寫。
+  - 高速公路遠距無線車變系統，軟硬體開發、整合。
+  - barCode 無紅外影像辨識機，核心演算法韌體化。
+
 </MoleWorkExperience>
 </section>
