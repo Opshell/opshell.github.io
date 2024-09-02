@@ -1,7 +1,7 @@
 ---
 title:  'Day08 - Deploy to Github pages'
 author: 'Opshell'
-createdAt: '2024/09/08'
+createdAt: '2024/09/10'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽

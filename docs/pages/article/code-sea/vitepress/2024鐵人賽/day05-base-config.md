@@ -18,8 +18,6 @@ isPublished: false
 ``` ts [config.mts]
 import { defineConfig } from 'vitepress';
 
-
-
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     title: 'Opsehell\'s Blog',
@@ -123,8 +121,8 @@ export default defineConfig({
     themeConfig: {
         nav: [
             {
-                text: 'About Ops',
-                link: '/about-opshell'
+                text: '✨️ Vitepress Thirty Day',
+                link: '/vitepress-thirty-day'
             },
             {
                 text: 'Article',

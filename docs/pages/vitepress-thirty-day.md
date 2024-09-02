@@ -14,6 +14,10 @@ hero:
       link: /article/code-sea/vitepress/2024鐵人賽/day01-preface.html
 ---
 
+<div class="vitepress-thirty-days">
+
+</div>
+
 <style lang="scss">
     :root {
         --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #f4b936 30%, #bd34fe 80%);
@@ -21,8 +25,8 @@ hero:
     }
 
     .VPHero {
-        transform: translateY(120px);
         &.has-image {
+            transform: translateY(120px);
             .image {
                 transform: translateY(50px);
                 .image-bg {

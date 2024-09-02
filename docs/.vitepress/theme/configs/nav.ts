@@ -33,7 +33,7 @@ export default [
                     },
                     {
                         text: 'vitepress',
-                        link: '/article/code-sea/vitepress/day-1'
+                        link: '/article/code-sea/vitepress/2024鐵人賽/day01-preface'
                     }
                 ]
             }
