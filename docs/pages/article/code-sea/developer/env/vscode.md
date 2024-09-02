@@ -1,13 +1,13 @@
 ---
-title: 'This 到底是誰?'
+title: 'VScode Workflow Profiles 設定檔管理'
 author: 'Opshell'
 createdAt: '2024/08/23'
 categories:
   - 使用實例
 tags:
-  - javascript
+  - VS Code
 editLink: true
-isPublished: true
+isPublished: false
 ---
 
 # VScode Workflow Profiles 設定檔管理 - Export/Import to Gist

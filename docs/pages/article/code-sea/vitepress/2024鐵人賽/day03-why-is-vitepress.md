@@ -1,7 +1,7 @@
 ---
 title:  'Day03 - Why write & Why is vitepress'
 author: 'Opshell'
-createdAt: '2024/09/03'
+createdAt: '2024/09/04'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽

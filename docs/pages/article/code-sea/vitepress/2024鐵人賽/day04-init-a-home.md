@@ -1,7 +1,7 @@
 ---
 title:  'Day04 - Init a home'
 author: 'Opshell'
-createdAt: '2024/09/04'
+createdAt: '2024/09/05'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
@@ -98,7 +98,7 @@ Tips:
 雖然我都用第一種~~
 
 沒啥問題的話會看到下面的畫面：
-![啟動畫面](/images/article/day04-init-a-home-1.png)
+![啟動畫面](/images/article/vitepress-thirty-days/day04-init-a-home-1.png)
 
 ## 嘗試修改
 既然畫面都看到了，
@@ -144,7 +144,7 @@ features:
 而每份 `md` 都可以套用主題佈局、客制內容等，靈活度很高。
 在上面的 `frontmatter` 中可以看到，首頁 `md` 會套用 `layout: home` 這個佈局生成首頁，相信各位看官們也看出來了，他們分別代表：
 
-![home frontmatter 解釋](/images/article/day04-init-a-home-2.png)
+![home frontmatter 解釋](/images/article/vitepress-thirty-days/day04-init-a-home-2.png)
 
 於是Opshell 把他改成這樣：
 

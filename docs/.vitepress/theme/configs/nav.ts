@@ -1,14 +1,14 @@
 import { DefaultTheme } from 'vitepress';
 
 export default [
-    {
-        text: 'About Ops',
-        link: '/about-opshell'
-    },
     // {
-    //     text: 'vitepress-home',
-    //     link: '/vitepress-home'
+    //     text: 'About Ops',
+    //     link: '/about-opshell'
     // },
+    {
+        text: '✨️ Vitepress Thirty Day',
+        link: '/vitepress-thirty-day'
+    },
     {
         text: 'Article',
         items: [
@@ -46,7 +46,7 @@ export default [
     {
         text: 'Resume',
         link: '/resume-layout'
-    },
+    }
     // {
     //     text: 'Resume',
     //     items: [

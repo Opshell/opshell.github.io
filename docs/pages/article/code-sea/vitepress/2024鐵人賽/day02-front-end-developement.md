@@ -1,7 +1,7 @@
 ---
 title:  'Day02 - 環境準備&對齊'
 author: 'Opshell'
-createdAt: '2024/09/02'
+createdAt: '2024/09/03'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽

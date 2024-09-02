@@ -1,7 +1,7 @@
 ---
-title:  'Day06 - custom font & css'
+title:  'Day07 - custom font & css'
 author: 'Opshell'
-createdAt: '2024/09/07'
+createdAt: '2024/09/08'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
@@ -11,7 +11,7 @@ isPublished: false
 ---
 
 共用的主題 `config` 設定完之後，部落格終於有了基礎的雛形啦~
-但是，使用的樣式都是 `vitepress` 預設的，今天就來改樣是吧~~~
+但是，使用的樣式都是 `vitepress` 預設的，今天就來改樣式吧~~~
 
 ## 自訂字型
 部落格最重要的當然就是文字字型啦，看看這個滿滿的文字量， 好的字型帶你上天堂!
@@ -27,7 +27,7 @@ isPublished: false
 
 ### 2. 裝箱並處理 font.css
 在 `docs/.vitepress/theme` 目錄下建立 `fonts` 資料夾，
-接下來挑選自己要的字型 weight 檔，並宣告進 `font.css` 然後把目錄結構整理成下面的模樣，最後在 `.docs/.vitepress/theme/index.ts` 引用，由於`vitepress` 預設使用 `Inter` 字型，而且會把他 build 出來，因為用不到的字體把自己變得很肥，我們需要在 `index.ts` 中調整引用的預設主題，從 `vitepress/theme` 變成 `vitepress/theme-without-fonts`：
+接下來挑選自己要的字型 weight 檔，並宣告進 `font.css` 然後把目錄結構整理成下面的模樣，最後在 `.docs/.vitepress/theme/index.ts` 引用，由於 `vitepress` 預設使用 `Inter` 字型，而且會把他 build 出來，因為用不到的字體把自己變得很肥，我們需要在 `index.ts` 中調整引用的預設主題，從 `vitepress/theme` 變成 `vitepress/theme-without-fonts`：
 ::: code-group
 
 ``` sh [目錄結構]
@@ -200,20 +200,10 @@ yarn add scss -D
 
 `_variable.scss` 裡的變數，都是 `vitepress` 預設的，只是我們對他進行覆蓋，
 除了改字型的變數外，也順便調整了網站的主色(品牌色)~
+然後就可以重新啟動，在 F12 的計算屬性的最下面，看看字型有沒有成功被應用啦~
 
-## 目標
-1. google font 下載 & 應用
+![字型渲染成功](/images/article/vitepress-thirty-days/day07-font-css-var-1.png)
 
-## 做法
-1. 下載
-
-### 中、英文
-
-### 程式碼字型
-[FiraCode](https://github.com/tonsky/FiraCode/releases)
-
-2. theme目錄 & index.ts
-3. css
-4. 安裝  sass
-
-5. 設定官方文字css 變數
+## 小結：
+今天添加了字型，並開始使用 SCSS 調整主題，
+距離部落格成為我們心中的樣子，又跨了一步囉~

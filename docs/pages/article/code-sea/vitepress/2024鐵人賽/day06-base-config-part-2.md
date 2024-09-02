@@ -1,7 +1,7 @@
 ---
 title:  'Day05 - config sidebar、socialLinks、footer'
 author: 'Opshell'
-createdAt: '2024/09/06'
+createdAt: '2024/09/07'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽

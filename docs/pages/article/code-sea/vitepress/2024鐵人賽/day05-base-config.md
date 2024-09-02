@@ -1,7 +1,7 @@
 ---
 title:  'Day05 - Base config setting'
 author: 'Opshell'
-createdAt: '2024/09/05'
+createdAt: '2024/09/06'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
@@ -17,6 +17,8 @@ isPublished: false
 ::: code-group
 ``` ts [config.mts]
 import { defineConfig } from 'vitepress';
+
+
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
