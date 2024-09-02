@@ -11,11 +11,14 @@ hero:
   #   alt: Opshell-3D
   actions:
     - theme: alt
-      text: Markdown Examples
-      link: /markdown-examples
-    - theme: brand
       text: Resume
       link: /resume
+    - theme: alt
+      text: Markdown Theme
+      link: /markdown-theme-preview
+    - theme: brand
+      text: ✨️ Vitepress Thirty Days
+      link: /vitepress-thirty-days
 
 features:
   - icon: 🛠️

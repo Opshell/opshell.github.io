@@ -7,7 +7,7 @@ export default [
     // },
     {
         text: '✨️ Vitepress Thirty Day',
-        link: '/vitepress-thirty-day'
+        link: '/vitepress-thirty-days'
     },
     {
         text: 'Article',
