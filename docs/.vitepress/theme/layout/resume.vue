@@ -11,15 +11,16 @@
                 <div class="image-box">
                     <img :src="withBase('images/resume/portrait.png')" alt="Opshell 大頭貼" />
                 </div>
-
                 <h1 class="name">
                     <!-- <span class="zh">YuWei Liu</span> -->
                     <span class="en">{{ frontmatter.name }}</span>
                 </h1>
-
                 <span class="job-title">
                     {{ frontmatter.jobTitle }}
                 </span>
+                <div class="mbti">
+                    <img :src="withBase('images/resume/mbti.png')" alt="MBTI：INTP-A" />
+                </div>
             </header>
 
             <hr class="divider" />
@@ -149,6 +150,11 @@
                 height: 100%;
                 object-fit: cover;
             }
+        }
+        .mbti {
+            border-radius: 10px;
+            box-shadow: 0 0 1px 1px var(--vp-c-brand-3);
+            overflow: hidden;
         }
     }
 
