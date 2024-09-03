@@ -25,12 +25,12 @@ isPublished: false
 
 ## 安裝精靈
 `VitePress` 附帶一個命令行生成精靈，可以幫助你生成一個基本專案。安裝後，通過執行以下命令啟動精靈：
-``` sh
+```sh
   yarn vitepress init
 ```
 
 需要回答幾個簡單的問題：
-``` sh
+```sh
 ┌  Welcome to VitePress!
 │
 ◇  Where should VitePress initialize the config?
@@ -64,7 +64,7 @@ Tips:
 ## 目錄結構
 在精靈的幫助下，我們成功建立了專案，新生的專案寶寶有著下面的目錄結構：
 
-``` sh
+```sh
 .
 ├─ docs
 │  ├─ .vitepress
@@ -86,13 +86,13 @@ Tips:
 建議將 `.vitepress/cache` `.vitepress/dist` 加入 `.gitignore` 文件中。
 
 ## 嘗試啟動
-``` sh
+```sh
   yarn docs:dev
 ```
 `docs:dev` 會啟動建立在 `Vite` 基礎上，具有即時熱更新的本地開發Server。
 
 官方也提供另外一種直接調用 Vitepress的方式：
-``` sh
+```sh
   yarn vitepress dev docs
 ```
 雖然我都用第一種~~
@@ -106,7 +106,7 @@ Tips:
 
 `docs/index.md` 就是我們的首頁檔案，我們把他打開。
 可以看到長下面這樣：
-``` md
+```md
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
@@ -132,7 +132,7 @@ features:
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
 ```
-### frontmatter：
+### frontmatter
 在可以看到內容是包在 `---` 和 `---` 之間的，
 而包起來的部分在是所謂的 `YAML frontmatter` (後面簡稱 `frontmatter`)， 並使用 [`gray-matter`](https://github.com/jonschlinkert/gray-matter) 解析他。
 在 `vitepress` 中，用來添加每個頁面自己的設定、資料及訊息，他也可以加入客制的訊息並在頁面中使用他(後面會常提、用到)。
@@ -148,7 +148,7 @@ features:
 
 於是Opshell 把他改成這樣：
 
-``` md
+```md
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home

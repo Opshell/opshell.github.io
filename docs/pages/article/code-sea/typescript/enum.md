@@ -15,7 +15,7 @@ isPublished: true
 1. 用enum列舉常用modules的參數類別
 2. 權限表弄enum
 3. 產品如果需要快捷鍵支援的話，也會做這種類似MOUSE、方向鍵、keydown之類操作(策略模式+enum)
-``` typescript
+```ts
 enum Key {
   UP = "ArrowUp",
   DOWN = "ArrowDown",

@@ -15,7 +15,7 @@ isPublished: false
 如果我們要調整 `header` 的內容，我們需要打開 `docs/.vitepress/config.mts`(之後都簡稱 `config` ) 這支檔案，
 
 ::: code-group
-``` ts [config.mts]
+```ts [config.mts]
 import { defineConfig } from 'vitepress';
 
 // https://vitepress.dev/reference/site-config
@@ -49,12 +49,12 @@ export default defineConfig({
 
 我們今天主要要設定的是 `themeConfig` 的部分，下面的程式區塊會聚焦在這裡。
 
-## 頁面標題與Logo
+## Nav標題 與 Logo
 先來添加預設頁面標題和 Logo 吧：
-``` ts
+```ts
 export default defineConfig({
     themeConfig: {
-        siteTitle: 'Opshell\'s Blog', // 預設頁面 title
+        siteTitle: 'Opshell\'s Blog',
         logo: {
             light: '/logo.jpg',
             dark: '/logo-w.jpg',
@@ -63,9 +63,12 @@ export default defineConfig({
     }
 });
 ```
+Logo 旁邊的網站標題文字，預設是從 `config.title` 抓取，也就是上面 `defineConfig` 裡的 `title`，
+如果想要使用其他的文字，可以設定 `siteTitle`，如果不想顯示任何文字，則可以把 `siteTitle` 設定為 `false` 。
+
 自帶黑夜模式是 Opshell 選擇 `vitepress` 的其中一個加分項，
-而 黑與白模式的 Logo 可以分別設定，當然 你可以像下面這樣設定同一個：
-``` ts
+而黑與白模式的 Logo 可以分別設定，當然 你可以像下面這樣設定同一個：
+```ts
 export default defineConfig({
     themeConfig: {
         logo: '/logo.jpg'
@@ -79,7 +82,7 @@ export default defineConfig({
 於是新建了一個資料夾專門放 `md` 命名為 `pages` ，各位可以自行決定名稱 `view`、`markdown`、`article` 也都可以，只要自己習慣就好。
 
 然後在 `congfig` 裡加入這個設定：
-``` ts
+```ts
 export default defineConfig({
     rewrites: {
         'pages/(.*)': '(.*)'
@@ -116,7 +119,7 @@ export default defineConfig({
 
 ## nav (選單)
 加入 About Ops 和 相關的目錄文章連結吧~
-``` ts
+```ts
 export default defineConfig({
     themeConfig: {
         nav: [
@@ -156,7 +159,7 @@ export default defineConfig({
 
 About Ops 是連結，如果帶的是 `items as NavItem[]` 則會變成下拉選單，再繼續包的話則會變成下拉選單裡面有群組，
 而 `NavItem` 這個型別是這樣定義的：
-``` ts
+```ts
 type NavItem = NavItemWithLink | NavItemWithChildren;
 
 interface NavItemWithLink {

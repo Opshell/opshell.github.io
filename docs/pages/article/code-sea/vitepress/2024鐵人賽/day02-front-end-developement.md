@@ -8,16 +8,23 @@ tags:
   - vitepress
   - env
 editLink: true
-isPublished: false
+isPublished: true
 ---
 
-# [Day02] - 環境準備 向右看齊~
+![banner02](https://ithelp.ithome.com.tw/upload/images/20240903/20109918kYKzX3th25.png)
+> 看一篇文章最大的不是寫的爛，
+> 而是他環境跟你差的遠遠的。
+> -------------------- By Opshell
 
-再開始蓋部落格之前，先對齊一下工程環境。
+開始蓋部落格之前，先對齊一下工程環境。
 
-## 1. 系統：[Window 11](https://www.microsoft.com/zh-tw/software-download/windows11)
-## 2. 編輯器：[VS Code](https://code.visualstudio.com/)
-## 3. 終端機：[PowerShell 7](https://docs.microsoft.com/zh-tw/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2)
+## 系統：[Window 11](https://www.microsoft.com/zh-tw/software-download/windows11)
+我知道很多工程師都愛用蘋果系統，但我待過的公司都用windows，所以...
+
+## 編輯器：[VS Code](https://code.visualstudio.com/)
+市占率最高的編輯器，應該沒什麼問題。
+
+## 終端機：[PowerShell 7](https://docs.microsoft.com/zh-tw/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.2)
 ::: tip
   如果本來是PowerShell 5 要安裝7 可能會有一點點問題 [請參考](https://docs.microsoft.com/zh-tw/powershell/scripting/whats-new/migrating-from-windows-powershell-51-to-powershell-7?view=powershell-7.2)<br />
   查看powershell版本方式：在powershell中輸入：↓↓↓
@@ -33,7 +40,7 @@ isPublished: false
   ![要選PowerShell 7 喔](https://ithelp.ithome.com.tw/upload/images/20220902/20109918wzqmchpUJ1.png)
 :::
 
-## 4. Node版本管理：[NVM](https://github.com/coreybutler/nvm-windows)
+## Node版本管理：[NVM](https://github.com/coreybutler/nvm-windows)
 ::: tip
   `NVM` 建議安裝在C:\
   確認 `NVM` 有沒有安裝好
@@ -46,62 +53,56 @@ isPublished: false
   你的 nvm 指令老是無法成功，或者出現了亂碼，請將 `NVM` 安裝在 `C:\` 下，或者使用系統管理員權限執行。
 :::
 
-## 5. Node.Js：[Node.js](https://nodejs.org/zh-tw/)
-::: info
-  身為一個會玩前端的園丁，裝個Node.js應該也是很正常的一件事。<br />
-  ~~看了前面的環境，你不會以為我下的指令不是在Windows吧?~~<br />
+## Node.Js：[Node.js](https://nodejs.org/zh-tw/)
+身為一個會玩前端的園丁，裝個Node.js應該也是很正常的一件事。<br />
+~~看了前面的環境，你不會以為我下的指令不是在Windows吧?~~<br />
 
-  確認安裝了什麼版本的node
-  ``` sh
-    nvm list
-  ```
+確認安裝了什麼版本的node
+```sh
+  nvm list
+```
 
-  安裝 Node.js 20.11.1 版本 (`Vitepress` 需要 **18** 以上的版本，Opshell 安裝目前自己最常使用的穩定版本。)
-  ``` sh
-    nvm install 20.11.1
-  ```
+安裝 Node.js 20.11.1 版本 (`Vitepress` 需要 **18** 以上的版本，Opshell 安裝目前自己最常使用的穩定版本。)
+```sh
+  nvm install 20.11.1
+```
 
-  切換到20.11.1版的Node
-  ``` sh
-  nvm use 20.11.1
-  ```
-  ![node 版本](https://ithelp.ithome.com.tw/upload/images/20220902/20109918ZmCyzv0gIl.png)
-:::
+切換到20.11.1版的Node
+```sh
+nvm use 20.11.1
+```
+![node 版本](https://ithelp.ithome.com.tw/upload/images/20220902/20109918ZmCyzv0gIl.png)
 
-## 6. 套件管理 [yarn](https://ithelp.ithome.com.tw/articles/10191745)
-::: info
-  抱歉了各位，我還沒有跳槽到 `pnpm` 學不完阿~~~~
-  全域安裝 `yarn` ↓↓↓
-  ``` sh
-  npm install -g yarn
-  ```
+## 套件管理 [yarn](https://ithelp.ithome.com.tw/articles/10191745)
+抱歉了各位，我還沒有跳槽到 `pnpm` 學不完阿~~~~
+全域安裝 `yarn` ↓↓↓
+```sh
+npm install -g yarn
+```
 
-  確認 `yarn` 版本↓↓↓
-  ``` sh
-  yarn -v
-  ```
-:::
+確認 `yarn` 版本↓↓↓
+```sh
+yarn -v
+```
 
-## 7. 好用的 VS Code 套件推薦：
-::: info
-  1. [Chinese (Traditional) Language Pack for Visual Studio Code](Chinese (Traditional) Language Pack for Visual Studio Code)
-  > 我英文不好，很需要這個。
-  1. [Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens)
-  > 錯誤視覺化、配合 `typescript` 哪邊怪怪的馬上就會知道。
-  2. [File Nesting Updater](https://marketplace.visualstudio.com/items?itemName=antfu.file-nesting)
-  > 把一堆雜檔好好的縮在一起，保護眼睛及腦袋不受訊息轟炸。
-  3. [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)
-  4. [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat)
-  > 好處太多了我找一天專門寫文章歌頌他，~~Github請記得付我工商的費用，開玩笑的~~
-  5. [Material Icon Theme](https://marketplace.visualstudio.com/items?itemName=PKief.material-icon-theme)
-  > 沒啥原因，就是覺得順眼喜歡。\
-  6. [Power Mode](https://marketplace.visualstudio.com/items?itemName=hoovercj.vscode-power-mode)
-  > 寫扣，不炫砲，不成活。
-  7. [Todo Tree](https://marketplace.visualstudio.com/items?itemName=Gruntfuggly.todo-tree)
-  > 超級無敵好用，只是配置要花一些心力，用了一樣回不去了!!
+## 好用的 VS Code 套件推薦：
+### 1. [Chinese (Traditional) Language Pack for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=MS-CEINTL.vscode-language-pack-zh-hant)
+> 我英文不好，很需要這個。
+### 2. [Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens)
+> 錯誤視覺化、配合 `typescript` 哪邊怪怪的馬上就會知道。
+### 3. [File Nesting Updater](https://marketplace.visualstudio.com/items?itemName=antfu.file-nesting)
+> 把一堆雜檔好好的縮在一起，保護眼睛及腦袋不受訊息轟炸。
+### 4. [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)
+### 5. [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat)
+> 好處太多了我找一天專門寫文章歌頌他，~~Github請記得付我工商的費用，開玩笑的~~
+### 6. [Material Icon Theme](https://marketplace.visualstudio.com/items?itemName=PKief.material-icon-theme)
+> 沒啥原因，就是覺得順眼喜歡。\
+### 7. [Power Mode](https://marketplace.visualstudio.com/items?itemName=hoovercj.vscode-power-mode)
+> 寫扣，不炫砲，不成活。
+### 8. [Todo Tree](https://marketplace.visualstudio.com/items?itemName=Gruntfuggly.todo-tree)
+> 超級無敵好用，只是配置要花一些心力，用了一樣回不去了!!
 
-  以上這些套件，沒裝不會怎樣，裝了很不一樣!! ~~(年紀透漏)~~
-:::
+以上這些套件，沒裝不會怎樣，裝了很不一樣!! ~~(年紀透漏)~~
 
 ## 小結：
 這篇文章，水分大概是99%吧，<br />

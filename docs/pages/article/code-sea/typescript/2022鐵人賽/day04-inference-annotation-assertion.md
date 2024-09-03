@@ -101,7 +101,7 @@ Title|型別推論|型別註記|型別斷言
   因此，不能在屬性上添加 age 或 gender，<br />
   這時候透過`Assertion(斷言)`可以避免這個問題
 
-  ``` typescript
+  ```ts
   // 先建立一個 Interface(介面)
   // Interface(介面) 是個原先JavaScript沒有的概念，
   // 對我來說 他有點像個模型，現在先有個印象就可以了，
@@ -122,7 +122,7 @@ Title|型別推論|型別註記|型別斷言
   > 這時候也許就會想了，那`Interface(介面)`能不能當作`Annotation(註記)`的型別呢?
   > 測試了一下發現他是會報錯的
 
-  ``` typescript
+  ```ts
   interface IMember {
     age: number;
     gender: string;
@@ -133,7 +133,7 @@ Title|型別推論|型別註記|型別斷言
   使用`Annotation(註記)`的方式宣告，需要完整的宣告完他的參數。
   可以是一種叫做`excess property checking(額外檢查)`的機制，
   他會比對每個 Key，解法後面會再提到喔~
-  ``` typescript
+  ```ts
   interface Human {
     year: number;
     gender: string;

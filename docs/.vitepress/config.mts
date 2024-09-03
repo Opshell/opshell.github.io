@@ -41,7 +41,7 @@ export default defineConfig({
     },
     themeConfig: {
         classification,
-        siteTitle: 'Opshell\'s Blog',
+        // siteTitle: 'Opshell\'s Blog',
         logo: {
             light: '/logo.jpg',
             dark: '/logo-w.jpg',
@@ -76,9 +76,8 @@ export default defineConfig({
         },
 
         outline: {
-            level: [2, 4], // 显示2-4级标题
-            // level: 'deep', // 显示2-6级标题
-            label: '目錄' // 文字显示
+            level: [2, 4],
+            label: '目錄'
         },
 
         footer: {

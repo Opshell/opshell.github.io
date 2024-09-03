@@ -27,7 +27,7 @@ VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shi
 Hight Light Demo
 ::: code-group
 ````md [Input]
-``` js{4}
+```js{4}
 export default {
   data () {
     return {
@@ -38,7 +38,7 @@ export default {
 ```
 ````
 
-``` js{4} [Output]
+```js{4} [Output]
 export default {
   data () {
     return {
@@ -57,7 +57,7 @@ VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shi
 
 Add、Delete Demo
 ````
-``` js
+```js
 export default {
   data () {
     return {
@@ -70,8 +70,8 @@ export default {
 ````
 
 ::: code-group
-```` md [Input]
-``` js
+````md [Input]
+```js
 export default {
   data () {
     return {
@@ -83,7 +83,7 @@ export default {
 ```
 ````
 
-``` js [Output]
+```js [Output]
 export default {
   data () {
     return {

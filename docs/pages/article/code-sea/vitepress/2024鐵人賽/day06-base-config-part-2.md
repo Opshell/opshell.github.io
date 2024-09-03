@@ -1,5 +1,5 @@
 ---
-title:  'Day05 - config sidebar、socialLinks、footer'
+title:  'Day06 - config sidebar、socialLinks、footer'
 author: 'Opshell'
 createdAt: '2024/09/07'
 categories: 'vitepress-thirty-days'
@@ -20,7 +20,7 @@ isPublished: false
 最簡單的形式就是傳入一組 `array(陣列)`，用法跟上面的 nav 非常的接近，有幾個要注意的地方：
 - `link` 需要要指定 `/` 開頭的實體檔案路徑，如果是 `/` 結尾的話，則會指向結尾目錄下 `index.md` 檔案。
 - 最多只能套嵌 6 層，超過將被程式忽略自然就不會顯示在側邊欄了。
-``` ts [基本用法]
+```ts [基本用法]
 export default defineConfig({
     themeConfig: {
         sidebar: [
@@ -60,7 +60,7 @@ export default defineConfig({
 Opshell 希望看官可以專注在某個主題，能不能讓側邊欄專注某個主題就好呢?
 
 這時候就要用到我們第二種設定方式 `分組型-多側邊欄` 啦：
-``` ts [分組型-多側邊欄]
+```ts [分組型-多側邊欄]
 export default defineConfig({
     themeConfig: {
         sidebar: {
@@ -98,7 +98,7 @@ export default defineConfig({
 ```
 
 sidebar 會從  `SidebarItem[]` 變成 `SidebarMulti`(物件)
-``` ts
+```ts
 export type Sidebar = SidebarItem[] | SidebarMulti
 
 export interface SidebarMulti {
@@ -134,7 +134,7 @@ export type SidebarItem = {
 
 ## socialLinks (社交區)
 在 nav 裡面增加 社交平台的連結：
-``` ts
+```ts
 export default defineConfig({
     themeConfig: {
         socialLinks: [
@@ -162,7 +162,7 @@ export default defineConfig({
 
 預設可以使用常用的社群平台如 `facebook`、`instagram`，沒有在上面也可以自行添加 svg。
 `ariaLabel` 則是無障礙的自訂標籤
-``` ts
+```ts
 interface SocialLink {
   icon: SocialLinkIcon
   link: string
@@ -185,7 +185,7 @@ type SocialLinkIcon =
 ```
 
 ## footer 頁尾
-``` ts
+```ts
 export default defineConfig({
     themeConfig: {
         footer: {

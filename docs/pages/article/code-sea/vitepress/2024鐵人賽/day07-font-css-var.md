@@ -15,7 +15,7 @@ isPublished: false
 
 ## 自訂字型
 部落格最重要的當然就是文字字型啦，看看這個滿滿的文字量， 好的字型帶你上天堂!
-### 1. 選型並下載：
+### 1. 選型並下載
 - 中文字型：[Noto Sans Traditional Chinese(思源黑體)](https://fonts.google.com/noto/specimen/Noto+Sans+TC?query=Noto+sans)
 - 英文字型：[Roboto](https://fonts.google.com/specimen/Roboto?query=Robo)
 - 程式字型：[FiraCode](https://github.com/tonsky/FiraCode/releases)
@@ -30,7 +30,7 @@ isPublished: false
 接下來挑選自己要的字型 weight 檔，並宣告進 `font.css` 然後把目錄結構整理成下面的模樣，最後在 `.docs/.vitepress/theme/index.ts` 引用，由於 `vitepress` 預設使用 `Inter` 字型，而且會把他 build 出來，因為用不到的字體把自己變得很肥，我們需要在 `index.ts` 中調整引用的預設主題，從 `vitepress/theme` 變成 `vitepress/theme-without-fonts`：
 ::: code-group
 
-``` sh [目錄結構]
+```sh [目錄結構]
 .docs/.vitepress/theme
 ├─ fonts
 │  ├─ Fira_Code
@@ -127,7 +127,7 @@ isPublished: false
 }
 ```
 
-``` ts [index.ts]
+```ts [index.ts]
 import { h } from 'vue'
 import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme' // [!code --]
@@ -156,7 +156,7 @@ export default {
 抱歉並不行，我們需要覆蓋主題預設字體的 CSS 變數，既然都要動 CSS 了，為了以後的方便，順便引入 SCSS 的相關功能吧~
 
 `vitepress` 預設支援 CSS預處理器，不用特別安裝 `vite` 的專用插件，但是還是要安裝相應的解析器喔：
-``` sh
+```sh
 yarn add scss -D
 ```
 

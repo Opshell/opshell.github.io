@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day01 - 前言"
-  text: "終於又到了強迫自己努力前進的時刻了，起碼要種點東西讓以後的自己看看。"
-  tagline: Opshell 的碎碎念
+  name: "Day02 - 環境準備&對齊"
+  text: "看一篇文章最大的不是寫的爛，而是他環境跟你差的遠遠的。"
+  tagline: 環境準備 向右看齊~
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day01 - 前言
-      link: /article/code-sea/vitepress/2024鐵人賽/day01-preface.html
+      text: Day02 - 環境準備&對齊
+      link: /article/code-sea/vitepress/2024鐵人賽/day02-front-end-developement.html
 ---
 
 <style lang="scss">

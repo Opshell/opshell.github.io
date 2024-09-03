@@ -19,8 +19,7 @@
         if (descriptionDom.value) {
             if (isOpen.value) {
                 descriptionDom.value.style.height = '0';
-            }
-            else {
+            } else {
                 descriptionDom.value.style.height = `${descriptionHeight.value}px`;
             }
         }

@@ -43,7 +43,7 @@ TypeScript主要就是為了解決這些弱點來提升JS開發體驗而存在�
 #### 1. 新增專案資料夾 (typescript.opshell)
 #### 2. 在根目錄下新增 ts 資料夾
 #### 3. 新增一支檔案在ts資料夾裡：Hello.ts，內容如下)
-``` typescript
+```ts
 function sayHello(name: string) {
    return 'Hello, ' + name;
 }
@@ -53,7 +53,7 @@ console.log(sayHello(who));
 ```
 
 #### 4. cd 到 Hello.ts 所在的資料夾下，編譯Hello.ts
-``` sh
+```sh
 cd ts
 tsc hello.ts
 ```
@@ -75,7 +75,7 @@ tsc hello.ts
 
    #### 1. 產生tsconfig
    回到根目錄下執行 tsc --init
-   ``` sh
+   ```sh
    cd ../
    tsc --init
    ```
@@ -88,7 +88,7 @@ tsc hello.ts
    #### 3. 設定tsconfig後錯誤消失了，刪除Hello.js，重新編譯
    設定了tsconfig.json之後，就可以直接使用tsc編譯了
    在根目錄下直接執行，也不需要cd ts了
-   ``` sh
+   ```sh
    tsc
    ```
 
@@ -105,7 +105,7 @@ tsc hello.ts
    ![型別錯誤提醒](https://ithelp.ithome.com.tw/upload/images/20220903/20109918aX6oACMETr.png)
 
    #### 5. 執行編譯
-   ``` sh
+   ```sh
    tsc
    ```
    編譯提醒了，但還是能編譯成功。 js檔案還是還是會產生出來，這是ts的包容性。
