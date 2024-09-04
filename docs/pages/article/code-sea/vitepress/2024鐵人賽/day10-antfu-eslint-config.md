@@ -1,7 +1,7 @@
 ---
 title:  'Day10 - antfu/eslint-config'
 author: 'Opshell'
-createdAt: '2024/09/10'
+createdAt: '2024/09/11'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
@@ -27,7 +27,6 @@ yarn add @antfu/eslint-config@2.24.1 -D
 yarn add eslint@9.5.0
 ```
 
-## VS Code 安裝 [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) 外掛。
 ## eslint.config.js
 在根目錄下新增 `eslint.config.js`，由於 `@antfu/eslint-config` 支援開箱即用，所以如果需求不高，可以做到這邊就好。
 ```js
@@ -254,6 +253,49 @@ export default antfu(
 可能有看官發現，Opshell 的 `tsconfig.json` `include` 都有具名 docs 而不是一般的 **，這是為什麼呢?
 這是因為，`tsconfig` 其實有預設作用域 `src` 但是呢 `vitepress` 專案裡的資源目錄並不是用 `src` (除非一開始生專案的時候有特別改啦) 而是用 `docs`，所以需要具名 `docs` ，不然 `tsconfig` 會找不到檔案喔。
 :::
+
+## VS Code 安裝 [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) 外掛。
+安裝完之後，在 `settings.json` 加入下面的設定：
+```json
+{
+    // Disable the default formatter, use eslint instead
+    "prettier.enable": false,
+    "editor.formatOnSave": false, //存檔時自動格式化
+    "editor.formatOnSaveMode": "file", // 格式化範圍
+    // Auto fix
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.fixAll.stylelint": "explicit",
+        "source.organizeImports": "never"
+    },
+
+    "eslint.experimental.useFlatConfig": true, // 使用扁平化配置
+    // Silent the stylistic rules in you IDE, but still auto fix them
+    "eslint.rules.customizations": [
+        { "rule": "style/*", "severity": "off", "fixable": true },
+        { "rule": "format/*", "severity": "off", "fixable": true },
+        { "rule": "*-indent", "severity": "off", "fixable": true },
+        { "rule": "*-spacing", "severity": "off", "fixable": true },
+        { "rule": "*-spaces", "severity": "off", "fixable": true },
+        { "rule": "*-order", "severity": "off", "fixable": true },
+        { "rule": "*-dangle", "severity": "off", "fixable": true },
+        { "rule": "*-newline", "severity": "off", "fixable": true },
+        { "rule": "*quotes", "severity": "off", "fixable": true },
+        { "rule": "*semi", "severity": "off", "fixable": true }
+    ],
+    "eslint.validate": [
+        "javascript",
+        "typescript",
+        "vue",
+        "html",
+        "markdown",
+        "json",
+        "xml",
+        "css",
+        "scss",
+    ],
+}
+```
 
 ## 小結
 好的今天完成了針對 `ESLint` 的設定了，

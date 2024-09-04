@@ -102,11 +102,11 @@ export default defineConfig({
         theme: 'one-dark-pro',
         lineNumbers: true,
         container: {
-            infoLabel: 'ℹ️：',
+            infoLabel: '細節：',
             tipLabel: '💡 錦囊 [Tips]：',
             warningLabel: '⚠️ 注意 [Warning]：',
             dangerLabel: '⛔ 錯誤 [Error]：',
-            detailsLabel: 'ℹ️ 詳細資料 [Details]：'
+            detailsLabel: '詳細資料 [Details]：'
         },
         config: (md) => {
             md.use(footnote);

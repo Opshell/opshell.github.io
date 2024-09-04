@@ -48,6 +48,7 @@ export default {
             'grid-gap',
             'grid-row-gap',
             'grid-column-gap',
+            'gap',
             'row-gap',
             'column-gap',
             'align-content',
@@ -56,7 +57,6 @@ export default {
             'justify-content',
             'justify-items',
             'justify-self',
-            'gap',
             'float',
             'clear',
             // 盒模型
@@ -223,7 +223,7 @@ export default {
         'scss/percent-placeholder-pattern': null, // 繼承型變數的命名模式。
         'value-keyword-case': null, // 屬性值的大小寫。
 
-        'no-descending-specificity': null, // 低權重選擇器無法宣告在高權重選擇器之後。(檢測邏輯不夠完善 不開啟)
+        'no-descending-specificity': null // 低權重選擇器無法宣告在高權重選擇器之後。(檢測邏輯不夠完善 不開啟)
         // 'at-rule-no-unknown': [
         //     true,
         //     {

@@ -18,6 +18,8 @@
         }
     },
     "include": [
+        ".eslintrc-auto-import.json",
+
         "docs/.vitepress/*.mts",
         "docs/.vitepress/theme/*.ts",
         "docs/.vitepress/theme/**/*.ts",

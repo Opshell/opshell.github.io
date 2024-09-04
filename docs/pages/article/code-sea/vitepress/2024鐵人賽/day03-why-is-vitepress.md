@@ -1,5 +1,5 @@
 ---
-title:  'Day03 - Why write & Why is vitepress'
+title:  'Day03 - Vitepress 部落格'
 author: 'Opshell'
 createdAt: '2024/09/04'
 categories: 'vitepress-thirty-days'
@@ -7,12 +7,13 @@ tags:
   - 鐵人賽
   - vitepress
 editLink: true
-isPublished: false
+isPublished: true
 ---
 
-# [Day03] 部落格可以做什麼? 為什麼是 Vitepress?
+![banner03](https://ithelp.ithome.com.tw/upload/images/20240904/20109918mYCs6LYrzp.png)
 
-距離`weblog(部落格)`[^1] 線上日記型式的個人網站：<br />
+## Why write & Why is vitepress
+距離[`weblog(部落格)`](https://zh.wikipedia.org/zh-tw/%E7%B6%B2%E8%AA%8C) 線上日記型式的個人網站：<br />
 張貼文章、圖片或影片，來記錄生活、抒發情感及分享資訊<br />
 這個概念在1997年12月17日，由 `約恩‧巴格爾` 提出來，<br />
 到現在已經經歷了快27年了，<br />
@@ -27,17 +28,17 @@ isPublished: false
 技術的追求、實踐、筆記、分享、甚至是出名?<br />
 其實更本質上的來說，算是一種對於我自己對於`網頁工程師`這份職業的認同嗎?<br />
 我認同這份工作，<br />
-我相信承載著自己的技術、生活的熱情、世界的期許及人生的靈魂片段的這個部落格，<br />
+我相信承載著自己的技術、生活的熱情、世界的期許及人生靈魂片段的這個部落格，<br />
 能帶給這個世界一點什麼。<br />
 讓歷史的長河中，有一小塊水花由於我的努力，絢爛的跳躍著，<br />
 向這個世界折射七彩的炫光。
 
 上面說的這麼空泛，寫部落格具體上可以：
 ### 1. `Feynman Technique(費曼學習法)`
-> `Feynman Technique(費曼學習法)`[^2]的主要機制：概念 > 回顧 > 簡化 > 傳授<br />
+> [`Feynman Technique(費曼學習法)`](https://wiki.mbalib.com/zh-tw/%E8%B4%B9%E6%9B%BC%E5%AD%A6%E4%B9%A0%E6%B3%95)的主要機制：概念 > 回顧 > 簡化 > 傳授<br />
 > 透過把自己的經歷、知識、技術寫出來的過程中，<br />
 > 透過大腦的重新轉換、釐清、重整最後變成我們自己的語言，<br />
-> 鞏固在我們的大腦中，真正的把這些知識、技術變成自己的。
+> 把這些知識鞏固在我們的大腦中，真正的把技術變成自己的。
 
 ### 2. 紀錄成長的軌跡
 > 這也是我自己架設部落格的最主要目的之一，<br />
@@ -45,8 +46,7 @@ isPublished: false
 > 東西散落的到處都是，遺忘在世界的各個角落，<br />
 > 有一座自己的多媒體圖書館，該是多麼美好的一件事?<br />
 > ~~東西再也不會找不到啦~~
-> 有空還可以回頭看看過去自己種下的，難看的草。
-> 笑一下。
+> 有空還可以回頭看看過去自己種下的，難看的草笑一下。
 
 ### 3. 思考
 > 人類大腦非常的善於思考，超越了各種超級電腦千萬倍<br />
@@ -62,7 +62,7 @@ isPublished: false
 > 所以把東西寫下來，為我們的腦空間騰出更多的思考資料，<br />
 > 非常有助於我們的紀錄、釐清思考的過程、火花、和結果。
 
-::: tip
+::: tip 寫文章其實不容易
   以上的三個實際好處都要經歷痛苦的撕裂過程，<br />
   往往很辛苦，在開寫之前，腦中只有非常模糊的感覺，
 
@@ -116,7 +116,7 @@ isPublished: false
 常見的設計師團隊有：
 - Hexo
 - Hugo
-- vitepress[^3] (最近出來的新秀)
+- [vitepress](https://vitepress.dev/zh/) (最近出來的新秀)
 
 ## 為什麼是`vitepress`?
 Opshell 會`Vite`、`vue`、`Markdown` 大幅降低了使用門檻。
@@ -130,13 +130,6 @@ Opshell 會`Vite`、`vue`、`Markdown` 大幅降低了使用門檻。
 :::
 
 ## 小結
-說了一大堆，
-吹爆 `vitepress` 之後，
-明天終於要來開架啦~
+說了一大堆，歡迎來看看 [`vitepress` 的架設效果](https://opshell.github.io/)
+吹爆 `vitepress` 之後，明天終於要來開架啦~
 ~~不能再水了~~
-
----
-
-[^1]: [weblog wiki](https://zh.wikipedia.org/zh-tw/%E7%B6%B2%E8%AA%8C)
-[^2]: [費曼學習法](https://wiki.mbalib.com/zh-tw/%E8%B4%B9%E6%9B%BC%E5%AD%A6%E4%B9%A0%E6%B3%95)
-[^3]: [Vitepress](https://vitepress.dev/zh/)
