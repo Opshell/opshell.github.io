@@ -124,6 +124,7 @@ export default defineConfig({
                 resolvers: [] // 解析規則
             })
         ]
+    })
     }
 });
 ```
@@ -173,6 +174,6 @@ body {
 原理是你每 import 一個 `component(組件)` ，他就會 import 一次 `mixin.scss`，當你有實體的 `CSS(階層式樣式表)` 他就會重複的一直疊上去，而 `@mixin` `$scss-var` 等 SCSS 變數的宣告則不會有這個問題。
 :::
 
-## vite-plugin-svg-icons
-喜歡自己決定用哪些 svg icon，又想用簡單的方式引用他，所以就用 svg sprite 的方式做吧!
-我們透過 `vite-plugin-svg-icons` 的幫助：
+## 小結
+好了，環境的東西都處理完了，這次是真的啦，相信我!!
+明天一定進入 stage 3，正式的來寫程式!

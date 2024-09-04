@@ -204,7 +204,8 @@ export default defineConfig({
             Components({
                 dirs: ['./components'], // 指定components位置 預設是'src/components'
                 dts: './types/components.d.ts', // .d.ts生成位置
-                extensions: ['vue'],
+                extensions: ['vue', 'md'], // allow auto load markdown components under dirs
+                include: [/\.vue$/, /\.vue\?vue/, /\.md$/], // allow auto import and register components used in markdown
                 directoryAsNamespace: true, // 允許子目錄作為命名空間
                 resolvers: [] // 解析規則
             }),
