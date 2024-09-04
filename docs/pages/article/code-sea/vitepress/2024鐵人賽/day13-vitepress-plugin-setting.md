@@ -141,10 +141,38 @@ docs/components/
 ```
 所以他生成之後，要使用 `skil.vue` 好了，就會像這樣，`<ElSkill></ElSkill>`。
 
+## 共用 SCSS mixin
+Opshell 為了偷懶，自己寫了很多 SCSS 的 `@mixin`，為了讓他可以全域使用，我們在 vite 裡面設定一下：
+```ts
+import Components from 'unplugin-vue-components/vite';
+
+export default defineConfig({
+    vite: {
+        css: { // 共用全域 SCSS
+            devSourcemap: true, // scss sourcemap
+            preprocessorOptions: {
+                scss: {
+                    additionalData: `@import "@vitepress/theme/scss/mixin.scss";`,
+                    charset: false
+                }
+            }
+        }
+    }
+});
+```
+
+::: tip
+`mixin.scss` 只建議放 `@mixin` `$scss-var` 這類的 scss 宣告項，不要在裡面放入實體的 css 宣告：
+```css
+body {
+  font-size: 16px;
+}
+```
+因為會重複打包，你會發現他包出來的 body 有好幾個。
+![重複打包](/images/article/vitepress-thirty-days/day13-vitepress-plugin-setting-1.png)
+原理是你每 import 一個 `component(組件)` ，他就會 import 一次 `mixin.scss`，當你有實體的 `CSS(階層式樣式表)` 他就會重複的一直疊上去，而 `@mixin` `$scss-var` 等 SCSS 變數的宣告則不會有這個問題。
+:::
+
 ## vite-plugin-svg-icons
-
-ESM CommonJS
-https://hackmd.io/@SkT7-27LSWWQi5G2DJBLkw/ryQ1w-rBi
-
-2. unplugin-auto-import
-3. unplugin-vue-components
+喜歡自己決定用哪些 svg icon，又想用簡單的方式引用他，所以就用 svg sprite 的方式做吧!
+我們透過 `vite-plugin-svg-icons` 的幫助：

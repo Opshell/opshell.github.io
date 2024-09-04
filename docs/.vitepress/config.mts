@@ -221,7 +221,7 @@ export default defineConfig({
             devSourcemap: true, // scss sourcemap
             preprocessorOptions: {
                 scss: {
-                    additionalData: `@import "@vitepress/theme/scss/common.scss";`,
+                    additionalData: `@import "@vitepress/theme/scss/mixin.scss";`,
                     charset: false
                 }
             }
