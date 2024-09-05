@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day03 - Vitepress Blog"
-  text: "2024年的今天，為什麼還要搞個部落格? 又為什麼是 vitepress ?"
-  tagline: Why write & Why is vitepress
+  name: "Day04 - Init VitePress"
+  text: "一切的一切，<br />都是從 vitepress init 開始的"
+  tagline: VitePress~ 啟動~
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day03 - Vitepress 部落格
-      link: /article/code-sea/vitepress/2024鐵人賽/day03-why-is-vitepress.html
+      text: Day04 - Init VitePress
+      link: /article/code-sea/vitepress/2024鐵人賽/day04-init-a-home
 ---
 
 <style lang="scss">

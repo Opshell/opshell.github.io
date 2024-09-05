@@ -1,5 +1,5 @@
 ---
-title:  'Day04 - Init a home'
+title:  'Day04 - Init VitePress'
 author: 'Opshell'
 createdAt: '2024/09/05'
 categories: 'vitepress-thirty-days'
@@ -7,17 +7,14 @@ tags:
   - 鐵人賽
   - vitepress
 editLink: true
-isPublished: false
+isPublished: true
 ---
 
-<script setup lang="ts">
-  import {  withBase } from 'vitepress';
-</script>
+![banner04](https://ithelp.ithome.com.tw/upload/images/20240905/20109918yiEJ8n17GR.png)
 
-今天我們要來安裝、啟動還有調整Vitepress的首頁：
+今天我們要來安裝、啟動還有調整 `VitePress` 的首頁，：
 
 ## 快速安裝
-
 `VitePress` 可以單獨使用，也可以安裝到現有專案中。在這兩種情況下，都可以使用以下方式安裝它：
 ```sh
   yarn add -D vitepress
@@ -79,7 +76,7 @@ Tips:
 └─ package.json
 ```
 
-`docs` 目錄是 VitePress 專案的根目錄。
+`docs` 目錄是 `VitePress` 專案的主要目錄，約等於 `Vite` 中的 `src`。
 
 `.vitepress` 目錄是 `config 文件`、`Dev Server 的暫存(cache)`、`build 的輸出(dist)` 和 `theme(自訂主題)` 的位置。
 
@@ -135,18 +132,18 @@ features:
 ### frontmatter
 在可以看到內容是包在 `---` 和 `---` 之間的，
 而包起來的部分在是所謂的 `YAML frontmatter` (後面簡稱 `frontmatter`)， 並使用 [`gray-matter`](https://github.com/jonschlinkert/gray-matter) 解析他。
-在 `vitepress` 中，用來添加每個頁面自己的設定、資料及訊息，他也可以加入客制的訊息並在頁面中使用他(後面會常提、用到)。
+在 `VitePress` 中，用來添加每個頁面自己的設定、資料及訊息，他也可以加入客制的訊息並在頁面中使用他(後面會常提、用到)。
 ::: tip
   有添加 `frontmatter` 的時候，`frontmatter` 區塊必須位於 `Markdown 文件`(後面簡稱 `md`) 的最上面。
 :::
 
-在 `vitepress` 中， 每個 `md` build 的時後，都會解析成一個 `.html` 的靜態網頁，
+在 `VitePress` 中， 每個 `md` build 的時後，都會解析成一個 `.html` 的靜態網頁，
 而每份 `md` 都可以套用主題佈局、客制內容等，靈活度很高。
 在上面的 `frontmatter` 中可以看到，首頁 `md` 會套用 `layout: home` 這個佈局生成首頁，相信各位看官們也看出來了，他們分別代表：
 
 ![home frontmatter 解釋](/images/article/vitepress-thirty-days/day04-init-a-home-2.png)
 
-於是Opshell 把他改成這樣：
+於是 Opshell 把他改成這樣：
 
 ```md
 ---

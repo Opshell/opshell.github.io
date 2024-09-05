@@ -9,7 +9,7 @@
         <div class="left-block">
             <header class="header-block">
                 <div class="image-box">
-                    <img :src="withBase('images/resume/portrait.png')" alt="Opshell 大頭貼" />
+                    <img src="/images/resume/portrait.png" alt="Opshell 大頭貼" />
                 </div>
                 <h1 class="name">
                     <!-- <span class="zh">YuWei Liu</span> -->
@@ -19,7 +19,7 @@
                     {{ frontmatter.jobTitle }}
                 </span>
                 <div class="mbti">
-                    <img :src="withBase('images/resume/mbti.png')" alt="MBTI：INTP-A" />
+                    <img src="/images/resume/mbti.png" alt="MBTI：INTP-A" />
                 </div>
             </header>
 

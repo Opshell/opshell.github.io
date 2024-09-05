@@ -10,8 +10,9 @@
         <div class="left-block">
             <header class="header-block">
                 <div class="image-box">
-                    <img :src="withBase('images/resume/portrait.png')" alt="Opshell 大頭貼" />
+                    <img src="/images/resume/portrait.png" alt="Opshell 大頭貼" />
                 </div>
+
                 <h1 class="name">
                     <!-- <span class="zh">YuWei Liu</span> -->
                     <span class="en">Opshell</span>
@@ -20,6 +21,8 @@
                 <h2 class="job-title">
                     Front-End Developer
                 </h2>
+
+                <div class="mibt" />
             </header>
 
             <hr class="divider" />
@@ -101,6 +104,10 @@
 </template>
 
 <style lang="scss">
+    .mibt {
+        background: url('/images/resume/mbti.png') no-repeat 50% 50%;
+        @include setSize(300px, 78px);
+    }
     .article-block {
         display: flex;
         width: 100%;

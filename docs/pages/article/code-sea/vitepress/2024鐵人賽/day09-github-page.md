@@ -120,7 +120,7 @@ isPublished: false
 前面提到：就算是專案名稱不想設定成 `<帳號名稱>.github.io`，只要通過一些設定就可以了，只要在 `config` 裡設定 `base: '/<github 專案名稱>/'`,
 ```ts
 export default defineConfig({
-    base: '/vitepress-blog/'
+    base: '/vitepress-blog/' // 需要 / 開頭和結尾
 });
 ```
 其他的設定都和上面一模一樣喔!只是部落格的網址就沒那麼漂亮了，<br />會變成`<帳號名稱>.github.io/<github 專案名稱>/` 。
