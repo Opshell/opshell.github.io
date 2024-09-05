@@ -181,5 +181,6 @@
     .work-experience-block {
         @include setFlex(flex-start, flex-start, 20px, column);
         width: 100%;
+
     }
 </style>

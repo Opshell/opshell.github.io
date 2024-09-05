@@ -40,6 +40,19 @@ hero:
                     line-height: 1.5;
                 }
             }
+
+            @include setRWD(959px) {
+                transform: translateY(0);
+                .main {
+                    transform: translateY(80px);
+                }
+            }
+            @include setRWD(638px) {
+                &.has-image .image .image-src {
+                    max-width: 300px;
+                    max-height: 300px;
+                }
+            }
         }
     }
 </style>
