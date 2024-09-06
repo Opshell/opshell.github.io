@@ -13,13 +13,21 @@ isPublished: false
 今天就來處理大頭照下面的 skill 和 contact 區域吧~，可以發現兩個區域其實有滿多 svg icon 的，
 而 Opshell 最喜歡使用 sprite 的方式處理 svg ，好處是程式碼很乾淨整齊，找東西和維護很方便：
 
-## 安裝 vite-plugin-svg-icons
+::: 小知識
+ 所謂的 svg sprite 其實就像比較早以前的 image sprite 是一樣的邏輯，都是把很多張圖拼起來，然後透過定位來顯示要用的圖片。比較不同的事實踐的方式，svg sprite 是透過把每一個 icon 的"路徑"用 `<symbol>` 標籤包起來並賦與他 `id` 要使用時只要在 svg 的 `xlink:href` 呼叫這個 id 就可以囉。
+:::
+
+## SVG Sprtie
+
+### 1. 安裝
+當然我們可以手動的把自己要得 svg 加進 sprite 包裡面，但是這樣每次新增修改都有夠麻煩，一個好的工程師必須要有的素養就是想辦法自動化 ~~(偷懶~~，所以我們找 `vite-plugin-svg-icons` 幫我們把散落的svg 打包起來。
 ```sh
  yarn add vite-plugin-svg-icons -D
 ```
 
-## 設定 vite-plugin-svg-icons
-到 `config` 中設定一下
+### 2. 設定
+到 `config` 中設定一下，設定他要打包哪邊的 svg，包起來的格式及怎麼加入 body 讓我們引用。
+最後再把喜歡的 svg 檔案放進 `docs/public/icons/` 裡面。
 ```ts
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 
@@ -36,143 +44,64 @@ export default defineConfig({
     }
 });
 ```
-是的，要在 `vitepress` 的 `Markdown` 中使用 Vue 就是這麼簡單，因為在 `vitepress` 中，每個 `Markdown` 都會被編譯成 `HTML` 然後當作 `Vue SFC` 處理。
-簡單的說，在 `vitepress` 中 可以使用任何 Vue 的功能，包括`動態模板`、`script` 和 import `Vue Component`。
-也就是說，你可以把 `md` 當作比較特別的 `Vue SFC` 使用。
 
-::: tip SSR 相容性
-所有的 Vue 用法都需要 相容 SSR，請參考[SSR 兼容性](https://vitepress.dev/zh/guide/ssr-compat)，得到更多資訊和常見問題的解決方案。
-:::
-
-## Markdown 中 auto import component
-咦奇怪? 不是昨天才說可以自動 import `component` 了嗎? 為什麼這邊不加 import 的 script 會沒東西呢?
-爬了一下文件，原來少了這行參數：
+### 3. 引用
+在 `docs/.vitepress/theme/index.ts` 中啟動他的功能。
 ```ts
-import Components from 'unplugin-vue-components/vite';
-
-export default defineConfig({
-    vite: {
-        plugins: [
-            Components({
-                dirs: ['./components'], // 指定components位置 預設是'src/components'
-                dts: './types/components.d.ts', // .d.ts生成位置
-                extensions: ['vue'],
-                include: [/\.vue$/, /\.vue\?vue/, /\.md$/], // allow auto import and register components used in markdown // [!code ++]
-                directoryAsNamespace: true, // 允許子目錄作為命名空間
-                resolvers: [] // 解析規則
-            })
-        ]
-    }
-});
+// [-]Svg Icon引用
+import 'virtual:svg-icons-register';
 ```
-`include` 是在決定，auto import 的 `component` 可以用在哪，加入了 `/\.md$/` 後就可以不用宣告囉~
 
-## resume.vue 切版
-::: code-group
-```vue [resume.vue]
+### 4. 功能封裝
+在 `docs/components/el/` 中新增 元件 `svgIcon.vue` ：
+```vue
 <script setup lang="ts">
-
+    defineProps({
+        name: { type: String, required: true, default: 'circle' }
+    });
 </script>
 
 <template>
-    <article class="article-block">
-        <div class="left-block" />
-        <hr class="divider" />
-        <div class="right-block" />
-    </article>
+    <div class="icon">
+        <svg class="svg">
+            <use :xlink:href="`#${name}`" />
+        </svg>
+    </div>
 </template>
 
 <style lang="scss">
-
+    .icon {
+        position: relative;
+        @include setFlex();
+        @include setSize(32px, 32px);
+        padding: 2px;
+        fill: var(--vp-c-brand-1);
+        transition: 0.2s $cubic-FiSo;
+        .svg {
+            @include setFlex();
+            @include setSize(100%, 100%);
+        }
+    }
 </style>
 ```
-:::
 
-## 大頭照與基本資訊
-就從左上切版到右下吧，`left-block` 區塊中加入大頭照區塊，
-```html
-<header class="header-block">
-    <div class="image-box">
-        <img src="/images/resume/portrait.png" alt="Opshell 大頭貼" />
-    </div>
-    <h1 class="name">
-        <span class="en">{{ frontmatter.name }}</span>
-    </h1>
-    <span class="job-title">
-        {{ frontmatter.jobTitle }}
-    </span>
-    <div class="mbti" />
-</header>
-```
-要塞圖片進來，我們就來研究一下 `vitepress` 的兩種資源處理方式吧，
-
-## 引用靜態資源
-向前面說的，所有的 `md` 都會變成 `vue` 給 `vite` 處理，所以可以用絕對或相對路徑的方式引用靜態資源(下面為相對路徑在各種情境下的引用方式)：
-::: code-group
-```md [markdown 引用]
-![Opshell-portrait](/images/resume/portrait.png)
-```
-
-```vue [vue 引用]
-<img src="/images/resume/portrait.png" alt="Opshell 大頭貼" />
-```
-
-```css [css 引用]
-.mbti {
-    background: url('/images/resume/mbti.png') no-repeat 50% 50%;
-}
-```
-:::
-而相對路徑引用的出發點是 `docs/` 下面，所以記得在 `docs/` 目錄下面建立一個 `images` 目錄。
-
-所有引用的資源(絕對或相對都是)，都會在 `build` 的時候被複製到 `dist` 目錄中，然後重新命名為 `hash` 格式，沒被使用到的資源則會被忽略。
-小於 4kb 的圖片會被轉換成 `base64` 內聯，這個行為可以通過修改 `Vite.build.assetsInlineLimit` 設定來調整。
-
-::: tip 連結引用進來的文件不會被當作資源
-在 `md` 中，通過連結引用的 PDF 或其他文件，不會自動被當作是資源，要讓這些文件可以用，必須手動放在 `public` 目錄裡面。
-:::
-
-## public 目錄
-有時可能需要一些靜態資源，但這些資源沒有直接被 `md` 或 `Vue` 直接引用，或想以原始檔名提供文件，像 `robots.txt`，`favicons` 和 `PWA icon` 等。
-
-可以將這些文件放置在源目錄的 `public` 目錄中。例如，如果項目根目錄是 `./docs`，並且使用默認源目錄位置，那麼 `public` 目錄將是 `./docs/public`。
-
-放置在 `public` 中的資源將按原樣複製到輸出目錄的根目錄中。
-
-::: tip 注意
-應使用 `根絕對路徑` 來引用放置在 `public` 中的文件——例如，`public/icon.png` 會是這樣引用 `/icon.png`。
-也就是說 Opshell 上面的範例，也可以是放在 `docs/public/images` 中，區別在於打包輸出的方式。
-而 Opshell 統一都放在 `public` 裡，打算找個時間來研究一下，兩中輸出方式主要的差異在哪。
-:::
-
-## Base(根) Url
-在前面的[Day09 - 部署到 Github Page]()有提過，如果專案沒有部署在 `Base url` 上面的時候，會需要在 `config` 中設定 `base` 選項，
-
-### 1. 靜態資源引用
-這個情況下，所有的靜態資源 `build` 時會自動修正路徑來契合 `base` 選項，例：如果 `md` 中有一個對 `public` 中的資源的引用
-```md
-![Opshell-portrait](/images/resume/portrait.png)
-```
-上面的情況下，調整 `base` 值不用調整路徑。
-
-### 2. 動態資源引用
-如果是一個 `Vue Component` ，動態的引用資源：
+## 實際使用
+這樣就可以像這樣子的使用啦：
 ```vue
-<img :src="theme.logoPath" />
-```
-
-這種情況下， `vitepress` 提供了 `withBase` 來 handle 路徑， `withBase` 會把 `base` 的值追加在資源的 url 中：
-```vue
-<script setup>
-    import { useData, withBase } from 'vitepress';
-
-    const { theme } = useData();
-</script>
-
-<template>
-    <img :src="withBase(theme.logoPath)" />
-</template>
+<OrgaSectionBlock title="Contact">
+    <ul class="contact-box">
+        <li v-for="contact in contactList" :key="`contact-${contact.text}`" class="contact">
+            <ElSvgIcon :name="contact.icon" />
+            <a :href="contact.href" target="_blank" rel="noopener noreferrer">{{ contact.text }}</a>
+        </li>
+    </ul>
+</OrgaSectionBlock>
 ```
 
 ## 小結
-今天學資源引用，感覺 `vitepress` 各種使用情境都注意到了，和平常的 `vue vite` 專案使用上也沒什麼差異，真的是個狠容易上手的部落格框架。
+很多範例喜歡用 icon font 的方式來做小圖示，的確是簡單方便。
+但是有一些缺點：
+- 要一次 import 整包字型
+- 在一些情況下可能會有鋸齒
+- 和設計師使用的圖示不一樣
+讓有點強迫症的 Opshell 感到痛苦，為了心靈的祥和，可以隨心所欲的用自己要得 svg 還是蠻重要的。

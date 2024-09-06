@@ -160,14 +160,34 @@ export default {
 yarn add scss -D
 ```
 
-接下來幹掉 `docs/.vitepress/theme` 裡面的 `style.css` 建立 `scss` 資料夾，裡面建立 `style.scss` 、 `_mixin.scss` 和 `_variable.scss` 三個檔案‧
+接下來幹掉 `docs/.vitepress/theme` 裡面的 `style.css` 建立 `scss` 資料夾，裡面建立 `style.scss` 、 `mixin.scss` 和 `_variable.scss` 三個檔案‧
 ::: code-group
 ``` scss [style.scss]
-// scss 自訂的函式
-@import 'mixin';
-
 // CSS 變數
 @import 'variable';
+```
+
+``` scss [mixin.scss]
+@mixin setSize($w:0, $h:0){
+    width: $w;
+    height: $h;
+}
+@mixin setFlex($justify: center, $align: center, $gap: 0, $direction: '') {
+    display: flex;
+    @if $direction != '' {
+        flex-direction: $direction;
+    }
+    align-items: $align;
+    justify-content: $justify;
+    @if $gap != 0 {
+        gap: $gap;
+    }
+}
+@mixin setRWD($size) {
+    @media(max-width: $size){
+        @content;
+    }
+}
 ```
 
 ``` scss [_variable.scss]

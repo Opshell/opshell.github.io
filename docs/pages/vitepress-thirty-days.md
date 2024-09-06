@@ -3,15 +3,15 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day04 - Init VitePress"
-  text: "一切的一切，<br />都是從 vitepress init 開始的"
-  tagline: VitePress~ 啟動~
+  name: "Day05 - Base Config"
+  text: "開箱及用的關係，<br />很多東西都整理好了，<br />只要改改 config 就可以囉~"
+  tagline: 基礎設定調整
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day04 - Init VitePress
+      text: Day05 - Base Config
       link: /article/code-sea/vitepress/2024鐵人賽/day04-init-a-home
 ---
 

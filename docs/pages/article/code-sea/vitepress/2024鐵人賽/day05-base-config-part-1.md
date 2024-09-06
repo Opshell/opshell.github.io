@@ -1,5 +1,5 @@
 ---
-title:  'Day05 - Base config setting'
+title:  'Day05 - 基本設定 Part1'
 author: 'Opshell'
 createdAt: '2024/09/06'
 categories: 'vitepress-thirty-days'
@@ -7,12 +7,14 @@ tags:
   - 鐵人賽
   - vitepress
 editLink: true
-isPublished: false
+isPublished: true
 ---
+
+![banner05](https://ithelp.ithome.com.tw/upload/images/20240906/2010991860UjaFgbno.png)
 
 改完首頁樣式之後，就會開始想把 `header` 調整成自己想要的樣子了，
 看了 [官方文件](https://vitepress.dev/zh/reference/default-theme-nav) 就會知道，
-如果我們要調整 `header` 的內容，我們需要打開 `docs/.vitepress/config.mts`(之後都簡稱 `config` ) 這支檔案，
+如果我們要調整 `header` 的內容，我們需要打開 `docs/.vitepress/config.mts` (之後都簡稱 `config` ) 這支檔案，
 
 ::: code-group
 ```ts [config.mts]
@@ -64,9 +66,9 @@ export default defineConfig({
 });
 ```
 Logo 旁邊的網站標題文字，預設是從 `config.title` 抓取，也就是上面 `defineConfig` 裡的 `title`，
-如果想要使用其他的文字，可以設定 `siteTitle`，如果不想顯示任何文字，則可以把 `siteTitle` 設定為 `false` 。
+如果想要使用其他的文字，可以設定在 `siteTitle`，如果不想顯示任何文字，則可以把 `siteTitle` 設定為 `false` 。
 
-自帶黑夜模式是 Opshell 選擇 `vitepress` 的其中一個加分項，
+自帶黑夜模式是 `vitepress` 的其中一個加分項，
 而黑與白模式的 Logo 可以分別設定，當然 你可以像下面這樣設定同一個：
 ```ts
 export default defineConfig({
@@ -77,7 +79,7 @@ export default defineConfig({
 ```
 
 ## rewrites (路由重寫)
-要開始設定文章連結前，Ops想到，預設的 `md` 存放位置是 `/docs/` ，目前我們有的文章數量不多所以沒差，
+要開始設定文章連結前，Ops 想到，預設的 `md` 存放位置是 `/docs/` ，目前我們有的文章數量不多所以沒差，
 但是當文章數量越來越多且專案越玩越花的時候，我們是必須要使用多層資料夾做管理，
 於是新建了一個資料夾專門放 `md` 命名為 `pages` ，各位可以自行決定名稱 `view`、`markdown`、`article` 也都可以，只要自己習慣就好。
 
