@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day05 - Base Config"
-  text: "開箱即用的關係，<br />很多東西都整理好了，<br />只要改改 config 就可以囉~"
-  tagline: 基礎設定調整
+  name: "Day06 - Base Config 2"
+  text: "Config 可以調整跟設定的東西<br />好像有點多"
+  tagline: More Configs
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day05 - Base Config
-      link: /article/code-sea/vitepress/2024鐵人賽/day04-init-a-home
+      text: Day06 - Base Config Part 2
+      link: /article/code-sea/vitepress/2024鐵人賽/day06-base-config-part-2
 ---
 
 <style lang="scss">
