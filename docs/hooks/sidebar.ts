@@ -23,6 +23,9 @@ function getFrontMatter(filePath: string) {
 function getList(params: string[], startPathDir: string, startPathName: string): DefaultTheme.SidebarItem[] {
     const res = [];
 
+    // const aa = createContentLoader(`${startPathName}/*.md`);
+    // console.log(aa);
+
     for (const file of params) {
         const dir = path.join(startPathDir, file); // 組合路徑
         const isDir = isDirectory(dir); // 判斷是否是資料夾

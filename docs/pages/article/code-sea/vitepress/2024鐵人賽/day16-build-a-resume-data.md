@@ -32,7 +32,7 @@ export default {
 ```
 `資料載入`功能只在 `Node.js` 中執行，因此可以按需導入 `Node API` 和 `npm` 依賴。
 
-然後，可以在 `.md` 和 `Vue Component` 中使用 `data` 具名導出從該文件中導入數據：
+然後，可以在 `.md` 和 `Vue Component` 中使用 `data` 具名導出從該文件中導入資料：
 ```vue
 <script setup>
     import { data } from './example.data.js';
@@ -55,7 +55,7 @@ export default {
 ```ts
 export default {
     async load() {
-        // 透過 API 取的數據
+        // 透過 API 取的資料
         return (await fetch('...')).json();
     }
 };
@@ -85,6 +85,77 @@ export default {
 <script setup lang="ts">
     import { data as workExperienceData } from '@/data/works.data';
 </script>
+
+<template>
+    <div class="work-experience-block">
+        <MoleWorkExperience
+            v-for="work in workExperienceData"
+            :key="work.company"
+            :comp-img="withBase(work.compImg)"
+            :company="work.company"
+            :location="work.location"
+            :job-title="work.jobTitle"
+            :period="work.period"
+            :description="work.description"
+        />
+    </div>
+</template>
 ```
 
- import { data } from '@/data/skills.data';
+會發現 `import { data as workExperienceData } from '@/data/works.data';` 報錯了：
+
+`模組 '"@/data/skills.data"' 沒有匯出的成員 'data'。您是要改用 'import data from "@/data/skills.data"' 嗎?ts-plugin(2614)`
+
+這是因為我們沒有為 `works.data` 設定 `loader` 和 `data` 的 `export` 類型，依照官網範例我們改寫成這樣：
+```ts
+import { defineLoader } from 'vitepress'
+
+export interface Data {
+    compImg: string
+    company: string
+    location: string
+    jobTitle: string
+    period: string
+    description: string
+}
+
+declare const data: Data[]
+export { data }
+
+export default defineLoader({
+    load() {
+        ...
+    }
+});
+```
+恩很棒，最基本的資料引用就完成囉~ 一個簡單的 resume 也完成了~
+
+## Data from Local Files(本地文件資料生成)
+前面提到的方式，基本上是靜態資料，只有在 `build` 的時候把資料灌進來，而且 `build` 完之後，是不會看到 `.data.ts` 的原始檔案的，這樣的話每次要改資料都要重新 `build` 一次，有沒有其他的方式可以隨著文件的修改來渲染新的資料呢?
+
+有的 就是我們現在要用到 `Data from Local Files` ：
+
+當需要基於本地文件生成資料時，需要在 `data loader` 中使用 `watch` 選項，以便這些文件修改時可以觸發熱更新。
+
+`watch` 選項也很方便，因為可以使用 `glob` 模式 匹配多個文件。模式可以相對於資料加載文件本身，`load()` 函數將接收匹配文件的絕對路徑。
+
+下面的例子展示瞭如何使用 `csv-parse` 加載 `CSV` 文件並將其轉換為 `JSON`。因為此文件僅在 `build` 時執行，因此不會將 `CSV` 解析器發送到客户端。
+```js
+import fs from 'node:fs'
+import { parse } from 'csv-parse/sync'
+
+export default {
+  watch: ['./data/*.csv'],
+  load(watchedFiles) {
+    // watchFiles 是一个所匹配文件的绝对路径的数组。
+    // 生成一个博客文章元数据数组
+    // 可用于在主题布局中呈现列表。
+    return watchedFiles.map((file) => {
+      return parse(fs.readFileSync(file, 'utf-8'), {
+        columns: true,
+        skip_empty_lines: true
+      })
+    })
+  }
+}
+```

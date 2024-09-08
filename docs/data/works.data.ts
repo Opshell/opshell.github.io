@@ -1,4 +1,18 @@
-export default {
+import { defineLoader } from 'vitepress'
+
+export interface Data {
+    compImg: string
+    company: string
+    location: string
+    jobTitle: string
+    period: string
+    description: string
+}
+
+declare const data: Data[]
+export { data }
+
+export default defineLoader({
     load() {
         return [
             {
@@ -118,4 +132,4 @@ export default {
             }
         ]
     }
-};
+});

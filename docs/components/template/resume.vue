@@ -3,6 +3,9 @@
 
     import { data as skillsData } from '@/data/skills.data';
     import { data as workExperienceData } from '@/data/works.data';
+
+    import { data as test }  from '@/data/test.data';
+    console.log(test);
 </script>
 
 <template>
