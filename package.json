@@ -9,7 +9,9 @@
   "license": "MIT",
   "devDependencies": {
     "@antfu/eslint-config": "2.24.1",
+    "@marked-it/markdown-it-attrs": "^4.0.0-8",
     "@types/fs-extra": "^11.0.4",
+    "@types/markdown-it-attrs": "^4.1.3",
     "@types/markdown-it-footnote": "^3.0.4",
     "eslint": "9.5.0",
     "globby": "^14.0.2",

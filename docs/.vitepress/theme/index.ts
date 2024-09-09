@@ -1,4 +1,4 @@
-import { h } from 'vue';
+import { DefineComponent, h } from 'vue';
 import { Theme, useRoute } from 'vitepress';
 import DefaultTheme from 'vitepress/theme-without-fonts';
 import mediumZoom from 'medium-zoom';

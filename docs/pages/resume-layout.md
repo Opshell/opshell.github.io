@@ -94,12 +94,14 @@ contact:
 
 <MoleWorkExperience
   :key="workExperienceData[0].company"
-  :comp-img="withBase(workExperienceData[0].compImg)"
+  :comp-img="workExperienceData[0].compImg"
   :company="workExperienceData[0].company"
   :location="workExperienceData[0].location"
   :job-title="workExperienceData[0].jobTitle"
   :period="workExperienceData[0].period"
 >
+
+### 馬亞 {.compony data-aa="eatg" cheched="false"}
 
 #### 一、工作內容概述：
   - 依客戶需求協同規劃 UI/UX、切版、前、後端功能對接及串接第三方API。

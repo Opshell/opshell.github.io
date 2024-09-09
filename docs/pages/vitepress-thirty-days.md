@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day07 - font & css"
-  text: "自己的房子，<br/>當然要裝潢成自己喜歡的風格。"
-  tagline: 加入個人風格吧~
+  name: "Day08 - Split Config"
+  text: "長長長長的義大利麵，<br/>需要好好整理。"
+  tagline: 強迫症友好
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day07 - font & css
-      link: /article/code-sea/vitepress/2024鐵人賽/day07-font-css-var
+      text: Day08 - Split Config
+      link: /article/code-sea/vitepress/2024鐵人賽/day08-Split-config
 ---
 
 <style lang="scss">

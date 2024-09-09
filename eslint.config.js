@@ -36,8 +36,13 @@ export default antfu(
             'ts/no-unused-vars': 'off', // 關閉 ts/no-unused-vars 規則
             'ts/strict-boolean-expressions': 'off',
             'ts/consistent-type-imports': 'off', // 關閉 ts/consistent-type-imports 規則
+
             'unused-imports/no-unused-vars': 'off',
-            'no-console': 'off'
+            'no-console': 'off',
+
+            'ts/no-unsafe-return': 'off', // 關閉 no-unsafe-return 規則 [+]再找時間處理
+            'ts/no-unsafe-assignment': 'off', // 關閉 no-unsafe-assignment 規則  [+]再找時間處理
+            'ts/no-unsafe-argument': 'off' // 關閉 no-unsafe-assignment 規則  [+]再找時間處理
         }
     },
     { // 某些規則僅在特定文件中啟用，例如，規則僅在檔中啟用，規則僅在檔中啟用。如果要覆寫規則，則需要指定檔案延伸名稱：ts/*.tsvue/*.vue

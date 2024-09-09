@@ -2,6 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { DefaultTheme, defineConfig } from 'vitepress';
 import container from 'markdown-it-container';
+import markdownItAttrs from 'markdown-it-attrs';
 import { renderSandbox } from 'vitepress-plugin-sandpack';
 
 import AutoImport from 'unplugin-auto-import/vite';
@@ -101,6 +102,12 @@ export default defineConfig({
     markdown: {
         theme: 'one-dark-pro',
         lineNumbers: true,
+        attrs: {
+            // optional, these are default options
+            leftDelimiter: '{',
+            rightDelimiter: '}',
+            allowedAttributes: [] // empty array = all attributes are allowed
+        },
         container: {
             infoLabel: '細節：',
             tipLabel: '💡 錦囊 [Tips]：',
@@ -109,6 +116,13 @@ export default defineConfig({
             detailsLabel: '詳細資料 [Details]：'
         },
         config: (md) => {
+            // md.use(markdownItAttrs, {
+            //     // optional, these are default options
+            //     leftDelimiter: '{',
+            //     rightDelimiter: '}',
+            //     allowedAttributes: [] // empty array = all attributes are allowed
+            // });
+
             md.use(footnote);
             interface iFootnoteAnchorTokenMeta {
                 id: number
@@ -122,8 +136,9 @@ export default defineConfig({
                 }
                 return ` <a href="#fnref${id}" class="footnote-backref"> ⬆️ </a>`;
             };
+
             md.use(container, 'sandbox', {
-                render(tokens, idx) {
+                render(tokens: any[], idx: number) {
                     return renderSandbox(tokens, idx, 'sandbox');
                 }
             });

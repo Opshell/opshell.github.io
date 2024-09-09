@@ -1,5 +1,5 @@
 ---
-title:  'Day08 - dynamic config'
+title:  'Day08 - config 拆分'
 author: 'Opshell'
 createdAt: '2024/09/09'
 categories: 'vitepress-thirty-days'
@@ -7,8 +7,9 @@ tags:
   - 鐵人賽
   - vitepress
 editLink: true
-isPublished: false
+isPublished: true
 ---
+![banner08](https://ithelp.ithome.com.tw/upload/images/20240909/201099187kroOlXw41.png)
 
 ## config 拆分
 加完了字型和 SCSS 之後 又要繼續在 `config` 加設定啦~~
