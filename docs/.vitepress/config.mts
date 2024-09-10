@@ -12,7 +12,7 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 // import footnote_plugin from 'markdown-it-footnote';
 import footnote from 'markdown-it-footnote';
 
-import { getSidebar } from '../hooks/sidebar';
+import { getSidebar } from '../hooks/useGetSidebar';
 import { getArticleClassification, iClassification } from '../hooks/useArticleClassification';
 
 import nav from './theme/configs/nav';
