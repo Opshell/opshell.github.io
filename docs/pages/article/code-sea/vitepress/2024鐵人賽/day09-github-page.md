@@ -1,5 +1,5 @@
 ---
-title:  'Day09 - Deploy to Github pages'
+title:  'Day09 - Deploy to GitHub Pages'
 author: 'Opshell'
 createdAt: '2024/09/10'
 categories: 'vitepress-thirty-days'
@@ -8,31 +8,34 @@ tags:
   - vitepress
   - Deploy Github pages
 editLink: true
-isPublished: false
+isPublished: true
 ---
 
-經過前幾天的水之後，我們部落格的基本設定應該都處理的差不多了，積極的看官可能都新增了一堆頁面在玩了，
-那我們今天就來正式部署出來，快速拉高成就感吧。
+![banner09](https://ithelp.ithome.com.tw/upload/images/20240910/20109918Jy69CO00n0.png)
+
+經過前幾天的水之後，我們部落格的基本設定應該都處理的差不多了，積極的看官可能都新增了一堆頁面在玩了，那我們今天就來正式部署出來，快速拉高成就感吧。
 
 ## 建立 Github 專案
 1. 首先要有個 `Github` 帳號~~廢話~~，登入他。
 2. 建立專屬的 `repository` ，`Repository name` 建議為 `<帳號名稱>.github.io`，當然不是也沒關係，只是需要多設定點東西。
 3. 設定 Repository 的開放程度為 `Public`，勾選 Add a README file 後，就可以 `Create repository` 了
-![建立參數](/images/article/vitepress-thirty-days/day09-github-page-1.png)
+![建立參數](https://ithelp.ithome.com.tw/upload/images/20240910/20109918ReqMgco9UM.png)
+
 建立後就可以看到下面這個畫面啦：
-![建立畫面](/images/article/vitepress-thirty-days/day09-github-page-2.png)
+![建立畫面](https://ithelp.ithome.com.tw/upload/images/20240910/20109918mLRVwunEXw.png)
 
 4. `clone` 下來之後，把目前的進度 `commit(提交)`、`push(推送)` 吧~
 
 ## 啟動 Gitehub Page
 1. 到 `Github` 專案下 > Settings > Pages 裡：
-![Github setting](/images/article/vitepress-thirty-days/day09-github-page-3.png)
-![Github page](/images/article/vitepress-thirty-days/day09-github-page-4.png)
-2. 把 Build and deployment > Source 調整成 GitHub Actions
-![Github setting page](/images/article/vitepress-thirty-days/day09-github-page-5.png)
+![Github setting](https://ithelp.ithome.com.tw/upload/images/20240910/20109918lP0pqWHO1S.png)
+![Github page](https://ithelp.ithome.com.tw/upload/images/20240910/20109918MD56U8oHM4.png)
 
-## 設定 Vitepress 自動部署
-1. 根據 `vitepress` 的 [官方手冊](https://vitepress.dev/zh/guide/deploy#github-pages)，我們需要在專案目錄下建立目錄 `.github/workflows/` 並在裡面新增檔案 `deploy.yml`：
+2. 把 Build and deployment > Source 調整成 GitHub Actions
+![Github setting page](https://ithelp.ithome.com.tw/upload/images/20240910/20109918QjBxw00X4c.png)
+
+## 設定 VitePress 自動部署
+1. 根據 `VitePress` 的 [官方手冊](https://vitepress.dev/zh/guide/deploy#github-pages)，我們需要在專案目錄下建立目錄 `.github/workflows/` 並在裡面新增檔案 `deploy.yml`：
 ::: code-group
   ```sh [目錄結構]
   .
@@ -126,5 +129,5 @@ export default defineConfig({
 其他的設定都和上面一模一樣喔!只是部落格的網址就沒那麼漂亮了，<br />會變成`<帳號名稱>.github.io/<github 專案名稱>/` 。
 
 ## 小結
-好的我們第一階段的任務 "建立基本的 `vitepress` 部落格並部署他" 完成了~<br />
+好的我們第一階段的任務 "建立基本的 `VitePress` 部落格並部署他" 完成了~<br />
 從明天開始要進入第二階段了，越來越難水了...

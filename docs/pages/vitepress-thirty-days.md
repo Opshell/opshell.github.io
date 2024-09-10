@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day08 - Split Config"
-  text: "長長長長的義大利麵，<br/>需要好好整理。"
-  tagline: 強迫症友好
+  name: "Day08 - 部署到 Github"
+  text: "把部落格部署到 Github Page 吧"
+  tagline: 輕鬆寫意
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day08 - Split Config
-      link: /article/code-sea/vitepress/2024鐵人賽/day08-Split-config
+      text: Day08 - 部署到 Github
+      link: /article/code-sea/vitepress/2024鐵人賽/day09-github-page
 ---
 
 <style lang="scss">
