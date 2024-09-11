@@ -1,17 +1,17 @@
 ---
-title:  'Day13 - Vitepress Plugin Setting'
+title:  'Day13 - VitePress Plugin Setting'
 author: 'Opshell'
 createdAt: '2024/09/14'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
-  - vitepress
+  - VitePress
 editLink: true
 isPublished: false
 ---
 
 到昨天，整個環境才算是設定好了，水了 12 天了，接下來該認認真真的寫一點程式了，那我們今天來水點 vite 的 plugin 吧 ~~(被拖去打)~~
-等等聽我解釋， `vitepress` 的其中一個很大的優勢就是他建立在 `vite` 上面，我們要善用他的優勢!!
+等等聽我解釋， `VitePress` 的其中一個很大的優勢就是他建立在 `vite` 上面，我們要善用他的優勢!!
 
 ## 路徑別名
 我們在 `docs/` 下面建立 `components`、`data`、`hooks` 幾個資料夾，並分別設定他們的別名：

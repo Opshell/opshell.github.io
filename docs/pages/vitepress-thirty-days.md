@@ -3,15 +3,15 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day08 - 部署到 Github"
-  text: "把部落格部署到 Github Page 吧"
-  tagline: 輕鬆寫意
+  name: "Day10 - Antfu's ESLint"
+  text: "如果有個小精靈可以幫我弄乾淨程式碼該有多好阿~~"
+  tagline: '@antfu/eslint-config'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day08 - 部署到 Github
+      text: Day10 - antfu & ESLint
       link: /article/code-sea/vitepress/2024鐵人賽/day09-github-page
 ---
 

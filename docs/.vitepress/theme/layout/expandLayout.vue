@@ -4,11 +4,9 @@
 
     const { Layout } = DefaultTheme;
 
-    const { frontmatter, page, isDark } = useData();
+    const { frontmatter, page, isDark, theme } = useData();
 
-    const { theme } = useData();
-
-    const classification = computed(() => theme.value.classification);
+    const classification = theme.value.classification;
 
     const lastUpdated = computed(() => {
         // 把 page.value.lastUpdated 從時間戳轉換成 西元年月日
@@ -201,3 +199,4 @@
         transform: none !important;
     }
 </style>
+

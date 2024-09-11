@@ -5,7 +5,7 @@ createdAt: '2024/09/06'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
-  - vitepress
+  - VitePress
 editLink: true
 isPublished: true
 ---
@@ -68,7 +68,7 @@ export default defineConfig({
 Logo 旁邊的網站標題文字，預設是從 `config.title` 抓取，也就是上面 `defineConfig` 裡的 `title`，
 如果想要使用其他的文字，可以設定在 `siteTitle`，如果不想顯示任何文字，則可以把 `siteTitle` 設定為 `false` 。
 
-自帶黑夜模式是 `vitepress` 的其中一個加分項，
+自帶黑夜模式是 `VitePress` 的其中一個加分項，
 而黑與白模式的 Logo 可以分別設定，當然 你可以像下面這樣設定同一個：
 ```ts
 export default defineConfig({
@@ -79,9 +79,9 @@ export default defineConfig({
 ```
 
 ## rewrites (路由重寫)
-要開始設定文章連結前，Ops 想到，預設的 `md` 存放位置是 `/docs/` ，目前我們有的文章數量不多所以沒差，
+要開始設定文章連結前，Ops 想到，預設的 `.md` 存放位置是 `/docs/` ，目前我們有的文章數量不多所以沒差，
 但是當文章數量越來越多且專案越玩越花的時候，我們是必須要使用多層資料夾做管理，
-於是新建了一個資料夾專門放 `md` 命名為 `pages` ，各位可以自行決定名稱 `view`、`markdown`、`article` 也都可以，只要自己習慣就好。
+於是新建了一個資料夾專門放 `.md` 命名為 `pages` ，各位可以自行決定名稱 `view`、`markdown`、`article` 也都可以，只要自己習慣就好。
 
 然後在 `congfig` 裡加入這個設定：
 ```ts
@@ -94,7 +94,7 @@ export default defineConfig({
 ::: tip
 `rewrites` 這個設定是寫在 `defineConfig({})` 下面，而不是在`themeConfig`裡面喔。
 :::
-這樣的話， `vitepress` 會把就會知道 `/pages/about-opshell.md` 改寫成 `/about-opshell` 來做生成，這樣的情況下在之後有需要連結到地方也記得要把 `/pages` 拿掉喔~。
+這樣的話， `VitePress` 會把就會知道 `/pages/about-opshell.md` 改寫成 `/about-opshell` 來做生成，這樣的情況下在之後有需要連結到地方也記得要把 `/pages` 拿掉喔~。
 關於 `rewrites` 屬性還有更多複雜的用法可以用，例如動態路由，Opshell 這邊沒用到，就不展開來講了，有需要的看官請參考[官方文件-路由重寫](https://vitepress.dev/zh/guide/routing#route-rewrites)。
 
 目前目錄結構差不多長這樣(只要沒有副檔名，就是目錄)：

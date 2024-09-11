@@ -58,12 +58,19 @@
             <ul class="list-block">
                 <li v-for="item in currentPageData" :key="`list-${currentTag}-${currentPage}-${item.title}`">
                     <a :href="`${item.url}`" class="item-box">
-                        <span class="date">{{ item.date }}</span>
-                        <span class="category"> {{ item.category }}</span>
+                        <img class="image" :src="item.image" />
+                        <span class="date">
+                            <ElSvgIcon name="calendar_month" />
+                            {{ item.date }}
+                        </span>
+                        <span class="category">
+                            <ElSvgIcon name="folder" />
+                            {{ item.category }}
+                        </span>
                         <h3 class="title">{{ item.title }}</h3>
                         <span class="view">
+                            <ElSvgIcon name="pageview" />
                             view
-                            <ElSvgIcon name="eye" />
                         </span>
                     </a>
                 </li>
@@ -135,11 +142,11 @@
             @include setFlex(flex-start, stretch, 10px, column);
             .item-box {
                 display: grid;
-                grid-template-areas: "date category view"
-                                     "title title   view";
-                grid-template-columns: 100px 1fr 100px;
-                gap: 15px;
-                padding: 10px 20px 15px;
+                grid-template-areas: "image date category view"
+                                     "image title title   view";
+                grid-template-columns: 120px 140px 1fr 100px;
+                gap: 10px;
+                align-items: center;
                 border: 1px solid var(--vp-c-divider);
                 border-radius: 10px;
 
@@ -154,18 +161,39 @@
                 }
             }
 
+            .image {
+                grid-area: image;
+                background: var(--vp-c-divider);
+                border-radius: 5px 0 0 5px;
+            }
+
             .date {
                 grid-area: date;
+                place-self: flex-end start;
+                @include setFlex();
+                padding-left: .625rem;
                 color: var(--vp-c-text-3);
                 transition: 0.25s;
+                .icon {
+                    @include setSize(22px, 22px);
+                    transform: translate(-3px, -1px);
+                }
             }
             .category {
                 grid-area: category;
                 color: var(--vp-c-text-3);
+                transform: translateY(-2px);
                 transition: 0.25s;
+                place-self: flex-end start;
+                @include setFlex();
+                .icon {
+                    @include setSize(24px, 24px);
+                    transform: translateX(-2px);
+                }
             }
             .title {
                 grid-area: title;
+                padding-left: .625rem;
                 color: var(--vp-c-text-1);
                 font-size: 1.6rem;
                 line-height: 2.4rem;
@@ -173,11 +201,12 @@
             }
             .view {
                 grid-area: view;
+                justify-self: start;
                 @include setFlex();
                 color: var(--vp-c-text-1);
                 font-size: 1.25rem;
-                svg {
-                    margin-left: 5px;
+                .icon {
+                    margin-right: 5px;
                 }
             }
         }

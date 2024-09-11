@@ -2,22 +2,10 @@ import path from 'node:path';
 import fs from 'node:fs';
 import matter from 'gray-matter';
 
-interface Post {
-    frontMatter: {
-        date: string
-        title: string
-        category: string
-        tags: string[]
-        description: string
-    }
-    regularPath: string
-};
-
 const isDirectory = (path: string) => fs.lstatSync(path).isDirectory();
 
-function getMarkdown(filePath: string) {
+function getFrontMatter(filePath: string) {
     const content = fs.readFileSync(filePath, 'utf-8');
-
     const { data } = matter(content);
 
     return data;
@@ -28,6 +16,7 @@ interface iTags {
         count: number
         group: {
             title: string
+            image: string
             category: string
             date: string
             url: string
@@ -64,7 +53,7 @@ export async function getArticleClassification(files: string[], startPathName: s
                 continue;
             }
 
-            const frontmatter = getMarkdown(`${startPathName}/${fileName}`);
+            const frontmatter = getFrontMatter(`${startPathName}/${fileName}`);
 
             if (frontmatter.tags && frontmatter.isPublished) {
                 const url = `${startPathName.split('\pages')[1]}/${fileName.replace('.md', '.html')}`;
@@ -74,8 +63,9 @@ export async function getArticleClassification(files: string[], startPathName: s
                     res.tags[tag].count++;
                     res.tags[tag].group.push({
                         title: frontmatter.title as string,
-                        category: frontmatter.categories as string | '',
-                        date: frontmatter.createdAt as string | '',
+                        image: frontmatter.image as string ?? '/images/no_image.svg',
+                        category: frontmatter.categories as string ?? '',
+                        date: frontmatter.createdAt as string ?? '',
                         url
                     });
                 }

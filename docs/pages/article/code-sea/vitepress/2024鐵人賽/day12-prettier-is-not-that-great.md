@@ -5,7 +5,7 @@ createdAt: '2024/09/13'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
-  - vitepress
+  - VitePress
   - murmur
   - env
 editLink: true

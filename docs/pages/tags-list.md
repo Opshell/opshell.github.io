@@ -3,15 +3,14 @@ title: Docs with VitePress
 auther: 'Opshell'
 editLink: true
 categories:
-  - vitepress-thirty-days
+  - Archive
 tags:
-  - 鐵人賽
-  - vitepress
+  - Archive
 layout: page
 ---
 
-<script setup lang="ts">
+<!-- <script setup lang="ts">
     import TemplateTagsList from '@components/template/tagsList.vue';
-</script>
+</script> -->
 
 <TemplateTagsList />

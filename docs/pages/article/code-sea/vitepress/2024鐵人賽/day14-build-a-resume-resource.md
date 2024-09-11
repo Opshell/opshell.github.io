@@ -5,15 +5,15 @@ createdAt: '2024/09/15'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
-  - vitepress
+  - VitePress
 editLink: true
 isPublished: false
 ---
 
 ## 在 Markdown 中使用 Vue
-今天來用個人履歷來嘗試 `vitepress` 的功能，先用 `Figma` 大概拉個畫面，然後就來開工吧~
+今天來用個人履歷來嘗試 `VitePress` 的功能，先用 `Figma` 大概拉個畫面，然後就來開工吧~
 實際的[完工畫面](https://opshell.github.io/resume-layout.html)可以來這裡看看。
-我們一開始先從最熟悉的功能往外擴展， `vitepress` 的 `Markdown` 可以把 `.vue` 檔塞進來用，我們就從這邊開始吧。
+我們一開始先從最熟悉的功能往外擴展， `VitePress` 的 `Markdown` 可以把 `.vue` 檔塞進來用，我們就從這邊開始吧。
 首先在 `docs/pages/` 下面建立一個 `resume-vue.md` 的檔案，`docs/components/template/` 下建立 `resume.vue`，然後在 `nav.ts` 中加入 `resume-vue` 的連結：
 
 ::: code-group
@@ -32,9 +32,9 @@ layout: page
 ```
 :::
 
-是的，要在 `vitepress` 的 `Markdown` 中使用 Vue 就是這麼簡單，因為在 `vitepress` 中，每個 `Markdown` 都會被編譯成 `HTML` 然後當作 `Vue SFC` 處理。
-簡單的說，在 `vitepress` 中 可以使用任何 Vue 的功能，包括`動態模板`、`script` 和 import `Vue Component`。
-也就是說，你可以把 `md` 當作比較特別的 `Vue SFC` 使用。
+是的，要在 `VitePress` 的 `Markdown` 中使用 Vue 就是這麼簡單，因為在 `VitePress` 中，每個 `Markdown` 都會被編譯成 `HTML` 然後當作 `Vue SFC` 處理。
+簡單的說，在 `VitePress` 中 可以使用任何 Vue 的功能，包括`動態模板`、`script` 和 import `Vue Component`。
+也就是說，你可以把 `.md` 當作比較特別的 `Vue SFC` 使用。
 
 ::: tip SSR 相容性
 所有的 Vue 用法都需要 相容 SSR，請參考[SSR 兼容性](https://vitepress.dev/zh/guide/ssr-compat)，得到更多資訊和常見問題的解決方案。
@@ -100,10 +100,10 @@ export default defineConfig({
     <div class="mbti" />
 </header>
 ```
-要塞圖片進來，我們就來研究一下 `vitepress` 的兩種資源處理方式吧，
+要塞圖片進來，我們就來研究一下 `VitePress` 的兩種資源處理方式吧，
 
 ## 引用靜態資源
-向前面說的，所有的 `md` 都會變成 `vue` 給 `vite` 處理，所以可以用絕對或相對路徑的方式引用靜態資源(下面為相對路徑在各種情境下的引用方式)：
+向前面說的，所有的 `.md` 都會變成 `vue` 給 `vite` 處理，所以可以用絕對或相對路徑的方式引用靜態資源(下面為相對路徑在各種情境下的引用方式)：
 ::: code-group
 ```md [markdown 引用]
 ![Opshell-portrait](/images/resume/portrait.png)
@@ -125,11 +125,11 @@ export default defineConfig({
 小於 4kb 的圖片會被轉換成 `base64` 內聯，這個行為可以通過修改 `Vite.build.assetsInlineLimit` 設定來調整。
 
 ::: tip 連結引用進來的文件不會被當作資源
-在 `md` 中，通過連結引用的 PDF 或其他文件，不會自動被當作是資源，要讓這些文件可以用，必須手動放在 `public` 目錄裡面。
+在 `.md` 中，通過連結引用的 PDF 或其他文件，不會自動被當作是資源，要讓這些文件可以用，必須手動放在 `public` 目錄裡面。
 :::
 
 ## public 目錄
-有時可能需要一些靜態資源，但這些資源沒有直接被 `md` 或 `Vue` 直接引用，或想以原始檔名提供文件，像 `robots.txt`，`favicons` 和 `PWA icon` 等。
+有時可能需要一些靜態資源，但這些資源沒有直接被 `.md` 或 `Vue` 直接引用，或想以原始檔名提供文件，像 `robots.txt`，`favicons` 和 `PWA icon` 等。
 
 可以將這些文件放置在源目錄的 `public` 目錄中。例如，如果項目根目錄是 `./docs`，並且使用默認源目錄位置，那麼 `public` 目錄將是 `./docs/public`。
 
@@ -145,7 +145,7 @@ export default defineConfig({
 在前面的[Day09 - 部署到 Github Page]()有提過，如果專案沒有部署在 `Base url` 上面的時候，會需要在 `config` 中設定 `base` 選項，
 
 ### 1. 靜態資源引用
-這個情況下，所有的靜態資源 `build` 時會自動修正路徑來契合 `base` 選項，例：如果 `md` 中有一個對 `public` 中的資源的引用
+這個情況下，所有的靜態資源 `build` 時會自動修正路徑來契合 `base` 選項，例：如果 `.md` 中有一個對 `public` 中的資源的引用
 ```md
 ![Opshell-portrait](/images/resume/portrait.png)
 ```
@@ -157,7 +157,7 @@ export default defineConfig({
 <img :src="theme.logoPath" />
 ```
 
-這種情況下， `vitepress` 提供了 `withBase` 來 handle 路徑， `withBase` 會把 `base` 的值追加在資源的 url 中：
+這種情況下， `VitePress` 提供了 `withBase` 來 handle 路徑， `withBase` 會把 `base` 的值追加在資源的 url 中：
 ```vue
 <script setup>
     import { useData, withBase } from 'vitepress';
@@ -171,4 +171,4 @@ export default defineConfig({
 ```
 
 ## 小結
-今天學資源引用，感覺 `vitepress` 各種使用情境都注意到了，和平常的 `vue vite` 專案使用上也沒什麼差異，真的是個狠容易上手的部落格框架。
+今天學資源引用，感覺 `VitePress` 各種使用情境都注意到了，和平常的 `vue vite` 專案使用上也沒什麼差異，真的是個狠容易上手的部落格框架。

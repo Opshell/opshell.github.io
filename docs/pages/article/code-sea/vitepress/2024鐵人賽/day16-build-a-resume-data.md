@@ -5,16 +5,16 @@ createdAt: '2024/09/14'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
-  - vitepress
+  - VitePress
 editLink: true
 isPublished: false
 ---
 
-履歷表最重要的還是工作經歷吧，普遍的操作都是後端 API 拉資料，前端迴圈渲染出來，但是我們 `vitepress` 專案沒有後端阿~ 總不可能寫死一大片資料在 vue 裡面吧? 也太醜了。
-這個部分， `vitepress` 提供的 `Build-Time Data Loading` 功能剛好可以解決這個問題：
+履歷表最重要的還是工作經歷吧，普遍的操作都是後端 API 拉資料，前端迴圈渲染出來，但是我們 `VitePress` 專案沒有後端阿~ 總不可能寫死一大片資料在 vue 裡面吧? 也太醜了。
+這個部分， `VitePress` 提供的 `Build-Time Data Loading` 功能剛好可以解決這個問題：
 
 ## Build-Time Data Loading
-`Build-Time Data Loading` 是 `vitepress` 提供的`資料載入`功能，他允許載入任意資料，並在 `.md` 或 `Vue Component` 引用他，資料的載入只在 `build` 的時候執行，資料將被序列化成 `JSON` 放在 Javascript 包中。
+`Build-Time Data Loading` 是 `VitePress` 提供的`資料載入`功能，他允許載入任意資料，並在 `.md` 或 `Vue Component` 引用他，資料的載入只在 `build` 的時候執行，資料將被序列化成 `JSON` 放在 Javascript 包中。
 
 `資料載入`可以被用來接 API 回傳的資料，也可以基於本地文件中生成。
 

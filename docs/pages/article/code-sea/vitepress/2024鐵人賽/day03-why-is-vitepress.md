@@ -1,11 +1,11 @@
 ---
-title:  'Day03 - Vitepress 部落格'
+title:  'Day03 - VitePress 部落格'
 author: 'Opshell'
 createdAt: '2024/09/04'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
-  - vitepress
+  - VitePress
 editLink: true
 isPublished: true
 ---
@@ -18,7 +18,7 @@ isPublished: true
 這個概念在1997年12月17日，由 `約恩‧巴格爾` 提出來，<br />
 到現在已經經歷了快27年了，<br />
 2024年的今天，為什麼還要搞個部落格 ?<br />
-在這麼多選項中又為什麼是 `vitepress` ?
+在這麼多選項中又為什麼是 `VitePress` ?
 
 ## 為什麼要搭建部落格
 除了部落格本身的目的：<br />
@@ -118,18 +118,18 @@ isPublished: true
 - Hugo
 - [vitepress](https://vitepress.dev/zh/) (最近出來的新秀)
 
-## 為什麼是`vitepress`?
+## 為什麼是`VitePress`?
 Opshell 會`Vite`、`vue`、`Markdown` 大幅降低了使用門檻。
 ::: tip
-  而上面的這些東西帶出了`vitepress`的主要優點：
-  - 專注在文章內容：`vitepress`可以只需要`Markdown`就可以輕鬆實踐美觀的畫面，更專注在內容創作上。
-  - 對工程師的優化：`vitepress`對於`Markdown`做出了更多的擴充，貼合工程師、技術分享的使用者需求，誰用誰知道。
+  而上面的這些東西帶出了`VitePress`的主要優點：
+  - 專注在文章內容：`VitePress`可以只需要`Markdown`就可以輕鬆實踐美觀的畫面，更專注在內容創作上。
+  - 對工程師的優化：`VitePress`對於`Markdown`做出了更多的擴充，貼合工程師、技術分享的使用者需求，誰用誰知道。
   - Vite 框架支援：在`vite`工具的加持下，就一個`快`字了得，還可以用各種`vite`的套件，根本起飛~
   - SEO 和用戶體驗:`SSG(靜態頁生成)`加`SPA(單頁應用)`讓 SEO 和使用者 UIUX交互達到了完美的平衡，門檻又低，簡直鬼才。
   - ~~用新技術潮起來：用的人還不夠多，新技術用起來就是潮。~~
 :::
 
 ## 小結
-說了一大堆，歡迎來看看 [`vitepress` 的架設效果](https://opshell.github.io/)
-吹爆 `vitepress` 之後，明天終於要來開架啦~
+說了一大堆，歡迎來看看 [`VitePress` 的架設效果](https://opshell.github.io/)
+吹爆 `VitePress` 之後，明天終於要來開架啦~
 ~~不能再水了~~

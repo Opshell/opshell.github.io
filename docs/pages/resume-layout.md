@@ -86,11 +86,35 @@ contact:
   import { data as workExperienceData } from '@/data/works.data';
 
   import MoleWorkExperience from '@components/mole/workExperienceMD.vue';
+
+  const workMonths: Ref<{[key: number]}> = ref({});
+
+  const calcMonths = (index, months) => {
+    workMonths.value[index] = months + 1;
+  }
+
+  const workExperience = computed(() => {
+      const count = Object.values(workMonths.value).reduce((acc, cur) => acc + cur, 0);
+
+      const years = Math.floor(count / 12);
+      const months = count % 12; // 一般是月初入職，月底離職，所以要加1
+
+      let result = '';
+
+      if (years !== 0) {
+          result += `${years}y `;
+      }
+      if (months !== 0) {
+          result += `${months}m`;
+      }
+
+      return result;
+  });
 </script>
 
 <section class="work-experience-block">
 
-## Work Experience
+## Work Experience {{ workExperience }}
 
 <MoleWorkExperience
   :key="workExperienceData[0].company"
@@ -99,6 +123,7 @@ contact:
   :location="workExperienceData[0].location"
   :job-title="workExperienceData[0].jobTitle"
   :period="workExperienceData[0].period"
+  @calcMonths="calcMonths(0, $event)"
 >
 
 ### 馬亞 {.compony data-aa="eatg" cheched="false"}
@@ -144,6 +169,7 @@ contact:
   :location="workExperienceData[1].location"
   :job-title="workExperienceData[1].jobTitle"
   :period="workExperienceData[1].period"
+  @calcMonths="calcMonths(1, $event)"
 >
 
 #### 一、工作內容概述：
@@ -191,6 +217,7 @@ contact:
   :location="workExperienceData[2].location"
   :job-title="workExperienceData[2].jobTitle"
   :period="workExperienceData[2].period"
+  @calcMonths="calcMonths(2, $event)"
 >
 
 #### 一、工作內容概述：
@@ -237,6 +264,7 @@ contact:
   :location="workExperienceData[3].location"
   :job-title="workExperienceData[3].jobTitle"
   :period="workExperienceData[3].period"
+  @calcMonths="calcMonths(3, $event)"
 >
 
 #### 一、工作內容概述：

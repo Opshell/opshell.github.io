@@ -2,6 +2,12 @@
     import { useData } from 'vitepress';
 
     const { frontmatter } = useData();
+
+
+    // 物件值相加
+    function sumObjectValues(obj: Record<string, number>) {
+        return Object.values(obj).reduce((acc, cur) => acc + cur, 0);
+    }
 </script>
 
 <template>
@@ -70,7 +76,7 @@
     .article-block {
         display: flex;
         width: 100%;
-        max-width: 1520px;
+        max-width: 1360px;
         height: 100%;
         padding: 5rem 0;
         margin: 0 auto;

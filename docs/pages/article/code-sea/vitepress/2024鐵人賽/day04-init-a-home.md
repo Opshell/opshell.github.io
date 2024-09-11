@@ -5,7 +5,7 @@ createdAt: '2024/09/05'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
-  - vitepress
+  - VitePress
 editLink: true
 isPublished: true
 ---
@@ -134,12 +134,12 @@ features:
 而包起來的部分在是所謂的 `YAML frontmatter` (後面簡稱 `frontmatter`)， 並使用 [`gray-matter`](https://github.com/jonschlinkert/gray-matter) 解析他。
 在 `VitePress` 中，用來添加每個頁面自己的設定、資料及訊息，他也可以加入客制的訊息並在頁面中使用他(後面會常提、用到)。
 ::: tip
-  有添加 `frontmatter` 的時候，`frontmatter` 區塊必須位於 `Markdown 文件`(後面簡稱 `md`) 的最上面。
+  有添加 `frontmatter` 的時候，`frontmatter` 區塊必須位於 `Markdown 文件`(後面簡稱 `.md`) 的最上面。
 :::
 
-在 `VitePress` 中， 每個 `md` build 的時後，都會解析成一個 `.html` 的靜態網頁，
-而每份 `md` 都可以套用主題佈局、客制內容等，靈活度很高。
-在上面的 `frontmatter` 中可以看到，首頁 `md` 會套用 `layout: home` 這個佈局生成首頁，相信各位看官們也看出來了，他們分別代表：
+在 `VitePress` 中， 每個 `.md` build 的時後，都會解析成一個 `.html` 的靜態網頁，
+而每份 `.md` 都可以套用主題佈局、客制內容等，靈活度很高。
+在上面的 `frontmatter` 中可以看到，首頁 `.md` 會套用 `layout: home` 這個佈局生成首頁，相信各位看官們也看出來了，他們分別代表：
 
 ![home frontmatter 解釋](/images/article/vitepress-thirty-days/day04-init-a-home-2.png)
 

@@ -1,12 +1,16 @@
 <script setup lang="ts">
     import { withBase } from 'vitepress';
 
-    defineProps<{
+    const props = defineProps<{
         compImg: string
         company: string
         location: string
         jobTitle: string
         period: string
+    }>();
+
+    const emit = defineEmits<{
+        calcMonths: [months: number]
     }>();
 
     // 做一個可以開關的description 區塊
@@ -18,14 +22,42 @@
         if (descriptionDom.value) {
             if (isOpen.value) {
                 descriptionDom.value.style.height = '0';
-            }
-            else {
+            } else {
                 descriptionDom.value.style.height = `${descriptionHeight.value}px`;
             }
         }
 
         isOpen.value = !isOpen.value;
     }
+
+    // 計算工作年資
+    const calcPeriod = computed(() => {
+        const [start, end] = props.period.split(' - ');
+
+        const [startYear, startMonth] = start.split('.');
+        const [endYear, endMonth] = end.split('.');
+
+        // Date 的月份是 0 ~ 11 所以要 -1
+        const startDate = new Date(Number(startYear), Number(startMonth) - 1);
+        const endDate = end === 'Now' ? new Date() : new Date(Number(endYear), Number(endMonth) - 1);
+
+        const diffInMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+        emit('calcMonths', diffInMonths);
+
+        const years = Math.floor(diffInMonths / 12);
+        const months = (diffInMonths + 1) % 12; // 一般是月初入職，月底離職，所以要加1
+
+        let result = '';
+
+        if (years !== 0) {
+            result += `${years}y `;
+        }
+        if (months !== 0) {
+            result += `${months}m`;
+        }
+
+        return result;
+    });
 
     onMounted(async () => {
         if (descriptionDom.value) {
@@ -55,7 +87,7 @@
                 <span>{{ location }}</span>
             </div>
             <span class="job-title">{{ jobTitle }}</span>
-            <span class="period">{{ period }}</span>
+            <span class="period">{{ period }} ({{ calcPeriod }})</span>
         </header>
 
         <div ref="descriptionDom" class="description vp-doc">
@@ -183,9 +215,6 @@
             }
             .company {
                 color: var(--vp-c-brand-1);
-            }
-            .description {
-                margin: 1.875rem 0;
             }
 
             &::before {

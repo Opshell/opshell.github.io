@@ -6,7 +6,6 @@ createdAt: '2024/07/26'
 categories: 'demo'
 tags:
   - demo
-  - vitepress
 
 editLink: true
 isPublished: true
@@ -49,20 +48,18 @@ export default {
 ```
 :::
 
-
-
 ## Add、Delete
 
 VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shikijs/shiki), with additional features like line-highlighting:
 
 Add、Delete Demo
-````
+````md
 ```js
 export default {
   data () {
     return {
-      msg: 'Hight Light Demo!' // [!!code --]
-      msg: 'Add、Delete Demo!' // [!!code ++]
+      msg: 'Hight Light Demo!' // [!code --]
+      msg: 'Add、Delete Demo!' // [!code ++]
     }
   }
 }
@@ -71,7 +68,7 @@ export default {
 
 ::: code-group
 ````md [Input]
-```js
+```js-vue
 export default {
   data () {
     return {

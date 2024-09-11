@@ -5,7 +5,7 @@ createdAt: '2024/09/09'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
-  - vitepress
+  - VitePress
 editLink: true
 isPublished: true
 ---
@@ -130,7 +130,7 @@ export default defineConfig({
 ## search
 拆分完之後繼續來補設定吧~
 在一個部落格中，`search(搜尋)`也是很重要的一個功能，能在一大堆的文章中找到相關的內容，
-而 `vitepress` 的搜尋功能是建立在 [minisearch](https://github.com/lucaong/minisearch/) 的架構上，
+而 `VitePress` 的搜尋功能是建立在 [minisearch](https://github.com/lucaong/minisearch/) 的架構上，
 所以能夠使用瀏覽器內的索引來模糊全文搜尋。
 所以我們來把 `search`的功能補完吧
 在 `docs/.vitepress/theme/configs` 目錄下，新增檔案 `search.ts` 然後輸入下面的內容：
@@ -189,7 +189,7 @@ export default {
 } as DefaultTheme.Config['search'];
 ```
 
-除了 `miniSearch` 外， `vitepress` 也提供 `Algolia Search` 當作搜尋核心，
+除了 `miniSearch` 外， `VitePress` 也提供 `Algolia Search` 當作搜尋核心，
 只要把 `provider` 改成 `'algolia'` 然後把設定改成 [Algolia DocSearch](https://docsearch.algolia.com/docs/what-is-docsearch/) 的樣子即可，
 由於 Opshell 懶惰，所以使用最不需要做什麼的 `miniSearch` 。
 最後像上面 `sidebar` 的方式引入設定。
@@ -204,7 +204,7 @@ export default {
 ::: tip
 `outline` 是文章目錄功能，而 h1 是文章標題，所以 `outline` 不會顯示 h1 喔，設定也不會顯示。
 :::
-2. `lastUpdated` 文章最後修改的時間，會顯示在文章的最後面，要提交 `md` 之後才會有喔，可以在 `md` 的 `frontmatter` 中為個別文章設定該選項，例：`lastUpdated: false`。
+2. `lastUpdated` 文章最後修改的時間，會顯示在文章的最後面，要提交 `.md` 之後才會有喔，可以在 `.md` 的 `frontmatter` 中為個別文章設定該選項，例：`lastUpdated: false`。
 3. `notFound` 設定 page not Found 頁面的文字，當然你也可以透過擴展預設主題來客製一個屬於自己的 page not found 頁面，後面會提到。
 
 ```ts [config.mts]

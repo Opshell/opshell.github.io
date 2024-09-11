@@ -27,6 +27,7 @@ interface iThemeConfig extends DefaultTheme.Config {
 }
 
 const classification = await getArticleClassification(mdFiles, startPathDir);
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     // lang: 'zh-Hant',
@@ -116,13 +117,6 @@ export default defineConfig({
             detailsLabel: '詳細資料 [Details]：'
         },
         config: (md) => {
-            // md.use(markdownItAttrs, {
-            //     // optional, these are default options
-            //     leftDelimiter: '{',
-            //     rightDelimiter: '}',
-            //     allowedAttributes: [] // empty array = all attributes are allowed
-            // });
-
             md.use(footnote);
             interface iFootnoteAnchorTokenMeta {
                 id: number

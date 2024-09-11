@@ -5,8 +5,8 @@ createdAt: '2024/09/10'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
-  - vitepress
-  - Deploy Github pages
+  - VitePress
+  - Deploy(部署)
 editLink: true
 isPublished: true
 ---

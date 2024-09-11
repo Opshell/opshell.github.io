@@ -1,4 +1,4 @@
-import { defineLoader } from 'vitepress'
+import { defineLoader } from 'vitepress';
 
 export interface Data {
     compImg: string
@@ -9,8 +9,8 @@ export interface Data {
     description: string
 }
 
-declare const data: Data[]
-export { data }
+declare const data: Data[];
+export { data };
 
 export default defineLoader({
     load() {
@@ -49,7 +49,7 @@ export default defineLoader({
                 company: '馬亞動物園',
                 location: 'Tainan, Taiwan',
                 jobTitle: 'Full-Stack Developer',
-                period: '2019.10 - 2023.08  3y 11m',
+                period: '2019.10 - 2023.08', // 3y 11m
                 description: `一、工作內容概述：<br />
         　協助規劃客戶網站需求，實現網頁需求，串接各式API。<br />
         　深入了解前後端對接及不同層面客戶的使用需求。<br />
@@ -85,7 +85,7 @@ export default defineLoader({
                 company: '碼農花園',
                 location: 'Tainan, Taiwan',
                 jobTitle: 'Full-Stack Developer',
-                period: '2017.08 - 2019.09  2y 2m',
+                period: '2017.08 - 2019.09', // 2y 2m
                 description: `一、工作內容概述：<br />
         　協助規劃客戶網站需求，實現網頁需求，串接各式API。<br />
         　實踐各式各樣特殊的版面需求，不斷磨練前端技術。<br />
@@ -117,7 +117,7 @@ export default defineLoader({
                 company: '外星觀測所',
                 location: 'Tainan, Taiwan',
                 jobTitle: 'Software Engineer',
-                period: '2016-08 - 2017.02  7m',
+                period: '2016.08 - 2017.02', // 7m
                 description: `一、工作內容概述：<br />
         　協助影像辨識相關軟體開發，部分網頁開發案，其他行政工作。<br />
         <br />
@@ -130,6 +130,6 @@ export default defineLoader({
         　　資料庫：MySQL<br />
         　　Tool：Trello`
             }
-        ]
+        ];
     }
 });
