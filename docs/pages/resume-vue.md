@@ -1,6 +1,6 @@
 ---
 title: Opshell's Resume
-auther: 'Opshell'
+author: 'Opshell'
 layout: page
 ---
 

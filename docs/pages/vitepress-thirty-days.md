@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day10 - Antfu's ESLint"
-  text: "如果有個小精靈可以幫我弄乾淨程式碼該有多好阿~~"
+  name: "Day11 - StyleLint"
+  text: "CSS 也需要有個小精靈<br />可以幫我整理整理~~"
   tagline: '@antfu/eslint-config'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day10 - antfu & ESLint
-      link: /article/code-sea/vitepress/2024鐵人賽/day09-github-page
+      text: Day11 - StyleLint
+      link: /article/code-sea/vitepress/2024鐵人賽/day11-stylelint
 ---
 
 <style lang="scss">

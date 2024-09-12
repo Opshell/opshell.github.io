@@ -10,7 +10,7 @@ editLink: true
 isPublished: false
 ---
 
-`VitePress` 除了提供自訂 `layout` 以外，也提供對預設 `layout` 的擴充，今天我們就來擴充預設的 `layout` 吧。
+今天進入 Stage 4 啦，`VitePress` 除了提供自訂 `layout` 以外，也提供對預設 `layout` 的擴充，今天我們就來擴充預設的 `layout` 吧。
 
 ## 新增 Expand Layout Component
 我們一樣在 `docs/.vitepress/theme/layout` 裡面添加 `expandLayout.vue`：

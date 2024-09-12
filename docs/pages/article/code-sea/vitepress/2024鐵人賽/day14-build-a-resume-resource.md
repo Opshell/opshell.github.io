@@ -11,7 +11,7 @@ isPublished: false
 ---
 
 ## 在 Markdown 中使用 Vue
-今天來用個人履歷來嘗試 `VitePress` 的功能，先用 `Figma` 大概拉個畫面，然後就來開工吧~
+Stage 3 開始啦~~來用個人履歷來嘗試 `VitePress` 的功能，先用 `Figma` 大概拉個畫面，然後就來開工吧~
 實際的[完工畫面](https://opshell.github.io/resume-layout.html)可以來這裡看看。
 我們一開始先從最熟悉的功能往外擴展， `VitePress` 的 `Markdown` 可以把 `.vue` 檔塞進來用，我們就從這邊開始吧。
 首先在 `docs/pages/` 下面建立一個 `resume-vue.md` 的檔案，`docs/components/template/` 下建立 `resume.vue`，然後在 `nav.ts` 中加入 `resume-vue` 的連結：

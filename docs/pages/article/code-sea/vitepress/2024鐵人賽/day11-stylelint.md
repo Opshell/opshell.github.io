@@ -7,9 +7,12 @@ tags:
   - 鐵人賽
   - VitePress
   - env
+  - VS Code
 editLink: true
-isPublished: false
+isPublished: true
 ---
+
+![banner11](https://ithelp.ithome.com.tw/upload/images/20240912/20109918fuJ6gJH494.png)
 
 昨天千辛萬苦 ~~(只有我)~~ 的把 `ESLiint` 處理好了，
 但是 `ESLint` 有個問題，他沒在管 style 的 ~~(所以我才會有機會受到 `Prettier` 的荼毒)~~
@@ -35,8 +38,8 @@ yarn add stylelint stylelint-config-standard-scss stylelint-config-standard-vue 
 沒錯看到安裝的程式碼，我們今天就是要來用 `stylelint` 啦，
 為什麼是 `stylelint` 呢?
 1. 超過 170 條規則來檢查 CSS 語法，並自動修復大部分格式問題。
-2. `unopinionated(非强制约束)`，可以根據需求自訂規則力度。
-3. 可以處理 CSS 預處理器 等類似CSS 的語法。
+2. `unopinionated(非强制约束)`，可以根據需求自訂規則約束力度。
+3. 可以處理 CSS 預處理器 等類似 CSS 的語法。
 4. 可以看懂 HTML、Markdown 和 CSS-in-JS 等內嵌 CSS。
 
 那裝上面一堆有的沒的是做什麼的?
