@@ -103,18 +103,18 @@ export default defineConfig({
     markdown: {
         theme: 'one-dark-pro',
         lineNumbers: true,
+        container: {
+            infoLabel: '細節：',
+            tipLabel: '💡 錦囊 [Tips]：',
+            warningLabel: '⚡ 注意 [Warning]：',
+            dangerLabel: '⛔ 錯誤 [Error]：',
+            detailsLabel: '詳細資料 [Details]：'
+        },
         attrs: {
             // optional, these are default options
             leftDelimiter: '{',
             rightDelimiter: '}',
             allowedAttributes: [] // empty array = all attributes are allowed
-        },
-        container: {
-            infoLabel: '細節：',
-            tipLabel: '💡 錦囊 [Tips]：',
-            warningLabel: '⚠️ 注意 [Warning]：',
-            dangerLabel: '⛔ 錯誤 [Error]：',
-            detailsLabel: '詳細資料 [Details]：'
         },
         config: (md) => {
             md.use(footnote);

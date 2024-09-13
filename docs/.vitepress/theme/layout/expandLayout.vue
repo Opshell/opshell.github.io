@@ -1,10 +1,14 @@
 <script setup lang="ts">
     import DefaultTheme from 'vitepress/theme';
-    import { useData } from 'vitepress';
+    import { useData, useRouter } from 'vitepress';
 
     const { Layout } = DefaultTheme;
 
-    const { frontmatter, page, isDark, theme } = useData();
+    const { site, frontmatter, page, isDark, theme } = useData();
+
+    console.log('site', site);
+    console.log('page', page);
+    console.log('route', useRouter().route);
 
     const classification = theme.value.classification;
 
@@ -51,6 +55,60 @@
             }
         );
     });
+
+    // 鍵盤事件綁定
+    enum Key {
+        LEFT = 'ArrowLeft',
+        RIGHT = 'ArrowRight'
+    }
+    enum Code {
+        Q = 'KeyQ'
+    }
+
+    function selectorClickHandler(selector: string) {
+        const element = document.querySelector(selector) as HTMLElement;
+        if (element) {
+            element.click();
+        }
+    }
+
+    function leftHandler() {
+        selectorClickHandler('.pager-link.prev');
+    }
+    function rightHandler() {
+        selectorClickHandler('.pager-link.next');
+    }
+    function qHandler() {
+        selectorClickHandler('.DocSearch.DocSearch-Button');
+    }
+
+    const keyStrategies: { [key in Key]: () => void } = {
+        [Key.LEFT]: leftHandler,
+        [Key.RIGHT]: rightHandler
+    };
+    const codeStrategies: { [key in Code]: () => void } = {
+        [Code.Q]: qHandler
+    };
+
+    function keyDownHandler(event: KeyboardEvent) {
+        const key = event.key as Key;
+        if (key in keyStrategies) {
+            keyStrategies[key]();
+        }
+
+        const Code = event.code as Code;
+        if (Code in codeStrategies) {
+            codeStrategies[Code]();
+        }
+    }
+
+    onMounted(() => {
+        window.addEventListener('keydown', keyDownHandler);
+    });
+
+    onBeforeUnmount(() => {
+        window.removeEventListener('keydown', keyDownHandler);
+    });
 </script>
 
 <template>
@@ -88,11 +146,12 @@
 
         <template #aside-ads-before>
             <div class="busuanzi-box">
+                Opshell 的 Blog
                 <div class="busuanzi">
-                    已有： <span id="busuanzi_value_site_pv" class="number">Loading</span> 人來逛逛
+                    已有： <span id="busuanzi_value_site_pv" class="number">Loading</span> 次觀看
                 </div>
                 <div class="busuanzi">
-                    有： <span id="busuanzi_value_site_uv" class="number">Loading</span> 人正在看文章
+                    已有： <span id="busuanzi_value_site_uv" class="number">Loading</span> 個人來過
                 </div>
             </div>
         </template>

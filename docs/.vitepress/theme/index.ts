@@ -39,21 +39,15 @@ function reloadBusuanzi() {
     document.body.appendChild(script);
 }
 
+function initZoom() {
+    mediumZoom('.main img', { background: 'var(--vp-c-bg)' });
+}
+
 export default {
     ...DefaultTheme,
     Layout: ExpandLayout,
-    // Layout: () => {
-    //     return h(DefaultTheme.Layout, null, {
-    //         // https://vitepress.dev/guide/extending-default-theme#layout-slots
-    //     });
-    // },
     setup() {
         const route = useRoute();
-
-        // 為所有圖片添加縮放功能
-        const initZoom = () => {
-            mediumZoom('.main img', { background: 'var(--vp-c-bg)' });
-        };
 
         onMounted(async () => {
             initZoom();
