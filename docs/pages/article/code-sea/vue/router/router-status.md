@@ -26,6 +26,7 @@ https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
 
 https://uvr.esm.is/data-loaders/defining-loaders.html#non-blocking-loaders-with-lazy
 
+```vue
 <script>
 import { defineBasicLoader } from 'unplugin-vue-router/data-loaders/basic'
 import { fetchUserData } from '@/service/api'
@@ -39,6 +40,7 @@ export const useUserData = defineBasicLoader('/user/profile', async (route) => {
   }
 })
 </script>
+```
 
 到組件調用
 

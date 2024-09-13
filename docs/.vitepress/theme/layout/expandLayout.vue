@@ -51,8 +51,6 @@
             }
         );
     });
-
-    console.log('page', page);
 </script>
 
 <template>
@@ -199,4 +197,3 @@
         transform: none !important;
     }
 </style>
-

@@ -26,6 +26,5 @@ declare module 'vue' {
     OrgaSectionBlock: typeof import('./../components/orga/sectionBlock.vue')['default']
     TemplateResume: typeof import('./../components/template/resume.vue')['default']
     TemplateTagsList: typeof import('./../components/template/tagsList.vue')['default']
-    TemplateTestMenu: typeof import('./../components/template/testMenu.vue')['default']
   }
 }
