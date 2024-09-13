@@ -8,9 +8,11 @@ tags:
   - VitePress
   - murmur
   - env
+  - Prettier
 editLink: true
-isPublished: false
+isPublished: true
 ---
+![banner12](https://ithelp.ithome.com.tw/upload/images/20240913/20109918O0AgoxestX.png)
 
 ## 緣起
 第一次見到 `Prettier` 是在兩年前，那時候我在準備推廣統一的團隊程式碼風格，為了更好的維護，大家都懂。
@@ -21,13 +23,12 @@ isPublished: false
 
 回過頭想想這將近兩年的 coding 體驗，開始時的新鮮，相處時的不斷磨合，短暫分開的自由自在，復合時痛苦與煎熬。我發現，其實 `Prettier` 可能不是我想走一輩子的那個人。
 
-他有一些令人在意的點，對於崇尚自由射手座的我，是不可接受的：
+他有一些令人在意的點，對於崇尚自由射手座的我，是不可接受的。
 
 ## Opinionated (固執己見)
-認識他一陣子的朋友基本上都會用這個形容詞來形容他，由於 `Prettier` 要做到最少的設定來達成最大化的風格整合，對於他的初衷，這的確是很棒的做法，讓人快速、容易的了解他，但是對於我們華人來說就會有些形容詞，"不近人情的"、"不懂變通"和"固執己見"等等。沒錯!!從長遠的角度來看 `Prettier` 很多設定是非常僵硬的，所有的論點都是相對的，讓我們來比較一下：
+認識他一陣子的朋友基本上都會用這個形容詞來形容他，由於 `Prettier` 要做到最少的設定來達成最大化的風格整合，對於他的初衷，這的確是很棒的做法，讓人快速、容易的了解他，但是對於我們華人來說就會有些形容詞，"不近人情的"、"不懂變通"和"固執己見"等等。沒錯!!從長遠的角度來看 `Prettier` 很多設定是非常僵硬的，所有的感受都是相對的，讓我們來比較一下：
 
-在 Vue 元件中，可能會有下列兩種情況出現，
-`ElSkill` 的情況是，有時候我們會回來看看、調整 `:style` 的東西，所以我希望他可以斷行下來，讓我可以快一秒看見他，而 `li` 的情況中，就是基本的 `v-for` 再次找他的可能性微乎其微，我們會希望他不要那麼顯眼，所以縮成一行就好。
+在 Vue 元件中，可能會有下列兩種情況出現，`ElSkill` 的情況是，有時候我們會回來看看、調整 `:style` 的東西，所以我希望他可以斷行下來，讓我可以快一秒看見他，而 `li` 的情況中，就是基本的 `v-for` 再次找他的可能性微乎其微，我們會希望他不要那麼顯眼，所以縮成一行就好。
 ```html
 <ElSkill
   v-for="skill in skills.items"
@@ -62,8 +63,8 @@ isPublished: false
 
 ## printWidth 的問題
 而 `printWidth` 又引申了另一個問題，人類的閱讀體驗其實是個很複雜的機制，甚至可以成為很多專門的職業，而 `Prettier` 只用了一個參數來規範他，會造成許多的問題。
-`Anthony Fu` 大大舉了一個我覺得很形象的例子：
-[![Anthony-exmple](/images/article/vitepress-thirty-days/day12-prettier-is-not-that-great-01.png)](https://prettier.io/playground/#N4Igxg9gdgLgprEAuc0DOMAEBXNcBOamAvJgNoA6UmmwOe+AkgCZKYCMANPQVAIYBbOGwogAggBsAZgEs4mAMJ98QiTJh9RmAL6cqNOrgIs2AJm5H8-ISJABxGf0wAlCGgAWfKFt37aPJlZMAGYLBmthTFEAZXdsAHNMADk+ACNsHz1qf0sTTAAWMN5BSNFnPncBL0wAMXw+Bky-QwY8gFYiqxLbABU3d3kAGQBPbFSEJuyW4yCANk6I22iCeJkIZJkJCCllSYBdAG4qEE4QCAAHGDWoNGRQZXwIAHcABWUEW5Q+CSe+YdvTql6mAANZwGDREqDRxwZA7CR4QHAsEQ858MCOeLIGD4bBwU5wATjZjMODMQZeeLYPjxOA1CAqPgwK5QLFfbAwCAnEDuGACCQAdXc6jgaDRYDgyxu6hkADd1MNkOA0ACQI4GDAXvV4lU4d9ESAAFZoAAe0UxEjgAEVsBB4HqEfiQGjCAQlak0nAJNzzvhHDABTJmDB3Mh8uZnY88AL6uclb7RQRZbDTgBHW3wLUXT4gBoAWigcDJZO5+Dg6ZkZa1NN1SHhBrwAhk2NxTrQFutGdhdf1To0qUDwdDSAjOL4m0xCggAlrIFFbW5Rh6aU+9adsrxjCgpNg0TAfsuYm30Rgw0tDrw2m0QA)
+`Anthony Fu` 大大舉了一個我覺得很形象的例子(點圖片開啟程式範例)：
+[![Anthony-exmple](https://ithelp.ithome.com.tw/upload/images/20240913/20109918Xcjw7Lkt7M.png)](https://prettier.io/playground/#N4Igxg9gdgLgprEAuc0DOMAEBXNcBOamAvJgNoA6UmmwOe+AkgCZKYCMANPQVAIYBbOGwogAggBsAZgEs4mAMJ98QiTJh9RmAL6cqNOrgIs2AJm5H8-ISJABxGf0wAlCGgAWfKFt37aPJlZMAGYLBmthTFEAZXdsAHNMADk+ACNsHz1qf0sTTAAWMN5BSNFnPncBL0wAMXw+Bky-QwY8gFYiqxLbABU3d3kAGQBPbFSEJuyW4yCANk6I22iCeJkIZJkJCCllSYBdAG4qEE4QCAAHGDWoNGRQZXwIAHcABWUEW5Q+CSe+YdvTql6mAANZwGDREqDRxwZA7CR4QHAsEQ858MCOeLIGD4bBwU5wATjZjMODMQZeeLYPjxOA1CAqPgwK5QLFfbAwCAnEDuGACCQAdXc6jgaDRYDgyxu6hkADd1MNkOA0ACQI4GDAXvV4lU4d9ESAAFZoAAe0UxEjgAEVsBB4HqEfiQGjCAQlak0nAJNzzvhHDABTJmDB3Mh8uZnY88AL6uclb7RQRZbDTgBHW3wLUXT4gBoAWigcDJZO5+Dg6ZkZa1NN1SHhBrwAhk2NxTrQFutGdhdf1To0qUDwdDSAjOL4m0xCggAlrIFFbW5Rh6aU+9adsrxjCgpNg0TAfsuYm30Rgw0tDrw2m0QA)
 
 是的，這種嚴重破壞體驗的事情，幾乎每天都在發生，更慘的是，你沒辦法阻止他，沒錯這個選項關不掉。所以在中後期，這個選項我給他 `10000` 直接放推。
 但是，這樣子的做法，和什麼都沒做沒有區別，那我還需要 `Prettier` 嗎? 是的狀況遭到一個缺點打翻了 `Prettier` 全部的優點。

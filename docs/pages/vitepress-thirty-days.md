@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day11 - StyleLint"
-  text: "CSS 也需要有個小精靈<br />可以幫我整理整理~~"
-  tagline: '@antfu/eslint-config'
+  name: "Day12 - 再見 Prettier "
+  text: "開始的新鮮，相處的磨合，短暫分開的自由，復合的煎熬。<br />我發現，Prettier 不是我想走一輩子的那個人。"
+  tagline: '不是 `Prettier` 不夠好，是我們不適合。'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day11 - StyleLint
-      link: /article/code-sea/vitepress/2024鐵人賽/day11-stylelint
+      text: Day12 - 我和 Prettier 分手了
+      link: /article/code-sea/vitepress/2024鐵人賽/day12-prettier-is-not-that-great
 ---
 
 <style lang="scss">
