@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day12 - 再見 Prettier "
-  text: "開始的新鮮，相處的磨合，短暫分開的自由，復合的煎熬。<br />我發現，Prettier 不是我想走一輩子的那個人。"
-  tagline: '不是 `Prettier` 不夠好，是我們不適合。'
+  name: "Day13 - Auto Import"
+  text: "VitePress 請你自動載入常用的常用的函式及元件"
+  tagline: '會自動自發的才是個好 VitePress'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day12 - 我和 Prettier 分手了
-      link: /article/code-sea/vitepress/2024鐵人賽/day12-prettier-is-not-that-great
+      text: Day13 - Auto Import
+      link: /article/code-sea/vitepress/2024鐵人賽/day13-vitepress-plugin-setting
 ---
 
 <style lang="scss">

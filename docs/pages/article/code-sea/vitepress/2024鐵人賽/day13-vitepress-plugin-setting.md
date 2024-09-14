@@ -7,11 +7,13 @@ tags:
   - 鐵人賽
   - VitePress
 editLink: true
-isPublished: false
+isPublished: true
 ---
 
-到昨天，整個環境才算是設定好了，水了 12 天了，接下來該認認真真的寫一點程式了，那我們今天來水點 vite 的 plugin 吧 ~~(被拖去打)~~
-等等聽我解釋， `VitePress` 的其中一個很大的優勢就是他建立在 `vite` 上面，我們要善用他的優勢!!
+![banner13](https://ithelp.ithome.com.tw/upload/images/20240914/20109918F3cxjjsPYv.png)
+
+到昨天，整個環境才算是設定好了，水了 12 天了，接下來該認認真真的寫一點程式了，那我們今天來水點 `Vite` 的 plugin 吧 ~~(被拖去打)~~
+等等聽我解釋， `VitePress` 的其中一個很大的優勢就是建立在 `Vite` 上面，我們要善用他的優勢!!
 
 ## 路徑別名
 我們在 `docs/` 下面建立 `components`、`data`、`hooks` 幾個資料夾，並分別設定他們的別名：
@@ -170,7 +172,7 @@ body {
 }
 ```
 因為會重複打包，你會發現他包出來的 body 有好幾個。
-![重複打包](/images/article/vitepress-thirty-days/day13-vitepress-plugin-setting-1.png)
+![重複打包](https://ithelp.ithome.com.tw/upload/images/20240914/20109918Zwv6sn30bp.png)
 原理是你每 import 一個 `component(組件)` ，他就會 import 一次 `mixin.scss`，當你有實體的 `CSS(階層式樣式表)` 他就會重複的一直疊上去，而 `@mixin` `$scss-var` 等 SCSS 變數的宣告則不會有這個問題。
 :::
 
