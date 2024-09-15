@@ -7,8 +7,10 @@ tags:
   - 鐵人賽
   - VitePress
 editLink: true
-isPublished: false
+isPublished: true
 ---
+
+![banner14](https://ithelp.ithome.com.tw/upload/images/20240915/20109918UQKck510xH.png)
 
 ## 在 Markdown 中使用 Vue
 Stage 3 開始啦~~來用個人履歷來嘗試 `VitePress` 的功能，先用 `Figma` 大概拉個畫面，然後就來開工吧~
@@ -171,4 +173,4 @@ export default defineConfig({
 ```
 
 ## 小結
-今天學資源引用，感覺 `VitePress` 各種使用情境都注意到了，和平常的 `vue vite` 專案使用上也沒什麼差異，真的是個狠容易上手的部落格框架。
+今天學資源引用，感覺 `VitePress` 各種使用情境都注意到了，和平常的 `vue vite` 專案使用上也沒什麼差異，真的是個容易上手的部落格框架。

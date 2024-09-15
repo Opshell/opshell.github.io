@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day13 - Auto Import"
-  text: "VitePress 請你自動載入常用的常用的函式及元件"
-  tagline: '會自動自發的才是個好 VitePress'
+  name: "Day14 - build resume 1"
+  text: "來做個履歷吧~ <br/>咦怎麼把圖片放進來阿?"
+  tagline: '靜態資源管理'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day13 - Auto Import
-      link: /article/code-sea/vitepress/2024鐵人賽/day13-vitepress-plugin-setting
+      text: Day14 - build a resume Part.1
+      link: /article/code-sea/vitepress/2024鐵人賽/day14-build-a-resume-resource
 ---
 
 <style lang="scss">
