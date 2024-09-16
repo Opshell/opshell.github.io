@@ -7,9 +7,11 @@ tags:
   - 鐵人賽
   - VitePress
 editLink: true
-isPublished: false
+isPublished: true
 ---
+![banner15](https://ithelp.ithome.com.tw/upload/images/20240916/20109918zbY4sUxND9.png)
 
+[版面參考](https://opshell.github.io/resume-layout.html)
 今天就來處理大頭照下面的 skill 和 contact 區域吧~，可以發現兩個區域其實有滿多 svg icon 的，
 而 Opshell 最喜歡使用 sprite 的方式處理 svg ，好處是程式碼很乾淨整齊，找東西和維護很方便：
 

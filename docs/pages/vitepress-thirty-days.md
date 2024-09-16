@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day14 - build resume 1"
-  text: "來做個履歷吧~ <br/>咦怎麼把圖片放進來阿?"
+  name: "Day15 - build resume 2"
+  text: "來做個履歷吧~ <br/>接下來放 svg ~"
   tagline: '靜態資源管理'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day14 - build a resume Part.1
-      link: /article/code-sea/vitepress/2024鐵人賽/day14-build-a-resume-resource
+      text: Day15 - build a resume Part.2
+      link: /article/code-sea/vitepress/2024鐵人賽/day15-build-a-resume-svg
 ---
 
 <style lang="scss">
