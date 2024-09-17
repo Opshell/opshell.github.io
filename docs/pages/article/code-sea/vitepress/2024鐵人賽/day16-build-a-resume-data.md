@@ -1,14 +1,16 @@
 ---
-title:  "Day14 - Build-Time Data Loading"
+title:  "Day16 - build a resume data"
 author: 'Opshell'
-createdAt: '2024/09/14'
+createdAt: '2024/09/17'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
-isPublished: false
+isPublished: true
 ---
+
+![banner16](https://ithelp.ithome.com.tw/upload/images/20240917/20109918PJ9MKLB0yO.png)
 
 履歷表最重要的還是工作經歷吧，普遍的操作都是後端 API 拉資料，前端迴圈渲染出來，但是我們 `VitePress` 專案沒有後端阿~ 總不可能寫死一大片資料在 vue 裡面吧? 也太醜了。
 這個部分， `VitePress` 提供的 `Build-Time Data Loading` 功能剛好可以解決這個問題：
@@ -128,7 +130,12 @@ export default defineLoader({
     }
 });
 ```
-恩很棒，最基本的資料引用就完成囉~ 一個簡單的 resume 也完成了~
+恩很棒，最基本的資料引用就完成囉~ 一個簡單的 [resume](https://opshell.github.io/resume-layout.html) 也完成了~
+
+::: tip 備註
+Resume 製作的這三天幾乎沒有看見任何的 CSS 程式碼，這不意味著我們是使用 `VitePress` 的預設主題，而是 Opshell 覺得排版非常的簡單，所以就不把 CSS 貼出來水版面了。
+:::
+
 
 ## Data from Local Files(本地文件資料生成)
 前面提到的方式，基本上是靜態資料，只有在 `build` 的時候把資料灌進來，而且 `build` 完之後，是不會看到 `.data.ts` 的原始檔案的，這樣的話每次要改資料都要重新 `build` 一次，有沒有其他的方式可以隨著文件的修改來渲染新的資料呢?
@@ -139,7 +146,7 @@ export default defineLoader({
 
 `watch` 選項也很方便，因為可以使用 `glob` 模式 匹配多個文件。模式可以相對於資料加載文件本身，`load()` 函數將接收匹配文件的絕對路徑。
 
-下面的例子展示瞭如何使用 `csv-parse` 加載 `CSV` 文件並將其轉換為 `JSON`。因為此文件僅在 `build` 時執行，因此不會將 `CSV` 解析器發送到客户端。
+下面的例子展示如何使用 `csv-parse` 加載 `CSV` 文件並將其轉換為 `JSON`。因為此文件僅在 `build` 時執行，因此不會將 `CSV` 解析器發送到客户端。
 ```js
 import fs from 'node:fs'
 import { parse } from 'csv-parse/sync'

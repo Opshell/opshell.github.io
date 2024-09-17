@@ -10,6 +10,8 @@ editLink: true
 isPublished: false
 ---
 
+本篇文章請至[](https://opshell.github.io/article/code-sea/vitepress/2024鐵人賽/day18-basic-markdown)服用才能有完整的學習體驗。
+
 ## container
 當初會選 `VitePress` 的原因就是他對 `.md` 的擴充非常的讚，`VitePress` 使用 [markdown-it](https://github.com/markdown-it/markdown-it) 做為解析器， `VitePress` 很多的 `.md` 的擴展功能都是透過自訂套件實現的，可以在 `config` 中設定 `markdown` 選項來調整外掛的行為或添加更多的套件。
 
@@ -123,46 +125,9 @@ export default defineConfig({
 甚至可以這樣
 #### Input
 ````md
-自訂 error {.red} 和其他 attr {.fix}
+自訂 `error`{.error} 和其他 `attr`{.fix}
 ````
 #### Output
 自訂 `error`{.error} 和其他 `attr`{.fix}
 > ↑↑↑ 請對我按右鍵檢查屬性 ↑↑↑
 
-## markdown-it-attrs
-
-我們需要擴充 markdown 的解析器。
-
-::: tip markdown-it
-
-:::
-
-## 安裝 markdown-it-attrs
-符合我們需求的外掛蠻多的，我們選擇[@marked-it/markdown-it-attrs](https://www.npmjs.com/package/@marked-it/markdown-it-attrs)來使用，因為他除了可以自訂 class 以外，還可以控制其他的 attr 在實用度和需求覆蓋度上面都有更好的發展空間。
-```sh
-yarn add @marked-it/markdown-it-attrs -D
-```
-
-https://github.com/vuejs/vitepress/blob/main/src/node/markdown/markdown.ts
-
-[markdown-it-task-lists](https://www.npmjs.com/package/@hackmd/markdown-it-task-lists)
-
-https://github.com/markdown-it/markdown-it-abbr
-https://www.npmjs.com/package/markdown-it-deflist
-https://www.npmjs.com/package/markdown-it-ins
-
-https://www.npmjs.com/package/markdown-it-treelist
-
-## 使用
-
-MarkDown 超集 碼農的愛
-
-https://typora.io/
-
-4. 調整 md css
-
-https://github.com/takumisoft68/vscode-markdown-table
-
-https://www.npmjs.com/package/@marked-it/markdown-it-attrs
-
-https://www.npmjs.com/package/markdown-it-label
