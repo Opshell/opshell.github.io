@@ -6,7 +6,7 @@ categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
   - VitePress
-  - Markdown
+  - markdown-it
 editLink: true
 isPublished: false
 ---

@@ -1,7 +1,7 @@
 ---
 title:  'Day20 - Extended Layout & useData'
 author: 'Opshell'
-createdAt: '2024/09/20'
+createdAt: '2024/09/21'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽

@@ -1,13 +1,17 @@
 ---
-title:  'Day19 - markdown-it-footnote'
+title:  'Day19 - extended markdown-it'
 author: 'Opshell'
-createdAt: '2024/09/19'
+createdAt: '2024/09/20'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
   - VitePress
+  - markdown-it
 editLink: true
 isPublished: false
+refer:
+  - https://gzcloudhome.cn/posts/write-markdown-it-plugin-to-customize-syntax/
+  - https://juejin.cn/post/7055597191150174238
 ---
 
 昨天設定了 `VitePress` 集成的 `markdown-it` 套件功能，今天不出意外的就是要安裝其他的套件來水一天，但是不出意外的出意外了，除了 todo-list 的 checkbox 以外，好像也沒什麼其他想裝的了。
@@ -21,13 +25,13 @@ isPublished: false
 這些都是利用基本的 checkbox 來做的，大家都知道原生 HTML 的外觀，不能說難看，只是就... 膩了? 看來看去完全沒有一個套件是 Opshell 滿意的，乾脆來自己擴充 `markdowm-it` 好了。
 
 ## 需求確認
-開始動工之前，確認好需求是最重要的，免得無限得做白工 ~~(隕石開發除外)~~ ：
+開始動工之前，確認好需求是最重要的，免得無限的做白工 ~~(隕石開發除外)~~ ：
 #### 1. 用常見的 [ ] [x] 來表示
 #### 2. 可以用 checkbox 勾選 ~~(廢話)~~
 #### 3. 可以客製喜歡的外觀
 #### 4. 可以把相鄰的 checkbox 用 div 包起來
 
-## markdown 原理
+## markdown-it 原理
 既然要擴展 `markdown-it` 的功能，我們就得了解他的運作原理([markdown-it design principles](https://github.com/markdown-it/markdown-it/blob/master/docs/architecture.md))，主要分成兩個部分：
 
 ### 核心組成
@@ -47,6 +51,26 @@ isPublished: false
 - #### inline Token (行內元素)
 > 以字原為最小單位，標題、粗體、code 標示等。
 
+一般的 Token 解析完會像這樣這樣
+
+```ts
+Token {
+  type: 'task_list_item_open', // token 名稱
+  tag: 'label', // HTML 標簽名
+  attrs: [ [ 'class', 'task-list--item' ] ], // [key, value][]
+  map: null, // 源映射，如：[ line_begin, line_end ]
+  nesting: 1, // (1, 0, -1) 1 => 標籤起始, 0 => 自閉標籤， -1 => 標籤結束
+  level: 0, // 套牽層數
+  children: null, // 子節點陣列，內聯和圖片Token 也會放在這裡
+  content: '', // 內容，如果是自閉標籤，內容也會放在這裡。
+  markup: '', // 標記字元，如：範圍塊字元
+  info: '', // 範圍塊裡面的字元，如：程式碼區塊內的程式碼
+  meta: null, // 存任意資料的地方，主要是給套件的擴充用
+  block: true, // true: 塊狀元素, false: 行內元素
+  hidden: false // 渲染時是否忽視這個 Token
+}
+```
+
 ### Parsing
 在 `markdown-it` 中，有各種 `parsing` 規則，每個規則都會把相符條件的 `Markdown` 轉換成 Token，轉換會先從 `block(塊狀元素)` 轉換完再轉換一次 `inline(行內元素)`。
 
@@ -58,9 +82,9 @@ isPublished: false
 
 如：
 ```md
-這是一個*段落*
+這是一個*段落*!!
 ```
-會解析成
+會解析成三個 Token
 
 ```md
 paragraph_open
@@ -84,137 +108,125 @@ inline
 paragraph_close
 ```
 
-按照上面的敘述，block Token 可能會在解析出 inline Token。
+### Rendering
+`markdown-it` 有預先定義好的 `render` 規則(在 md.renderer.rules)，每個規則都是一個函數，輸入是 Token，輸出是 HTML string。
 
-https://gzcloudhome.cn/posts/write-markdown-it-plugin-to-customize-syntax/
-https://gzcloudhome.cn/posts/write-markdown-it-plugin-to-customize-syntax/
+在遍歷各個 Token 的過程中，對每個 Token，都會查看一下是否有和 `Token.type` 同名的 `render` 規則。
 
-<!-- https://mdit-plugins.github.io/zh/ -->
+如果有，則把 Token 丟進去轉換，得到該 Token 的 HTML string。
 
-[添加 markdown 任务插件](https://bddxg.top/article/note/vitepress%E4%BC%98%E5%8C%96/%E6%B7%BB%E5%8A%A0markdown%E4%BB%BB%E5%8A%A1%E6%8F%92%E4%BB%B6.html)
-[markdown-it-task-lists](https://www.npmjs.com/package/@hackmd/markdown-it-task-lists)
-yarn add markdown-it-task-checkbox -D
+接續上面的例子：
 
-  [ ] test
-  [x] check
-
-[vitepress添加脚注插件](https://blog.csdn.net/ashtyukjhf/article/details/129657613)
-@types/markdown-it-footnote
-
-https://github.com/markdown-it/markdown-it-abbr
-
-https://github.com/takumisoft68/vscode-markdown-table
-
-https://wenku.csdn.net/answer/1eexc2yy58?ydreferer=aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS8%3D
-https://blog.csdn.net/qq_41656373/article/details/121672231
-https://blog.csdn.net/qq_45138936/article/details/105453817
-
-[ ] group2
-[x] test
-[ ] good
-https://gzcloudhome.cn/posts/write-markdown-it-plugin-to-customize-syntax/
-https://juejin.cn/post/7055597191150174238
-
-https://juejin.cn/post/7055597191150174238
-
-```ts
-                // regex for task list item = "/\[(\s|x)\]/"
-                // 匹配正則 []
-
-                if (!content.match(/^\s*-\s*\[\s\]/)) {
-                    return false;
-                }
-
-                // line should be at least 3 chars - "[x]"
-                if (start + 2 > max)
-                    return false;
-
-                // 開頭不是 [
-
-                // 不是 [x] 或 [ ]
-                if (state.src.charCodeAt(start + 1) !== 0x20 && state.src.charCodeAt(start + 1) !== 0x78)
-                    return false;
-                // 結尾不是 ]
-                if (state.src.charCodeAt(start + 2) !== 0x5D/* ] */)
-                    return false;
-
-                let pos;
-
-                for (pos = start + 2; pos < max; pos++) {
-                    if (state.src.charCodeAt(pos) === 0x20)
-                        return false;
-                    if (state.src.charCodeAt(pos) === 0x5D /* ] */) {
-                        break;
-                    }
-                }
-
-                if (pos === start + 2)
-                    return false; // no empty footnote labels
-                if (pos + 1 >= max || state.src.charCodeAt(++pos) !== 0x3A /* : */)
-                    return false;
-                if (silent)
-                    return true;
-                pos++;
-
-                if (!state.env.footnotes)
-                    state.env.footnotes = {};
-                if (!state.env.footnotes.refs)
-                    state.env.footnotes.refs = {};
-                const label = state.src.slice(start + 2, pos - 2);
-                state.env.footnotes.refs[`:${label}`] = -1;
-
-                const token_fref_o = new state.Token('footnote_reference_open', '', 1);
-                token_fref_o.meta = { label };
-                token_fref_o.level = state.level++;
-                state.tokens.push(token_fref_o);
-
-                const oldBMark = state.bMarks[startLine];
-                const oldTShift = state.tShift[startLine];
-                const oldSCount = state.sCount[startLine];
-                const oldParentType = state.parentType;
-
-                const posAfterColon = pos;
-                const initial = state.sCount[startLine] + pos - (state.bMarks[startLine] + state.tShift[startLine]);
-                let offset = initial;
-
-                while (pos < max) {
-                    const ch = state.src.charCodeAt(pos);
-
-                    if (isSpace(ch)) {
-                        if (ch === 0x09) {
-                            offset += 4 - offset % 4;
-                        } else {
-                            offset++;
-                        }
-                    } else {
-                        break;
-                    }
-
-                    pos++;
-                }
-
-                state.tShift[startLine] = pos - posAfterColon;
-                state.sCount[startLine] = offset - initial;
-
-                state.bMarks[startLine] = posAfterColon;
-                state.blkIndent += 4;
-                state.parentType = 'footnote';
-
-                if (state.sCount[startLine] < state.blkIndent) {
-                    state.sCount[startLine] += state.blkIndent;
-                }
-
-                state.md.block.tokenize(state, startLine, endLine, true);
-
-                state.parentType = oldParentType;
-                state.blkIndent -= 4;
-                state.tShift[startLine] = oldTShift;
-                state.sCount[startLine] = oldSCount;
-                state.bMarks[startLine] = oldBMark;
-
-                const token_fref_c = new state.Token('footnote_reference_close', '', -1);
-                token_fref_c.level = --state.level;
-                state.tokens.push(token_fref_c);
-
-                return true;
+```md
+paragraph_open         =>  <p>
+inline
+    text               =>  這是一個
+    em_open            =>  <em>
+    text               =>  段落
+    em_close           =>  </em>
+    text               =>  !!
+paragraph_close        =>  </p>
 ```
+
+最後的輸出會是：
+```HTML
+<p>這是一個<em>段落</em>!!</p>
+```
+
+## 功能擴充
+了解原理之後，就來正式的寫擴充吧， `VitePress` 集成以外的 `Markdown` 套件或擴充都會在 `markdown.config` 裡面做處理：
+
+### Parsing
+```ts
+export default defineConfig({
+    markdown: {
+        config: (md) => {
+            // 在 blockquote 規則前面添加 taskList 規則，透過 function 來解析
+            // alt 是這個規則可以打斷的 其他規則，一般不做特別的處理，這裡是直接把 blockquote 的 alt 拿來用。
+            md.block.ruler.before('blockquote', 'taskList', function (state, startLine, endLine, silent) {
+                const start: number = state.bMarks[startLine] + state.tShift[startLine]; // 行的開始位置
+                const max: number = state.eMarks[startLine]; // 行的結束位置
+
+                // 不符合基本規則的直接跳出
+                if (state.src.charCodeAt(start) !== 0x5B) /* [ */
+                    return false;
+                if (state.src.charCodeAt(start + 2) !== 0x5D) /* ] */
+                    return false;
+
+                const content = state.src.substring(start, max); // 取出整段文字
+                const reg = /\[(\s|x)\]/;
+                const match = content.match(reg);
+
+                if (match && match.length) {
+                    let token;
+                    const checked = match[1] === 'x';
+
+                    if (silent) { // 解析異常時不做反應
+                        return true;
+                    }
+
+                    token = state.push('task_list_item_open', 'label', 1);
+                    token.attrs = [['class', 'task-list-item']];
+                    token.map = [ startLine, state.line ];
+
+                    token = state.push('inline', '', 0);
+                    token.content = `
+                        <input class="task-list-input" type="checkbox" ${checked ? 'checked' : ''} />
+                        <span class="task-list-text">${content.replace(reg, '')}</span>
+                    `;
+                    token.map = [ startLine, state.line ];
+                    token.children = [];
+
+                    token = state.push('task_list_item_close', 'label', -1);
+                }
+
+                state.line = startLine + 1;
+                return true;
+            }, { alt: ['paragraph', 'reference', 'blockquote', 'list'] });
+        }
+    }
+});
+```
+
+這樣就為把 `[ ]` 或者是 `[x]` 解析成 class 是 task-list-item 的 `label` 包起來的 `input:checkbox` 組。
+但是這樣並不會把相鄰的 checkbox 用 div 包起來阿?!
+
+別急，解析規則做完之後，我們可以用渲染規則把剩下的需求補完。
+```ts
+export default defineConfig({
+    markdown: {
+        config: (md) => {
+            md.block.ruler.before(......);
+
+            md.renderer.rules.task_list_item_open = (tokens, idx, options, env, slf) => { // [!code ++]
+                return tokens[idx - 1].type !== 'task_list_item_close'  // [!code ++]
+                    ? `<div class="task-list"><label class="task-list-item">`  // [!code ++]
+                    : `<label class="task-list-item">`;  // [!code ++]
+            };  // [!code ++]
+            md.renderer.rules.task_list_item_close = (tokens, idx, options, env, slf) => {  // [!code ++]
+                return tokens[idx + 1].type !== 'task_list_item_open' ? '</label></div>' : '</label>';  // [!code ++]
+            };  // [!code ++]
+        }
+    }
+});
+```
+把 `Token.type` 的規則做一個補充，把第一個 `task_list_item_open` 前面加 `<div>` 最後一個 `task_list_item_close` 後面加 `</div>`，這樣就完美的達成我們的需求囉：
+
+<div class="in-out-demo-block">
+
+#### Input：{.brand}
+````md
+[ ] 我還沒被選取
+[x] 我被選了
+````
+
+#### Output：{.brand}
+[ ] 我還沒被選取
+[x] 我被選了
+</div>
+
+## 小結
+咦奇怪，你說為什麼你寫出來樣式長的跟我不一樣?
+當然是因為 Opshell 沒有把 style 丟出來囉，
+
+我的 `style` 嗎？想要的話就給你吧，去找吧！我把世界上的一切都放在那裡！

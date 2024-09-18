@@ -139,30 +139,9 @@ export default defineConfig({
                 }
             });
 
-            interface markdownItParser {
-                parse: (src: string, env: any) => any
-            }
-            interface iToken {
-                src: string
-                md: markdownItParser
-                env: any
-                tokens: any[]
-                bMarks: number[] // 每一行的起始位置
-                eMarks: number[] // 每一行的結束位置
-                tShift: number[] // 每一行第一个非空白字元的位置
-                line: number
-                level: number
-
-                type: string
-                tag: string
-                nesting: number
-                content: string
-                children: iToken[]
-                attrs: string[][]
-                block: boolean
-            }
-
-            function taskListParse(state: iToken, startLine: number, endLine: number, silent: boolean) {
+            // 在 blockquote 規則前面添加 taskList 規則，透過 function 來解析
+            // alt 是這個規則可以打斷的 其他規則，一般不做特別的處理，這裡是直接把 blockquote 的 alt 拿來用。
+            md.block.ruler.before('blockquote', 'taskList', function (state, startLine, endLine, silent) {
                 const start: number = state.bMarks[startLine] + state.tShift[startLine]; // 行的開始位置
                 const max: number = state.eMarks[startLine]; // 行的結束位置
 
@@ -176,21 +155,20 @@ export default defineConfig({
                 const match = content.match(reg);
 
                 if (match && match.length) {
-                    console.log(match);
-
+                    let token;
                     const checked = match[1] === 'x';
 
                     if (silent) { // 解析異常不做反應
                         return true;
                     }
 
-                    let token: iToken = state.push('task_list_item_open', 'label', 1);
-                    token.attrs = [['class', 'task-list-item']];
+                    token = state.push('task_list_item_open', 'label', 1);
+                    token.attrs = [['class', 'task-list--item']];
 
                     token = state.push('inline', '', 0);
                     token.content = `
-                        <input class="task-list-input" type="checkbox" ${checked ? 'checked' : ''} />
-                        <span class="task-list-text">${content.replace(reg, '')}</span>
+                        <input class="task-list--input" type="checkbox" ${checked ? 'checked' : ''} />
+                        <span class="task-list--text">${content.replace(reg, '')}</span>
                     `;
                     token.block = true;
                     token.level = state.level;
@@ -201,24 +179,12 @@ export default defineConfig({
 
                 state.line = startLine + 1;
                 return true;
-            }
+            }, { alt: ['paragraph', 'reference', 'blockquote', 'list'] });
 
-            // "callout"是新增规则的名字，parseCallout是规则对应的函数。
-            // alt是这个规则可以打断的规则们，一般我们不需要处理。这里我直接把blockquote的alt拿来用了
-            md.block.ruler.before('blockquote', 'taskList', taskListParse, { alt: ['paragraph', 'reference', 'blockquote', 'list'] });
-
-            /**
-             * @param tokens .md 中所有項目規則的集合
-             * @param idx 渲染項目在集合中的索引
-             * @param options
-             * @param env
-             * @param slf
-             * @returns
-             */
             md.renderer.rules.task_list_item_open = (tokens, idx, options, env, slf) => {
                 return tokens[idx - 1].type !== 'task_list_item_close'
-                    ? `<div class="task-list"><label class="task-list-item">`
-                    : `<label class="task-list-item">`;
+                    ? `<div class="task-list"><label class="task-list--item">`
+                    : `<label class="task-list--item">`;
             };
             md.renderer.rules.task_list_item_close = (tokens, idx, options, env, slf) => {
                 return tokens[idx + 1].type !== 'task_list_item_open' ? '</label></div>' : '</label>';
