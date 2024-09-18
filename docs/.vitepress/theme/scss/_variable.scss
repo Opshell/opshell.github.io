@@ -5,6 +5,12 @@
     --vp-c-brand-3: #c7975d;
     --vp-c-brand-soft: rgba(234, 182, 119, 14%);
 
+    // 調整藍色
+    --vp-c-indigo-1: #2866b6;
+    --vp-c-indigo-2: #3079d7;
+    --vp-c-indigo-3: #508fe0;
+    --vp-c-indigo-soft: rgba(40, 103, 184, 14%);
+
     // 把tip 改為品牌色 (Component: Custom Block)
     --vp-custom-block-tip-border: transparent;
     --vp-custom-block-tip-text: var(--vp-c-text-1);
@@ -36,6 +42,10 @@
     --vp-c-brand-2: #d8a72b;
     --vp-c-brand-3: #b99436;
     --vp-c-brand-soft: rgba(185, 148, 54, 16%);
+    --vp-c-indigo-1: #508fe0;
+    --vp-c-indigo-2: #3079d7;
+    --vp-c-indigo-3: #2866b6;
+    --vp-c-indigo-soft: rgba(80, 143, 224, 14%);
 }
 @media (width >= 640px) {
     :root {
