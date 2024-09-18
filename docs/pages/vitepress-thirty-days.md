@@ -3,24 +3,19 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day16 - build resume 3"
-  text: "來做個履歷吧~ <br/>把資料 Load 進來"
-  tagline: 'Build-Time Data Loading'
+  name: "Day17 - 自訂 Layout"
+  text: "斜槓需要多份履歷，<br />但是我不想做好幾個 Component"
+  tagline: 'Custom Layout'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day15 - build a resume Part.3
-      link: /article/code-sea/vitepress/2024鐵人賽/day16-build-a-resume-data
+      text: Day17 - Custom Layout
+      link: /article/code-sea/vitepress/2024鐵人賽/day17-custom-layout
 ---
 
 <style lang="scss">
-    :root {
-        --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #f4b936 30%, #bd34fe 80%);
-        --vp-home-hero-image-background-image: linear-gradient(-45deg, #bd34fe 50%, #f4b936 50%);
-    }
-
     .vitepress-thirty-days {
         .VPHero {
             transform: translateY(120px);

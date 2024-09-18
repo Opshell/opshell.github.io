@@ -7,13 +7,15 @@ tags:
   - 鐵人賽
   - VitePress
 editLink: true
-isPublished: false
+isPublished: true
 ---
 
-前面我們透過了引用 `Vue Component` 的方式做了一個履歷表，可以客製我們想要的排版和內容，如果 Opshell 想要應徵多種職缺，需要多篇履歷，這樣就會一直增加元件 和 `data` 管理和維護會越來越不方便，有沒有辦法像是管理 `.md` 的方式管理履歷呢?，如果可以自己做 `layout` 就好了!
+![Banner17](https://ithelp.ithome.com.tw/upload/images/20240918/20109918jmf5iZLjyZ.png)
+
+前面我們透過了引用 `Vue Component` 的方式做了一個履歷表，可以客製我們想要的排版和內容，如果 Opshell 想要應徵多種職缺，需要多篇履歷，這樣就會一直增加元件和 `data` ，管理和維護會越來越不方便，有沒有辦法像是管理 `.md` 的方式管理履歷呢?如果可以自己做 `layout` 就好了!
 
 ## 新增 Layout Component
-由於是主題相關也不會複用，所以這邊的 Component Ops 不放在 `@components` 裡面，我們在 `docs/.vitepress/theme` 裡面新增目錄 `layout`，然後在裡面新增檔案 `resume.vue`。
+由於是主題相關且不會複用，所以這邊的 Component 不放在 `@components` 裡面，我們在 `docs/.vitepress/theme/` 裡面新增目錄 `layout`，然後在裡面新增檔案 `resume.vue`。
 
 ## useData frontmatter
 第一件事就是把原本 `resume.vue` 的切版啥的通通搬過來，搬過來之後要改資料的引用方式，還記得我們前面提到 `.md` 會先被轉成 `html` 再當`Vue SFC` 處理嗎? 所以我們的資料要從 `.md` 裡面進來才可以被當成靜態資歷收錄喔!
