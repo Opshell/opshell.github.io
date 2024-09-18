@@ -8,6 +8,9 @@ tags:
   - VitePress
 editLink: true
 isPublished: false
+refer:
+  - https://site.quteam.com/technology/front-end/vitepress-comment/
+  - https://wenlei.wang/life-doc/view/temp/%E5%B7%A5%E5%85%B7/%E6%89%93%E9%80%A0%E7%AB%99%E7%82%B9/%E7%AB%99%E7%82%B9%E6%B7%BB%E5%8A%A0%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F.html#giscus
 ---
 
 進入了 stage 5 慢慢的也接近賽季的尾聲啦。
@@ -35,69 +38,80 @@ isPublished: false
 7. 自動從 GitHub 取得新留言（包含編輯）。🔃
 8. 可自架伺服器！🤳
 
-## GitHub 前置設定
+## giscus 安裝、設定
+請到[這邊](https://giscus.app/zh-TW)
+
 ### 1. 專案的觀看權限需要是 `public`
 ### 2. 開啟專案的 `Github Discussions`
 在專案的 Settings -> General -> Features -> Discussions 中開啓 Discussions 功能
+![Discussions](/images/article/vitepress-thirty-days/day24-giscus-2.png)
+![Discussions](/images/article/vitepress-thirty-days/day24-giscus-2-1.png)
 
-### 3. 安裝 giscus
+### 3. 安裝 [giscus App](https://github.com/apps/giscus)
 按照 `GitHub OAuth` 流程授權 `giscus app`，授權需要評論的專案。
+![Install giscus](/images/article/vitepress-thirty-days/day24-giscus-3.png)
 
 ### 4. 取得 Giscus 配置
 打開 Giscus，輸入專案名，獲取配置信息，自動獲得到配置文件，主要是需要獲得 repo-id category-id
+![Install giscus](/images/article/vitepress-thirty-days/day24-giscus-4.png)
+![Install giscus](/images/article/vitepress-thirty-days/day24-giscus-5.png)
 
-## Giscus Component
-3.1 加 Giscus 配置组件
-在 .vitepress/theme/components 目录下新建 GiscusComment.vue 文件，内容如下：
+### 5. giscus Component
+在 `.vitepress/theme/components/orga/` 目錄下新增 `giscusComment.vue`：
 
-vue
+```vue
+<script setup>
+    import Giscus from '@giscus/vue';
+    import { useRoute, useData } from 'vitepress';
+
+    const route = useRoute();
+    const { isDark } = useData();
+</script>
+
 <template>
     <div style="margin-top: 24px">
         <Giscus
             id="comments"
-            repo="haovei/site"
-            repoid="R_kgDOIN2Meg"
-            category="General"
-            categoryid="DIC_kwDOIN2Mes4CenDn"
+            repo="Opshell/opshell.github.io"
+            repoid="R_kgDOMjQqsg"
+            category="Announcements"
+            categoryid="DIC_kwDOMjQqss4Ch3dc"
             mapping="pathname"
             term="Welcome to giscus!"
             reactionsenabled="1"
             emitmetadata="0"
             inputposition="top"
             loading="lazy"
+            lang="zh-TW"
+            crossorigin="anonymous"
             :theme="isDark ? 'dark' : 'light'"
             :key="route.path"
         ></Giscus>
     </div>
 </template>
+```
 
-<script setup>
-import Giscus from '@giscus/vue';
-import { useRoute, useData } from 'vitepress';
+`:key="route.path"` 用於刷新評論組件，保證每個頁面都有獨立的評論。
+`:theme` 用於根據頁面主題切換評論主題。
 
-const route = useRoute();
-const { isDark } = useData();
-</script>
-:key="route.path" 用于刷新评论组件，保证每个页面都有独立的评论。
-:theme 用于根据页面主题切换评论主题。
-3.2 引入 GiscusComment 组件
-在 .vitepress/index.ts 中引入 GiscusComment 组件
 
-js
-import { h } from 'vue';
-import Theme from 'vitepress/theme';
-import GiscusComment from './components/GiscusComment.vue';
+## 使用 giscus Component
+在 `docs/.vitepress/theme/layout/expandLayout.vue` 中使用 `OrgaGiscusComment`
 
-export default {
-    ...Theme,
-    Layout() {
-        return h(Theme.Layout, null, {
-            'doc-after': () => h(GiscusComment),
-        });
-    },
-};
-VitePress 很好的一个地方是有很多 Slot, doc-after 就是一个 Slot，用于在文档内容后插入内容。
+```vue
+<template>
+    <Layout :class="[frontmatter.class]">
+        <template #doc-before>
+            ......
+        </template>
 
-https://site.quteam.com/technology/front-end/vitepress-comment/
+        <template #doc-after> // [!code ++]
+            <OrgaGiscusComment /> // [!code ++]
+        </template> // [!code ++]
 
-https://wenlei.wang/life-doc/view/temp/%E5%B7%A5%E5%85%B7/%E6%89%93%E9%80%A0%E7%AB%99%E7%82%B9/%E7%AB%99%E7%82%B9%E6%B7%BB%E5%8A%A0%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F.html#giscus
+        <template #aside-ads-before>
+            ......
+        </template>
+    </Layout>
+</template>
+```
