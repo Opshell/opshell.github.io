@@ -141,7 +141,7 @@ export default defineConfig({
 
             // 在 blockquote 規則前面添加 taskList 規則，透過 function 來解析
             // alt 是這個規則可以打斷的 其他規則，一般不做特別的處理，這裡是直接把 blockquote 的 alt 拿來用。
-            md.block.ruler.before('blockquote', 'taskList', function (state, startLine, endLine, silent) {
+            md.block.ruler.before('blockquote', 'taskList', (state, startLine, endLine, silent) => {
                 const start: number = state.bMarks[startLine] + state.tShift[startLine]; // 行的開始位置
                 const max: number = state.eMarks[startLine]; // 行的結束位置
 

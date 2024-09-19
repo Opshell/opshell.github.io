@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day17 - 自訂 Layout"
-  text: "斜槓需要多份履歷，<br />但是我不想做好幾個 Component"
-  tagline: 'Custom Layout'
+  name: "Day18 - Markdown"
+  text: "VitePress集成了很多Markdown<br />我們可以進行一些設定，<br />讓我們用的更順手。"
+  tagline: '基本 Markdown 設定'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day17 - Custom Layout
-      link: /article/code-sea/vitepress/2024鐵人賽/day17-custom-layout
+      text: Day18 - Basic Markdown
+      link: /article/code-sea/vitepress/2024鐵人賽/day18-base-markdown
 ---
 
 <style lang="scss">

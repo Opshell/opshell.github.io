@@ -26,10 +26,10 @@ refer:
 
 ## 需求確認
 開始動工之前，確認好需求是最重要的，免得無限的做白工 ~~(隕石開發除外)~~ ：
-#### 1. 用常見的 [ ] [x] 來表示
-#### 2. 可以用 checkbox 勾選 ~~(廢話)~~
-#### 3. 可以客製喜歡的外觀
-#### 4. 可以把相鄰的 checkbox 用 div 包起來
+### [ ] 用常見的 [ ] [x] 來表示
+### [ ] 可以用 checkbox 勾選 ~~(廢話)~~
+### [ ] 可以客製喜歡的外觀
+### [ ] 可以把相鄰的 checkbox 用 div 包起來
 
 ## markdown-it 原理
 既然要擴展 `markdown-it` 的功能，我們就得了解他的運作原理([markdown-it design principles](https://github.com/markdown-it/markdown-it/blob/master/docs/architecture.md))，主要分成兩個部分：

@@ -1,15 +1,16 @@
 ---
 title:  'Day18 - basic markdown'
 author: 'Opshell'
-createdAt: '2024/09/17'
+createdAt: '2024/09/19'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
   - VitePress
   - markdown-it
 editLink: true
-isPublished: false
+isPublished: true
 ---
+![banner18](https://ithelp.ithome.com.tw/upload/images/20240919/20109918hOgzIS526M.png)
 
 本篇文章請至[Opshell's Blog](https://opshell.github.io/article/code-sea/vitepress/2024鐵人賽/day18-basic-markdown)服用，已擁有完整的賞文體驗。
 
@@ -44,7 +45,7 @@ export default defineConfig({
 #### Input：{.brand}
 ````md
 ::: tip
- 這就是 container
+這就是 container
 :::
 ````
 #### Output：{.brand}
@@ -94,7 +95,7 @@ export default defineConfig({
 ```
 
 ## markdown-it-attrs
-隨著我們使用 `.md` 越來越多，然後剛好 Opshell 又是一個龜毛的人，會想調整很多細節部份的樣式，但是 markdown 渲染出來的 html dom 沒辦法自訂 `class` 阿 ，該怎麼辦呢~?
+隨著我們使用 `.md` 越來越多，然後剛好 Opshell 又是一個龜毛的人，會想調整很多細節部份的樣式，但是 `Markdown` 渲染出來的 html dom 沒辦法自訂 `class` 阿 ，該怎麼辦呢~?
 
 ### 設定
 在 `VitePress` 中，有幫我們整合了 `markdown-it-attrs` 我們設定一下就可以用囉
@@ -172,6 +173,6 @@ export default defineConfig({
 </div>
 
 ## 小結
-如果有到 [Opshell's Blog](/article/code-sea/vitepress/2024鐵人賽/day18-basic-markdown)逛逛，稍稍為比較兩邊(it幫 和 VitePress) 一樣的內容，`VitePress` 可以寫的更規範，理論上也會有更好的閱讀體驗 ~~(如果沒有是因為 Opshell 還沒優化好樣式)~~ 套句名言：他還是個孩子~~~
+可以到 it幫看看這篇[文章](https://ithelp.ithome.com.tw/articles/10354109)，稍稍為比較兩邊(it幫 和 VitePress) 一樣的內容，`VitePress` 可以寫的更規範，理論上也會有更好的閱讀體驗 ~~(如果沒有是因為 Opshell 還沒優化好樣式)~~ 套句名言：他還是個孩子~~~
 
 所以 Opshell 才會選擇用 `VitePress` 自己蓋部落格，一切盡在不言中。
