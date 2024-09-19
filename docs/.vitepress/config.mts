@@ -10,8 +10,6 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 
 // import footnote_plugin from 'markdown-it-footnote';
 import footnote from 'markdown-it-footnote';
-import taskCheckbox from 'markdown-it-task-checkbox';
-import { tasklist } from '@mdit/plugin-tasklist';
 
 import { getSidebar } from '../hooks/useGetSidebar';
 import { getArticleClassification, iClassification } from '../hooks/useArticleClassification';

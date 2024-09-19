@@ -76,6 +76,10 @@
 
 // layout:doc 樣式
 .vp-doc {
+    p {
+        // text-indent: 2em;
+    }
+
     // markdown 引用外連結樣式
     :is(.vp-external-link-icon,
     a[href*='://'],

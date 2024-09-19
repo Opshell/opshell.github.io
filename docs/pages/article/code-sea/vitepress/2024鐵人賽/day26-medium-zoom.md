@@ -8,6 +8,8 @@ tags:
   - VitePress
 editLink: true
 isPublished: false
+refer:
+  - http://www.freeendless.com/misc/vitepress/image-zoom.html
 ---
 
 由於文章頁面的版面設計，左右邊都有欄目，在引用比較大張的圖片時，縮圖對我這種老人家不夠友善，所以我們添加圖片放大功能，順便優化一點圖片的樣式吧。
