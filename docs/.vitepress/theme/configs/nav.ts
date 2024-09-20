@@ -46,10 +46,6 @@ export default [
     {
         text: 'Resume',
         link: '/resume-layout'
-    },
-    {
-        text: 'Resume-vue',
-        link: '/resume-vue'
     }
     // {
     //     text: 'Resume',

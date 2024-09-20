@@ -1,5 +1,5 @@
 ---
-title:  'Day18 - basic markdown'
+title:  'Day18 - base markdown'
 author: 'Opshell'
 createdAt: '2024/09/19'
 categories: 'vitepress-thirty-days'

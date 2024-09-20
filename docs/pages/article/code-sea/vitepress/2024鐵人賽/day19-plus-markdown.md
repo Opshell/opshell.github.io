@@ -1,5 +1,5 @@
 ---
-title:  'Day19 - extended markdown-it'
+title:  'Day19 - plus markdown'
 author: 'Opshell'
 createdAt: '2024/09/20'
 categories: 'vitepress-thirty-days'
@@ -8,11 +8,13 @@ tags:
   - VitePress
   - markdown-it
 editLink: true
-isPublished: false
+isPublished: true
 refer:
   - https://gzcloudhome.cn/posts/write-markdown-it-plugin-to-customize-syntax/
   - https://juejin.cn/post/7055597191150174238
+  - https://www.widcard.win/blog/posts/write-plugins/write-mdit-plugin/
 ---
+![banner19](https://ithelp.ithome.com.tw/upload/images/20240920/20109918DGF72pEmBN.png)
 
 昨天設定了 `VitePress` 集成的 `markdown-it` 套件功能，今天不出意外的就是要安裝其他的套件來水一天，但是不出意外的出意外了，除了 todo-list 的 checkbox 以外，好像也沒什麼其他想裝的了。
 
@@ -26,10 +28,10 @@ refer:
 
 ## 需求確認
 開始動工之前，確認好需求是最重要的，免得無限的做白工 ~~(隕石開發除外)~~ ：
-### [ ] 用常見的 [ ] [x] 來表示
-### [ ] 可以用 checkbox 勾選 ~~(廢話)~~
-### [ ] 可以客製喜歡的外觀
-### [ ] 可以把相鄰的 checkbox 用 div 包起來
+[x] 用常見的 [ ] [x] 來表示
+[x] 可以用 checkbox 勾選 ~~(廢話)~~
+[x] 可以客製喜歡的外觀
+[x] 可以把相鄰的 checkbox 用 div 包起來
 
 ## markdown-it 原理
 既然要擴展 `markdown-it` 的功能，我們就得了解他的運作原理([markdown-it design principles](https://github.com/markdown-it/markdown-it/blob/master/docs/architecture.md))，主要分成兩個部分：
@@ -230,3 +232,79 @@ export default defineConfig({
 當然是因為 Opshell 沒有把 style 丟出來囉，
 
 我的 `style` 嗎？想要的話就給你吧，去找吧！我把世界上的一切都放在那裡！
+
+## 拉夫德爾
+```scss
+.vp-doc {
+    .task-list {
+        @include setFlex(flex-start, flex-start, 10px, column);
+        margin: 10px 0;
+        &--item {
+            position: relative;
+            @include setFlex(flex-start, center, 20px);
+            cursor: pointer;
+
+            &:hover {
+                .task-list {
+                    &--input::before { border-color: var(--vp-c-brand-3); }
+                    &--text { color: var(--vp-c-brand-3); }
+                }
+            }
+        }
+
+        &--input {
+            position: relative;
+            box-sizing: border-box;
+            margin-left: 10px;
+            @include setSize(0, 0);
+            cursor: pointer;
+
+            &::before,
+            &::after {
+                content: '';
+                position: absolute;
+                background: transparent;
+                box-sizing: border-box;
+                @include setSize(0, 0);
+            }
+
+            &::before {
+                @include setSize(20px, 20px);
+                border: 2px solid var(--vp-c-text-2);
+                border-radius: 3px;
+                transform: translate3d(-50%, -50%, 0);
+                transition: border-color 0.15s $cubic-FiSo, background-color 0.15s $cubic-FiSo 0.05s;
+            }
+            &::after {
+                border-top: none;
+                border-right: none;
+                border-width: 0;
+                border-radius: 1px;
+                transform: rotateZ(-45deg) translate3d(0, -120%, 0);
+            }
+
+            &:checked {
+                &::before {
+                    background-color: var(--vp-c-brand-1);
+                    border-color: var(--vp-c-brand-2);
+                }
+                &::after {
+                    @include setSize(20px, 10px);
+                    border: 3px solid #eee;
+                    border-top: none;
+                    border-right: none;
+                    transition: border-color 0.15s $cubic-FiSo,
+                                height 0.05s $cubic-FiSo,
+                                width 0.1s $cubic-FiSo 0.04s;
+                    filter: drop-shadow(0 0 3px rgba(0, 0, 0, 100%));
+                }
+            }
+        }
+
+        &--text {
+            transform: translate(0, 2px);
+            transition: .2s $cubic-FiSo;
+        }
+    }
+}
+```

@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day18 - Markdown"
-  text: "VitePress集成了很多Markdown<br />我們可以進行一些設定，<br />讓我們用的更順手。"
-  tagline: '基本 Markdown 設定'
+  name: "Day19 - Markdown+"
+  text: "VitePress 沒有集成的，<br />我們就自己寫程式擴展一下。"
+  tagline: 'Markdown-it Plugin'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day18 - Basic Markdown
-      link: /article/code-sea/vitepress/2024鐵人賽/day18-base-markdown
+      text: Day19 - Markdown-it Plus
+      link: /article/code-sea/vitepress/2024鐵人賽/day19-plus-markdown
 ---
 
 <style lang="scss">
