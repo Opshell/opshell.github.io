@@ -187,6 +187,23 @@ export default defineConfig({
             md.renderer.rules.task_list_item_close = (tokens, idx, options, env, slf) => {
                 return tokens[idx + 1].type !== 'task_list_item_open' ? '</label></div>' : '</label>';
             };
+
+
+            // md.renderer.rules.image = (tokens, idx, options, env, self) => {
+
+            //     // console.log('-1', tokens[idx-1]);
+            //     // console.log('+1', tokens[idx+1]);
+
+            //     return `<img src="${tokens[idx].attrs![0][1]}" alt="${tokens[idx].content}" />`;
+            // };
+
+            // 單行圖片處理
+            // md.renderer.rules.paragraph_open = (tokens, idx, options, env, self) => {
+            //     return (tokens[idx + 1].type === 'image') ? '' : '<p>';
+            // };
+            // md.renderer.rules.paragraph_close = (tokens, idx, options, env, self) => {
+            //     return (tokens[idx - 1].type === 'image') ? '' : '</p>';
+            // };
         }
     },
     transformHead({ assets }) {

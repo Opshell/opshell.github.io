@@ -11,7 +11,7 @@ https://pjchender.dev/ironman-2021/ironman-2021-day02/
 
 如果你們有註明用TS，我會加考這個
 
-1. 當專案越來越大，你會如何管理可能導致重複的types和interface?
+1. 當專案越來越大，你會如何管理可能導致重複的 types 和 interface ?
 2. 試著解釋這六個常用的TS型別處理用法:
 
 * Omit
@@ -23,4 +23,4 @@ https://pjchender.dev/ironman-2021/ironman-2021-day02/
 
 3. 請解釋泛型的用途和具體實作方式
 
-其他的還會有如何手動配置declare來避免一些套件可能沒有提供type的問題
+其他的還會有如何手動配置 declare 來避免一些套件可能沒有提供 type 的問題

@@ -24,6 +24,11 @@ interface iTags {
     }
 }
 export interface iClassification {
+    count: {
+        total: number
+        published: number
+        unpublished: number
+    }
     tags: iTags
     category: string
 }
@@ -31,6 +36,11 @@ export interface iClassification {
 export async function getArticleClassification(files: string[], startPathName: string, res: iClassification | null = null): Promise<iClassification> {
     if (!res) {
         res = {
+            count: {
+                total: 0,
+                published: 0,
+                unpublished: 0
+            },
             tags: {},
             category: ''
         };
@@ -55,25 +65,33 @@ export async function getArticleClassification(files: string[], startPathName: s
 
             const frontmatter = getFrontMatter(`${startPathName}/${fileName}`);
 
-            if (frontmatter.tags && frontmatter.isPublished) {
-                const url = `${startPathName.split('\pages')[1]}/${fileName.replace('.md', '.html')}`;
+            if (frontmatter.isPublished) {
+                if (frontmatter.tags) {
+                    const url = `${startPathName.split('\pages')[1]}/${fileName.replace('.md', '.html')}`;
 
-                for (const tag of frontmatter.tags as string[]) {
-                    res.tags[tag] = res.tags[tag] ?? { count: 0, group: [] };
-                    res.tags[tag].count++;
-                    res.tags[tag].group.push({
-                        title: frontmatter.title as string,
-                        image: frontmatter.image as string ?? '/images/no_image.svg',
-                        category: frontmatter.categories as string ?? '',
-                        date: frontmatter.createdAt as string ?? '',
-                        url
-                    });
+                    for (const tag of frontmatter.tags as string[]) {
+                        res.tags[tag] = res.tags[tag] ?? { count: 0, group: [] };
+                        res.tags[tag].count++;
+                        res.tags[tag].group.push({
+                            title: frontmatter.title as string,
+                            image: frontmatter.image as string ?? '/images/no_image.svg',
+                            category: frontmatter.categories as string ?? '',
+                            date: frontmatter.createdAt as string ?? '',
+                            url
+                        });
+                    }
                 }
-            }
 
-            // if (frontmatter.category) {
-            //     res.category.push(frontmatter.category as string);
-            // }
+                // if (frontmatter.category) {
+                //     res.category.push(frontmatter.category as string);
+                // }
+
+                res.count.total++;
+                res.count.published++;
+            } else {
+                res.count.total++;
+                res.count.unpublished++;
+            }
         }
     }
 

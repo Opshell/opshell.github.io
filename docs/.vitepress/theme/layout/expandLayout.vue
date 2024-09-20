@@ -119,19 +119,27 @@
         </template>
 
         <template #aside-ads-before>
-            <div class="busuanzi-box">
-                Opshell 的 Blog
-                <div class="busuanzi">
+            <ul class="blog-summay-box">
+                在 Opshell 的 Blog 中：
+                <li class="blog-summay">
+                    目前已分享 <span class="number">{{ classification.count.published }}</span> 篇文章
+                </li>
+                <li class="blog-summay">
+                    還有 <span class="number">{{ classification.count.unpublished }}</span> 個坑正在填補中
+                </li>
+
+                <li class="blog-summay">
                     已有： <span id="busuanzi_value_site_pv" class="number">Loading</span> 次觀看
-                </div>
-                <div class="busuanzi">
+                </li>
+                <li class="blog-summay">
                     已有： <span id="busuanzi_value_site_uv" class="number">Loading</span> 個人來過
-                </div>
-            </div>
+                </li>
+            </ul>
         </template>
 
         <template #aside-ads-after>
             <div class="tag-box">
+                分享了以下的主題：
                 <a
                     v-for="(info, tag) in classification.tags"
                     :key="`tag-${tag}`"
@@ -173,10 +181,23 @@
         }
     }
 
-    .busuanzi-box {
+    .blog-summay-box {
+        position: relative;
         @include setFlex(flex-start, flex-start, 5px, column);
-        padding: 10px 0;
+        margin: 10px 0;
+        &::before {
+            content: '';
+            position: absolute;
+            top: calc(2rem - 2px);
+            left: .4rem;
+            background-color: var(--vp-c-brand-3);
+            width: 1px;
+            height: calc(100% - 2rem);
+        }
 
+        .blog-summay {
+            padding: 0 0 0 1rem;
+        }
         .number {
             color: var(--vp-c-brand-1);
             font-weight: 500;

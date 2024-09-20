@@ -80,6 +80,13 @@
         // text-indent: 2em;
     }
 
+    h2 {
+        &:first-of-type {
+            border: none;
+            margin-top: 0;
+        }
+    }
+
     // markdown 引用外連結樣式
     :is(.vp-external-link-icon,
     a[href*='://'],

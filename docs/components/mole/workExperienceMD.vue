@@ -113,10 +113,10 @@
             .img-box {
                 grid-area: img-box;
                 background: #FFF;
-                @include setSize(100px, 100px);
                 padding: 2px;
                 border: 2px solid #666;
                 border-radius: 10px;
+                @include setSize(100px, 100px);
             }
             .company {
                 grid-area: compnay;
