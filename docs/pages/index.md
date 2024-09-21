@@ -4,8 +4,8 @@ layout: home
 
 hero:
   name: "Opshell's Blog"
-  text: "A blog to share various thoughts,technologies,front-end develop, and miscellaneous topics to engage more with the world."
-  tagline: Ordinary Is Great.
+  text: "一個藉由分享前端開發、各種想法、奇怪技能及其他雜項來與世界互動的部落格。"
+  tagline: 平凡即卓越.
   # image:
   #   src: /opshell3d.png
   #   alt: Opshell-3D
@@ -25,15 +25,15 @@ hero:
 
 features:
   - icon: 🛠️
-    title: Code Work & Bug Fix
-    details: The process and documentation of filling in some gaps.
+    title: 程式技巧 & Bug 修正
+    details: 趟雷、填坑、除蟲以外，寫一些技術文件即筆記來對抗我的健忘。
   - icon: 💡
-    title: Idea
-    details: Some ideas, whether good or bad, should always be put into practice, right?
+    title: "靈魂財富"
+    details: '"萬般帶不走，唯有業隨身"，除了夢幻泡影，也紀錄一些銘刻在靈魂中的收穫。'
   - icon: ⚡️
-    title: A Flash In The Pan
-    details: An interest or hobby sparked by a moment of enthusiasm is always a life experience, isn't it?
+    title: 三分鐘熱度
+    details: 一時興起的興趣或愛好，不管成功與否，總是一種人生體驗，不是嗎？
   - icon: 📦
-    title: Life Package
-    details: Firewood, Rice, Oil, Salt, Sauce, Vinegar, And Tea.
+    title: 生活雜記
+    details: 柴、米、油、鹽、醬、醋、茶。
 ---

@@ -34,6 +34,9 @@ export default defineConfig({
     lang: 'zh-Hant',
     title: 'Opshell\'s Blog',
     description: 'Opshell\'s work and life records.',
+    sitemap: {
+        hostname: 'https://opshell.github.io'
+    },
     head: [
         ['link', { rel: 'icon', href: '/favicon.ico' }]
         // ['script', {defer: 'true', src: 'https://vercount.one/js'}] // vercount
