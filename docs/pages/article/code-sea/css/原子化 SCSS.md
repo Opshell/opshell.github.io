@@ -10,8 +10,8 @@ https://hackmd.io/@FortesHuang/HJPE3sCXU
 然後我有開源一個及時可用的參考
 https://hackmd.io/@FortesHuang/SJ9DhgTGn
 
-![原子化SCSS-1](/images/articel/原子化SCSS-1.jpg)
-![原子化SCSS-2](/images/articel/原子化SCSS-2.jpg)
+![原子化SCSS-1](/images/article/原子化SCSS-1.jpg)
+![原子化SCSS-2](/images/article/原子化SCSS-2.jpg)
 
 有人會覺得為什麼要嵌套，看到嵌套他就反感
 
@@ -23,7 +23,7 @@ https://hackmd.io/@FortesHuang/SJ9DhgTGn
 
 而因為這種嵌套不是很好懂，所以後面第二篇的vue3怎麼換皮，我又多了一個簡化的方式
 
-![原子化SCSS-3](/images/articel/原子化SCSS-2.jpg)
+![原子化SCSS-3](/images/article/原子化SCSS-2.jpg)
 
 
 

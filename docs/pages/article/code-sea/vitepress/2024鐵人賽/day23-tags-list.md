@@ -75,7 +75,7 @@ layout: page
 </script>
 
 <template>
-    <div class="articel-list-block">
+    <div class="article-list-block">
         <div class="left-block">
             <a
                 v-for="(info, tag) in classification.tags"

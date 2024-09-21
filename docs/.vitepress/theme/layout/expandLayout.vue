@@ -8,10 +8,6 @@
 
     const { site, frontmatter, page, isDark, theme } = useData();
 
-    console.log('site', site);
-    console.log('page', page);
-    console.log('route', useRouter().route);
-
     const classification = theme.value.classification;
 
     const lastUpdated = computed(() => {

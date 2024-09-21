@@ -41,7 +41,7 @@
 </script>
 
 <template>
-    <div class="articel-list-block">
+    <div class="article-list-block">
         <div class="left-block">
             <a
                 v-for="(info, tag) in classification.tags"
@@ -93,7 +93,7 @@
 </template>
 
 <style lang="scss" scoped>
-    .articel-list-block {
+    .article-list-block {
         position: relative;
         @include setFlex(space-between, stretch, 1.5rem);
         width: 100%;
@@ -181,10 +181,10 @@
             }
             .category {
                 grid-area: category;
+                place-self: flex-end start;
                 color: var(--vp-c-text-3);
                 transform: translateY(-2px);
                 transition: 0.25s;
-                place-self: flex-end start;
                 @include setFlex();
                 .icon {
                     @include setSize(24px, 24px);
