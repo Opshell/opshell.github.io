@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day19 - Markdown+"
-  text: "VitePress 沒有集成的，<br />我們就自己寫程式擴展一下。"
-  tagline: 'Markdown-it Plugin'
+  name: "Day20 - Extend Layout"
+  text: "如果我們要在頁面某些位置新增區塊或功能，可以擴充預設 Layout。"
+  tagline: 'Extended Layout & useData'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day19 - Markdown-it Plus
-      link: /article/code-sea/vitepress/2024鐵人賽/day19-plus-markdown
+      text: Day20 - Extended Layout
+      link: /article/code-sea/vitepress/2024鐵人賽/day20-extended-layout
 ---
 
 <style lang="scss">

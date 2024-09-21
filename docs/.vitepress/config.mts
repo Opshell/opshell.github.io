@@ -30,8 +30,8 @@ const classification = await getArticleClassification(mdFiles, startPathDir);
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-    // lang: 'zh-Hant',
-    lang: 'en',
+    // lang: 'en',
+    lang: 'zh-Hant',
     title: 'Opshell\'s Blog',
     description: 'Opshell\'s work and life records.',
     head: [
@@ -50,7 +50,6 @@ export default defineConfig({
             alt: 'Opshell Logo'
         },
 
-        // https://vitepress.dev/reference/default-theme-config
         nav,
         socialLinks,
         search,

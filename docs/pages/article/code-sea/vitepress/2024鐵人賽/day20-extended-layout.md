@@ -10,6 +10,8 @@ editLink: true
 isPublished: false
 ---
 
+![Banner20](https://ithelp.ithome.com.tw/upload/images/20240921/20109918dpj833lHOl.png)
+
 今天進入 Stage 4 啦，`VitePress` 除了提供自訂 `layout` 以外，也提供對預設 `layout` 的擴充，今天我們就來擴充預設的 `layout` 吧。
 
 ## 新增 Expand Layout Component
