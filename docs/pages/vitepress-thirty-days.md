@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day20 - Extend Layout"
-  text: "如果我們要在頁面某些位置新增區塊或功能，可以擴充預設 Layout。"
-  tagline: 'Extended Layout & useData'
+  name: "Day21 - 自動化側邊欄"
+  text: "每次新增文章、調整目錄結構，<br/>都要手動調整文章側邊欄的話，<br/>體驗好差阿，不如我們來自動化產生側邊欄吧。"
+  tagline: 'Automated Sidebar'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day20 - Extended Layout
-      link: /article/code-sea/vitepress/2024鐵人賽/day20-extended-layout
+      text: Day21 - 自動化文章側邊欄
+      link: /article/code-sea/vitepress/2024鐵人賽/day21-dynamic-article-list
 ---
 
 <style lang="scss">
