@@ -14,6 +14,13 @@ isPublished: false
 ## 後記
 終於，今天是鐵人賽的最後一天了，在 [`Vue.js Plus 社群`](https://line.me/ti/g2/J7bTfoHgmfgc42C9baJNs2gwH00kAMd9QfJDsQ?utm_source=invitation&utm_medium=link_copy&utm_campaign=default) 各位大大的鼓勵~~(推坑)~~ 今年又成功強迫自己參賽了，主要是想著 `Nuxt` 做的部落格遙遙無期，今年 Vue 團隊釋出了 `VitePress` 正式版，先來幾個簡單的出來好了。
 
+這 30 天我們經歷了
+- Stage 1. Day01 ~ Day09 水一些介於有料和沒料之間的薛丁格文 前言、環境專案建立和一些基礎設定
+- Stage 2. Day10 ~ Day13 主要是 ESLint + Stylelint 的設定，也是整個週期花數一數二多時間研究的，請各位看官按愛心。
+- Stage 3. Day14 ~ Day19 利用製作一份簡述履歷來嘗試 `VitePress` 功能，擴充 markdown-it 是很有趣的一件事。
+- Stage 4. Day20 ~ Day23 改造 `VitePress` 主題、把很多東西自動化產生，讓整個部落格活過來。
+- Stage 5. Day24 ~ Day30 水一些套件和後記。 利用一些套件擴充部落格功能 & 後記。
+
 去年小孩出生，又換了工作，忙到在天上飛，本來想著現在工作稍微穩定，小北鼻也是個天使，忙是忙，但是要擠點時間讓自己更進步好像是有可能的，結果一在群組裡放話說要參賽，就被小孩傳染了急性結膜炎還因為過度勞累併發了角膜炎= = 看東西都是 `filter：blur(20px);` 我真的發瘋，但是頭都洗下去了，不洗完真的不行。
 
 只好硬著頭皮繼續研究、繼續寫，東摸西摸在大綱都還沒完全確定、部落格還是半殘的狀態上強迫自己在 09/02 開賽了。
