@@ -57,7 +57,8 @@ export default defineConfig({
         }
     },
     head: [
-        ['link', { rel: 'icon', href: '/favicon.ico' }]
+        ['link', { rel: 'icon', href: '/favicon.ico' }],
+        ['meta', { name: 'google-site-verification', content: 'dGLNijJ_wb3p1_OyBLI_t8GbiJ4W8CdjIlbB7N8pkt8' }]
         // ['script', {defer: 'true', src: 'https://vercount.one/js'}] // vercount
     ],
     rewrites: { // 我们在nav設定的連結應該要是重寫後的路徑
