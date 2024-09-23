@@ -8,7 +8,7 @@ tags:
   - VitePress
   - sitemap
 editLink: true
-isPublished: true
+isPublished: false
 ---
 
 今天大概就是這個系列寫寫程式的最後一篇文章了，來處理個 `sitemap` 好了。
@@ -118,6 +118,22 @@ yarn docs:build
 
 接下來就可以在 `docs/.vitepress/dist/` 中發現他 `sitemap.xml`。
 
-## 小結
+## 提交 Sitemap
 接下來只需要把 `sitemap` 提交給搜尋引擎就可以囉!
 每間搜尋引擎都有自己的提交，請各回各家~ 各找各媽~。
+
+例如：在 `google search console` 中提交，選擇 `meta` 驗證方式，在 `config` 中補上
+```ts
+export default {
+    head: [
+        ['link', { rel: 'icon', href: '/favicon.ico' }],
+        ['meta', { name: 'google-site-verification', content: 'KleiijJ_uj3h0_LT3G25_t8GbiJ4W8Caapo7N8pkt8' }] // [!code ++]
+    ]
+};
+```
+
+驗證完後提交 `sitemap.xml` 就好囉~
+
+## 小結
+到今天第 29 天，一個部落格該有的東西都有了，接下來的路就請各位看官自己走下去了~
+希望我們都可以讓這個世界多點愛~ 各位晚安。
