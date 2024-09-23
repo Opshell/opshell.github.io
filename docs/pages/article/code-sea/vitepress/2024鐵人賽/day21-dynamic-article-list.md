@@ -1,7 +1,7 @@
 ---
 title:  'Day21 - Dynamic article list'
 author: 'Opshell'
-createdAt: '2024/09/21'
+createdAt: '2024/09/22'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽

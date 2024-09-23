@@ -1,7 +1,7 @@
 ---
 title:  'Day24 - giscus'
 author: 'Opshell'
-createdAt: '2024/09/24'
+createdAt: '2024/09/25'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
@@ -62,7 +62,7 @@ refer:
 ```vue
 <script setup>
     import Giscus from '@giscus/vue';
-    import { useRoute, useData } from 'vitepress';
+    import { useData, useRoute } from 'vitepress';
 
     const route = useRoute();
     const { isDark } = useData();
@@ -75,6 +75,7 @@ refer:
             repo="Opshell/opshell.github.io"
             repoid="R_kgDOMjQqsg"
             category="Announcements"
+            :key="route.path"
             categoryid="DIC_kwDOMjQqss4Ch3dc"
             mapping="pathname"
             term="Welcome to giscus!"
@@ -85,15 +86,13 @@ refer:
             lang="zh-TW"
             crossorigin="anonymous"
             :theme="isDark ? 'dark' : 'light'"
-            :key="route.path"
-        ></Giscus>
+        />
     </div>
 </template>
 ```
 
 `:key="route.path"` 用於刷新評論組件，保證每個頁面都有獨立的評論。
 `:theme` 用於根據頁面主題切換評論主題。
-
 
 ## 使用 giscus Component
 在 `docs/.vitepress/theme/layout/expandLayout.vue` 中使用 `OrgaGiscusComment`
@@ -105,7 +104,8 @@ refer:
             ......
         </template>
 
-        <template #doc-after> // [!code ++]
+        <template #doc-after>
+            // [!code ++]
             <OrgaGiscusComment /> // [!code ++]
         </template> // [!code ++]
 

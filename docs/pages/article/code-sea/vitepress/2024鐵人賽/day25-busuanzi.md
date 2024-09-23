@@ -1,7 +1,7 @@
 ---
 title:  'Day25 - busuanzi'
 author: 'Opshell'
-createdAt: '2024/09/25'
+createdAt: '2024/09/26'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
@@ -66,7 +66,8 @@ export default {
                     <span v-if="frontmatter.createdAt">Created：{{ frontmatter.createdAt }}</span>
                 </div>
 
-                <div class="read"> // [!code ++]
+                <div class="read">
+                    // [!code ++]
                     👀 已被閱讀： // [!code ++]
                     <span id="busuanzi_value_page_pv">Loading</span> // [!code ++]
                     次 // [!code ++]
@@ -84,13 +85,17 @@ export default {
             </div>
         </template>
 
-        <template #aside-ads-before> // [!code ++]
-            <div class="busuanzi-box"> // [!code ++]
+        <template #aside-ads-before>
+            // [!code ++]
+            <div class="busuanzi-box">
+                // [!code ++]
                 Opshell 的 Blog // [!code ++]
-                <div class="busuanzi"> // [!code ++]
+                <div class="busuanzi">
+                    // [!code ++]
                     已有： <span id="busuanzi_value_site_pv" class="number">Loading</span> 次觀看 // [!code ++]
                 </div> // [!code ++]
-                <div class="busuanzi"> // [!code ++]
+                <div class="busuanzi">
+                    // [!code ++]
                     已有： <span id="busuanzi_value_site_uv" class="number">Loading</span> 個人來過 // [!code ++]
                 </div> // [!code ++]
             </div> // [!code ++]
@@ -118,7 +123,6 @@ export default {
 ### site_uv
 網站的訪客數
 用戶紀錄，同一個瀏覽者，連續觀看多偏文章，只會計數一次，是針對網站有多少人來過。
-
 
 ## 小結
 這樣就可以簡易的計算來過多少人了喔。

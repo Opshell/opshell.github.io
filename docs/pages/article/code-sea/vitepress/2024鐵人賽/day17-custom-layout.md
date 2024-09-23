@@ -1,7 +1,7 @@
 ---
 title:  "Day17 - 自訂一個Layout"
 author: 'Opshell'
-createdAt: '2024/09/17'
+createdAt: '2024/09/18'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽

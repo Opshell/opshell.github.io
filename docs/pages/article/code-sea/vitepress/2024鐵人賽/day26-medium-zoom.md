@@ -1,7 +1,7 @@
 ---
 title:  'Day26 - medium-zoom'
 author: 'Opshell'
-createdAt: '2024/09/26'
+createdAt: '2024/09/27'
 categories: 'vitepress-thirty-days'
 tags:
   - 鐵人賽
