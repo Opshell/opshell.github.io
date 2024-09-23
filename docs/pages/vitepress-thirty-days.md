@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day21 - 自動化側邊欄"
-  text: "每次新增文章、調整目錄結構，<br/>都要手動調整文章側邊欄的話，<br/>體驗好差阿，不如我們來自動化產生側邊欄吧。"
-  tagline: 'Automated Sidebar'
+  name: "Day22 - Classify"
+  text: "想要讓文章可以依照<br /> Tag、時間、類別 來做分類。"
+  tagline: 'Classify'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day21 - 自動化文章側邊欄
-      link: /article/code-sea/vitepress/2024鐵人賽/day21-dynamic-article-list
+      text: Day22 - Classify
+      link: /article/code-sea/vitepress/2024鐵人賽/day22-classify
 ---
 
 <style lang="scss">

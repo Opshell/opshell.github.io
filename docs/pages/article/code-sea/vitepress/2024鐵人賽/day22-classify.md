@@ -7,10 +7,12 @@ tags:
   - 鐵人賽
   - VitePress
 editLink: true
-isPublished: false
+isPublished: true
 ---
 
-自動化側邊欄目錄之後，接下來想做標籤功能和分類功能。
+![Banner22](https://ithelp.ithome.com.tw/upload/images/20240923/20109918bvx5LmZZDq.png)
+
+自動化側邊欄目錄之後，接下來想做文章檢索的功能，比如我想看某個特定主題的文章有哪些之類的，所以今天要依照標籤、類別、時間、發文時間、更新時間等 `frontmatter` 來做歸類成資料集合。
 
 ## 歸類 function 設計
 我們一樣在 `docs/.vitepress/hooks/` 目錄下新增檔案 `useArticleClassification`：
@@ -92,7 +94,7 @@ export async function getArticleClassification(files: string[], startPathName: s
 }
 ```
 
-透過和昨天類似的方式把 Tags 整理起來。 之後如果要做 `時間線` 、 `分類` 等歸類方式，也都可以在這邊擴充。
+透過和昨天類似的方式把 Tags 整理起來。 之後如果要做時間線、分類等歸類方式，也都可以在這邊擴充。
 
 ## Config 設定
 然後我們在 `config` 中加入他，然後擴充原先 `DefaultTheme.Config` 的型別：
@@ -117,6 +119,8 @@ export default defineConfig({
 ```
 
 ## 文章裡要使用
+把資料塞進 `frontmatter`
+```yaml
 title: 'Enum 使用實例'
 author: 'Opshell'
 createdAt: '2024/08/10'
@@ -126,6 +130,7 @@ tags:
   - typescript
 editLink: true
 isPublished: true
+```
 
 ## 使用 classification
 資料整理好後，由於我們把他塞在 `themeConfig` 裡面，所以我們可以透過 `useData().theme` 得他，我們在擴充後的 `Layout` 使用他吧。
