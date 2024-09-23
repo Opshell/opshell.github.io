@@ -2,7 +2,7 @@
     import DefaultTheme from 'vitepress/theme';
     import { useData, useRouter } from 'vitepress';
 
-    import { useKeyBoardControl } from '@hooks/useKeyBoardControl';
+    import useKeyBoardControl from '@hooks/useKeyBoardControl';
 
     const { Layout } = DefaultTheme;
 
@@ -61,6 +61,17 @@
         }
     }
 
+    function getOutlines() {
+        const outlines = document.querySelectorAll('.VPDocOutlineItem.root .outline-link');
+
+        const activeIndex = Array.from(outlines).findIndex(outline => outline.classList.contains('active'));
+
+        return {
+            outlines,
+            activeIndex
+        };
+    }
+
     useKeyBoardControl({
         'ArrowLeft': () => {
             console.log('ArrowLeft');
@@ -70,15 +81,34 @@
             console.log('ArrowRight');
             selectorClickHandler('.pager-link.next');
         },
-        'KeyQ': () => {
-            console.log('KeyQ');
-            selectorClickHandler('.DocSearch.DocSearch-Button');
+        'h': () => {
+            console.log('h');
         },
-        'Ctrl+z': () => {
-            console.log('Ctrl+z');
-            selectorClickHandler('.DocSearch.DocSearch-Button');
+        'Ctrl+ArrowUp': () => {
+            const { outlines, activeIndex } = getOutlines();
+
+            if (outlines.length <= 0)
+                return;
+
+            if (activeIndex > 0) {
+                const prevIndex = activeIndex - 1;
+                if (prevIndex >= 0) {
+                    (outlines[prevIndex] as HTMLElement).click();
+                }
+            } else {
+                window.scrollTo(0, 0); // 頁面卷軸到最上面
+            }
+        },
+        'Ctrl+ArrowDown': () => {
+            const { outlines, activeIndex } = getOutlines();
+            if (outlines.length > 0) {
+                const nextIndex = activeIndex + 1;
+                if (nextIndex < outlines.length) {
+                    (outlines[nextIndex] as HTMLElement).click();
+                }
+            }
         }
-    });
+    }, true);
 </script>
 
 <template>

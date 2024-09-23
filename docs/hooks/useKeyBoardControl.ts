@@ -1,5 +1,5 @@
 type Key = string;
-type Code = string;
+// type Code = string;
 type KeyCombination = string;
 
 interface KeyBoardControlConfig {
@@ -7,24 +7,29 @@ interface KeyBoardControlConfig {
 }
 
 const keyStrategies: { [key in Key]: () => void } = {};
-const codeStrategies: { [key in Code]: () => void } = {};
+// const codeStrategies: { [key in Code]: () => void } = {};
 const combinationStrategies: { [key in KeyCombination]: () => void } = {};
 
-function keyDownHandler(event: KeyboardEvent) {
+function keyDownHandler(event: KeyboardEvent, showKey: boolean) {
     const key = event.key;
     if (key in keyStrategies) {
         keyStrategies[key]();
     }
 
-    const code = event.code;
-    if (code in codeStrategies) {
-        codeStrategies[code]();
-    }
+    // const code = event.code;
+    // if (code in codeStrategies) {
+    //     codeStrategies[code]();
+    // }
 
     const combination = `${event.ctrlKey ? 'Ctrl+' : ''}${event.shiftKey ? 'Shift+' : ''}${event.altKey ? 'Alt+' : ''}${key}`;
-    console.log(combination);
     if (combination in combinationStrategies) {
         combinationStrategies[combination]();
+    }
+
+    if (showKey) {
+        console.log('key：', key);
+        // console.log('code：', code);
+        console.log('combination：', combination);
     }
 }
 
@@ -46,22 +51,23 @@ function keyDownHandler(event: KeyboardEvent) {
  * @remarks
  * 該鉤子函數會在組件掛載時添加鍵盤事件監聽器，並在組件卸載時移除監聽器。
  */
-export function useKeyBoardControl(config: KeyBoardControlConfig) {
+export default (config: KeyBoardControlConfig, showKey: boolean) => {
     for (const key in config) {
         if (key.includes('+')) {
             combinationStrategies[key] = config[key];
         } else if (key.length === 1) {
             keyStrategies[key] = config[key];
-        } else {
-            codeStrategies[key] = config[key];
         }
+        // } else {
+        //     codeStrategies[key] = config[key];
+        // }
     }
 
     onMounted(() => {
-        window.addEventListener('keydown', keyDownHandler);
+        window.addEventListener('keydown', event => keyDownHandler(event, showKey));
     });
 
     onBeforeUnmount(() => {
-        window.removeEventListener('keydown', keyDownHandler);
+        window.removeEventListener('keydown', event => keyDownHandler(event, showKey));
     });
-}
+};

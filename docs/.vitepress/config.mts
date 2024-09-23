@@ -11,13 +11,13 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 // import footnote_plugin from 'markdown-it-footnote';
 import footnote from 'markdown-it-footnote';
 
+import { absolutePath, getFrontMatter, isDirectory } from '../hooks/useFrontMatter';
 import { getSidebar } from '../hooks/useGetSidebar';
 import { getArticleClassification, iClassification } from '../hooks/useArticleClassification';
 
 import nav from './theme/configs/nav';
 import socialLinks from './theme/configs/socialLinks';
 import search from './theme/configs/search';
-import Checkbox from '@/components/el/checkbox.vue';
 
 const startPathDir = path.resolve(__dirname, '../pages'); // 把pages 設定成根目錄
 const mdFiles = fs.readdirSync(startPathDir); // 讀取目錄下的資料夾&文件
@@ -35,7 +35,26 @@ export default defineConfig({
     title: 'Opshell\'s Blog',
     description: 'Opshell\'s work and life records.',
     sitemap: {
-        hostname: 'https://opshell.github.io'
+        hostname: 'https://opshell.github.io',
+        transformItems: (items) => {
+            return items.map((item) => {
+                const { url } = item;
+                const filepath = absolutePath(url.replace('.html', '.md'));
+
+                if (!isDirectory(filepath)) {
+                    const frontmatter = getFrontMatter(filepath);
+
+                    if (frontmatter.isPublished) {
+                        const { sitemap } = frontmatter;
+                        item.changefreq = sitemap?.changefreq || 'yearly';
+                        item.priority = sitemap?.priority || 0.6;
+
+                        return item;
+                    }
+                }
+                return false;
+            }).filter(item => item);
+        }
     },
     head: [
         ['link', { rel: 'icon', href: '/favicon.ico' }]
@@ -189,7 +208,6 @@ export default defineConfig({
             md.renderer.rules.task_list_item_close = (tokens, idx, options, env, slf) => {
                 return tokens[idx + 1].type !== 'task_list_item_open' ? '</label></div>' : '</label>';
             };
-
 
             // md.renderer.rules.image = (tokens, idx, options, env, self) => {
 

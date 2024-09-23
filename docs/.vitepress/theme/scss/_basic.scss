@@ -1,4 +1,21 @@
 // md attr 樣式
+html {
+    scroll-behavior: smooth;
+
+    // 卷軸底
+    &::-webkit-scrollbar {
+        background: var(--vp-c-bg-soft);
+        width: 6px;
+        border-radius: calc(8px / 2);
+    }
+
+    // 卷軸體
+    &::-webkit-scrollbar-thumb {
+        background: var(--vp-c-brand-1);
+        border: 0.5px solid var(--vp-c-brand-soft);
+        border-radius: calc(6px / 2);
+    }
+}
 .vp-doc {
     // group
     .in-out-demo-block {

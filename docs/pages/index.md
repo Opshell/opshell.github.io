@@ -36,4 +36,7 @@ features:
   - icon: 📦
     title: 生活雜記
     details: 柴、米、油、鹽、醬、醋、茶。
+
+sitemap:
+  - priority: 1
 ---
