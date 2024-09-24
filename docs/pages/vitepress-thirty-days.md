@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day22 - Classify"
-  text: "想要讓文章可以依照<br /> Tag、時間、類別 來做分類。"
-  tagline: 'Classify'
+  name: "Day23 - Tags List"
+  text: "依照 Tag 來做一個文章列表吧"
+  tagline: 'Tags List'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day22 - Classify
-      link: /article/code-sea/vitepress/2024鐵人賽/day22-classify
+      text: Day22 - Tags List
+      link: /article/code-sea/vitepress/2024鐵人賽/day23-tags-list
 ---
 
 <style lang="scss">
