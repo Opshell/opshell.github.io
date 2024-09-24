@@ -173,7 +173,7 @@ export default defineConfig({
 </div>
 
 ## 小結
-可以到 it幫看看這篇[文章](https://ithelp.ithome.com.tw/articles/10354109)，稍稍為比較兩邊(it幫 和 VitePress) 一樣的內容，`VitePress` 可以寫的更規範，理論上也會有更好的閱讀體驗 ~~(如果沒有是因為 Opshell 還沒優化好樣式)~~ <br />
+可以到 it邦看看這篇[文章](https://ithelp.ithome.com.tw/articles/10354109)，稍稍為比較兩邊(it邦 和 VitePress) 一樣的內容，`VitePress` 可以寫的更規範，理論上也會有更好的閱讀體驗 ~~(如果沒有是因為 Opshell 還沒優化好樣式)~~ <br />
 套句名言：他還是個孩子~~~
 
 所以 Opshell 才會選擇用 `VitePress` 自己蓋部落格，一切盡在不言中。

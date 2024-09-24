@@ -2,6 +2,9 @@
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
+title: "Opshell's Blog"
+description: 一個藉由分享前端開發、各種想法、奇怪技能及其他雜項來與世界互動的部落格。
+
 hero:
   name: "Opshell's Blog"
   text: "一個藉由分享前端開發、各種想法、奇怪技能及其他雜項來與世界互動的部落格。"
