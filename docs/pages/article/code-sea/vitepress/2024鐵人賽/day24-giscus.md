@@ -13,8 +13,7 @@ refer:
   - https://wenlei.wang/life-doc/view/temp/%E5%B7%A5%E5%85%B7/%E6%89%93%E9%80%A0%E7%AB%99%E7%82%B9/%E7%AB%99%E7%82%B9%E6%B7%BB%E5%8A%A0%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F.html#giscus
 ---
 
-進入了 stage 5 慢慢的也接近賽季的尾聲啦。
-做部落格除了分享以外，也想要有交流討論，和大家交交朋友，所以在我們的文章中需要個評論的功能。
+進入了 stage 5 慢慢的也接近賽季的尾聲啦，做部落格除了分享以外，也想要有交流討論，和大家交交朋友，所以在我們的文章中需要個評論的功能。
 
 ## 評論系統選型：
 市面上有很多評論系統：
@@ -72,10 +71,10 @@ refer:
     <div style="margin-top: 24px">
         <Giscus
             id="comments"
+            :key="route.path"
             repo="Opshell/opshell.github.io"
             repoid="R_kgDOMjQqsg"
             category="Announcements"
-            :key="route.path"
             categoryid="DIC_kwDOMjQqss4Ch3dc"
             mapping="pathname"
             term="Welcome to giscus!"
@@ -95,7 +94,7 @@ refer:
 `:theme` 用於根據頁面主題切換評論主題。
 
 ## 使用 giscus Component
-在 `docs/.vitepress/theme/layout/expandLayout.vue` 中使用 `OrgaGiscusComment`
+在 `docs/.vitepress/theme/layout/expandLayout.vue` 中使用 `OrgaGiscusComment`：
 
 ```vue
 <template>

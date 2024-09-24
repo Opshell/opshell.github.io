@@ -315,6 +315,34 @@ export default defineConfig({
                 customDomId: '__svg__icons__dom__' // 自訂 Dom ID
             })
         ],
+        // 代理伺服器
+        server: {
+            // https: true,
+            // https: {
+            //     key: fs.readFileSync('./certs/localhost+2-key.pem'),
+            //     cert: fs.readFileSync('./certs/localhost+2.pem'),
+            // },
+            host: true, // [!]預設是掛載 localhost，設定為 true 可以允許外部連接 (Vite 才能連 Docker Container 的 port)
+            port: 8080,
+            strictPort: false, // Port被占用時直接退出， false會嘗試連接下一個可用Port
+            open: true, // dev時自動打開網頁，也可以給網址指定。
+            // 自訂代理規則，配合後端進行Api呼叫等。
+            // 預設使用 [http-proxy](https://github.com/http-party/node-http-proxy) 完整設定請見官方
+            proxy: {
+                '/api': {
+                    target: 'http://opshell.info/api/', // Opshell 後端
+                    ws: true, // 代理的WebSockets
+                    changeOrigin: true, // 允許websockets跨域
+                    rewrite: path => path.replace(/^\/api/, '')
+                },
+                '/oauth': {
+                    target: 'https://tzuchi.incku.com.tw/oauth/', // Docker Container 串接
+                    ws: true, // 代理的WebSockets
+                    changeOrigin: true, // 允許websockets跨域
+                    rewrite: path => path.replace(/^\/oauth/, '')
+                }
+            }
+        },
         // 共用全域 SCSS
         css: {
             devSourcemap: true, // scss sourcemap

@@ -5,6 +5,6 @@
 
 -- by wikipedia 設計模式 (電腦)
 
-
-
 https://ithelp.ithome.com.tw/articles/10201706
+
+https://www.ramotion.com/blog/frontend-design-patterns/
