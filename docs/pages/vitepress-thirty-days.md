@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day23 - Tags List"
-  text: "依照 Tag 來做一個文章列表吧"
-  tagline: 'Tags List'
+  name: "Day24 - giscus - 評論"
+  text: "除了分享以外，也想要有交流討論，和大家交交朋友。"
+  tagline: 'giscus'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day22 - Tags List
-      link: /article/code-sea/vitepress/2024鐵人賽/day23-tags-list
+      text: Day24 - giscus - 評論
+      link: /article/code-sea/vitepress/2024鐵人賽/day24-giscus
 ---
 
 <style lang="scss">

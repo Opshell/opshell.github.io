@@ -157,3 +157,17 @@ export default antfu(
 
 說到 tsconfig，分享一篇很不錯的文章
 https://www.totaltypescript.com/tsconfig-cheat-sheet
+
+
+
+
+
+單行if 設定
+'curly': ['error', 'multi-line'], // if else while 花括號&單行 風格
+'style/max-statements-per-line': ['error', { max: 2 }], // 單行最大語句數
+
+這樣可以把
+```ts
+if (!res) { throw new Error('資料取得異常！, 網路錯誤！！'); }
+```
+這樣的語句處理好
