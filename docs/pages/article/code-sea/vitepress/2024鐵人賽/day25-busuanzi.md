@@ -7,8 +7,12 @@ tags:
   - 鐵人賽
   - VitePress
 editLink: true
-isPublished: false
+isPublished: true
 ---
+
+![banner25](https://ithelp.ithome.com.tw/upload/images/20240926/20109918G8L1uIEdWO.png)
+
+紀錄頁面的閱讀數量，網站的訪客數，應該已經是部落格標配了看著數字的增加，總是會有一咪咪成就感。
 
 由於我們部落格走無後端的輕量化路線，所以計算訪客數的功能就比較沒有選擇，目前比較合用的 Opshell 看來看去就只有 `不蒜子` 而已。
 
@@ -85,17 +89,13 @@ export default {
             </div>
         </template>
 
-        <template #aside-ads-before>
-            // [!code ++]
-            <div class="busuanzi-box">
-                // [!code ++]
+        <template #aside-ads-before> // [!code ++]
+            <div class="busuanzi-box"> // [!code ++]
                 Opshell 的 Blog // [!code ++]
-                <div class="busuanzi">
-                    // [!code ++]
+                <div class="busuanzi"> // [!code ++]
                     已有： <span id="busuanzi_value_site_pv" class="number">Loading</span> 次觀看 // [!code ++]
                 </div> // [!code ++]
-                <div class="busuanzi">
-                    // [!code ++]
+                <div class="busuanzi"> // [!code ++]
                     已有： <span id="busuanzi_value_site_uv" class="number">Loading</span> 個人來過 // [!code ++]
                 </div> // [!code ++]
             </div> // [!code ++]
@@ -103,6 +103,8 @@ export default {
     </Layout>
 </template>
 ```
+在 `aside-ads-before` 的 slot 添加瀏覽量顯示。
+
 
 ## 主要用法
 ```html

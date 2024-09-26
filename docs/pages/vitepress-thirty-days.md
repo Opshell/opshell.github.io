@@ -3,15 +3,15 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day24 - giscus - 評論"
-  text: "除了分享以外，也想要有交流討論，和大家交交朋友。"
-  tagline: 'giscus'
+  name: "Day25 - busuanzi"
+  text: "紀錄頁面的閱讀數量，網站的訪客數，應該已經是部落格標配了<br />看著數字的增加，總是會有一咪咪成就感。"
+  tagline: '不蒜子 瀏覽計數器'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day24 - giscus - 評論
+      text: Day25 - busuanzi - 瀏覽計數器
       link: /article/code-sea/vitepress/2024鐵人賽/day24-giscus
 ---
 
