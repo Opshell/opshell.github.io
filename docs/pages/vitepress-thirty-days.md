@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day25 - busuanzi"
-  text: "紀錄頁面的閱讀數量，網站的訪客數，應該已經是部落格標配了<br />看著數字的增加，總是會有一咪咪成就感。"
-  tagline: '不蒜子 瀏覽計數器'
+  name: "Day26 - medium-zoom"
+  text: "在引用比較大張的圖片時，<br />縮圖對我這種老人家不夠友善，<br />我們添加圖片放大功能。"
+  tagline: 'medium-zoom 圖片放大'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day25 - busuanzi - 瀏覽計數器
-      link: /article/code-sea/vitepress/2024鐵人賽/day24-giscus
+      text: Day26 - medium-zoom - 圖片縮放
+      link: /article/code-sea/vitepress/2024鐵人賽/day26-medium-zoom
 ---
 
 <style lang="scss">

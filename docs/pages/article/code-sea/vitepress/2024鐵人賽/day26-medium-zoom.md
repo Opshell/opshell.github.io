@@ -7,10 +7,12 @@ tags:
   - 鐵人賽
   - VitePress
 editLink: true
-isPublished: false
+isPublished: true
 refer:
   - http://www.freeendless.com/misc/vitepress/image-zoom.html
 ---
+
+![Banner26](https://ithelp.ithome.com.tw/upload/images/20240927/20109918o0QblFGag0.png)
 
 由於文章頁面的版面設計，左右邊都有欄目，在引用比較大張的圖片時，縮圖對我這種老人家不夠友善，所以我們添加圖片放大功能，順便優化一點圖片的樣式吧。
 
@@ -33,14 +35,14 @@ export default {
     setup() {
         const route = useRoute();
 
-        onMounted(async () => {
+        onMounted(async () => { // 初始化
             initZoom();
-            reloadBusuanzi(); // 初始化
+            reloadBusuanzi();
         });
-        watch(() => route.path, () => {
+        watch(() => route.path, () => { // 監聽
             nextTick(() => {
                 initZoom();
-                reloadBusuanzi(); // 監聽
+                reloadBusuanzi();
             });
         });
     }
@@ -63,7 +65,7 @@ export default {
 }
 ```
 
-再來我們發現這個套件做出來的 zoom 區塊會被 VitePress 高層級的元件擋住，我們設定一下他的 `z-index`。
+再來我們發現這個套件做出來的 zoom 區塊會被 `VitePress` 高層級的元件擋住，我們設定一下他的 `z-index`。
 ```scss
 .medium-zoom-overlay {
     background-color: var(--vp-c-bg) !important;
@@ -77,7 +79,3 @@ export default {
 ```
 
 恩 這樣看起來就沒有什麼問題了。
-
-[圖片縮放功能](http://www.freeendless.com/misc/vitepress/image-zoom.html)
-
-[Day22] - View Transition API
