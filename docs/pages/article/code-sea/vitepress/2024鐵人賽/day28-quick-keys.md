@@ -9,8 +9,10 @@ tags:
   - composable
   - vue
 editLink: true
-isPublished: false
+isPublished: true
 ---
+
+![banner28](https://ithelp.ithome.com.tw/upload/images/20240929/2010991813w5fDMu63.png)
 
 想的到會用到的套件都差不多裝完了，最後來提升一點閱讀體驗，自從某次加班一段時間過勞產生了肘隧道症候群後，除了換直立滑鼠，調整坐姿，買夠高的椅子以外，也讓自己習慣75%的鍵盤(100%的鍵盤太大，會卡住滑鼠移動，造成正常坐姿下左右不平衡)，也開始越來越習慣盡量用純鍵盤的方式寫程式和爬文，所以今天來添加一點鍵盤操作吧。
 

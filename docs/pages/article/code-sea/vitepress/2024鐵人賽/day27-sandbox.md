@@ -7,10 +7,14 @@ tags:
   - 鐵人賽
   - VitePress
 editLink: true
-isPublished: false
+isPublished: true
 ---
 
-鐵人賽也接近尾聲了，各位看官可以發現一個部落格大體的架構都幾乎完成了，stage 5 只是在補一些小套件來 ~~水~~ 完善一些小功能，今天就來補點沙盒吧。
+![Banner27](https://ithelp.ithome.com.tw/upload/images/20240928/20109918RzXsBbiZJh.png)
+
+鐵人賽也接近尾聲了，各位看官可以發現一個部落格大體的架構都幾乎完成了，stage 5 只是在補一些小套件來 ~~水~~ 完善一些小功能，今天就來補點 `andbox(沙盒)` 吧。
+
+圖片不能對於程式邏輯的表現不夠強烈，所以有了程式碼區塊。如果想要更仔細，<br />可以來個 `Sandbox(沙盒)`。
 
 ## vitepress sandbox
 vitepress sandbox 透過 [CodeSandbox](https://codesandbox.io/) 的 `online bundler` 來實現瀏覽器即時編譯的沙盒功能。
@@ -91,6 +95,8 @@ export default defineConfig({
 
 </div>
 
+![normal](https://ithelp.ithome.com.tw/upload/images/20240928/20109918N0Wt5ll3K7.png)
+
 您可以點擊此按鈕打開codesandbox。
 你可以看到，文件目錄是這樣的。
 
@@ -150,7 +156,14 @@ createApp(App).mount('#app');
 :::
 </div>
 
+![https://ithelp.ithome.com.tw/upload/images/20240928/20109918tbIA5NqyAB.png](https://ithelp.ithome.com.tw/upload/images/20240928/20109918tbIA5NqyAB.png)
+
+![https://ithelp.ithome.com.tw/upload/images/20240928/20109918XxwAnxD2rN.png](https://ithelp.ithome.com.tw/upload/images/20240928/20109918XxwAnxD2rN.png)
+
 你可以看到，文件目錄是這樣的。並且 src 中的檔案將不會被使用。
 
 ## 小結
 這樣就完成了簡單的沙盒安裝及使用，沒有什麼特別需要注意的地方，如果要說的話，應該是 VitePress Sandbox 只支援 ESM 模式。
+
+## 備註
+只要是和 markdown 有關係的功能，文章和實際展示效果在[Opshell's Blog](https://opshell.github.io/article/code-sea/vitepress/2024鐵人賽/day18-basic-markdown)服用，會擁有更棒的賞文體驗。

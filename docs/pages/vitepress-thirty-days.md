@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day26 - medium-zoom"
-  text: "在引用比較大張的圖片時，<br />縮圖對我這種老人家不夠友善，<br />我們添加圖片放大功能。"
-  tagline: 'medium-zoom 圖片放大'
+  name: "Day28 - Shortcut Key"
+  text: "相信有些大大習慣純鍵盤工作了，這樣對手腕、手肘較為健康，所以我們幫部落格添加一點鍵盤控制"
+  tagline: 'Shortcut Key 快捷鍵'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day26 - medium-zoom - 圖片縮放
-      link: /article/code-sea/vitepress/2024鐵人賽/day26-medium-zoom
+      text: Day28 - Shortcut Key - 快捷鍵
+      link: /article/code-sea/vitepress/2024鐵人賽/day28-quick-keys
 ---
 
 <style lang="scss">
