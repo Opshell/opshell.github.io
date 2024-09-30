@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day28 - Shortcut Key"
-  text: "相信有些大大習慣純鍵盤工作了，這樣對手腕、手肘較為健康，所以我們幫部落格添加一點鍵盤控制"
-  tagline: 'Shortcut Key 快捷鍵'
+  name: "Day29 - Sitemap"
+  text: "幫搜尋引擎的爬蟲做一張網站地圖吧~"
+  tagline: 'Sitemap'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day28 - Shortcut Key - 快捷鍵
-      link: /article/code-sea/vitepress/2024鐵人賽/day28-quick-keys
+      text: Day29 - Sitemap
+      link: /article/code-sea/vitepress/2024鐵人賽/day29-sitemap
 ---
 
 <style lang="scss">

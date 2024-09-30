@@ -8,10 +8,12 @@ tags:
   - VitePress
   - sitemap
 editLink: true
-isPublished: false
+isPublished: true
 ---
 
-今天大概就是這個系列寫寫程式的最後一篇文章了，來處理個 `sitemap` 好了。
+![Banner29](https://ithelp.ithome.com.tw/upload/images/20240930/20109918NcsUZ5Jlgl.png)
+
+今天大概就是這個系列會寫寫程式的最後一篇文章了，來處理個 `sitemap` 好了。
 
 ## Sitemap 是什麼
 什麼是 `sitemap` 呢? 字面解釋就是網站地圖。
