@@ -15,7 +15,7 @@ export interface iResult<T = any> {
     paginator?: iPaginator
 }
 ```
-
+```md
 1. 泛型 T
 T = any：這表示 iResult 是一個泛型介面，預設型別為 any。這意味著你可以在使用這個介面時指定 data 屬性的具體型別。例如，你可以使用 iResult<number> 來表示 data 是一個數字。
 2. status: boolean
@@ -38,6 +38,7 @@ iPaginator 介面
 3. per_page: number
 每頁顯示的資料筆數。
 4. last_page: number
+```
 最後一頁的頁碼。
 總結
 這些型別宣告的目的是為了在 TypeScript 中提供更強的型別檢查和自動補全功能。iResult 介面允許你靈活地定義 data 屬性的型別，同時也能包含分頁資訊 paginator。這樣的設計使得你的程式碼更具可讀性和可維護性。

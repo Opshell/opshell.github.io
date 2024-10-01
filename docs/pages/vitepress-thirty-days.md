@@ -3,16 +3,16 @@ layout: home
 class: vitepress-thirty-days
 
 hero:
-  name: "Day29 - Sitemap"
-  text: "幫搜尋引擎的爬蟲做一張網站地圖吧~"
-  tagline: 'Sitemap'
+  name: "Day30 - 後記"
+  text: "完賽了~ 但是之後的路還很長。<br />最近發生很多事，接下來要好好的沉澱一下。"
+  tagline: '完賽感言'
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
   actions:
     - theme: brand
-      text: Day29 - Sitemap
-      link: /article/code-sea/vitepress/2024鐵人賽/day29-sitemap
+      text: Day30 - 後記
+      link: /article/code-sea/vitepress/2024鐵人賽/day30-epilog
 ---
 
 <style lang="scss">
