@@ -92,7 +92,7 @@ contact:
     workMonths.value[index] = months + 1;
   }
 
-  const workExperience = computed(() => {
+  const workExperienceTotal = computed(() => {
       const count = Object.values(workMonths.value).reduce((acc, cur) => acc + cur, 0);
 
       const years = Math.floor(count / 12);
@@ -109,11 +109,18 @@ contact:
 
       return result;
   });
+
+  const isDescriptionOpen = ref(false);
 </script>
 
 <section class="work-experience-block">
 
-## Work Experience {{ workExperience }}
+<header class="header">
+
+  ## Work Experience {{ workExperienceTotal }}
+
+  <ElSvgIcon :name="isDescriptionOpen? 'zoom_in_map' : 'zoom_out_map'" @click="() => { isDescriptionOpen = !isDescriptionOpen }" />
+</header>
 
 <MoleWorkExperienceMD
   :key="workExperienceData[0].company"
@@ -122,7 +129,7 @@ contact:
   :location="workExperienceData[0].location"
   :job-title="workExperienceData[0].jobTitle"
   :period="workExperienceData[0].period"
-  :isDescriptionOpen="true"
+  :isDescriptionOpen="isDescriptionOpen"
   @calcMonths="calcMonths(0, $event)"
 >
 
@@ -282,3 +289,23 @@ contact:
 
 </MoleWorkExperienceMD>
 </section>
+
+
+<style lang="scss">
+  .work-experience-block {
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      .icon {
+        cursor: pointer;
+      }
+    }
+  }
+</style>
+
+
+
+Opshell's Blog， 坐在有超大螢幕的電腦前面， 螢幕展開出了下面的繽紛內容， 程式技巧、一些技術文件的筆記。 紀錄一些銘刻在靈魂中的收穫。 唯心宇宙，夢幻泡影，萬般帶不走，唯有業隨身。 科幻，簡約，鍊金術，真理之門，整齊的收錄，宇宙圖書館。 天地玄黃，宇宙洪荒。

@@ -9,9 +9,9 @@ hero:
   name: "Opshell's Blog"
   text: "一個藉由分享前端開發、各種想法、奇怪技能及其他雜項來與世界互動的部落格。"
   tagline: 平凡即卓越.
-  # image:
-  #   src: /opshell3d.png
-  #   alt: Opshell-3D
+  image:
+    src: /opshell-blog.webp
+    alt: Opshell-3D
   actions:
     - theme: alt
       text: Resume

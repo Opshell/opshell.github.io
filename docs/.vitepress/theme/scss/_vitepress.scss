@@ -43,6 +43,13 @@
             line-height: 1.5em;
         }
     }
+
+    .image-container {
+        transform: translate(0, 0);
+    }
+    .VPImage {
+        border-radius: 10px;
+    }
 }
 
 // 搜尋的階層 > 顏色
