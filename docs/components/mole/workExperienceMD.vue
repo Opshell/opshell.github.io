@@ -7,6 +7,7 @@
         location: string
         jobTitle: string
         period: string
+        isDescriptionOpen?: boolean
     }>();
 
     const emit = defineEmits<{
@@ -14,19 +15,13 @@
     }>();
 
     // 做一個可以開關的description 區塊
+    const isOpen = ref(props.isDescriptionOpen);
     const descriptionDom = ref<HTMLElement | null>(null);
-    const descriptionHeight = ref(0);
+    const descriptionHeight = computed(() => {
+        return isOpen.value ? `${descriptionDom.value?.scrollHeight ?? 0}px` : '0';
+    });
 
-    const isOpen = ref(false);
     function triggerHandler() {
-        if (descriptionDom.value) {
-            if (isOpen.value) {
-                descriptionDom.value.style.height = '0';
-            } else {
-                descriptionDom.value.style.height = `${descriptionHeight.value}px`;
-            }
-        }
-
         isOpen.value = !isOpen.value;
     }
 
@@ -58,14 +53,6 @@
 
         return result;
     });
-
-    onMounted(async () => {
-        if (descriptionDom.value) {
-            descriptionHeight.value = descriptionDom.value.clientHeight;
-
-            descriptionDom.value.style.height = '0';
-        }
-    });
 </script>
 
 <template>
@@ -90,7 +77,11 @@
             <span class="period">{{ period }} ({{ calcPeriod }})</span>
         </header>
 
-        <div ref="descriptionDom" class="description vp-doc">
+        <div
+            ref="descriptionDom"
+            class="description vp-doc"
+            :style="{ height: descriptionHeight }"
+        >
             <slot />
         </div>
     </section>

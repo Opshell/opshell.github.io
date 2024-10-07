@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import path from 'node:path';
 import fs from 'node:fs';
 import { DefaultTheme, defineConfig } from 'vitepress';
@@ -352,6 +353,14 @@ export default defineConfig({
                     charset: false
                 }
             }
+        },
+        test: { // https://vitest.dev/guide/#configuring-vitest
+            include: [`${path.resolve(__dirname, '../')}__test__/*.spec.ts`],
+            // exclude: ['**/node_modules/**', '**/dist/**'],
+
+            globals: true,
+            environment: 'jsdom',
+            deps: {}
         }
     },
 
