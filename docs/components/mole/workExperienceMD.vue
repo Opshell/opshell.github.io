@@ -9,23 +9,24 @@
         period: string
         isDescriptionOpen?: boolean
     }>();
-
     const emit = defineEmits<{
         calcMonths: [months: number]
     }>();
 
-    // 做一個可以開關的description 區塊
+    // [-]做一個可以開關的description 區塊
     const isOpen = ref(props.isDescriptionOpen);
     const descriptionDom = ref<HTMLElement | null>(null);
     const descriptionHeight = computed(() => {
         return isOpen.value ? `${descriptionDom.value?.scrollHeight ?? 0}px` : '0';
     });
-
+    watch(() => props.isDescriptionOpen, (newStatus) => {
+        isOpen.value = newStatus;
+    });
     function triggerHandler() {
         isOpen.value = !isOpen.value;
     }
 
-    // 計算工作年資
+    // [-]計算工作年資
     const calcPeriod = computed(() => {
         const [start, end] = props.period.split(' - ');
 
@@ -209,7 +210,7 @@
             }
 
             &::before {
-                border: 1px solid var(--vp-c-brand-3);
+                // border: 1px solid var(--vp-c-brand-3);
                 opacity: 1;
             }
         }

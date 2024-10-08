@@ -16,6 +16,15 @@ html {
         border-radius: calc(6px / 2);
     }
 }
+
+// text color
+.brand { color: var(--vp-c-brand-1) !important; }
+.info { color: var(--vp-c-indigo-1) !important; }
+.error { color: var(--vp-c-red-1) !important; }
+.warning { color: var(--vp-c-yellow-1) !important; }
+.success { color: var(--vp-c-green-2) !important; }
+.vue { color: #4AA985 !important; }
+
 .vp-doc {
     // group
     .in-out-demo-block {
@@ -27,12 +36,7 @@ html {
     }
 
 
-    // text color
-    .brand { color: var(--vp-c-brand-1) !important; }
-    .info { color: var(--vp-c-indigo-1) !important; }
-    .error { color: var(--vp-c-red-1) !important; }
-    .warning { color: var(--vp-c-yellow-1) !important; }
-    .success { color: var(--vp-c-green-2) !important; }
+
 
 
     // task-list

@@ -70,12 +70,11 @@ contact:
 ---
 
 ## About Opshell
-擅長UX調整、新技術研究，撰寫工程文件及專案架構開發。
+擅長UX調整、新技術研究，撰寫工程文件及專案架構開發。<br/><br/>
 
-前端工程師，要成為UIUX設計師、後端、PM及客戶之間的潤滑油，
-協同處理問題，讓產品順利產出。
+-|前端工程師|-{.vue}，要成為 `UIUX 設計師`{.info}、`後端`{.info}、`PM`{.info} 及 `客戶`{.info} 之間的潤滑油，協同處理問題，讓產品順利產出。<br/><br/>
 
-學習與成長，面對新的挑戰，一步步超越自己。
+學習與成長，面對新的挑戰，一步步超越自己。<br/>
 在時代與技術的洪流中，不想被沖走就逆流而上吧。
 
 ---
@@ -110,7 +109,7 @@ contact:
       return result;
   });
 
-  const isDescriptionOpen = ref(false);
+  const isDescriptionOpen = ref(true);
 </script>
 
 <section class="work-experience-block">
@@ -119,7 +118,10 @@ contact:
 
   ## Work Experience {{ workExperienceTotal }}
 
-  <ElSvgIcon :name="isDescriptionOpen? 'zoom_in_map' : 'zoom_out_map'" @click="() => { isDescriptionOpen = !isDescriptionOpen }" />
+<div class="btn-box" @click="() => { isDescriptionOpen = !isDescriptionOpen }">
+  <ElSvgIcon :name="isDescriptionOpen? 'zoom_in_map' : 'zoom_out_map'" />
+  <span> {{ isDescriptionOpen ? '關閉' : '展開' }} </span>
+</div>
 </header>
 
 <MoleWorkExperienceMD
@@ -129,7 +131,7 @@ contact:
   :location="workExperienceData[0].location"
   :job-title="workExperienceData[0].jobTitle"
   :period="workExperienceData[0].period"
-  :isDescriptionOpen="isDescriptionOpen"
+  :isDescriptionOpen
   @calcMonths="calcMonths(0, $event)"
 >
 
@@ -146,8 +148,8 @@ contact:
   - Tool：Git、Postman、Docker、Trello、JIRA
 
 ---
-#### 三、時期貢獻&部分作品：
-  - 推行：
+#### 三、重大貢獻及部分作品：
+  - 重大貢獻：
     - 推行 `JANDI`{.info}，整合工作流，`降低溝通負載60%`，提高同仁辦公及生活水準。
     - 導入 `Vite`{.info}、`Vue3`{.info}、`Typescript`{.info}、`Vitest`{.info}，`提高開發效率`、`降低維護成本`。
     - 導入 `Swiper`{.info}、`Quasar`{.info} 元件庫封裝，對齊專案技術，`降低專案維護門檻`。
@@ -155,15 +157,15 @@ contact:
     - 開發 `OAuth 2.0`{.info} 身份識別系統，`撰寫技術文件`及`執行相關教育訓練`。
 
   - 智慧醫療 - 慈濟洗腎護照 (前端)：
-    - 專案技術選型，架構設計，RESTful API 設計。
-    - 使用 Vue3 Custom plugin ，開發 Notify 指令需求。
-    - 設計、開發 OAuth 2.0 身份識別系統 。
+    - 專案技術選型，架構設計，`RESTful API`{.info} 設計。
+    - 使用 `Vue3 Custom plugin`{.info} ，開發 `Notify 指令` 需求。
+    - 設計、開發 `OAuth 2.0`{.info} 身份識別系統 。
 
   - 國教署 - 食登3.0 (前端)：
-    - Figma 設計軟體 + 工作流導入。
-    - 專案技術選型，架構設計，RESTful API 設計。
-    - 設計 Developer 開發者 Kit，提高多前端開發效率。
-    - 通過無障礙 2A 級審查。
+    - `Figma`{.info} 設計軟體 + 工作流導入。
+    - 專案技術選型，架構設計，`RESTful API`{.info} 設計。
+    - 設計 `Developer 開發者 Kit`{.info}，`提高多前端開發效率`。
+    - 通過`無障礙 2A 級`{.info}審查。
 </MoleWorkExperienceMD>
 
 <MoleWorkExperienceMD
@@ -173,6 +175,7 @@ contact:
   :location="workExperienceData[1].location"
   :job-title="workExperienceData[1].jobTitle"
   :period="workExperienceData[1].period"
+  :isDescriptionOpen
   @calcMonths="calcMonths(1, $event)"
 >
 
@@ -189,27 +192,27 @@ contact:
   - 行銷：SEO優化、GA串接
   - Tool：Git、Adobe Photoshop、Adobe illustrator、Trello
 
-#### 三、時期貢獻&部分作品：
-  - 推行：
-    - 導入 Git版控系統，整合工作SOP，減少維護工時消耗 200%。
-    - Javascript(ES6)、Vue、SCSS 等現代前端技術，
-    - 導入 Swiper 統一輪播套件，實現複雜特效，提高同事支援效率80%。
-    - 重構公司使用者後台操作介面，導入 axios 及使用 Promise.all 開發多圖上傳後台功能。
-    - Laravel Eloquent等現代後端技術，整合公司後端框架，提高公司產品安全性及維護便利性。
+#### 三、重大貢獻及部分作品：
+  - 重大貢獻：
+    - 導入 `Git`{.info} 版控系統，整合工作SOP，`降低維護工時 180%`。
+    - 導入 `Javascript(ES6)`{.info}、`Vue`{.info}、`SCSS`{.info} 等現代前端技術，
+    - 導入 `Swiper`{.info}，統一輪播套件，更容易實現複雜特效，`提高協作效率80%`。
+    - 導入 `Laravel Eloquent` 等現代後端技術，整合公司後端框架，提高公司產品的`安全性`及`可維護性`。
+    - 重構公司使用者後台操作介面，導入 `axios`{.info} 及使用 `Promise.all`{.info} 開發後臺`多圖上傳功能`。
 
   - 傳閔人時案件打卡系統(全端)：(隱私安全，不便提供)
-    - 導入 Vue ，重構專案前、後臺，優化UIUX，提高渲染效率 200%。
-    - 資料庫結構重構，提高查詢效率45%、存儲效率50%。
-    - 重構報表系統，提高查詢速度40%、渲染效率25%及列印版面調整。
-    - 舊專案資料重構、整合匯入新專案。
+    - 導入 `Vue`{.info}，重構專案前、後臺，優化 UIUX，`提高渲染效率 200%`。
+    - `資料庫結構重構`{.info}，`提高查詢效率45%`、`存儲效率50%`。
+    - `重構報表系統`{.info}，`提高查詢速度40%`、`渲染效率25%`及列印版面調整。
+    - `舊專案資料重構`{.info}、整合匯入新專案。
 
   - [喬山健康(全端)](https://www.johnsonfitnesslive.com/)
-    - 協助前端使用 GASP 處理特效。
-    - 規劃後台操作流程，並使用 Vue 建立後台使用者介面。
-    - 開發會員資料報表整合匯入、匯出功能開發。
-    - 主導多團隊 API 整合：APP Team + 機臺 Team + 外包 Team。
-    - 內部團隊 API 規劃及串接，藍新金流串接、電子發票串接。
-    - 外國金流串接(2C2P)串接並擴展，開發定期定額扣款功能。
+    - 協助前端使用 `GASP`{.info} 處理特效。
+    - 規劃後台操作流程，並使用 `Vue`{.info} 建立後台使用者介面。
+    - 開發會員資料`報表整合匯入`、`匯出功能`開發。
+    - 主導多團隊 `API 整合`{.info}：APP Team + 機臺 Team + 外包 Team。
+    - `藍新金流`{.info}串接、`電子發票`{.info}串接，內部團隊 `API 規劃及串接`。
+    - `外國金流串接(2C2P)`{.info}串接並擴展，`開發定期定額扣款`功能。
 
 </MoleWorkExperienceMD>
 
@@ -220,6 +223,7 @@ contact:
   :location="workExperienceData[2].location"
   :job-title="workExperienceData[2].jobTitle"
   :period="workExperienceData[2].period"
+  :isDescriptionOpen
   @calcMonths="calcMonths(2, $event)"
 >
 
@@ -267,6 +271,7 @@ contact:
   :location="workExperienceData[3].location"
   :job-title="workExperienceData[3].jobTitle"
   :period="workExperienceData[3].period"
+  :isDescriptionOpen
   @calcMonths="calcMonths(3, $event)"
 >
 
@@ -290,7 +295,6 @@ contact:
 </MoleWorkExperienceMD>
 </section>
 
-
 <style lang="scss">
   .work-experience-block {
     .header {
@@ -299,13 +303,25 @@ contact:
       justify-content: space-between;
       gap: 10px;
       width: 100%;
-      .icon {
+      .btn-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 3px 15px 3px 10px;
+        border: 1px solid var(--vp-c-text-1);
+        border-radius: 20px;
         cursor: pointer;
+        user-select: none;
+        transition: .2s $cubic-FiSo;
+        &:hover {
+          color: var(--vp-c-brand-1);
+          border-color: var(--vp-c-brand-1);
+        }
+        .icon {
+          transition: .2s $cubic-FiSo;
+        }
       }
     }
   }
 </style>
-
-
-
-Opshell's Blog， 坐在有超大螢幕的電腦前面， 螢幕展開出了下面的繽紛內容， 程式技巧、一些技術文件的筆記。 紀錄一些銘刻在靈魂中的收穫。 唯心宇宙，夢幻泡影，萬般帶不走，唯有業隨身。 科幻，簡約，鍊金術，真理之門，整齊的收錄，宇宙圖書館。 天地玄黃，宇宙洪荒。

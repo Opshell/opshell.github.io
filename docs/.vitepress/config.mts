@@ -211,6 +211,43 @@ export default defineConfig({
                 return tokens[idx + 1].type !== 'task_list_item_open' ? '</label></div>' : '</label>';
             };
 
+            // [-]添加一個把 -|文字|- 轉成 <span class="mark">文字</span> 的規則
+            md.inline.ruler.before('emphasis', 'mark', (state, silent) => {
+                const start = state.pos;
+
+                // 確認當前字符是否是 `-|`
+                if (state.src.charCodeAt(start) !== 0x2D) { return false; } /* - */
+                if (state.src.charCodeAt(start + 1) !== 0x7C) { return false; }/* | */ // 2D
+
+                // 使用正則表達式匹配 `-|文字|-`
+                const match = state.src.slice(start).match(/-\|([^|]+)\|-/);
+                if (!match) { return false; }
+                if (silent) { return true; }
+
+                // 計算結束位置
+                const end = start + match[0].length;
+
+                // 插入開頭和文字 token
+                const tokenOpen = state.push('mark_open', 'span', 1);
+                tokenOpen.markup = '-|';
+
+                const tokenText = state.push('text', '', 0);
+                tokenText.content = match[1]; // 這裡是匹配到的內容
+
+                const tokenClose = state.push('mark_close', 'span', -1);
+                tokenClose.markup = '|-';
+
+                // 更新狀態位置
+                state.pos = end;
+                return true;
+            });
+            md.renderer.rules.span_open = (tokens, idx, options, env, slf) => {
+                return `<span class="mark">`; // 這裡可以自定義 class
+            };
+            md.renderer.rules.span_close = (tokens, idx, options, env, slf) => {
+                return `</span>`;
+            };
+
             // md.renderer.rules.image = (tokens, idx, options, env, self) => {
 
             //     // console.log('-1', tokens[idx-1]);
