@@ -48,7 +48,7 @@
             </div>
 
             <h3 class="company">
-                {{ company }}
+                T_{{ company }}
             </h3>
             <div class="location">
                 <ElSvgIcon name="location_on" />
