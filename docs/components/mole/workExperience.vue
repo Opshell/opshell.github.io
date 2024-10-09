@@ -67,7 +67,7 @@
 </template>
 
 <style lang="scss">
-    .work-experience-box {
+    .work-experience-box-close {
         position: relative;
         width: 100%;
         cursor: pointer;
