@@ -35,10 +35,6 @@ html {
         > :first-child { margin-top: 0; }
     }
 
-
-
-
-
     // task-list
     .task-list {
         @include setFlex(flex-start, flex-start, 10px, column);

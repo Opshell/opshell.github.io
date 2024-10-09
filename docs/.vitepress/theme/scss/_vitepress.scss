@@ -104,8 +104,14 @@
     }
 
     strong {
-        color: var(--vp-c-danger-2);
+        background-color: var(--vp-code-bg);
+        padding: 3px 6px;
+        border-radius: 5px;
+        color: var(--vp-c-brand-1);
+        font-size: 0.85em;
+        font-weight: 400;
     }
+
     .custom-block {
         > p:first-child,
         > summary {
