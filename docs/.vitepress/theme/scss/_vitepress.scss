@@ -52,6 +52,10 @@
     }
 }
 
+.VPButton.brand {
+    color: var(--vp-button-brand-text) !important;
+}
+
 // 搜尋的階層 > 顏色
 .vpi-chevron-right.local-search-icon {
     color: var(--vp-c-green-2);

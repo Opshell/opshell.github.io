@@ -3,11 +3,28 @@
 
     const { frontmatter } = useData();
 
-
     // 物件值相加
     function sumObjectValues(obj: Record<string, number>) {
         return Object.values(obj).reduce((acc, cur) => acc + cur, 0);
     }
+
+    // get the sticky element
+    onMounted(() => {
+        const headerBlock = document.querySelector('.header-block');
+        const headerObserver = new IntersectionObserver(
+            ([entries]) => {
+                entries.target.classList.toggle('--fixed', entries.intersectionRatio < 1);
+            },
+            {
+                rootMargin: '-65px',
+                threshold: [1]
+            }
+        );
+
+        if (headerBlock) {
+            headerObserver.observe(headerBlock);
+        }
+    });
 </script>
 
 <template>
@@ -18,16 +35,16 @@
                     <img src="/images/resume/portrait.png" alt="Opshell 大頭貼" />
                 </div>
                 <h1 class="name">
-                    <!-- <span class="zh">YuWei Liu</span> -->
+                    <!-- <span class="zh">劉 育瑋</span> -->
                     <span class="en">{{ frontmatter.name }}</span>
                 </h1>
-                <span class="job-title">
+                <!-- <span class="job-title">
                     {{ frontmatter.jobTitle }}
-                </span>
-                <div class="mbti">
-                    <img src="/images/resume/mbti.png" alt="MBTI：INTP-A" />
-                </div>
+                </span> -->
             </header>
+            <div class="mbti">
+                <img src="/images/resume/mbti.png" alt="MBTI：INTP-A" />
+            </div>
 
             <hr class="divider" />
 
@@ -54,7 +71,7 @@
 
             <hr class="divider" />
 
-            <OrgaSectionBlock title="Contact">
+            <OrgaSectionBlock class="contact-block" title="Contact">
                 <ul class="contact-box">
                     <li v-for="contact in frontmatter.contact" :key="`contact-${contact.text}`" class="contact">
                         <ElSvgIcon :name="contact.icon" />
@@ -141,27 +158,46 @@
     }
 
     .header-block {
+        position: sticky;
+        top: calc(var(--vp-nav-height) - 1px);
         display: flex;
         flex-direction: column;
         gap: 20px;
+        background-color: var(--vp-c-bg);
+        z-index: 1;
         .image-box {
             background: #d3bba4;
-            width: 250px;
-            height: 250px;
             @include setSize(250px, 250px);
             border-radius: 50%;
+            transition: .25s $cubic-FiSo;
             overflow: hidden;
+            @include setSize(250px, 250px);
             img {
-                width: 100%;
-                height: 100%;
+                @include setSize(100%, 100%);
                 object-fit: cover;
             }
         }
-        .mbti {
-            border-radius: 10px;
-            box-shadow: 0 0 1px 1px var(--vp-c-brand-3);
-            overflow: hidden;
+        .name {
+            @include setFlex(flex-start, baseline, 20px);
         }
+
+        &.--fixed {
+            background-color: var(--vp-c-bg);
+            padding: 20px 0;
+            border-bottom: 2px solid var(--vp-c-divider);
+
+            .image-box {
+                // @include setSize(150px, 150px);
+            }
+        }
+    }
+    .mbti {
+        grid-area: mbti;
+        width: 296px;
+        border-radius: 10px;
+        box-shadow: 0 0 1px 1px var(--vp-c-brand-3);
+        transform: translateX(2px);
+        overflow: hidden;
     }
 
     .skills-block {
@@ -174,6 +210,11 @@
         }
     }
 
+    .contact-block {
+        position: sticky;
+        top: 430px;
+        padding: 20px 0 0;
+    }
     .contact-box {
         display: flex;
         flex-direction: column;
