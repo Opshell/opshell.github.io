@@ -1,6 +1,7 @@
 ---
 layout: resume
 
+portrait: /images/resume/portrait.webp
 name: Opshell
 jobTitle: Front-End Developer
 mbti: INTP-A
@@ -80,10 +81,11 @@ contact:
 ---
 
 <script setup lang="ts">
-  import {  withBase } from 'vitepress';
+  // import {  withBase } from 'vitepress';
   import { data as workExperienceData } from '@/data/works.data';
 
-  import MoleWorkExperienceMD from '@components/mole/workExperienceMD.vue';
+  import ElSvgIcon from '@components/el/svgIcon.vue';
+  import MoleWorkExperience from '@components/mole/workExperience.vue';
 
   const workMonths: Ref<{[key: number]}> = ref({});
 
@@ -124,7 +126,7 @@ contact:
 </div>
 </header>
 
-<MoleWorkExperienceMD
+<MoleWorkExperience
   :key="workExperienceData[0].company"
   :comp-img="workExperienceData[0].compImg"
   :company="workExperienceData[0].company"
@@ -160,11 +162,11 @@ contact:
     - 專案技術選型，架構設計，**RESTful API**{.info} 設計。
     - 設計 **Developer 開發者 Kit**{.info}，**提高多前端開發效率**。
     - 通過**無障礙 2A 級**{.info}審查。
-</MoleWorkExperienceMD>
+</MoleWorkExperience>
 
-<MoleWorkExperienceMD
+<MoleWorkExperience
   :key="workExperienceData[1].company"
-  :comp-img="withBase(workExperienceData[1].compImg)"
+  :comp-img="workExperienceData[1].compImg"
   :company="workExperienceData[1].company"
   :location="workExperienceData[1].location"
   :job-title="workExperienceData[1].jobTitle"
@@ -202,11 +204,11 @@ contact:
     - **藍新金流**{.info}串接、**電子發票**{.info}串接，內部團隊 **API 規劃及串接**。
     - **外國金流串接(2C2P)**{.info}串接並擴展，**開發定期定額扣款**功能。
 
-</MoleWorkExperienceMD>
+</MoleWorkExperience>
 
-<MoleWorkExperienceMD
+<MoleWorkExperience
   :key="workExperienceData[2].company"
-  :comp-img="withBase(workExperienceData[2].compImg)"
+  :comp-img="workExperienceData[2].compImg"
   :company="workExperienceData[2].company"
   :location="workExperienceData[2].location"
   :job-title="workExperienceData[2].jobTitle"
@@ -245,11 +247,11 @@ contact:
     - 客製 Slide 特效演算法並模組化。
     - 全站轉場、漸變、過動 特效設計、實踐。
     - 全頁式網站 RWD 設計。
-</MoleWorkExperienceMD>
+</MoleWorkExperience>
 
-<MoleWorkExperienceMD
+<MoleWorkExperience
   :key="workExperienceData[3].company"
-  :comp-img="withBase(workExperienceData[3].compImg)"
+  :comp-img="workExperienceData[3].compImg"
   :company="workExperienceData[3].company"
   :location="workExperienceData[3].location"
   :job-title="workExperienceData[3].jobTitle"
@@ -267,7 +269,7 @@ contact:
   - "高速公路遠距無線車辨系統"，軟硬體開發、整合。
   - "barCode 無紅外影像辨識機"，核心演算法韌體化。
 
-</MoleWorkExperienceMD>
+</MoleWorkExperience>
 </section>
 
 <style lang="scss">

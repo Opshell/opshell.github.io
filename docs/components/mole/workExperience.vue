@@ -1,38 +1,58 @@
 <script setup lang="ts">
     import { withBase } from 'vitepress';
 
-    defineProps<{
+    const props = defineProps<{
         compImg: string
         company: string
         location: string
         jobTitle: string
         period: string
-        description: string
+        isDescriptionOpen?: boolean
+    }>();
+    const emit = defineEmits<{
+        calcMonths: [months: number]
     }>();
 
-    // 做一個可以開關的description 區塊
+    // [-]做一個可以開關的description 區塊
+    const isOpen = ref(props.isDescriptionOpen);
     const descriptionDom = ref<HTMLElement | null>(null);
-    const descriptionHeight = ref(0);
-
-    const isOpen = ref(false);
+    const descriptionHeight = computed(() => {
+        return isOpen.value ? `${descriptionDom.value?.scrollHeight ?? 0}px` : '0';
+    });
+    watch(() => props.isDescriptionOpen, (newStatus) => {
+        isOpen.value = newStatus;
+    });
     function triggerHandler() {
-        if (descriptionDom.value) {
-            if (isOpen.value) {
-                descriptionDom.value.style.height = '0';
-            } else {
-                descriptionDom.value.style.height = `${descriptionHeight.value}px`;
-            }
-        }
-
         isOpen.value = !isOpen.value;
     }
 
-    onMounted(async () => {
-        if (descriptionDom.value) {
-            descriptionHeight.value = descriptionDom.value.clientHeight;
+    // [-]計算工作年資
+    const calcPeriod = computed(() => {
+        const [start, end] = props.period.split(' - ');
 
-            descriptionDom.value.style.height = '0';
+        const [startYear, startMonth] = start.split('.');
+        const [endYear, endMonth] = end.split('.');
+
+        // Date 的月份是 0 ~ 11 所以要 -1
+        const startDate = new Date(Number(startYear), Number(startMonth) - 1);
+        const endDate = end === 'Now' ? new Date() : new Date(Number(endYear), Number(endMonth) - 1);
+
+        const diffInMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+        emit('calcMonths', diffInMonths);
+
+        const years = Math.floor(diffInMonths / 12);
+        const months = (diffInMonths + 1) % 12; // 一般是月初入職，月底離職，所以要加1
+
+        let result = '';
+
+        if (years !== 0) {
+            result += `${years}y `;
         }
+        if (months !== 0) {
+            result += `${months}m`;
+        }
+
+        return result;
     });
 </script>
 
@@ -48,26 +68,28 @@
             </div>
 
             <h3 class="company">
-                T_{{ company }}
+                {{ company }}
             </h3>
             <div class="location">
                 <ElSvgIcon name="location_on" />
                 <span>{{ location }}</span>
             </div>
             <span class="job-title">{{ jobTitle }}</span>
-            <span class="period">{{ period }}</span>
+            <span class="period">{{ period }} ({{ calcPeriod }})</span>
         </header>
 
-        <p
+        <div
             ref="descriptionDom"
-            class="description"
-            v-html="description"
-        />
+            class="description vp-doc"
+            :style="{ height: descriptionHeight }"
+        >
+            <slot />
+        </div>
     </section>
 </template>
 
 <style lang="scss">
-    .work-experience-box-close {
+    .work-experience-box {
         position: relative;
         width: 100%;
         cursor: pointer;
@@ -83,10 +105,10 @@
             .img-box {
                 grid-area: img-box;
                 background: #FFF;
-                @include setSize(100px, 100px);
                 padding: 2px;
                 border: 2px solid #666;
                 border-radius: 10px;
+                @include setSize(100px, 100px);
             }
             .company {
                 grid-area: compnay;
@@ -140,7 +162,7 @@
             box-sizing: border-box;
 
             /* 6666 */
-            color: #666;
+            color: var(--vp-c-text-2);
             font-size: 1.125rem;
             font-weight: 400;
             font-style: normal;
@@ -148,6 +170,10 @@
             letter-spacing: 0.03em;
             transition: .2s $cubic-FiSo;
             overflow: hidden;
+            h4 {
+                color: var(--vp-c-text-1);
+                font-size: 1.25rem;
+            }
         }
 
         &::before {
@@ -155,7 +181,7 @@
             position: absolute;
             inset: -20px;
             display: block;
-            background: #f7f7f7;
+            background: var(--vp-c-bg-soft);
             @include setSize(calc(100% + 2.5rem), calc(100% + 2.5rem));
             border-radius: 10px;
             transition: .3s $cubic-FiSo;
@@ -170,20 +196,22 @@
             }
             .work-experience {
                 .company {
-                    color: #FFC000;
+                    color: var(--vp-c-brand-1);
                 }
             }
         }
 
         &.--is-open {
             .img-box {
-                border-color: #FFC000;
+                border-color: var(--vp-c-brand-1);
             }
             .company {
-                color: #FFC000;
+                color: var(--vp-c-brand-1);
             }
-            .description {
-                margin: 1.875rem 0;
+
+            &::before {
+                // border: 1px solid var(--vp-c-brand-3);
+                opacity: 1;
             }
         }
 

@@ -32,7 +32,7 @@
         <div class="left-block">
             <header class="header-block">
                 <div class="image-box">
-                    <img src="/images/resume/portrait.png" alt="Opshell 大頭貼" />
+                    <img :src="frontmatter.portrait" :alt="`${frontmatter.name}大頭貼`" />
                 </div>
                 <h1 class="name">
                     <!-- <span class="zh">劉 育瑋</span> -->
