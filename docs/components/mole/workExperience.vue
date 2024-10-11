@@ -96,7 +96,7 @@
         transition: .2s $cubic-FiSo;
         .work-experience {
             display: grid;
-            grid-template-areas: "img-box compnay   location"
+            grid-template-areas: "img-box company   location"
                                  "img-box job-title period";
             grid-template-columns: 110px repeat(2, 1fr);
             gap: 10px;
@@ -111,7 +111,7 @@
                 @include setSize(100px, 100px);
             }
             .company {
-                grid-area: compnay;
+                grid-area: company;
                 @include setFlex(flex-start);
 
                 /* 主色-黃 */

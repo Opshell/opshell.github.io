@@ -1,6 +1,13 @@
 // md attr 樣式
 html {
+    font-size: 16px;
     scroll-behavior: smooth;
+    @include setRWD(1200px) {
+        font-size: 14px;
+    }
+    @include setRWD(600px) {
+        font-size: 12px;
+    }
 
     // 卷軸底
     &::-webkit-scrollbar {
