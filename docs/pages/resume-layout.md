@@ -71,7 +71,7 @@ contact:
 ---
 
 ## About Opshell
-主修 **Vue**{.vue} 生態圈的前端工程師，擅長**UX 調整**{.brand}、**專案架構開發**{.brand}、**新技術研究導入**{.brand}及**撰寫工程文件**{.brand}。<br/><br/>
+擅長**UX 調整**{.brand}、**專案架構開發**{.brand}、**新技術研究導入**{.brand}及**撰寫工程文件**{.brand}。<br/><br/>
 
 **前端工程師**{.vue}，要成為 **UIUX 設計師**{.info}、**後端**{.info}、**PM**{.info} 及 **客戶**{.info} 之間的潤滑油，協同處理問題，讓產品順利產出。<br/><br/>
 

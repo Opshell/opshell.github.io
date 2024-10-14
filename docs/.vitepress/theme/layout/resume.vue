@@ -49,9 +49,9 @@
                     <!-- <span class="zh">劉 育瑋</span> -->
                     <span class="en">{{ frontmatter.name }}</span>
                 </h1>
-                <!-- <span class="job-title">
+                <span class="job-title">
                     {{ frontmatter.jobTitle }}
-                </span> -->
+                </span>
             </header>
             <div class="mbti">
                 <img src="/images/resume/mbti.png" alt="MBTI：INTP-A" />
@@ -160,7 +160,6 @@
             position: relative;
             flex-shrink: 0;
             width: 300px;
-            overflow: hidden;
         }
 
         .left-block-switch {
@@ -233,7 +232,7 @@
         }
         .contact-block {
             position: sticky;
-            top: 430px;
+            top: 470px;
             padding: 20px 0 0;
         }
         .contact-box {
@@ -280,6 +279,7 @@
                 transform: translateX(-100%);
                 transform-origin: left top;
                 transition: .2s $cubic-FiSo;
+                overflow: hidden;
                 overflow-y: auto;
                 z-index: 1;
             }
