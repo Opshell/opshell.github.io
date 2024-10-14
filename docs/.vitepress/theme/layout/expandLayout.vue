@@ -60,7 +60,6 @@
             element.click();
         }
     }
-
     function getOutlines() {
         const outlines = document.querySelectorAll('.VPDocOutlineItem.root .outline-link');
 
@@ -137,6 +136,10 @@
                         :href="`/tags-list.html?tag=${tag}&page=1`"
                     >{{ tag }}</a>
                 </div>
+            </div>
+
+            <div v-if="frontmatter.image" class="banner-block">
+                <img :src="frontmatter.image" alt="`${frontmatter.title}_image`" />
             </div>
         </template>
 

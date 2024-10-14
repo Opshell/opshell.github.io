@@ -1,14 +1,6 @@
 import { DefaultTheme } from 'vitepress';
 
 export default [
-    // {
-    //     text: 'About Ops',
-    //     link: '/about-opshell'
-    // },
-    {
-        text: '✨️ Vitepress Thirty Day',
-        link: '/vitepress-thirty-days'
-    },
     {
         text: 'Article',
         items: [
@@ -40,6 +32,27 @@ export default [
         ]
     },
     {
+        text: 'Portfolio',
+        items: [
+            {
+                text: '工作專案',
+                link: '/article/portfolio/works/'
+            },
+            {
+                text: '活動&賽事',
+                link: '/article/portfolio/competition/'
+            },
+            {
+                text: 'Side Project',
+                link: '/article/portfolio/side-project/'
+            },
+            {
+                text: 'photography',
+                link: '/article/portfolio/photography/'
+            }
+        ]
+    },
+    {
         text: 'Tags',
         link: '/tags-list'
     },
@@ -47,21 +60,4 @@ export default [
         text: 'Resume',
         link: '/resume-layout'
     }
-    // {
-    //     text: 'Resume',
-    //     items: [
-    //         {
-    //             text: 'resume-vue',
-    //             link: '/resume-vue'
-    //         },
-    //         {
-    //             text: 'resume-md',
-    //             link: '/resume-md'
-    //         },
-    //         {
-    //             text: 'resume-layout',
-    //             link: '/resume-layout'
-    //         }
-    //     ]
-    // }
 ] as DefaultTheme.NavItem[];

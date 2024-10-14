@@ -1,5 +1,6 @@
 ---
 title:  'Day01 - 前言'
+image: 'https://ithelp.ithome.com.tw/upload/images/20240902/20109918l3iLJ7f009.png'
 author: 'Opshell'
 createdAt: '2024/09/02'
 categories: 'vitepress-thirty-days'
@@ -9,8 +10,6 @@ tags:
 editLink: true
 isPublished: true
 ---
-
-![Banner 01](https://ithelp.ithome.com.tw/upload/images/20240902/20109918l3iLJ7f009.png)
 
 ## 緣起
 在全端打滾久了後，

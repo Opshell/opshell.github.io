@@ -147,6 +147,7 @@
                 grid-template-columns: 120px 140px 1fr 100px;
                 gap: 10px;
                 align-items: center;
+                min-height: 80px;
                 border: 1px solid var(--vp-c-divider);
                 border-radius: 10px;
 
