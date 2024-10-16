@@ -29,11 +29,16 @@ function getList(params: string[], absolutePath: string, startPath: string): Def
 
         if (isDir) { // 如果是資料夾，遞迴進下一次
             const files = fs.readdirSync(dir);
-            res.push({
-                text: file,
-                collapsed: true,
-                items: getList(files, dir, `${startPath}/${file}`)
-            });
+
+            const child = getList(files, dir, `${startPath}/${file}`);
+
+            if (child.length > 0) {
+                res.push({
+                    text: file,
+                    collapsed: true,
+                    items: child
+                });
+            }
         } else {
             const fileName = path.basename(file);
 

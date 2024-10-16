@@ -24,6 +24,10 @@ export default [
                         link: '/article/code-sea/typescript/enum'
                     },
                     {
+                        text: 'vue',
+                        link: '/article/code-sea/vue/version-upgrade'
+                    },
+                    {
                         text: 'vitepress',
                         link: '/article/code-sea/vitepress/2024鐵人賽/day01-preface'
                     }
