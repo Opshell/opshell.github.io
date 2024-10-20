@@ -9,8 +9,6 @@ import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 
-// import footnote_plugin from 'markdown-it-footnote';
-import footnote from 'markdown-it-footnote';
 
 import { absolutePath, getFrontMatter, isDirectory } from '../hooks/useFrontMatter';
 import { getSidebar } from '../hooks/useGetSidebar';
@@ -140,20 +138,6 @@ export default defineConfig({
             allowedAttributes: [] // empty array = all attributes are allowed
         },
         config: (md) => {
-            md.use(footnote);
-            interface iFootnoteAnchorTokenMeta {
-                id: number
-                subId: number
-                label: string
-            }
-            md.renderer.rules.footnote_anchor = function render_footnote_anchor(tokens, idx, options, env, slf) {
-                let id = slf.rules.footnote_anchor_name?.(tokens, idx, options, env, slf);
-                if ((tokens[idx].meta as iFootnoteAnchorTokenMeta).subId > 0) {
-                    id += `:${(tokens[idx].meta as iFootnoteAnchorTokenMeta).subId}`;
-                }
-                return ` <a href="#fnref${id}" class="footnote-backref"> ⬆️ </a>`;
-            };
-
             md.use(container, 'sandbox', {
                 render(tokens: any[], idx: number) {
                     return renderSandbox(tokens, idx, 'sandbox');

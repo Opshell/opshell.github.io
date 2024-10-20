@@ -68,8 +68,11 @@ contact:
   - icon: location_on
     text: Tainan, Taiwan
     href: https://maps.app.goo.gl/9q1aF5LEaEihmDh37
+  - icon: location_on
+    text: Tainan, Taiwan
+    href: https://maps.app.goo.gl/9q1aF5LEaEihmDh37
 ---
-
+ˋr7
 ## About Opshell
 有 **7~8 年**{.brand}工作經驗的網頁工程師，擅長**UX 調整**{.brand}、**專案架構開發**{.brand}、**新技術研究導入**{.brand}及**撰寫工程文件**{.brand}。<br/><br/>
 
@@ -81,7 +84,6 @@ contact:
 ---
 
 <script setup lang="ts">
-  // import {  withBase } from 'vitepress';
   import { data as workExperienceData } from '@/data/works.data';
 
   import ElSvgIcon from '@components/el/svgIcon.vue';
