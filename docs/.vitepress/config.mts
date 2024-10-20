@@ -88,6 +88,10 @@ export default defineConfig({
                 text: 'Typescript',
                 items: await getSidebar('/article/code-sea/typescript')
             }],
+            '/article/code-sea/vue/': [{
+                text: 'Vue',
+                items: await getSidebar('/article/code-sea/vue')
+            }],
             '/article/code-sea/vitepress/': [{
                 text: 'Vitepress',
                 items: await getSidebar('/article/code-sea/vitepress')
