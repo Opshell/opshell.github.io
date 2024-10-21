@@ -1,0 +1,1 @@
+https://michaelnthiessen.com/effective-state-management

@@ -169,14 +169,18 @@
         <template #aside-ads-after>
             <div class="tag-box">
                 分享了以下的主題：
-                <a
-                    v-for="(info, tag) in classification.tags"
-                    :key="`tag-${tag}`"
-                    class="tag"
-                    :href="`/tags-list.html?tag=${tag}&page=1`"
-                >
-                    <span>{{ tag }}：</span>
-                    <span class="count">{{ info.count }}</span>
+                <template v-for="(info, tag) in classification.tags" :key="`tag-${tag}`">
+                    <a
+                        v-if="info.count > 1"
+                        class="tag"
+                        :href="`/tags-list.html?tag=${tag}&page=1`"
+                    >
+                        <span>{{ tag }}：</span>
+                        <span class="count">{{ info.count }}</span>
+                    </a>
+                </template>
+                <a class="tag" href="/tags-list.html?tag=typescript&page=1">
+                    <span class="count">More ...</span>
                 </a>
             </div>
         </template>
