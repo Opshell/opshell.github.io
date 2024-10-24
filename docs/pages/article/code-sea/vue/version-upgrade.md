@@ -116,6 +116,35 @@ isPublished: true
 </template>
 ```
 
+::: tip () => [] 預設值報錯
+在 3.5 之前的 `props` 中，給預設值時通常會給
+
+```ts
+const props = withDefaults(defineProps<{
+    options: iOptions[],
+}>(), {
+    options: () => [],
+});
+```
+但我們會在 3.5 以上這樣使用
+```ts
+const { options = [] } = defineProps<{ options: iOptions[] }>();
+```
+
+但是這樣做  在 F12 控制台中會爆警告 說我們應該是拿到 function 但是拿到 Array。
+
+目前沒有發現可行的做法，猜測是 `ESLint` 還沒有支援這個特性? 所以把這個警告先關掉了：
+```js
+{
+    files: ['**/*.vue'],
+    rules: {
+        'vue/require-valid-default-prop': 'off', // 配合 Vue3.5 可解構 props 不再需要 () => [] 只要給 [] 就可以了
+    }
+}
+```
+
+:::
+
 ## vue-router 抓不到全域變數
 升級 3.5 之後，本來寫在 `router/index.ts` 中 `router.beforeEach` 的全域 `provide` 突然就 `undefined` 了，
 
