@@ -178,3 +178,6 @@ app.provide('app', app); // 提供this.$app 主要是router 裡要使用全域�
 "vue": "3.5.12"
 "vue-router": "4.4.5"
 :::
+
+## auto-import 不會載入 useTemplateRef、useId 等 Vue 3.5 新語法
+更新 `unplugin-auto-import` 套件至版本 `0.18.1` 以上
