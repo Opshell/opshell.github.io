@@ -1,0 +1,1 @@
+[fill="#5f6368"](https://www.zhangxinxu.com/wordpress/2014/07/svg-sprites-fill-color-currentcolor/)
