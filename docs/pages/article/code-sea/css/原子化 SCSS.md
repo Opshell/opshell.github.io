@@ -25,9 +25,6 @@ https://hackmd.io/@FortesHuang/SJ9DhgTGn
 
 ![原子化SCSS-3](/images/article/原子化SCSS-2.jpg)
 
-
-
-
 不過  說到scss 和 打包
 我有個困擾很久但是一直還沒解的問題
 
@@ -41,7 +38,6 @@ https://hackmd.io/@FortesHuang/SJ9DhgTGn
 像是這樣子的SCSS 都會在 每個宣告下面用
 這樣打包後 就會有一大堆一樣的尺寸
 有辦法讓他變成一個?
-
 
 F:不會這樣寫
 一般是按照size的range看是xl還是xxl
@@ -58,3 +54,66 @@ https://tinyurl.com/4cmkay8t
 這樣就不用擔心會寫太多重複的code
 
 ![]()
+
+``` scss
+// 定義 Breakpoint 的對應像素值
+$breakpoints: (
+  'xs': 480px,
+  'sm': 768px,
+  'md': 992px,
+  'lg': 1200px,
+  'xl': 1600px
+);
+
+// Mixin 根據 Breakpoint 名稱生成相應的 Media Query
+@mixin useBreakPoint($breakpoint) {
+  // 從 $breakpoints 中查找對應的 Breakpoint 尺寸
+  $breakpoint-value: map-get($breakpoints, $breakpoint);
+
+  // 如果找到對應尺寸，生成 Media Query
+  @if $breakpoint-value {
+    @media screen and (max-width: $breakpoint-value) {
+      @content;
+    }
+  } @else {
+    @warn "Breakpoint '#{$breakpoint}' is not defined in $breakpoints map.";
+  }
+}
+
+// 使用 Mixin
+// .container {
+
+//   @each $size in 'xs', 'sm', 'md' {
+//     @include useBreakPoint($size) {
+//       display: block;
+//     }
+
+//     @include useBreakPoint($size) {
+//       display: flex;
+//     }
+
+//     @include useBreakPoint($size) {
+//       display: grid;
+//     }
+//   }
+
+// }
+
+$breakpoint-styles: (
+  'xs': (display: block),
+  'md': (display: flex),
+  'lg': (display: grid)
+);
+
+.container {
+  @each $breakpoint, $styles in $breakpoint-styles {
+    @include useBreakPoint($breakpoint) {
+      @each $property, $value in $styles {
+        #{$property}: #{$value}; // 將樣式插入到對應的 Media Query 中
+      }
+    }
+  }
+}
+```
+
+postcss-sort-media-queries
