@@ -8,6 +8,8 @@ tags:
   - pattern
 editLink: true
 isPublished: false
+refer:
+  -
 ---
 
 ## 基本的 Vue3 + Vite + Typescript 的基本專案結構
@@ -19,14 +21,21 @@ src/
 │   ├── icons/
 │   └── scss/
 │
+├── api/              # api 相關方式 及設定
+│   ├── images/
+│   ├── icons/
+│   └── scss/
+│
 ├── components/       # 全域共用元件
-│   ├── Table/
-│   │   ├── DataTable.vue
-│   │   └── TableFilter.vue
-│   ├── Form/
-│   │   ├── SearchForm.vue
-│   │   └── FilterForm.vue
-│   └── Common/
+│   ├── el/
+│   │   ├── btn.vue
+│   │   ├── select.vue
+│   │   └── input.vue
+│   ├── mole/
+│   │   ├── listBar.vue
+│   │   ├── modal.vue
+│   │   └── notify.vue
+│   └── orga/
 │       ├── ConfirmDialog.vue
 │       └── StatusBadge.vue
 │
@@ -46,8 +55,8 @@ src/
 │       └── useToast.ts
 │
 ├── config/          # 配置文件
-│   ├── menu.ts     # 選單配置
-│   └── settings.ts # 全域設定
+│   ├── menu.ts      # 選單配置
+│   └── settings.ts  # 全域設定
 │
 ├── constants/       # 常量定義
 │   ├── api.ts
@@ -58,7 +67,7 @@ src/
 │   ├── auth.ts
 │   └── error.ts
 │
-├── plugins/         # 插件
+├── plugins/         # 套件
 │   ├── axios.ts
 │   ├── permission.ts
 │   └── element-plus.ts
@@ -74,18 +83,18 @@ src/
 │   ├── permission.ts
 │   └── user.ts
 │
-├── types/          # TypeScript 類型
+├── types/           # TypeScript 類型
 │   ├── api.d.ts
 │   ├── components.d.ts
 │   └── global.d.ts
 │
-├── utils/          # 工具函數
+├── utils/           # 工具函數
 │   ├── format.ts
 │   ├── validator.ts
 │   └── helper.ts
 │
-├── views/          # 頁面
-│   ├── futures/    # 期貨管理
+├── views/           # 頁面
+│   ├── futures/     # 期貨管理
 │   │   ├── composables/     # 期貨相關邏輯
 │   │   │   ├── useGamePlay.ts
 │   │   │   └── useOrderRecords.ts
@@ -109,21 +118,73 @@ src/
 
 
 ## 關於 components 的結構
-在 `/components` 中有幾種分割方式，
+在 `/components` 中有幾種常見的分類方式：
 
-### 原子型
-
-### 類別型
+### 原子型 (Atomic Design)
+根據原子設計方法論來分類，分為原子 (Atoms)、分子 (Molecules)、有機體 (Organisms) 等，詳細可以參考 Opshell 的[這篇]筆記。
 ```sh
 components/
-├── Table/
+├── atom/
+│   ├── btn.vue
+│   ├── select.vue
+│   └── input.vue
+├── mole/
+│   ├── listBar.vue
+│   ├── notify.vue
+│   └── modal.vue
+└── orga/
+    ├── list.vue
+    ├── header.vue
+    └── registerForm.vue
+```
+
+### 類別型 (Categorical)
+根據元件的類別來分類，例如表格、表單、通用元件等。
+```sh
+components/
+├── table/
 │   ├── dataTable.vue
 │   └── tableFilter.vue
-├── Form/
+├── form/
 │   ├── searchForm.vue
 │   └── filterForm.vue
-└── Common/
+└── common/
     ├── btn.vue
     ├── confirmDialog.vue
     └── statusBadge.vue
 ```
+
+### 頁面型 (Page-based)
+根據頁面來分類，每個頁面有自己的元件目錄。
+```sh
+components/
+├── home/
+│   ├── newsList.vue
+│   └── banner.vue
+├── about/
+│   ├── timeLine.vue
+│   └── aboutContent.vue
+└── product/
+    ├── productCart.vue
+    ├── searchBar.vue
+    └── productInfo.vue
+```
+
+### 域型 (Domain-based)
+根據需求來分類，例如會員管理、產品管理等。
+```sh
+components/
+├── user/
+│   ├── register.vue
+│   └── login.vue
+├── news/
+│   ├── listBar.vue
+│   └── listItem.vue
+└── product/
+    ├── productCart.vue
+    ├── searchBar.vue
+    └── productInfo.vue
+```
+
+主要看團隊怎麼界定，只要習慣就可以了。
+
