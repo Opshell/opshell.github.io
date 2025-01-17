@@ -9,6 +9,23 @@ export default [
                 link: '/article/life-murmurs/life'
             },
             {
+                text: 'Front-End Basic',
+                items: [
+                    {
+                        text: 'HTML',
+                        link: '/article/code-sea/html'
+                    },
+                    {
+                        text: 'CSS',
+                        link: '/article/code-sea/css'
+                    },
+                    {
+                        text: 'Javascript',
+                        link: '/article/code-sea/javascript'
+                    }
+                ]
+            },
+            {
                 text: 'Code Sea',
                 items: [
                     {

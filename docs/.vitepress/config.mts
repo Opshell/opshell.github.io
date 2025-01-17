@@ -9,7 +9,6 @@ import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 
-
 import { absolutePath, getFrontMatter, isDirectory } from '../hooks/useFrontMatter';
 import { getSidebar } from '../hooks/useGetSidebar';
 import { getArticleClassification, iClassification } from '../hooks/useArticleClassification';
@@ -79,6 +78,14 @@ export default defineConfig({
             '/article/code-sea/developer/': [{
                 text: 'Developer',
                 items: await getSidebar('/article/code-sea/developer')
+            }],
+            '/article/code-sea/html/': [{
+                text: 'HTML',
+                items: await getSidebar('/article/code-sea/html')
+            }],
+            '/article/code-sea/css/': [{
+                text: 'CSS',
+                items: await getSidebar('/article/code-sea/css')
             }],
             '/article/code-sea/javascript/': [{
                 text: 'Jypescript',
