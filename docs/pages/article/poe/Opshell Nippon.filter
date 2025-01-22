@@ -31,13 +31,13 @@
 ## 900 傳奇、機會石基底
 ## 800 預兆、情緒、催化劑、精隨、文物
 ## 700 寶石、護符、符文、靈魂核心
-## 600 武器、防具
+## 600 武器、防具ass
 ## 500 項鍊、戒指、腰帶、珠寶、聖所遺物
 ## 400 王戰鑰匙、各種門票
-## 300 通貨
+## 300 通貨、金幣、未知通貨
 ## 200 地圖
-## 100 金幣
-## 000 插槽物品、品質裝備、藥水
+## 100 插槽物品、品質裝備、藥水
+## 000 最低權重
 #=============================================================
 
 # https://www.colordic.org/w
@@ -214,15 +214,29 @@
 #====================================
     # [-] 技能石
     Show
-        BaseType "Uncut" "Uncut Spirit"
+        BaseType "Uncut"
         ItemLevel >= 19
         SetFontSize 45
             SetTextColor 2   135 96
             SetBorderColor 62  179 112
             SetBackgroundColor 234 244 252 200
         MinimapIcon 0 Red Triangle
-            PlayAlertSound 6 300
             PlayEffect Red
+            PlayAlertSound 2 300
+            CustomAlertSound "22寶石.mp3"
+
+    Show
+        BaseType "Uncut Spirit"
+        ItemLevel >= 18
+        SetFontSize 45
+            SetTextColor 2   135 96
+            SetBorderColor 62  179 112
+            SetBackgroundColor 234 244 252 200
+        MinimapIcon 0 Red Triangle
+            PlayEffect Red
+            PlayAlertSound 2 300
+            CustomAlertSound "22寶石.mp3"
+
     Hide
         BaseType "Uncut" "Uncut Spirit"
         ItemLevel >= 13
@@ -231,8 +245,7 @@
             SetBorderColor 62  179 112
             SetBackgroundColor 0   137 108 245
         MinimapIcon 1 Cyan Triangle
-            PlayAlertSound 2 300
-            PlayEffect Cyan
+
     Hide
         BaseType "Uncut" "Uncut Spirit"
         ItemLevel >= 7
@@ -538,13 +551,6 @@
         SetFontSize 35
             SetTextColor 81 168 221 230 # 群青
             SetBorderColor 0 0 0 200    # 黑
-
-    # [-] 其他普通的金裝
-    Show
-        Rarity Rare
-        SetFontSize 30
-            SetTextColor 190 194 63 170
-            SetBackgroundColor 24  6   20 　150
 #====================================
 
 ## 500 項鍊、戒指、腰帶、珠寶、聖所遺物
@@ -643,17 +649,17 @@
 
     # [-] 幻像異界、裂痕石、探險日誌
     Show
-        Class "Currency"
         BaseType "Simulacrum" "Breachstone" "Fragment" "Expedition Logbook"
-        SetFontSize 40
+        SetFontSize 45
             SetTextColor 255 217 0
             SetBorderColor 252 200 0
             SetBackgroundColor 116 50  92  230
         MinimapIcon 2 Purple Cross
+            PlayAlertSound 5 300
+            PlayEffect Purple
 
     # [-] 幻像斷片、裂痕裂片、懦弱命運、致命命運、勝利命運
     Show
-        Class "Currency"
         BaseType "Simulacrum Splinter" "Breach Splinter" "Cowardly Fate" "Deadly Fate" "Victorious Fate"
         SetFontSize 40
             SetTextColor 255 255 255
@@ -762,16 +768,46 @@
             SetTextColor 106 11 14
             SetBorderColor 0 0 0
             SetBackgroundColor 200 90 110 211
+
+    # [-] 金幣
+    Show
+        StackSize > 1000
+        BaseType == "Gold"
+        SetFontSize 35
+            SetTextColor 255 217 0
+            SetBorderColor 255 217 0
+            SetBackgroundColor 24  6   20  150
+        MinimapIcon 0 Yellow Raindrop
+            PlayEffect Orange Temp
+
+    Show
+        StackSize > 700
+        BaseType == "Gold"
+        SetTextColor 255 217 0
+            SetBackgroundColor 24  6   20  100
+
+    Show
+        StackSize > 350
+        BaseType == "Gold"
+        SetTextColor 250 214 137 210
+            SetBackgroundColor 24  6   20  50
+
+    Hide
+        StackSize <= 350
+        BaseType == "Gold"
+        SetTextColor 228 158 97
+            SetBackgroundColor 24  6   20  5
+
     # [-] Unknown 通貨
     Show
         Class "Currency"
         SetFontSize 40
             SetTextColor 255 207 132
-            SetBorderColor 255 207 132
+            SetBorderColor 228 158 97
             SetBackgroundColor 76 51 12
         MinimapIcon 1 White Circle
             PlayAlertSound 2 300
-            PlayEffect Pink
+            PlayEffect Red
 #====================================
 
 ## 200 地圖
@@ -790,8 +826,8 @@
     Show
         BaseType "Waystone"
         Rarity Rare
-        WaystoneTier >= 8
-        SetFontSize 30
+        WaystoneTier > 8
+        SetFontSize 35
             SetTextColor 255 217 0
             SetBorderColor 252 200 0
             SetBackgroundColor 24  6   20  210
@@ -802,45 +838,13 @@
     # 隱藏T8以下地圖
     Hide
         BaseType "Waystone"
-        WaystoneTier >= 1
-            SetTextColor 200 200 200 170
+        WaystoneTier < 8
+        SetTextColor 200 200 200 170
             SetBorderColor 0 0 0 0
             SetBackgroundColor 0 0 0 200
 #====================================
 
-## 100 金幣
-#====================================
-    Show
-        StackSize > 1000
-        BaseType == "Gold"
-        SetFontSize 35
-            SetTextColor 255 217 0
-            SetBorderColor 255 217 0
-            SetBackgroundColor 24  6   20  150
-        MinimapIcon 0 Yellow Raindrop
-            PlayEffect Orange Temp
-            PlayAlertSound 3 100
-    Show
-        StackSize > 700
-        BaseType == "Gold"
-        SetTextColor 255 217 0
-            SetBackgroundColor 24  6   20  100
-        MinimapIcon 0 Yellow Raindrop
-            PlayEffect Orange Temp
-            PlayAlertSound 3 100
-    Show
-        StackSize > 350
-        BaseType == "Gold"
-        SetTextColor 250 214 137 210
-            SetBackgroundColor 24  6   20  50
-    Hide
-        StackSize <= 350
-        BaseType == "Gold"
-        SetTextColor 228 158 97
-            SetBackgroundColor 24  6   20  5
-#====================================
-
-## 000 插槽物品、品質裝備、藥水
+## 100 插槽物品、品質裝備、藥水
 #====================================
     # [-] 隱藏：插槽物品、品質裝備、藥水
     Hide
@@ -863,4 +867,16 @@
         SetFontSize 35
             SetTextColor 81 168 221 230 # 群青
             SetBorderColor 0 0 0 200 # 黑
+#====================================
+
+
+## 000 最低權重
+#====================================
+# [-] 其他普通的金裝
+Hide
+    Rarity Rare
+    SetFontSize 30
+        SetTextColor 190 194 63 170
+        SetBackgroundColor 24  6   20 　150
+
 #====================================
