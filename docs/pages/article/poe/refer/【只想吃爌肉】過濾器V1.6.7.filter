@@ -1,0 +1,1753 @@
+#===============================================================================================================
+#### ㊣【只想吃爌肉】㊣
+#### 如果覺得不錯！可以到twitch直播找我～
+#### POE1過濾器可以綁帳號而非下載到電腦，可到官網登入自訂過濾器或者追蹤他人編寫的
+#### 只是!　POE2官網尚未開放自訂過濾器上傳與追蹤訂閱
+#### Kong_rou_fan's filter for Path of Exile II
+#### Twitch Live  https://www.twitch.tv/kong_rou_fan 
+#### Youtube Live https://supr.link/DI990 
+#===============================================================================================================
+###㊣【只想吃爌肉】過濾器 特化修改版 (物品篩選器)
+## Kong_rou_fan's filter for Path of Exile II
+## VERSION:  1.6.7 2024/12/27
+## AUTHOR:   只想吃爌肉 Kong_rou_fan
+## 過濾說明:以強化顯示物品盡量不遮蔽原則編寫，用NeverSink改編並整合PoE1與暗黑.等音效
+## 過濾特色:明顯金幣、整合暗黑&迷之音效、特殊基底裝、拓荒可用、可選遮蔽規則
+## 過濾備註:同類物品分等級並以類似色濃淡區分，如有建議歡迎留言
+## 更新說明:本過濾器在巴哈姆特哈拉版不定期更新.
+## 備註說明:
+## 1.預設65等以上地圖"隱藏"白裝、「知識卷軸」、「通貨碎片」
+## 2.預設75等以上地圖"隱藏"魔法與白色基底「飾品與腰帶」
+## 3.預設70等以上地圖"隱藏"「藥劑」，除非有高品質15%以上。
+## 4.一般「飾品與腰帶」在T10以上隱藏魔法與白色基底
+## 5.特殊基底武器、防具、飾品 白色、魔法與稀有級會一直顯示(不論地圖等級)
+## 6.各路高手自訂義隱藏請到12F可選遮蔽規則調整
+## 回報錯誤:
+##  請描述1.物品名稱2.物品等級(非可裝備等級) 3.所在地圖等級 4.掉落顏色與音效 ! 
+#####  感謝支持~你的回報與支持就是最好的動力! #####
+#======================
+## 更新說明:
+###祝大家跨年快樂###
+###版本更新說明:V1.6.6
+#1.移除符文地圖小圖顯示
+#2.修正系統錯誤確保高亮"金鑰匙"(工程師寫錯物品標籤為金幣而非鑰匙)
+#3.新增特殊基底顯示物等50以上白色"重革腰帶" (機會石點獵首用)
+#4.新增特殊基底全部"飾品與腰帶"物等81以上白色底會顯示高亮與音效(點金石做裝)
+#5.新增特殊基底"冰戒"物等12以上白色基底會一直顯示不論地圖等級(機會石點夢語之痕用)
+#6.修正"日耀項鍊(精魂)".等特殊飾品稀有度金色的文字顏色
+#7.新增與圖階段"白裝"顯示高品質15以上武器、防具(可以拿去拆護甲片)
+#8.特殊基底武器、防具、飾品 白色、魔法與稀有級會一直顯示(不論地圖等級)
+#9.修正帝金護身符(稀有度)顯示(工程師寫錯物品標籤為金幣而非鑰匙)
+###版本更新說明:V1.6.7
+#1.微調1000+金幣顏色
+#2.新增高階與圖階段輔助寶石顯示小地圖圖示
+#3.修正錯誤"黃金武器"、"黃金裝備"、"黃金飾品".標籤錯誤(工程師寫錯物品標籤錯種類，錯標為"金幣"標籤)
+#4.新增特殊基底顯示白色的帝金護身符、金光戒指、金羽腰帶,81+以上物等帶有音效
+#5.新增特殊基底顯示白色、魔法的黃金臂甲(最大生命) 黃金纏鞋(全部元素抗性) 黃金戰甲 (全部元素抗性),81+以上物等帶有音效
+#6.新增特殊基底顯示白色、魔法的黃金之刃(全能力),81+以上物等帶有音效
+#===============================================================================================================
+##過濾器分類樓層簡介##
+#屋頂:標籤資料庫-EA版/【掉落光線分類表】
+#1F貴重獨特物品/2F金幣/3F技能寶石/4F藥劑/5F特殊插槽與珠寶/6F通貨/7F聯盟通貨/
+#8F地圖/9F特殊基底裝備/10F特殊基底武器/11F飾品與腰帶
+#12F可選遮蔽規則/13F其餘未知物品
+#===============================================================================================================
+######標籤資料庫-EA版#####勿砍勿動
+######  Class-EA   #####勿砍勿動
+###傳奇
+##全部傳奇
+#"Uniques" 
+###寶石
+##技能寶石 · 輔助寶石 · 精魂寶石
+#"Skill Gems" "Support Gems" "Spirit Gems"
+###單手武器
+##爪 · 匕首 · 法杖 · 單手劍 · 單手斧 · 單手錘 · 權杖 · 長矛 · 鏈錘
+#"Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails"
+###雙手武器
+## 弓 · 長杖 · 雙手劍 · 雙手斧 · 雙手錘 · 征戰長杖 · 十字弓 · 陷阱 · 魚竿
+#"Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Traps" "Fishing Rods"
+###副手
+##箭袋 · 盾 · 法器
+#"Quivers" "Shields" "Foci"
+###護甲
+##手套 · 鞋子 · 胸甲 · 頭部
+#"Gloves" "Boots" "Body Armours" "Helmets"
+###飾品
+##項鍊 · 戒指 · 腰帶
+#"Amulets" "Rings" "Belts"
+###藥劑
+##藥劑 · 生命藥劑 · 魔力藥劑 · 護符
+#"Flasks" "Life Flasks" "Mana Flasks" "Charms"
+###通貨
+##可堆疊通貨 · 精煉的情感 · 精髓 · 裂片 · 催化劑
+#"Stackable Currency" "Distilled Emotions" "Essence" "Splinter" "Catalyst"
+###地圖換界石
+##換界石 · 地圖碎片 · 其它地圖物品
+#"Waystones" "Map Fragments" "Misc Map Items"
+###珠寶
+##珠寶
+#"Jewels"
+###其他
+##探險日誌· 最後通牒雕刻 · 符文 · 聯盟碑牌 · 預兆 · 試煉代幣 · 巔峰鑰匙碎片
+#"Expedition logbook" "Inscribed Ultimatum" "Socketables" "Tablet" "Trial Coins" "Pinnacle Keys"
+##===============================================================================================================
+#
+##【掉落光線分類表】
+#紅光Red  貴重獨特物品
+#橘金Brown 傳奇類(武器、裝備、飾品、鑰匙)
+#黃光Yellow 通貨類
+#綠光green 任務物品與錯誤未知物品
+#藍光blue 珠寶飾品、特殊基底裝
+#青色Cyan 特殊聯盟物品通貨(催化劑、精髓、預兆..)
+#紫光Purple 聯盟地圖分類
+#灰光Grey 符文、巨靈之幣、通牒雕刻、碑牌
+#白光White 地圖、品質藥劑、雜項
+#粉紅Pink 技能石
+#
+##===============================================================================================================
+#
+#--------------------------
+# 1F貴重獨特物品Overrides - Uniques, Valuables
+#--------------------------
+# 鏡子(音量很大很有感覺)
+## Mirror
+Show
+Class "Currency"
+BaseType "Mirror" 
+SetTextColor 255 0 0 
+SetBorderColor 255 0 0 
+SetBackgroundColor 255 255 255 
+CustomAlertSound "8鏡子.mp3" 300
+PlayEffect Red
+MinimapIcon 0 Red Star
+SetFontSize 50
+
+#獵首 (音量中等很有感覺)
+## Divine Orb Style
+Show
+Class "Belts"
+BaseType "Heavy Belt"
+Rarity = Unique
+SetTextColor 255 0 0 
+SetBorderColor 255 0 0 
+SetBackgroundColor 255 255 255 
+CustomAlertSound "8鏡子.mp3" 200
+PlayEffect Red
+MinimapIcon 0 Red Star
+SetFontSize 50
+
+#完美技能工匠石(6L) (音效很有感覺)
+## Perfect Jeweller's Orb
+Show
+Class "Currency"
+BaseType "Perfect Jeweller's Orb"
+SetTextColor 255 0 0 
+SetBorderColor 255 0 0 
+SetBackgroundColor 255 255 255 
+CustomAlertSound "8鏡子.mp3" 100
+PlayEffect Red
+MinimapIcon 0 Red Star
+SetFontSize 50
+
+#神聖石、高階技能工匠石(5L)
+## Divine Orb Style Greater Jeweller's Orb
+Show
+Class "Currency"
+BaseType "Divine" "Greater Jeweller's Orb" 
+SetTextColor 255 0 0 
+SetBorderColor 255 0 0 
+SetBackgroundColor 255 255 255 
+CustomAlertSound "7驚人的財寶.mp3" 300
+PlayEffect Red
+MinimapIcon 0 Red Star
+SetFontSize 50
+
+#夢語之痕
+## Dream Fragments
+Show
+Class "Rings" 
+BaseType "Sapphire Ring"
+Rarity = Unique
+SetTextColor 255 0 0 
+SetBorderColor 255 0 0 
+SetBackgroundColor 255 255 255 
+CustomAlertSound "7驚人的財寶.mp3" 300
+PlayEffect Red
+MinimapIcon 0 Red Star
+SetFontSize 50
+
+# 傳奇裝
+Show
+Rarity = Unique
+SetTextColor 175 96 37 
+SetBorderColor 175 96 37 
+SetBackgroundColor 53 13 13 
+CustomAlertSound "4哇傳說.mp3" 200
+PlayEffect Brown
+MinimapIcon 2 Brown Star
+SetFontSize 50
+
+# 任務物品
+Show
+Class "Quest Items"
+SetBorderColor 125 255 150
+SetBackgroundColor 0 0 0
+CustomAlertSound "43施法.mp3" 250
+PlayEffect Green
+MinimapIcon 1 Green Circle
+SetFontSize 50
+
+#稀有瞻望
+Show
+BaseType "Distilled Isolation" "Distilled Suffering"
+SetTextColor 255 0 0 
+SetBorderColor 255 0 0 
+SetBackgroundColor 255 255 255 
+CustomAlertSound "7驚人的財寶.mp3" 300
+PlayEffect Red
+MinimapIcon 0 Red Star
+SetFontSize 50
+
+#魚竿
+Show
+BaseType "Fishing Rod" 
+SetTextColor 255 0 0 
+SetBorderColor 255 0 0 
+SetBackgroundColor 255 255 255 
+CustomAlertSound "7驚人的財寶.mp3" 300
+PlayEffect Red
+MinimapIcon 0 Red Star
+SetFontSize 50
+
+#--------------------------
+# 2F金幣Gold
+#--------------------------
+#修正錯誤黃金武器、裝備、飾品標籤錯誤(工程師寫錯物品標籤錯種類，錯標為"金幣"標籤)
+###黃金類武器
+##黃金單手
+#黃金之刃(全能力)
+Show
+Class "Sceptres"
+Rarity <= Magic
+BaseType "Golden Blade" 
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+#81等稀有級高亮+音效
+Show
+Class "Sceptres"
+Rarity = Rare
+BaseType "Golden Blade"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 50
+
+###黃金裝備
+#黃金臂甲(最大生命) 黃金纏鞋(全部元素抗性) 黃金戰甲 (全部元素抗性)
+Show
+Class "Sceptres"
+Rarity <= Magic
+BaseType "Golden Bracers" "Golden Caligae" "Golden Mantle"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+#81等稀有級高亮+音效
+Show
+Class "Sceptres"
+Rarity = Rare
+BaseType "Golden Bracers" "Golden Caligae" "Golden Mantle"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 50	
+
+#隱藏普通魔法級"金鑄腕帶" "進階金鑄腕帶" "專家金鑄腕帶" (工程師寫錯物品標籤為金幣而非手套)
+Show
+Class "Gloves"
+BaseType "Goldcast Cuffs" "Advanced Goldcast Cuffs" "Expert Goldcast Cuffs"
+Rarity = Rare
+
+Show
+Class "Gloves"
+BaseType "Goldcast Cuffs" "Advanced Goldcast Cuffs" "Expert Goldcast Cuffs"
+Sockets > 0
+Rarity = Rare
+
+Hide
+Class "Gloves"
+BaseType "Goldcast Cuffs" "Advanced Goldcast Cuffs" "Expert Goldcast Cuffs"
+Rarity <= Magic
+
+Hide
+Class "Gloves"
+BaseType "Goldcast Cuffs" "Advanced Goldcast Cuffs" "Expert Goldcast Cuffs"
+Sockets > 0
+Rarity <= Magic	
+
+# 修正金羽腰帶(稀有度)顯示(工程師寫錯物品標籤為金幣而非鑰匙)
+Show
+Class "Belts"
+AreaLevel > 80
+Rarity = Normal
+BaseType "Golden Obi"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+Show
+Class "Belts"
+AreaLevel > 70
+Rarity <= Magic
+BaseType "Golden Obi"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Belts"
+Rarity = Rare
+BaseType "Golden Obi"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+# 修正帝金護身符(稀有度)顯示(工程師寫錯物品標籤為金幣而非鑰匙)
+Show
+Class "Amulets"
+AreaLevel > 80
+Rarity = Normal
+BaseType "Gold Amulet"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+Show
+Class "Amulets"
+AreaLevel > 70
+Rarity <= Magic
+BaseType "Gold Amulet"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Amulets"
+Rarity = Rare
+BaseType "Gold Amulet"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+# 修正金光戒指 戒指(稀有度)顯示(工程師寫錯物品標籤為金幣而非鑰匙)
+Show
+Class "Rings"
+AreaLevel > 80
+Rarity = Normal
+BaseType "Gold Ring" "Gold"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+Show
+Class "Rings"
+AreaLevel > 70
+Rarity <= Magic
+BaseType "Gold Ring" "Gold"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Rings"
+Rarity = Rare
+BaseType "Gold Ring" "Gold"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+#高亮"金鑰匙"(工程師寫錯物品標籤為金幣而非鑰匙)
+#試煉寶箱鑰匙 銅鑰匙 金鑰匙 白銀鑰匙
+Show
+Class "Currency"
+BaseType "Bronze Key" "Silver Key" "Gold Key"
+SetBorderColor 120 255 240
+CustomAlertSound "3喔耶.mp3" 200
+PlayEffect Cyan
+MinimapIcon 1 Cyan Circle
+SetFontSize 50
+
+# 堆疊金幣
+#---Gold---
+#千元金幣
+Show
+StackSize >= 1000
+BaseType "Gold"
+SetTextColor 255 222 89
+SetBorderColor 255 222 89
+SetBackgroundColor 110 70 35 
+PlayEffect Yellow Temp
+CustomAlertSound "2錢.mp3" 200
+
+#五百金幣	
+Show
+StackSize >= 500
+BaseType "Gold"
+SetTextColor 255 222 89
+SetBorderColor 255 222 89
+SetBackgroundColor 0 0 0 
+PlayEffect Yellow Temp
+
+#零散金幣	
+Show
+StackSize >= 1 
+BaseType "Gold"
+SetTextColor 255 222 89
+SetBorderColor 0 0 0 255
+PlayEffect Yellow Temp
+
+#--------------------------
+# 3F技能寶石 Uncut Gems
+#--------------------------
+
+# 始終高亮精魂寶石
+Show
+BaseType "Uncut Spirit Gem" "Spirit Gem"
+SetTextColor 255 200 255
+SetBorderColor 255 200 255
+PlayEffect Pink
+CustomAlertSound "23寶石B.mp3" 250
+MinimapIcon 1 Pink Diamond
+SetFontSize 50
+
+#區域68以下高亮顯示技能寶石
+Show
+AreaLevel < 68
+Class "Skill Gems"
+BaseType "Uncut Skill Gem" "Skill Gem" "Unearth"
+SetTextColor 255 200 255
+SetBorderColor 255 200 255
+SetBackgroundColor 0 0 0
+CustomAlertSound "22寶石.mp3" 200
+PlayEffect Pink
+MinimapIcon 1 Pink Diamond
+SetFontSize 50
+
+#與圖階段不在高光 低等級技能寶石
+# Gems up to level 18 in maps don't get a special highlight
+Show
+ItemLevel < 17
+BaseType "Uncut Skill Gem" "Skill Gem"
+SetTextColor 255 200 255
+SetBorderColor 255 200 255
+SetFontSize 40
+
+#高亮高等級技能寶石
+# Level 17 gems and up in maps get a special highlight
+Show
+ItemLevel >= 17
+BaseType "Uncut Skill Gem" "Skill Gem"
+SetTextColor 255 200 255
+SetBorderColor 255 200 255
+CustomAlertSound "22寶石.mp3" 300
+PlayEffect Pink
+MinimapIcon 1 Pink Diamond
+SetFontSize 50
+
+#區域68以下高亮顯示輔助寶石
+# Make support gems pop during campaign
+Show
+AreaLevel < 68
+BaseType "Uncut Support Gem" "Support Gem" 
+SetTextColor 255 200 255
+SetBorderColor 255 200 255
+CustomAlertSound "22寶石.mp3" 300
+PlayEffect Pink
+MinimapIcon 1 Pink Diamond
+SetFontSize 50
+
+#高階與圖階段不在高光輔助寶石
+Show
+AreaLevel >= 70
+BaseType "Uncut Support Gem" "Support Gem" 
+SetTextColor 255 200 255
+SetBorderColor 255 200 255
+MinimapIcon 1 Pink Diamond
+SetFontSize 40
+
+
+#--------------------------
+# 4F藥劑 Flasks
+#--------------------------
+# 傳奇藥水
+Show
+Rarity = Unique
+Class "Life Flasks" "Mana Flasks"
+SetBorderColor 255 165 0
+SetBackgroundColor 0 0 0
+CustomAlertSound "4哇傳說.mp3" 300
+PlayEffect Brown
+MinimapIcon 0 Brown Hexagon
+SetFontSize 50
+
+# 生命藥劑
+#【品質15以上、魔法品質】
+Show
+Quality >= 15
+Rarity = Magic
+Class "Life Flasks"
+SetBorderColor 255 130 110
+SetBackgroundColor 0 0 0
+CustomAlertSound "38藥水B.mp3"
+PlayEffect White
+MinimapIcon 1 White  Circle
+SetFontSize 40
+
+# 魔力藥劑
+#【品質15以上、魔法品質】
+Show
+Quality >= 15
+Rarity = Magic
+Class "Mana Flasks"
+SetBorderColor 150 170 255
+SetBackgroundColor 0 0 0
+CustomAlertSound "39藥水C.mp3"
+PlayEffect White
+MinimapIcon 1 White  Circle
+SetFontSize 40
+
+#其他低品質藥劑在拓荒階段顯示
+Show
+Quality >= 1
+AreaLevel < 65
+Rarity <= Magic
+Class "Life Flasks"
+SetBorderColor 255 130 110
+
+Show
+Quality >= 1
+AreaLevel < 65
+Rarity <= Magic
+Class "Mana Flasks"
+SetBorderColor 80 110 255
+
+#魔法藥劑在拓荒階段顯示
+Show
+AreaLevel < 65
+Rarity = Magic
+Class "Life Flasks"
+SetBorderColor 255 130 110
+
+Show
+AreaLevel < 65
+Rarity = Magic
+Class "Mana Flasks" 
+SetBorderColor 80 110 255
+
+#--------------------------
+# 5F特殊插槽與珠寶 Socketables and Special Character Equipment
+#--------------------------
+
+#靈魂核心、永恆地圖徽印
+# Special A Tier - League specific socketables and jewels
+Show 
+BaseType "Soul Core" "Timeless"
+SetTextColor 0 240 190
+SetBorderColor 0 240 190
+SetFontSize 50
+CustomAlertSound "10哇嗚太棒了.mp3" 200
+MinimapIcon 0 Cyan Diamond
+PlayEffect Cyan
+
+#聖物
+# Special A Tier - Sanctum Relics
+Show 
+Class "Relic"
+SetTextColor 0 240 190
+SetBorderColor 153 204 255
+SetFontSize 50
+CustomAlertSound "9太棒了.mp3" 100
+MinimapIcon 1 Cyan Diamond
+PlayEffect Cyan
+
+# A級 稀有珠寶
+# Special A Tier - Rare Jewels
+Show
+Class "Jewel"
+Rarity = Rare
+SetTextColor 0 190 240
+SetBorderColor 153 204 255
+CustomAlertSound "24珠寶C噔~.mp3" 200
+PlayEffect blue
+SetFontSize 50
+
+# B級 其他魔法珠寶
+# Special B Tier - Any Jewels
+Show
+Class "Jewel"
+Rarity = Magic
+SetTextColor 0 190 240
+SetBorderColor 153 204 255
+CustomAlertSound "24珠寶C噔~.mp3" 150
+SetFontSize 40
+
+# B級 符文、護符
+# Special B Tier - Any Runes and Charms
+Show 
+BaseType "Rune" "Charm"
+Rarity <= Rare
+SetTextColor 210 210 255
+SetBorderColor 210 210 255
+SetBackgroundColor 70 70 70
+PlayEffect Grey
+CustomAlertSound "42石頭.mp3" 150
+SetFontSize 38
+
+#--------------------------
+# 6F通貨Currency
+#通貨分級由最好A到最爛C級
+#--------------------------
+#
+# A級通貨 無效石、崇高
+#Currency Tier A: Annulment, Exalted
+
+Show
+Class "Currency"
+SetFontSize 50
+BaseType "Orb of Annulment" "Exalted Orb"
+SetTextColor 255 255 255 255
+SetBorderColor 255 255 255 255
+SetBackgroundColor 240 90 35
+CustomAlertSound "0咕嚕靈波.mp3" 300
+PlayEffect Yellow 
+MinimapIcon 1 Yellow Circle
+
+
+# A級通貨 寶石匠的稜鏡
+#Currency Tier A: Gemcutter
+Show
+Class "Currency"
+BaseType "Gemcutter's Prism" 
+SetTextColor 255 255 255 255
+SetBorderColor 255 255 255 255
+SetBackgroundColor 240 90 35
+CustomAlertSound "17寶石匠.mp3" 300
+PlayEffect Yellow 
+MinimapIcon 1 Yellow Circle
+SetFontSize 50
+
+# A2級通貨 混沌、機會石
+# Currency Tier B: Vaal, Chaos, Chance,
+Show
+Class "Currency"
+BaseType "Chaos Orb" "Orb of Chance"
+SetTextColor 244 190 98
+SetBorderColor 244 190 98
+SetBackgroundColor 76 51 12
+CustomAlertSound "6有財寶.mp3" 200
+PlayEffect Yellow 
+MinimapIcon 1 Yellow Circle
+SetFontSize 50
+
+# A2級通貨 瓦爾
+# Currency Tier B: Vaal
+Show
+Class "Currency"
+BaseType "Vaal Orb"
+SetTextColor 244 190 98
+SetBorderColor 244 190 98
+SetBackgroundColor 76 51 12
+CustomAlertSound "19瓦寶.mp3" 200
+PlayEffect Yellow 
+MinimapIcon 1 Yellow Circle
+SetFontSize 50
+
+# B級通貨 點金石
+# Currency Tier B: AlchemyChance 
+Show
+Class "Currency"
+BaseType "Orb of Alchemy" 
+SetTextColor 255 207 132
+SetBackgroundColor 76 51 12
+CustomAlertSound "20點金石.mp3" 200
+PlayEffect Yellow
+MinimapIcon 1 Yellow Circle
+SetFontSize 50
+
+# B級通貨 技能工匠石、玻璃彈珠、異域幣鑄
+# Currency Tier B: Lesser, Bauble, Exotic
+Show
+Class "Currency"
+BaseType "Lesser Jeweller's Orb" "Glassblower's Bauble" "Exotic" 
+SetTextColor 70 163 255
+SetBorderColor 70 163 255
+SetBackgroundColor 76 51 12
+CustomAlertSound "42石頭.mp3" 300
+PlayEffect blue
+SetFontSize 50
+
+# B2級通貨 富豪石
+# Currency Tier B:Rega
+Show
+Class "Currency"
+BaseType "Regal Orb" 
+SetTextColor 255 207 132
+SetBackgroundColor 76 51 12
+CustomAlertSound "21富豪石.mp3" 150
+PlayEffect Yellow
+MinimapIcon 1 Yellow Circle
+SetFontSize 50
+
+# C級通貨 奧術蝕刻師(法杖磨刀石)、護甲片、磨刀石
+# Currency Tier C: Etcher, Scrap, Exalt, Exotic, Artificer
+Show
+Class "Currency"
+BaseType "Arcanist's Etcher" "Armourer's Scrap" "Blacksmith's Whetstone"
+SetTextColor 255 207 132
+SetBackgroundColor 76 51 12
+SetFontSize 45
+
+
+# C2級通貨 增幅石、蛻變石、普通工匠石
+# Currency Tier C: Etcher, Scrap, Exalt, Exotic, Artificer
+Show
+Class "Currency"
+BaseType "Orb of Augmentation" "Orb of Transmutation" "Artificer's Orb"
+SetTextColor 212 198 175
+SetBackgroundColor 76 51 12
+SetFontSize 45
+
+
+# 基礎通貨 拓荒章節時顯示 知識卷軸、通貨碎片
+Show
+Class "Currency"
+BaseType "Scroll of Wisdom"
+AreaLevel < 65 
+CustomAlertSound "1知識卷軸.mp3" 100
+SetFontSize 40
+
+#一直顯示機會石碎片、富豪石碎片
+Show
+Class "Currency"
+BaseType "Chance Shard" "Regal Shard"
+SetFontSize 40
+
+#其他通貨碎片
+Show
+Class "Currency"
+BaseType "Shard"
+AreaLevel < 65 
+SetFontSize 35
+
+#一直顯示「白化的羽毛」
+Show
+Class "Currency"
+BaseType "Albino Rhoa Feather"
+PlayEffect Yellow
+MinimapIcon 1 Yellow Circle
+SetFontSize 40
+
+#「知識卷軸」在輿圖階段隱藏
+Hide
+Class "Currency"
+BaseType "Scroll of Wisdom" 
+AreaLevel >= 65
+
+#「一般通貨碎片」在輿圖階段隱藏
+Hide
+Class "Currency"
+BaseType "Shard"
+AreaLevel >= 65
+
+#--------------------------
+# 7F聯盟通貨Currency
+#--------------------------
+# A級精煉石、催化劑、精髓、預兆
+Show
+Class "Currency"
+BaseType "Distilled" "Catalyst" "Essence of" "Omen of"
+SetTextColor 120 255 240
+SetBorderColor 120 255 240
+SetBackgroundColor 0 0 0
+CustomAlertSound "3喔耶.mp3" 200
+PlayEffect Cyan
+MinimapIcon 1 Cyan Circle
+SetFontSize 50
+
+# B級 幻像斷片、墳墓文物
+Show
+Class "Currency"
+BaseType "Simulacrum Splinter" " Artifact"
+SetTextColor 120 255 240
+SetBorderColor 120 255 240
+SetBackgroundColor 0 0 0
+MinimapIcon 1 Cyan Circle
+SetFontSize 45
+
+# B級 裂痕裂片
+Show
+Class "Currency"
+BaseType "Breach Splinter"
+SetTextColor 120 255 240
+SetBorderColor 120 255 240
+SetBackgroundColor 0 0 0
+MinimapIcon 1 Cyan Circle
+SetFontSize 45
+
+#「巔峰鑰匙」門票高亮。
+Show
+Class "Pinnacle Keys"
+SetTextColor 255 207 255
+SetBorderColor 255 207 255
+SetBackgroundColor 65 20 80
+CustomAlertSound "10哇嗚太棒了.mp3" 300
+PlayEffect Brown
+MinimapIcon 2 Brown Star
+SetFontSize 50
+
+# 未知貨幣 Unknown currency
+Show
+Class "Currency"
+SetTextColor 255 0 0
+SetBorderColor 255 255 255
+SetBackgroundColor 0 255 0 
+CustomAlertSound "99請更新過濾.mp3" 200
+PlayEffect green
+SetFontSize 50
+#--------------------------
+# 8F地圖鑰匙Waystone
+#--------------------------
+#在刷T14以上時縮小T10以下地圖，並取消高光和音效
+Show
+BaseType "Waystone"
+WaystoneTier < 10
+AreaLevel >= 77
+Rarity <= Rare
+SetTextColor 255 255 255
+SetBorderColor 255 255 255
+SetFontSize 25
+
+#在刷T10以上時縮小T5以下地圖，並取消高光和音效
+Show
+BaseType "Waystone"
+WaystoneTier < 5
+AreaLevel >= 74
+Rarity <= Rare
+SetTextColor 255 255 255
+SetBorderColor 255 255 255
+SetFontSize 25
+
+# 傳奇地圖鑰匙
+# Waystone
+Show
+BaseType "Waystone"
+Rarity > Rare
+SetTextColor 255 255 255
+SetBorderColor 255 255 255
+CustomAlertSound "15傳奇地圖.mp3" 200
+PlayEffect Brown
+MinimapIcon 2 Brown Star
+SetFontSize 50
+
+# 聯盟地圖 幻像異界、裂痕石、記憶斷片、怯懦之運、致命之運、勝利之運、探險日誌
+# Fragments
+Show
+BaseType "Simulacrum" "Breachstone" " Fragment" "Cowardly Fate" "Deadly Fate" "Victorious Fate" "Expedition Logbook"
+SetTextColor 179 153 255
+SetBorderColor 179 153 255
+SetBackgroundColor 65 20 80
+CustomAlertSound "3喔耶.mp3" 300
+PlayEffect Purple
+MinimapIcon 1 Purple Square
+SetFontSize 50
+
+# 聯盟碑牌(類似六分儀)
+Show
+Class "Tablet"
+SetTextColor 0 191 255
+SetBorderColor 0 191 255
+SetBackgroundColor 100 100 100
+PlayEffect Grey
+MinimapIcon 1 Grey Square
+CustomAlertSound "42石頭.mp3" 150
+SetFontSize 40
+
+#巨靈之幣、通牒雕刻
+Show
+SetTextColor 210 210 255
+SetBorderColor 210 210 255
+SetBackgroundColor 0 0 0
+BaseType "Barya" "Ultimatum"
+
+SetBackgroundColor 30 30 30
+CustomAlertSound "5寶藏.mp3" 250
+PlayEffect Grey
+MinimapIcon 1 Grey Square
+SetFontSize 45
+
+#試煉代幣
+Show
+Class "Trial Coins"
+SetTextColor 0 191 255
+SetBorderColor 0 191 255
+SetBackgroundColor 0 0 0
+CustomAlertSound "5寶藏.mp3" 250
+PlayEffect Grey
+MinimapIcon 1 Grey Square
+SetFontSize 50
+
+#--------------------------
+# 9F特殊基底裝備Base Equipment
+#--------------------------
+
+#頭盔(等待某天在寫)
+
+#手套(等待某天在寫)
+
+#鞋子(等待某天在寫)
+
+#盔甲
+# 智慧盔甲基:底專家祭壇長袍(回護盾)專家凱斯之衣(回魔)專家薩滿披肩(+精魂)專家咒術師長袍(高護盾-3移速)
+Show
+Class "Body Armours"
+AreaLevel <= 65
+Rarity <= Magic
+BaseType "Expert Altar Robe" "Expert Keth Raiment" "Expert Shaman Mantle" "Expert Hexer's Robe"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70
+SetFontSize 40
+
+Class "Body Armours"
+Rarity = Rare
+BaseType "Expert Altar Robe" "Expert Keth Raiment" "Expert Shaman Mantle" "Expert Hexer's Robe"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+# 力量盔甲基底:專家瓦爾胸甲(暈眩門檻)專家堅鋼鎧甲(生命秒回)
+Show
+Class "Body Armours" 
+AreaLevel <= 65
+Rarity <= Magic
+BaseType "Expert Vaal Cuirass" "Expert Steel Plate" 
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Body Armours" 
+Rarity = Rare
+BaseType "Expert Vaal Cuirass" "Expert Steel Plate" 
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+# 敏捷盔甲基底:專家鑲釘背心(高閃-移速)專家盜賊護甲(最大生命)專家斗篷鎖甲(火抗)專家獻祭披肩(+1全大抗)
+Show
+Class "Body Armours" 
+AreaLevel <= 65
+Rarity <= Magic
+BaseType "Expert Studded Vest" "Expert Rogue Armour" "Expert Cloaked Mail" "Expert Sacrificial Mantle"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Body Armours" 
+Rarity = Rare
+BaseType "Expert Studded Vest" "Expert Rogue Armour" "Expert Cloaked Mail" "Expert Sacrificial Mantle"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+# 複合盔甲基底:專家斗篷鎖甲(火抗)專家獻祭披肩(+1全大抗)專家投機者外衣(+5%移速)專家旅人外衣(混抗)
+Show
+Class "Body Armours" 
+AreaLevel <= 65
+Rarity <= Magic
+BaseType "Expert Cloaked Mail" "Expert Sacrificial Mantle" "Expert Scalper's Jacket" "Expert Wayfarer Jacket" 
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Body Armours" 
+Rarity = Rare
+BaseType "Expert Cloaked Mail" "Expert Sacrificial Mantle" "Expert Scalper's Jacket" "Expert Wayfarer Jacket" 
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+
+#--------------------------
+# 10F特殊基底武器Base Weapon
+#--------------------------
+#高檔熱門基底
+# 虹吸法杖(力抽) 81
+#81等魔法級高亮
+Show
+Class "Wands"
+Rarity <= Magic
+BaseType "Siphoning Wand"
+DropLevel >= 81
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+
+#81等稀有級高亮+音效
+Show
+Class "Wands"
+Rarity <= Rare
+BaseType "Siphoning Wand"
+DropLevel >= 81
+SetTextColor 255 0 0 
+SetBorderColor 255 0 0 
+SetBackgroundColor 255 255 255 
+CustomAlertSound "6有財寶.mp3" 100
+PlayEffect Red
+MinimapIcon 1 Red Star
+SetFontSize 45
+
+# 鳴響長杖(咒符之力) 81
+#81等魔法級高亮
+Show
+Class "Wands"
+Rarity <= Magic
+BaseType "Chiming Staff"
+DropLevel >= 81
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+
+#81等稀有級高亮+音效
+Show
+Class "Wands"
+Rarity <= Rare
+BaseType "Chiming Staff"
+DropLevel >= 81
+SetTextColor 255 0 0 
+SetBorderColor 255 0 0 
+SetBackgroundColor 255 255 255 
+CustomAlertSound "6有財寶.mp3" 100
+PlayEffect Red
+MinimapIcon 1 Red Star
+SetFontSize 45
+###單手
+#單手近戰(等待某天在寫)
+
+#單手法杖
+# 電能法杖(電光領域)
+Show
+Class "Sceptres"
+Rarity <= Magic
+BaseType "Galvanic Wand" 
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+#81等稀有級高亮+音效
+Show
+Class "Sceptres"
+Rarity = Rare
+BaseType "Galvanic Wand" 
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 50
+
+# 虹吸法杖(力抽) 調和法杖(魔力吸取)
+Show
+Class "Wands"
+Rarity <= Magic
+BaseType "Siphoning Wand" "Attuned Wand"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Wands"
+Rarity = Rare
+BaseType "Siphoning Wand" "Attuned Wand"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+#單手權杖
+# 徵兆權杖(絕滅恨惡)、雜響權杖(骷髏戰士)
+Show
+Class "Sceptres"
+Rarity <= Magic
+BaseType "Omen Sceptre" "Rattling Sceptre"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Sceptres"
+Rarity = Rare
+BaseType "Omen Sceptre" "Rattling Sceptre"
+SetBorderColor 153 204 255
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+###雙手(等待某天在寫)
+#雙手劍
+#雙手錘
+#雙手斧
+
+#長杖
+# 鳴響長杖(咒符之力)
+Show
+Class "Staves"
+Rarity <= Magic
+BaseType "Chiming Staff"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Staves"
+Rarity = Rare
+BaseType "Chiming Staff"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+#征戰長杖(細杖)
+# 專家裂紋細杖-閃電傷
+Show
+Class "Quarterstaves"
+Rarity <= Magic
+BaseType "Expert Crackling Quarterstaff"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Quarterstaves"
+Rarity = Rare
+BaseType "Expert Crackling Quarterstaff"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+###遠距
+# 專家轟炸十字弓(榴彈+1)專家成對十字弓(+1箭)
+Show
+Class "Crossbows"
+Rarity <= Magic
+BaseType "Expert Bombard Crossbow" "Expert Dyad Crossbow"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Crossbows"
+Rarity = Rare
+BaseType "Expert Bombard Crossbow" "Expert Dyad Crossbow"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+# 專家雙弦弓(額外+1箭矢) 專家守護者之弓(有 (20–30)% 機率額外連鎖一次)
+Show
+Class "Bows"
+BaseType "Expert Dualstring Bow" "Expert Warden Bow"
+Rarity <= Magic
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Bows"
+BaseType "Expert Dualstring Bow" "Expert Warden Bow"
+Rarity = Rare
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+###副手
+#箭袋
+#穿透箭袋、內臟箭袋(暴擊)、鋸齒箭袋(流血)
+Show
+Class "Quivers" 
+BaseType "Visceral Quiver" "Penetrating Quiver" "Serrated Quiver"
+Rarity <= Magic
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Quivers" 
+BaseType "Visceral Quiver" "Penetrating Quiver" "Serrated Quiver"
+Rarity = Rare
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+# 專家羽毛法器
+Show
+Class "Focus"
+Rarity <= Magic
+BaseType "Expert Plumed Focus"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Focus"
+Rarity = Rare
+BaseType "Expert Plumed Focus"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+PlayEffect Blue
+MinimapIcon 1 Blue Square
+SetFontSize 45
+
+###勿改###
+###全域裝備基底設定###
+##一般武器、裝備 稀有金裝 
+#高品質10以上武器、防具白裝顯示
+Show
+Quality > 10
+AreaLevel <= 65
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+Rarity = Normal
+SetBorderColor 200 200 200
+CustomAlertSound "42石頭.mp3" 150
+SetFontSize 35
+
+#與圖階段"白裝"顯示高品質15以上武器、防具
+Show
+Quality > 15
+AreaLevel > 65
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+Rarity = Normal
+SetBorderColor 200 200 200
+CustomAlertSound "42石頭.mp3" 150
+SetFontSize 35
+
+#拓荒時一洞以上武器、防具白裝、魔法裝備顯示
+Show
+Sockets > 0
+AreaLevel <= 65
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+Rarity <= Magic
+SetBorderColor 200 200 200
+CustomAlertSound "42石頭.mp3" 150
+SetFontSize 35
+
+#拓荒時有品質的武器、防具魔法裝備顯示
+Show
+Quality >= 1
+AreaLevel <= 65
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+Rarity = Magic
+SetBorderColor 200 200 200
+SetFontSize 35
+
+#拓荒時白色的武器、防具魔法裝備顯示縮小化
+Show
+AreaLevel <= 65
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+Rarity < Magic
+SetFontSize 30
+
+#拓荒階段一般稀有金裝
+Show
+AreaLevel < 65
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+Rarity = Rare
+SetBorderColor 218 165 32
+SetFontSize 45
+
+#與圖階段一般稀有金裝
+Show
+AreaLevel >= 65
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+Rarity = Rare
+SetBorderColor 218 165 32
+SetFontSize 45
+
+#--------------------------
+# 11F飾品與腰帶 Value Rares
+#--------------------------
+#高檔熱門基底
+# 裂痕戒指(品質50%) 81
+Show
+Class "Wands"
+Rarity <= Rare
+BaseType "Breach Ring"
+DropLevel >= 81
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 100
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+# 普通魔法裂痕戒指(品質50%) 75以上都顯示
+Show
+Class "Wands"
+Rarity <= Magic
+DropLevel > 75
+BaseType "Breach Ring"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+MinimapIcon 1 Blue Diamond
+SetFontSize 45
+
+# 藍玉戒指(冰抗)
+Show
+Class "Rings"
+DropLevel > 12
+Rarity = Normal
+BaseType "Sapphire Ring"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+MinimapIcon 1 Blue Diamond
+SetFontSize 40
+
+Show
+Class "Rings"
+DropLevel > 80
+Rarity = Normal
+BaseType "Sapphire Ring"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+#顯示物等50以上白色"重革腰帶" (機會石點獵首用)
+Show 
+Class "Belts"
+DropLevel >= 50
+Rarity = Normal
+BaseType "Heavy Belt"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+# 日耀項鍊(精魂)、帝金護身符(稀有度)、月神項鍊(最大能量護盾)、恆星項鍊(全能力)
+Show
+Class "Amulets"
+AreaLevel > 80
+Rarity = Normal
+BaseType "Solar Amulet" "Lunar Amulet" "Stellar Amulet"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+Show
+Class "Amulets"
+AreaLevel > 70
+Rarity = Magic
+BaseType "Solar Amulet" "Lunar Amulet" "Stellar Amulet"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Amulets"
+Rarity = Rare
+BaseType "Solar Amulet" "Lunar Amulet" "Stellar Amulet"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+# 潛能戒指(額外1技能槽)、三相戒指(全抗)、紫晶戒指(混抗)
+Show 
+Class "Rings"
+AreaLevel > 80
+Rarity = Normal
+BaseType "Unset Ring" "Prismatic Ring" "Amethyst Ring" 
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+SetFontSize 50
+
+Show 
+Class "Rings"
+AreaLevel > 70
+Rarity = Magic
+BaseType "Unset Ring" "Prismatic Ring" "Amethyst Ring" 
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Rings"
+Rarity = Rare
+BaseType "Unset Ring" "Prismatic Ring" "Amethyst Ring" 
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+#精良腰帶(藥劑充能)、鎖甲腰帶(減少使用藥劑充能)
+Show 
+Class "Belts"
+AreaLevel > 80
+Rarity = Normal
+BaseType "Fine Belt" "Mail Belt"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+SetFontSize 50
+
+Show 
+Class "Belts"
+AreaLevel > 70
+Rarity = Magic
+BaseType "Fine Belt" "Mail Belt"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+SetFontSize 40
+
+Show
+Class "Belts"
+Rarity = Rare
+BaseType "Fine Belt" "Mail Belt"
+SetBorderColor 153 204 255
+SetBackgroundColor 10 10 70 
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+#一般稀有飾品與腰帶
+Show
+Class "Rings" "Amulets" "Belts"
+Rarity = Rare
+SetBorderColor 0 127 255
+CustomAlertSound "6有財寶.mp3" 250
+PlayEffect Blue
+MinimapIcon 1 Blue Diamond
+SetFontSize 50
+
+# 普通飾品與腰帶
+Show
+AreaLevel <= 65
+Rarity = Normal
+Class "Rings" "Amulets" "Belts"
+SetBorderColor 0 127 255
+SetFontSize 35
+
+# 魔法飾品與腰帶
+Show
+AreaLevel <= 65
+Class "Rings" "Amulets" "Belts"
+Rarity = Magic
+SetBorderColor 0 127 255
+SetFontSize 40
+
+#「飾品與腰帶」魔法級在與圖以上縮小
+Show
+AreaLevel > 65
+Class "Rings" "Amulets" "Belts"
+Rarity = Magic
+SetBorderColor 0 127 255
+SetFontSize 30
+
+#--------------------------
+# 12F可選遮蔽規則OPTIONAL RULES
+#--------------------------
+### OPTIONAL RULE: Hide random bases
+# REMOVE THE BASES YOU --DO-- WANT TO SEE BEFORE SETTING TO HIDE
+###修正系統錯誤###
+###EA版錯誤集中區##
+
+##
+###預設已開啟常見遮蔽規則
+##
+
+#「飾品與腰帶」在T10以上隱藏魔法與白色基底
+Hide
+AreaLevel >= 75
+Class "Rings" "Amulets" "Belts"
+Rarity <= Magic
+
+#品質「藥劑」在與圖階段隱藏，除非有高品質15%以上。
+Hide
+Quality <= 14
+AreaLevel > 65
+Rarity <= Magic
+Class "Life Flasks" "Mana Flasks"
+
+#與圖階段65以上隱藏其他全部白色+魔法 武器、裝備、飾品、藥劑
+Hide
+Rarity <= Magic
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+AreaLevel >= 65
+
+Hide
+Rarity <= Magic
+Class "Amulets" "Rings" "Belts"
+AreaLevel >= 65
+
+Hide
+Rarity <= Magic
+Class "Flasks" "Life Flasks" "Mana Flasks" "Charms"
+AreaLevel >= 65
+
+#與圖階段65以上隱藏其他全部白色+魔法(有洞) 武器、裝備、飾品、藥劑
+Hide
+Rarity <= Magic
+Sockets >= 0
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+AreaLevel >= 65
+
+Hide
+Rarity <= Magic
+Sockets > 0
+Class "Amulets" "Rings" "Belts"
+AreaLevel >= 65
+
+Hide
+Rarity <= Magic
+Sockets > 0
+Class "Flasks" "Life Flasks" "Mana Flasks" "Charms"
+AreaLevel >= 65
+
+#更進一步遮掩低等基底裝備
+#LV 78地圖以上隱藏物等68以下"白色+魔法"武器、裝備、飾品、藥劑
+Hide
+AreaLevel >= 78
+Rarity <= Magic
+DropLevel < 68
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+
+Hide
+AreaLevel >= 78
+Rarity <= Magic
+DropLevel < 68
+Class "Amulets" "Rings" "Belts"
+
+Hide
+AreaLevel >= 78
+Rarity <= Magic
+DropLevel < 68
+Class "Flasks" "Life Flasks" "Mana Flasks" "Charms"
+
+#LV 75地圖以上隱藏物等64以下"白色+魔法"武器、裝備、飾品、藥劑
+Hide
+AreaLevel > 75
+Rarity <= Magic
+DropLevel < 64
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+
+Hide
+AreaLevel > 75
+Rarity <= Magic
+DropLevel < 64
+Class "Amulets" "Rings" "Belts"
+
+Hide
+AreaLevel > 75
+Rarity <= Magic
+DropLevel < 64
+Class "Flasks" "Life Flasks" "Mana Flasks" "Charms"
+
+#LV 73地圖以上隱藏物等60以下"白色+魔法"武器、裝備、飾品、藥劑
+Hide
+AreaLevel > 73
+Rarity <= Magic
+DropLevel < 60
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+
+Hide
+AreaLevel > 73
+Rarity <= Magic
+DropLevel < 60
+Class "Amulets" "Rings" "Belts"
+
+Hide
+AreaLevel > 73
+Rarity <= Magic
+DropLevel < 60
+Class "Flasks" "Life Flasks" "Mana Flasks" "Charms"
+
+#LV 72地圖以上隱藏物等55以下"白色+魔法"武器、裝備、飾品、藥劑
+Hide
+AreaLevel > 72
+Rarity <= Magic
+DropLevel < 55
+Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+
+Hide
+AreaLevel > 72
+Rarity <= Magic
+DropLevel < 55
+Class "Amulets" "Rings" "Belts"
+
+Hide
+AreaLevel > 72
+Rarity <= Magic
+DropLevel < 55
+Class "Flasks" "Life Flasks" "Mana Flasks" "Charms"
+
+###可選遮蔽規則-速刷打寶專用
+## Uncomment this rule to hide low level rares in high level zones
+## 取消#來隱藏高等級區域中的低裝等"稀有"物品
+
+# Hide
+# Rarity = Rare
+# DropLevel < 50
+# AreaLevel > 72
+# Class "Claws" "Daggers" "Wands" "One Hand Axes" "One Hand Maces" "Sceptres" "Spears" "Flails" "Bows" "Staves" "Two Hand Swords" "Two Hand Axes" "Two Hand Maces" "Quarterstaves" "Crossbows" "Quivers" "Shields" "Foci" "Gloves" "Boots" "Body Armours" "Helmets"
+
+# Hide
+# Rarity = Rare
+# DropLevel < 50
+# AreaLevel > 72
+# Class "Amulets" "Rings" "Belts"
+
+# Hide
+# Rarity = Rare
+# DropLevel < 50
+# AreaLevel > 72
+# Class "Flasks" "Life Flasks" "Mana Flasks" 
+###可選遮蔽規則-地圖鑰匙
+## 取消註解來隱藏各階地圖鑰匙
+
+# 地區70以上隱藏全部低階地圖T1~T5
+Hide
+WaystoneTier < 5
+BaseType "Waystone"
+Rarity <= Rare
+AreaLevel >= 70
+SetBackgroundColor 0 0 0 125
+
+# 地區74以上隱藏全部低階地圖T1~T8
+Hide
+WaystoneTier < 9
+BaseType "Waystone"
+Rarity <= Rare
+AreaLevel >= 74
+SetBackgroundColor 0 0 0 125
+
+#地區78隱藏全部地圖T1~T13
+#Hide
+#WaystoneTier < 13
+#BaseType "Waystone"
+#Rarity <= Rare
+#AreaLevel >= 78
+#SetBackgroundColor 0 0 0 125
+
+###全域-地圖鑰匙基礎設定
+###請勿刪除或更改
+Show
+BaseType "Waystone"
+Rarity <= Rare
+SetTextColor 255 255 255
+SetBorderColor 255 255 255
+CustomAlertSound "14地圖.mp3" 100
+MinimapIcon 1 White Square
+SetFontSize 40
+
+#--------------------------
+# 13F其餘未知物品 Salvagable Items
+#--------------------------
+# 如果這個東西崩潰了，是時候更新你的過濾器了！
+# If this thing crashes, time to update your filter!
+# 有發現請留言或到直播反映，非常感謝
+
+# Not working!
+Show
+Sockets > 0
+Rarity = Normal
+SetTextColor 255 0 0
+SetBorderColor 255 255 255
+SetBackgroundColor 0 255 0 
+CustomAlertSound "99請更新過濾.mp3" 300
+PlayEffect green
+SetFontSize 50
+
+Show
+Quality > 0
+Rarity = Normal
+SetTextColor 255 0 0
+SetBorderColor 255 255 255
+SetBackgroundColor 0 255 0 
+CustomAlertSound "99請更新過濾.mp3" 300
+PlayEffect green
+SetFontSize 50
+
+# Not working!
+Show
+Sockets > 0
+Rarity = Magic
+SetTextColor 255 0 0
+SetBorderColor 255 255 255
+SetBackgroundColor 0 255 0 
+CustomAlertSound "99請更新過濾.mp3" 300
+PlayEffect green
+SetFontSize 50
+
+Show
+Quality > 0
+Rarity = Magic
+SetTextColor 255 0 0
+SetBorderColor 255 255 255
+SetBackgroundColor 0 255 0 
+CustomAlertSound "99請更新過濾.mp3" 300
+PlayEffect green
+SetFontSize 50
