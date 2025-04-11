@@ -13,3 +13,5 @@
 [vue如何使用google日历](https://worktile.com/kb/p/3629374)
 
 [Vue 3 Google Login](https://devbaji.github.io/vue3-google-login/)
+
+[How to use google login in vue3](https://medium.com/@toluarejibadey/how-to-use-google-login-in-vuejs-8c50cc2fa054)

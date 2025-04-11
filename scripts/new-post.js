@@ -33,6 +33,8 @@ const filePath = path.join(postsDir, fileName);
 const templateContent = `---
 title: ${title}
 image:
+description:
+keywords:
 author: 'Opshell'
 createdAt: ${date}
 categories:
