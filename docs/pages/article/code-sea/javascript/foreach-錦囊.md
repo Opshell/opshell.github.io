@@ -1,3 +1,21 @@
+---
+title: forEach 錦囊
+image:
+description:
+keywords:
+author: 'Opshell'
+createdAt: 2025-06-09
+categories:
+  - '未分類'
+tags:
+  -
+editLink: true
+isPublished: false
+---
+
+#
+
+## 陣列元素移除時
 有 1、2 加到 5 清除時  4 會被跳過
 
 markList.value.forEach((mark) => {
@@ -36,3 +54,5 @@ forEach 迴圈會遍歷每個元素。
 
 總結
 當你需要在迴圈中移除陣列元素時，建議使用從後向前遍歷的 for 迴圈，以避免索引和陣列長度不同步的問題。這樣可以確保所有符合條件的元素都能被正確移除。
+
+## 你需要將 forEach 迴圈改為 for...of 迴圈並加上 await，因為 forEach 不能與 await 一起使用。
