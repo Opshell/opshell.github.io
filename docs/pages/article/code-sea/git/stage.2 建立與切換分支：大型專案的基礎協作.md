@@ -29,7 +29,7 @@ git branch, git checkout / git switch 的基本用途。
 檢查工作目錄變化（Git History 顯示分支提交）。
 提交到分支：
 在新分支提交變更（例如新增功能檔案）。
-用 Git History 檢視分支的獨立提交記錄。
+用 Git History 檢視分支的獨立提交記錄。 ˊ˙
 實務案例：
 在一個模擬專案中建立 feature-login 分支。
 新增登入頁面程式碼並提交。
