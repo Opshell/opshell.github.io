@@ -104,7 +104,6 @@ const vipExtraColumns = [
 ```
 
 ### 步驟二：建立動態產生器
-
 接著，我們建立一個函式，或更棒的，一個 `computed` 屬性，來根據條件動態產生最終的表單欄位設定陣列。
 
 ```ts
@@ -115,7 +114,6 @@ const formItems = computed(() => {
     const items = [...baseFormColumns];
 
     if (isVip.value) {
-    // 陣列展開，漂亮地合併
         items.push(...vipExtraColumns);
     }
 
