@@ -305,6 +305,10 @@
                 .left-block {
                     padding: 1rem 1rem 2.5rem;
                     transform: translateX(0%);
+                    direction: rtl;
+                    > * {
+                        direction: ltr;
+                    }
                 }
                 .left-block-switch {
                     transform: translateX(300px);
