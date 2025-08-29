@@ -24,7 +24,7 @@ Vue + TypeScript: 優化非同步 Composable，告別 ! 非空斷言
 
 -----
 
-# Day\_XX - 告別 `!`，我如何重構我的 `useApi` Hook
+# 告別 `!`，我如何重構我的 `useApi` Hook
 
 身為一個追求程式碼優雅的 Vue 開發者，我跟 TypeScript 的關係就像一對情侶，大部分時間我們相處融洽，它總是能在我犯錯前提醒我。但偶爾，它也會過於嘮叨，尤其是在處理非同步 API 的時候。
 
@@ -98,7 +98,7 @@ TypeScript 的**控制流分析 (Control Flow Analysis)** 很強大，但它無�
 
 這樣，我們就能用 `try...catch` 語法來清晰地處理這兩種完全不同的流程。
 
-### 1\. 重構 `useSendApi.ts`
+### 1. 重構 `useSendApi.ts`
 
 我們來改造一下 `useSendApi`，並順手讓它變得更強大：
 
@@ -176,7 +176,7 @@ export function useSendApi<T>() {
 }
 ```
 
-### 2\. 修改 Vue 元件的呼叫方式
+### 2. 修改 Vue 元件的呼叫方式
 
 現在，元件內的邏輯變得極度清晰且 100% 型別安全。
 
@@ -216,7 +216,6 @@ setup(props, { emit }) {
 ```
 
 **這個方法的好處：**
-
   - **型別安全 (Type Safety):** 在 `try` 區塊內，`apiResult` 的型別被 TypeScript 精準推斷，`!` 從此消失。
   - **語意清晰:** `try...catch` 語法完美分離了「成功」與「失敗」的處理路徑，程式碼的可讀性大幅提升。
   - **遵循慣例:** 這是 `Promise` 和 `async/await` 被設計出來的初衷，也是社群的標準作法。
@@ -230,7 +229,7 @@ setup(props, { emit }) {
 1.  **API 函式**: 只負責定義如何發送請求、處理原始回傳並回傳乾淨的資料（或拋出錯誤）。
 2.  **Composable (`useAsyncState`)**: 只負責管理任何非同步操作的通用狀態（`isLoading`, `error`, `state`）。
 
-### 1\. 建立 `useAsyncState.ts`
+### 1. 建立 `useAsyncState.ts`
 
 這是一個高度可複用的 Composable，靈感來自於 `VueUse` 的 `useAsyncState`。
 
@@ -266,7 +265,7 @@ export function useAsyncState<T, E = Error>(
 }
 ```
 
-### 2\. 如何在元件中使用
+### 2. 如何在元件中使用
 
 API 的邏輯可以獨立成一個 service 函式，然後用 `useAsyncState` 來包裝它。
 
@@ -317,9 +316,7 @@ setup() {
   - **高度可複用 (Reusable Code):** `useAsyncState` 可以用來包裝任何非同步函式，不只是 API 請求。
   - **關注點分離 (Separation of Concerns):** API Service 只管資料，Composable 只管狀態，元件只管呈現與觸發，職責分明，多人協作時更不容易出錯。
   - **UI 綁定友好:** 你可以直接在 template 中使用 `v-if="isLoading"` 或 `v-if="error"`，寫起來非常直觀。
-
 ## 總結
-
 | 方案 | 優點 | 適用場景 |
 | :--- | :--- | :--- |
 | **方案一：`try...catch`** | 直觀、易於理解、快速解決 `!` 問題、符合 `async/await` 語義 | 大部分情況下的首選。特別是當 Composable 與特定 API 邏輯強相關時。 |
@@ -333,7 +330,7 @@ setup() {
 - Type Safety (型別安全)
 - Type Inference (型別推斷)
 - Non-null Assertion (非空斷言 !)
-- Generics (泛型 <T>)
+- Generics (泛型 T)
 - Control Flow Analysis (控制流分析)
 - Custom Error Types (自定義錯誤型別)
 
