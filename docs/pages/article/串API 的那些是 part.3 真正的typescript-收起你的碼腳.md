@@ -424,7 +424,7 @@ export async function useFileDownload(url: string, params: Record<string, any> =
 
 }
 
-匯出檔案的下載?
+// 匯出檔案的下載?
 ```
 
 好的，看到你基於上次的討論做了這麼棒的重構，而且還開始思考如何用 unknown 來收束 any，這代表你對 TypeScript 的理解又更深一層了！這非常好！
@@ -463,7 +463,7 @@ data 的型別 I 是個泛型，它可以是 object、FormData、undefined... �
 
 當 method 是 POST，且我們忘記傳 data 時，API 就會收到一個空的陣列 []，這很可能不是後端{.info}預期的格式，進而導致非預期的錯誤。
 
-2. axios<iResult>(config) 的假設
+2. `axios<iResult>`(config) 的假設
 這個寫法假設了 axios 的回傳 data 永遠是 iResult 格式。但我們在 options 裡明明就支援了 responseType: 'blob'。當請求圖片或檔案時，axiosResponse.data 會是一個 Blob 物件，而不是 { status, data, messages } 這種結構。這會導致型別上的衝突和誤判。
 
 ## TypeScript 的「精準打擊」：函式重載 (Function Overloading)
@@ -591,7 +591,7 @@ export default function useApi() {
 ## 重構亮點分析
 1. 精準的函式簽名：現在當你輸入 sendRequest('/users', 'GET', ...) 時，VS Code 會提示你第三個參數 data 是 undefined，如果你硬要傳遞，TypeScript 會直接報錯！反之，當你輸入 sendRequest('/users', 'POST', ...)，TypeScript 會告訴你必須傳遞 data，不能省略。這就是型別驅動開發 (Type-Driven Development) 的威力！
 
-2. 安全的型別處理：我們移除了 axios<iResult> 這個不總是正確的假設。改為在 try 區塊內部，根據 responseType 的值，來做條件式的安全斷言 (Safe Assertion)。這樣 blob 和 json 兩種不同的回傳格式就能在型別系統中和平共存。
+2. 安全的型別處理：我們移除了 `axios<iResult>` 這個不總是正確的假設。改為在 try 區塊內部，根據 responseType 的值，來做條件式的安全斷言 (Safe Assertion)。這樣 blob 和 json 兩種不同的回傳格式就能在型別系統中和平共存。
 
 ## 整合檔案下載：不只是語法糖
 你提供的 useFileDownload 寫得很好，但它獨立於 useApi 之外，重複了 axios.get 和 headers 的設定，違反了 DRY 原則。我們的目標是把它整合進 useApi，成為一個方便的工具函式。

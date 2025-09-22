@@ -216,7 +216,7 @@ export default function useApi() {
 
 3. 全域錯誤攔截：透過 axios.interceptors.response 統一處理 401 (登入逾時)、500 (伺服器錯誤) 等通用錯誤，讓頁面端的商業邏輯可以更專注於自身，不用每個 .catch 都寫一次重複的錯誤處理。
 
-4. TypeScript 整合：完整的型別定義，從 iResult 到 sendRequest 的泛型 <T>，都讓程式碼的健壯性 (Robustness) 和可維護性提升了一個檔次。
+4. TypeScript 整合：完整的型別定義，從 iResult 到 sendRequest 的泛型 `<T>`，都讓程式碼的健壯性 (Robustness) 和可維護性提升了一個檔次。
 
 ## 還可以再：
 雖然優點很多，但從多人協作和極端情況 (Edge Case) 的角度來看，有幾個地方值得我們深入探討。
@@ -281,7 +281,7 @@ const messages = axiosResponse.status === 400
 
 2. 抽象化 sendRequest，讓 getImage 成為它的一個應用。
 
-3. 確保函式永遠回傳 Promise<iResult>，避免 null 檢查。
+3. 確保函式永遠回傳 `Promise<iResult>`，避免 `null` 檢查。
 
 4. 增加可選參數，讓函式更具彈性。
 :::
@@ -454,7 +454,7 @@ export default function useApi() {
 
 2. sendRequest 成為唯一核心：現在 getImage 只是呼叫 sendRequest 並傳入特定 options 的一個「語法糖 (Syntactic sugar)」。未來任何底層邏輯的修改，都只需要在 sendRequest 中進行。我們甚至可以輕鬆擴充出 postForm、downloadFile 等更多便捷的函式。
 
-3. 穩定的回傳型別：sendRequest 的回傳型別變成了 Promise<iResult>，不再是 Promise<iResult | null>。無論成功或失敗，我們都回傳一個符合 iResult 結構的物件。這讓呼叫端的程式碼可以更簡潔、更一致。
+3. 穩定的回傳型別：sendRequest 的回傳型別變成了 `Promise<iResult>`，不再是 `Promise<iResult | null>`。無論成功或失敗，我們都回傳一個符合 iResult 結構的物件。這讓呼叫端的程式碼可以更簡潔、更一致。
 ```ts
 // 不再需要 if (result)
 const result = await api.sendRequest(...);
