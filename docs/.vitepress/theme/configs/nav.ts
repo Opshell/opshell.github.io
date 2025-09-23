@@ -56,10 +56,6 @@ export default [
         text: 'Portfolio',
         items: [
             {
-                text: '工作專案',
-                link: '/article/portfolio/works/'
-            },
-            {
                 text: '活動&賽事',
                 link: '/article/portfolio/competition/'
             },

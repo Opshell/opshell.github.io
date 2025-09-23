@@ -62,7 +62,7 @@ keywords: ''
 ```ts
 Token {
   type: 'task_list_item_open', // token 名稱
-  tag: 'label', // HTML 標簽名
+  tags: 'label', // HTML 標簽名
   attrs: [ [ 'class', 'task-list--item' ] ], // [key, value][]
   map: null, // 源映射，如：[ line_begin, line_end ]
   nesting: 1, // (1, 0, -1) 1 => 標籤起始, 0 => 自閉標籤， -1 => 標籤結束

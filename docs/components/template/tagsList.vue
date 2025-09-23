@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { useData, useRouter } from 'vitepress';
-
-    import { iClassification } from '@/hooks/useArticleClassification';
+    import { type TagSummary, tagSummaries } from '@data/tagSummeries';
+    import { iClassification } from '@hooks/useArticleClassification';
 
     const { theme } = useData();
 
@@ -9,14 +9,14 @@
     const classification = computed(() => theme.value.classification as iClassification);
 
     const urlParams = ref(new URLSearchParams(window.location.search));
-    const currentTag = ref(urlParams.value.get('tag') ? urlParams.value.get('tag') : 'typescript'); // 當前Tag
+    const currentTag = ref(urlParams.value.get('tag') ? urlParams.value.get('tag') : 'TypeScript'); // 當前Tag
     const currentPage = ref(urlParams.value.get('page') ? Number(urlParams.value.get('page')) : 1); // 當前頁碼
 
     const router = useRouter();
     router.onAfterRouteChanged = (to) => {
         urlParams.value = new URLSearchParams(to.split('?')[1]);
 
-        currentTag.value = urlParams.value.get('tag') ? urlParams.value.get('tag') : 'typescript'; // 當前Tag
+        currentTag.value = urlParams.value.get('tag') ? urlParams.value.get('tag') : 'TypeScript'; // 當前Tag
         currentPage.value = urlParams.value.get('page') ? Number(urlParams.value.get('page')) : 1; // 當前頁碼
     };
 
@@ -38,6 +38,11 @@
         const end = currentPage.value * pageSize;
         return classification.value.tags[currentTag.value as string].group.slice(start, end);
     });
+
+    // 目前Tag的摘要資訊(如果有的話)
+    const currentTagSummary = computed<TagSummary | undefined>(() => {
+        return tagSummaries[currentTag.value as string];
+    });
 </script>
 
 <template>
@@ -55,10 +60,15 @@
         </div>
 
         <div class="right-block">
+            <div v-if="currentTagSummary" class="tag-summary-block">
+                <h2>{{ currentTagSummary.title }}</h2>
+                <p>{{ currentTagSummary.description }}</p>
+            </div>
+
             <ul class="list-block">
                 <li v-for="item in currentPageData" :key="`list-${currentTag}-${currentPage}-${item.title}`">
                     <a :href="`${item.url}`" class="item-box">
-                        <img class="image" :src="item.image" />
+                        <img class="image" :src="item.image || '/images/no_image.jpg'" />
                         <span class="date">
                             <ElSvgIcon name="calendar_month" />
                             {{ item.date }}
@@ -136,6 +146,25 @@
             gap: 10px;
             width: 100%;
             padding: 1.5rem 0;
+        }
+        .tag-summary-block {
+            background-color: var(--vp-c-bg-soft);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem; // 與文章列表拉開距離
+
+            h2 {
+                border-bottom: none; // 覆蓋 vitepress 預設樣式
+                margin-bottom: 0.5rem;
+                font-size: 1.8rem;
+                font-weight: 600;
+            }
+
+            p {
+                color: var(--vp-c-text-2);
+                font-size: 1rem;
+                line-height: 1.7;
+            }
         }
         .list-block {
             flex-grow: 1;

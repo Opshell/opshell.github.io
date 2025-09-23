@@ -7,9 +7,11 @@ author: Opshell
 version: 1.0.0
 createdAt: '2025-09-22'
 categories:
-  - 開發環境
+  - 開發手冊
 tags:
   - TypeScript
+  - Zod
+  - 型別管理
   - 開發規範
 editLink: true
 isPublished: true

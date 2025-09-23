@@ -28,7 +28,7 @@
         "docs/components/**/*.vue",
         "docs/data/*.data.ts",
         "docs/hooks/*.ts",
-        "docs/types/*.d.ts",
+        "docs/types/*.d.ts", "docs/data/tagSummeries.ts",
     ],
     "exclude": [
         "node_modules",
