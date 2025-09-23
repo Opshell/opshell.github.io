@@ -1,16 +1,19 @@
 ---
-title:  'Day02 - 環境準備&對齊'
-author: 'Opshell'
-createdAt: '2024/09/03'
-categories: 'vitepress-thirty-days'
+title: Day02 - 環境準備&對齊
+author: Opshell
+createdAt: '2024-09-03'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
   - env
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner02](https://ithelp.ithome.com.tw/upload/images/20240903/20109918kYKzX3th25.png)
 > 看一篇文章最大的不是寫的爛，
 > 而是他環境跟你差的遠遠的。

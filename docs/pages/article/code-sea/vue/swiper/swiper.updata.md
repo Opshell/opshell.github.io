@@ -1,3 +1,15 @@
+---
+title: swiper.updata
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-12'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 swiper 的 virtual 嗎
 我卡在新增 slide 後不知道要怎麼 update
 

@@ -1,15 +1,18 @@
 ---
-title: 'Day26 - axios & router'
-author: 'Opshell'
-createdAt: '2022/09/26'
-categories: 'typescript-thirty-days'
+title: Day26 - axios & router
+author: Opshell
+createdAt: '2022-09-26'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day26]： 這才不是PS5 - axios & router
 ![Day 26 Banner](https://ithelp.ithome.com.tw/upload/images/20220926/20109918YUK1LbTjiO.jpg)
 

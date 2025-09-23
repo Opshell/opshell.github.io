@@ -1,15 +1,18 @@
 ---
-title: 'Day06 - 複合型別'
-author: 'Opshell'
-createdAt: '2022/09/06'
-categories: 'typescript-thirty-days'
+title: Day06 - 複合型別
+author: Opshell
+createdAt: '2022-09-06'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day06] - 小孩子才做選擇，我全都要 - 複合型別
 ![Day06 Banner](https://ithelp.ithome.com.tw/upload/images/20220906/20109918bi1OGChyZT.jpg)
 

@@ -1,15 +1,18 @@
 ---
-title:  'Day14 - 別名 Alias'
-author: 'Opshell'
-createdAt: '2022/09/14'
-categories: 'typescript-thirty-days'
+title: Day14 - 別名 Alias
+author: Opshell
+createdAt: '2022-09-14'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day14]：鴨子的別稱 - Alias別名
 ![Day14 Banner](https://ithelp.ithome.com.tw/upload/images/20220914/20109918NiCjkfHuY6.jpg)
 

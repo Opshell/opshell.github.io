@@ -1,13 +1,18 @@
 ---
-title:  'Day08 - config 拆分'
-author: 'Opshell'
-createdAt: '2024/09/09'
-categories: 'vitepress-thirty-days'
+title: Day08 - config 拆分
+author: Opshell
+createdAt: '2024-09-09'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
+version: 1.0.0
 ---
 ![banner08](https://ithelp.ithome.com.tw/upload/images/20240909/201099187kroOlXw41.png)
 

@@ -1,19 +1,19 @@
 ---
 title: zod schema 型別使用規範
-image:
-description:
-keywords:
-author: 'Opshell'
+image: ''
+description: ''
+keywords: ''
+author: Opshell
 version: 1.0.0
-createdAt: 2025-09-22
+createdAt: '2025-09-22'
 categories:
-  - '開發守則'
+  - 開發環境
 tags:
   - TypeScript
+  - 開發規範
 editLink: true
-isPublished: false
+isPublished: true
 ---
-
 # TypeScript 型別規範
 
 本規範旨在建立一套以 `Zod` Schema 為核心的、清晰、可維護且易於團隊協作的 `TypeScript` 資料層撰寫標準。
@@ -110,9 +110,30 @@ src/
 ## 注意事項
 - RawSchema 可寬鬆，但 Parser 必須嚴格。
 - Schema 命名用 PascalCase，欄位用 camelCase。
+- `.schema.ts` 檔案內，保持純粹，不應該知道 `ref`、`composable` 等拉高耦合的存在，如有處理`與 UI 狀態耦合的 Zod 驗證`需求，透過 `動態/情境式`規則應用工廠函式
+    ```ts
+    export const LoginFormSchema = z.object({
+        account: z.string().min(1, '請輸入帳號'),
+        password: z.string().min(1, '請輸入密碼'),
+        captcha: z.string().min(1, '請輸入驗證碼')
+    });
+    /** [-] 包含動態 Captcha 驗證的登入 Schema
+     * @param captcha - 正確的驗證碼字串 (來自 UI 層的 ref.value)
+     */
+    export function createLoginSchema(captcha: string) {
+        return LoginFormSchema.refine(
+            data => data.captcha.toUpperCase() === captcha.toUpperCase(),
+            {
+                message: '驗證碼錯誤，如果看不清楚請點擊圖片進行更換！',
+                path: ['captcha'] // 指定錯誤訊息要顯示在哪個欄位
+            }
+        );
+    }
+    export type LoginForm = z.infer<typeof LoginFormSchema>;
+    ```
 
 ## 操作細則&說明
-1. ### **核心實體層 (Entity Layer) - *Schema**
+1. ### 核心實體層 (Entity Layer) - `Schema`{.brand}
     這是我們系統的基石，前端世界裡的 **單一事實來源 (SSoT)**{.brand}。
 
     * **職責：**
@@ -128,8 +149,8 @@ src/
         - AuditFormTypeSchema
         - AuditFormSchema
 
-2. ### **API 互動層 (API Layer) - *Payload & *Parser**
-    這一層專門處理與後端 API 溝通時的資料形狀。職責非常明確：將前端資料校驗、打包 與 將後端資料校驗、解包，用於 POST, PUT, PATCH等情況，並產生API 使用時的 input 與 output type。
+2. ### API 互動層 (API Layer) - `Payload`{.brand} & `Parser`{.brand}
+    這一層專門處理與後端 API 溝通時的資料形狀。職責非常明確：將前端資料校驗、打包 與 將後端資料校驗、解包，用於 `POST`, `PUT`, `PATCH` 等情況，並產生 API 使用時的 `Input` 與 `Output` type。
 
     * **Payload**
         前往後端的酬載 (Outgoing Payloads)
@@ -143,7 +164,7 @@ src/
             - SaveCategoryTopicsPayload
 
         * **型別：**
-            命名：{Action}{EntityName}Input (在repository、Service 或 業務層 使用時 輸入參數的型別)
+            命名：{Action}{EntityName}Input (在repository、Service 或業務層送出請求所需參數的型別)
         * **範例：**
             ```ts
             export type CreateCategoryInput = z.input<typeof CreateCategoryPayload>;
@@ -173,10 +194,10 @@ src/
                 .pipe(CategorySchema); // 核心已經定義了 CategorySchema 這個 SSoT
             ```
         * **型別：**
-            命名：{Action}{EntityName}Input (在repository、Service 或 業務層 使用時 輸入參數的型別)
+            命名：{Action}{EntityName}Output (請求回來後 repository 的輸出的型別)
         * **範例：**
             ```ts
-            export type CreateCategoryInput = z.input<typeof CreateCategoryPayload>;
+            export type CreateCategoryOutput = z.input<typeof CreateCategoryParser>;
             ```
 
 ## 範例
@@ -211,7 +232,7 @@ const UpdateCategoryRawSchema = z.object({
 export const UpdateCategoryParser = CategoryRawSchema
     .transform(snakeToCamel)
     .pipe(CategorySchema);
-export type CategoryOuput = z.output<typeof CategoryParser>;
+export type UpdateCategoryOuput = z.output<typeof CategoryParser>;
 ```
 ```ts [AnswerCategory.Schema.ts]
 // [P] 核心 Schema (SSoT)

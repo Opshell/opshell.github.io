@@ -1,18 +1,19 @@
 ---
 title: 關於VS Code Git GUI 的那些事
-image:
-author: 'Opshell'
-createdAt: 2025-04-11
+image: ''
+author: Opshell
+createdAt: '2025-04-11'
 categories:
-  - 'Git'
+  - Git
 tags:
-  - 'Git'
-  - 'VS Code'
-  - 'Git Graph'
+  - Git
+  - VS Code
+  - Git Graph
 editLink: true
 isPublished: false
+description: ''
+keywords: ''
 ---
-
 # 文章 1：初探 VS Code 的 Git Graph 和 Git History：開始你的 Git 之旅
 
 ### 目標：介紹 Git Graph 和 Git History 擴充功能，幫助初學者建立基礎環境並理解 Git 的核心概念。

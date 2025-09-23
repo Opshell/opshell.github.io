@@ -1,15 +1,18 @@
 ---
-title:  'Day20 - 宣告檔案 Part 1'
-author: 'Opshell'
-createdAt: '2022/09/20'
-categories: 'typescript-thirty-days'
+title: Day20 - 宣告檔案 Part 1
+author: Opshell
+createdAt: '2022-09-20'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day20]：別人的輪子用起來 - 宣告檔案 Part 1
 ![Day20 banner](https://ithelp.ithome.com.tw/upload/images/20220920/2010991892ajT5Gdpw.jpg)
 

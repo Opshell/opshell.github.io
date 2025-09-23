@@ -1,17 +1,20 @@
 ---
-title:  'Day26 - medium-zoom'
-author: 'Opshell'
-createdAt: '2024/09/27'
-categories: 'vitepress-thirty-days'
+title: Day26 - medium-zoom
+author: Opshell
+createdAt: '2024-09-27'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
 refer:
-  - http://www.freeendless.com/misc/vitepress/image-zoom.html
+  - 'http://www.freeendless.com/misc/vitepress/image-zoom.html'
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![Banner26](https://ithelp.ithome.com.tw/upload/images/20240927/20109918o0QblFGag0.png)
 
 由於文章頁面的版面設計，左右邊都有欄目，在引用比較大張的圖片時，縮圖對我這種老人家不夠友善，所以我們添加圖片放大功能，順便優化一點圖片的樣式吧。

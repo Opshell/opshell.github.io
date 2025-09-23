@@ -1,14 +1,18 @@
 ---
-title:  'Day18 - base markdown'
-author: 'Opshell'
-createdAt: '2024/09/19'
-categories: 'vitepress-thirty-days'
+title: Day18 - base markdown
+author: Opshell
+createdAt: '2024-09-19'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
   - markdown-it
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
 ![banner18](https://ithelp.ithome.com.tw/upload/images/20240919/20109918hOgzIS526M.png)
 

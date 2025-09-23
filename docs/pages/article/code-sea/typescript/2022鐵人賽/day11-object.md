@@ -1,15 +1,18 @@
 ---
-title:  'Day11 - Object Type'
-author: 'Opshell'
-createdAt: '2022/09/11'
-categories: 'typescript-thirty-days'
+title: Day11 - Object Type
+author: Opshell
+createdAt: '2022-09-11'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day11]：這是一隻鴨子 - Object
 ![Day11 Banner](https://ithelp.ithome.com.tw/upload/images/20220911/20109918UMfK32zePF.jpg)
 

@@ -1,15 +1,19 @@
 ---
-title:  'Day06 - config sidebar、socialLinks、footer'
-author: 'Opshell'
-createdAt: '2024/09/07'
-categories: 'vitepress-thirty-days'
+title: Day06 - config sidebar、socialLinks、footer
+author: Opshell
+createdAt: '2024-09-07'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
+version: 1.0.0
 ---
-
 ![banner06](https://ithelp.ithome.com.tw/upload/images/20240907/20109918fStmRTe47h.png)
 
 沒想到簡單的 `config` 設定可以寫到兩天，

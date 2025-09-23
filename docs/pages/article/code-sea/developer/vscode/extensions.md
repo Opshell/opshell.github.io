@@ -1,7 +1,7 @@
 ---
-title: 'VScode Extensions 選用與設定'
-author: 'Opshell'
-createdAt: '2025/01/08'
+title: VScode Extensions 選用與設定
+author: Opshell
+createdAt: '2025-01-08'
 categories:
   - 環境設定
 tags:
@@ -9,8 +9,11 @@ tags:
   - Work Flow
 editLink: true
 isPublished: false
+image: ''
+description: ''
+keywords: ''
+version: 1.0.0
 ---
-
 ##
 從上面的梗圖就可以看出來，有沒有裝外掛決定你用的 "VS Code" 有多好用。
 今天來紀錄目前使用的各種 VS Code 套件。

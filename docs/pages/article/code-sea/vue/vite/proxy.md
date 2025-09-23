@@ -1,8 +1,9 @@
 ---
-title:  'Vite Proxy 串接有 SSL 的 api'
-author: 'Opshell'
-createdAt: '2024/10/24'
-categories: 'vue'
+title: Vite Proxy 串接有 SSL 的 api
+author: Opshell
+createdAt: '2024-10-24'
+categories:
+  - vue
 tags:
   - vite
   - proxy
@@ -10,9 +11,12 @@ tags:
   - SSL
 editLink: true
 isPublished: true
-refer: https://stackoverflow.com/questions/74033733/vite-self-signed-certificate-error-when-calling-local-api
+refer: >-
+  https://stackoverflow.com/questions/74033733/vite-self-signed-certificate-error-when-calling-local-api
+image: ''
+description: ''
+keywords: ''
 ---
-
 ## api 串接錯誤 `Error Occurred: Error: self-signed certificate`
 今天開發新專案在串接 api 的時候遇到了這個問題：
 

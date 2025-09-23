@@ -1,3 +1,15 @@
+---
+title: 動態component
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-10-04'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 假如你的組件不是那麼馬上需要被使用，就`<component :is="xxx">`
 然後：
 

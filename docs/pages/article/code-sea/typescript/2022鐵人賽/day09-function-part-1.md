@@ -1,15 +1,18 @@
 ---
-title:  'Day09 - Function Type Part1'
-author: 'Opshell'
-createdAt: '2022/09/09'
-categories: 'typescript-thirty-days'
+title: Day09 - Function Type Part1
+author: Opshell
+createdAt: '2022-09-09'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day09] - 當ES6遇上了TypeScript - Function part 1
 ![Day9 Banner](https://ithelp.ithome.com.tw/upload/images/20220909/20109918lFRthVWEA1.jpg)
 

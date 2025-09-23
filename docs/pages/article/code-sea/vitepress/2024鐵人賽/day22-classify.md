@@ -1,15 +1,18 @@
 ---
-title:  'Day22 - classify'
-author: 'Opshell'
-createdAt: '2024/09/23'
-categories: 'vitepress-thirty-days'
+title: Day22 - classify
+author: Opshell
+createdAt: '2024-09-23'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![Banner22](https://ithelp.ithome.com.tw/upload/images/20240923/20109918bvx5LmZZDq.png)
 
 自動化側邊欄目錄之後，接下來想做文章檢索的功能，比如我想看某個特定主題的文章有哪些之類的，所以今天要依照標籤、類別、時間、發文時間、更新時間等 `frontmatter` 來做歸類成資料集合。

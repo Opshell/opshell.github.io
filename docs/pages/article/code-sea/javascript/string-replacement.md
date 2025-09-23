@@ -1,15 +1,17 @@
 ---
-title: '字串取代的幾種方式'
-author: 'Opshell'
-createdAt: '2024/08/20'
+title: 字串取代的幾種方式
+author: Opshell
+createdAt: '2024-08-20'
 categories:
   - 使用實例
 tags:
   - javascript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # 字串取代
 字串取代是實例上常常遇見的需求，<br />
 很多情境都可以使用，<br />

@@ -1,15 +1,18 @@
 ---
-title:  'Day08 - Array Type'
-author: 'Opshell'
-createdAt: '2022/09/08'
-categories: 'typescript-thirty-days'
+title: Day08 - Array Type
+author: Opshell
+createdAt: '2022-09-08'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day08] - 通通裝起來 - Array(陣列).md
 ![Day08 Banner](https://ithelp.ithome.com.tw/upload/images/20220908/20109918wYsIu3DPi1.jpg)
 

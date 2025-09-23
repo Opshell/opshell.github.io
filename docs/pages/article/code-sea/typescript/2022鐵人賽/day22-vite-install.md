@@ -1,15 +1,18 @@
 ---
-title:  'Day22 - vite install'
-author: 'Opshell'
-createdAt: '2022/09/22'
-categories: 'typescript-thirty-days'
+title: Day22 - vite install
+author: Opshell
+createdAt: '2022-09-22'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day22]：Vite 環境最...咦裝好了 part1
 ![Day 22 Banner](https://ithelp.ithome.com.tw/upload/images/20220922/20109918YGCjIqMohk.jpg)
 

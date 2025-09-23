@@ -1,3 +1,15 @@
+---
+title: eslint
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-13'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 // 福大設定
 :::code-group
 ```ts [eslintrc]

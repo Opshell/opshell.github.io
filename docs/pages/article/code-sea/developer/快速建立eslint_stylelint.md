@@ -1,17 +1,19 @@
 ---
-title:  "Ops's 團隊程式碼格式化 TLS"
+title: Ops's 團隊程式碼格式化 TLS
 image: ''
-author: 'Opshell'
-createdAt: '2024/10/21'
-categories: 'env'
+author: Opshell
+createdAt: '2024-10-21'
+categories:
+  - env
 tags:
   - eslint
   - stylelint
   - env
 editLink: false
 isPublished: true
+description: ''
+keywords: ''
 ---
-
 ## 需安裝的套件
 
 - 之前穩定版

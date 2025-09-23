@@ -1,20 +1,19 @@
 ---
 title: Zod 與 TS 型別管理的心智負擔
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-08-21
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-08-21'
 categories:
-  - 'TypeScript'
+  - TypeScript
 tags:
-  - 'TypeScript'
-  - 'Zod'
-  - '型別管理'
+  - TypeScript
+  - Zod
+  - 型別管理
 editLink: true
 isPublished: false
 ---
-
 #
 ## 緣起
 

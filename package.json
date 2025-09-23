@@ -43,7 +43,11 @@
     "docs:preview": "vitepress preview docs",
     "lint": "eslint . --fix",
     "lint:style": "stylelint --fix '**/*.{css,scss,vue}' --fix",
-    "new-post": "node scripts/new-post.js"
+    "new-post": "node scripts/new-post.js",
+    "add-frontmatter": "node scripts/add-frontmatter.mjs",
+    "fix-tags": "node scripts/fix-tags.mjs",
+    "fix-empty-frontmatter": "node scripts/fix-empty-categories-tags.mjs",
+    "fix-createdAt": "node scripts/fix-createdAt-format.mjs"
   },
   "dependencies": {
     "@giscus/vue": "^3.0.0",

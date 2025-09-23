@@ -1,15 +1,18 @@
 ---
-title:  'Day18 - 列舉 Enum'
-author: 'Opshell'
-createdAt: '2022/09/18'
-categories: 'typescript-thirty-days'
+title: Day18 - 列舉 Enum
+author: Opshell
+createdAt: '2022-09-18'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day18]：小鴨鴨排隊游 - Enum列舉
 ![Day 18 Banner](https://ithelp.ithome.com.tw/upload/images/20220918/20109918LE2OXMGxeB.jpg)
 

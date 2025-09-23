@@ -1,3 +1,15 @@
+---
+title: 論 pinia vuex 與 vue query
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-11-01'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 Opshell
     各位大大早安~
     最近又回頭精煉 pinia 的技能

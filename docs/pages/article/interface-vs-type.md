@@ -1,19 +1,18 @@
 ---
 title: interface vs type
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-06-25
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-06-25'
 categories:
-  - '未分類'
+  - 未分類
 tags:
-  - 'Typescript'
-  - '面試題'
+  - TypeScript
+  - 面試題
 editLink: true
 isPublished: false
 ---
-
 #
 interface可以同名合併、type不行，他們兩個不能劃上等號
 定義一個interface對外部溝通使用，但這個interface裡面是type alias組成的

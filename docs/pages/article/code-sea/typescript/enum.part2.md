@@ -1,16 +1,18 @@
 ---
-title: 'Enum 使用實例 Part.2'
-author: 'Opshell'
-createdAt: '2024/08/10'
+title: Enum 使用實例 Part.2
+author: Opshell
+createdAt: '2024-08-10'
 categories:
   - 使用實例
 tags:
-  - typescript
+  - TypeScript
   - composable
 editLink: true
 isPublished: false
+image: ''
+description: ''
+keywords: ''
 ---
-
 優雅的 TS 策略模式 處理 number-precision 精度
 
 ```ts

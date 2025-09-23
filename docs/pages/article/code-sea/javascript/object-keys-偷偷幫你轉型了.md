@@ -1,22 +1,18 @@
 ---
 title: Object.Keys 偷偷幫你轉型了！
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-08-28
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-08-28'
 categories:
   - TypeScript
-  - JavaScript
-  - Vue
 tags:
   - TypeScript
   - Vue
-
 editLink: true
 isPublished: false
 ---
-
 # [Vue/TS] 為何 v-for 物件的數字 key，在 v-model 中卻變成了 string？
 
 今天在開發時遇到一個有趣的狀況。我有一個響應式物件，其型別定義如下：

@@ -1,19 +1,21 @@
 ---
-title:  'Vue 3.3 升 3.5 疑難錦囊'
-author: 'Opshell'
-createdAt: '2024/10/16'
-categories: 'vue'
+title: Vue 3.3 升 3.5 疑難錦囊
+author: Opshell
+createdAt: '2024-10-16'
+categories:
+  - vue
 tags:
   - vue
   - vue-router
   - upgrade
   - 開發體驗
   - defineModel
-  - props
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 <!-- ## Vue 3.3 升 3.5 疑難錦囊 -->
 相對純淨的專案中，Vue 的升級居然也會遇到很多怪怪的問題，所以記錄在這邊，遇到新問題時會同步更新在這邊，讓有猿人撿到錦囊時可以提早下班。
 

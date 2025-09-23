@@ -1,3 +1,15 @@
+---
+title: autoheight
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-10-17'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 interpolate-size: allow-keywords
 [This new CSS property just solved animating to height auto](https://www.youtube.com/watch?v=JN-nme9oF10)
 

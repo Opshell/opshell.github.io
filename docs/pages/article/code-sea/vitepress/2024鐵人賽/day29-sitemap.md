@@ -1,16 +1,19 @@
 ---
-title:  'Day29 - Sitemap'
-author: 'Opshell'
-createdAt: '2024/09/30'
-categories: 'vitepress-thirty-days'
+title: Day29 - Sitemap
+author: Opshell
+createdAt: '2024-09-30'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
   - sitemap
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![Banner29](https://ithelp.ithome.com.tw/upload/images/20240930/20109918NcsUZ5Jlgl.png)
 
 今天大概就是這個系列會寫寫程式的最後一篇文章了，來處理個 `sitemap` 好了。

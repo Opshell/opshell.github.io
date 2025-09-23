@@ -1,3 +1,15 @@
+---
+title: 專案的目錄結構與開發pattern.part2
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-11-06'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 [有意义的前端应用程序文件夹结构](https://www.51cto.com/article/764883.html)
 
 https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md

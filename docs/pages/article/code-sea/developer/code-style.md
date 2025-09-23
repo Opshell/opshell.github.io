@@ -1,3 +1,15 @@
+---
+title: code style
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-08-27'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 前兩天在拆分 ts 代碼時，函式、變數命名，感覺也是很大的工程耶（一直請 GPT 幫我命，覺得得不妥又要他修（這樣做事是正常的嗎？
 
 蠻常見的

@@ -1,15 +1,18 @@
 ---
-title:  'Day23 - vite plugin install'
-author: 'Opshell'
-createdAt: '2022/09/23'
-categories: 'typescript-thirty-days'
+title: Day23 - vite plugin install
+author: Opshell
+createdAt: '2022-09-23'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day23]：Vite 環境最麻煩了 part 2
 ![Day 23 Banner](https://ithelp.ithome.com.tw/upload/images/20220923/20109918mtXeD7zxj4.jpg)
 

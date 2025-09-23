@@ -1,16 +1,13 @@
 ---
 title: Opshell's mumur about vitepress
-author: 'Opshell'
-createdAt: '2024/07/26'
-
-categories: 'demo'
+author: Opshell
+createdAt: '2024-07-26'
+categories: demo
 tags:
   - demo
-
 editLink: true
 isPublished: true
 ---
-
 <script setup lang="ts">
   import { useData } from 'vitepress';
 

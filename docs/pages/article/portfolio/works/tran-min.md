@@ -1,17 +1,19 @@
 ---
-title: '傳閔人時案件打卡系統'
+title: 傳閔人時案件打卡系統
 image: ''
-author: 'Opshell'
-createdAt: '2024/10/14'
-categories: 'portfolio'
+author: Opshell
+createdAt: '2024-10-14'
+categories:
+  - portfolio
 tags:
   - portfolio
   - 全端
   - UI/UX
 editLink: false
 isPublished: false
+description: ''
+keywords: ''
 ---
-
 ## 案件出勤管理 - 傳閔人時案件打卡系統：
 
 ## Summary

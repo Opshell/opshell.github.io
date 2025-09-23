@@ -1,15 +1,18 @@
 ---
-title:  'Session & Cookie'
-author: 'Opshell'
-createdAt: '2024/08/27'
-categories: 'Web Application'
+title: Session & Cookie
+author: Opshell
+createdAt: '2024-08-27'
+categories:
+  - Web Application
 tags:
   - Web Application
   - CORS
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ## 摘要
 `HTTP cookie(數位存根)` ，後續簡稱 `cookie` ，
 專門為網頁瀏覽器所建立，用於追蹤、個人化和保存關於使用者的資訊、行為。

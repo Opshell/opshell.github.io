@@ -1,3 +1,17 @@
+---
+title: keyboard control
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-19'
+categories:
+tags:
+    - TypeScript
+editLink: true
+isPublished: false
+---
+
 ```ts
 // 鍵盤事件綁定
 enum Key {

@@ -1,8 +1,9 @@
 ---
-title:  "Day12 - 我和 Prettier 分手了"
-author: 'Opshell'
-createdAt: '2024/09/13'
-categories: 'vitepress-thirty-days'
+title: Day12 - 我和 Prettier 分手了
+author: Opshell
+createdAt: '2024-09-13'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
@@ -11,6 +12,9 @@ tags:
   - Prettier
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
 ![banner12](https://ithelp.ithome.com.tw/upload/images/20240913/20109918O0AgoxestX.png)
 

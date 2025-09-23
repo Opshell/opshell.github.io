@@ -1,15 +1,18 @@
 ---
-title:  'Day12 - Interface Type Part1'
-author: 'Opshell'
-createdAt: '2022/09/12'
-categories: 'typescript-thirty-days'
+title: Day12 - Interface Type Part1
+author: Opshell
+createdAt: '2022-09-12'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day12]：鴨子的形狀 - interface介面 Part 1
 ![Day12 Banner](https://ithelp.ithome.com.tw/upload/images/20220912/20109918RheWGxDnx1.jpg)
 

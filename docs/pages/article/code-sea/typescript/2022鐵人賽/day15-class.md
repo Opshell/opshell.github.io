@@ -1,15 +1,18 @@
 ---
-title:  'Day15 - Class'
-author: 'Opshell'
-createdAt: '2022/09/15'
-categories: 'typescript-thirty-days'
+title: Day15 - Class
+author: Opshell
+createdAt: '2022-09-15'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day15]：鴨子的生產工廠 - class
 ![Day15 Banner](https://ithelp.ithome.com.tw/upload/images/20220915/20109918LE9actwDSW.jpg)
 

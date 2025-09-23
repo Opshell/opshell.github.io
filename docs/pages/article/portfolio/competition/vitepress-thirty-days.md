@@ -1,11 +1,10 @@
 ---
 layout: home
 class: vitepress-thirty-days
-
 hero:
-  name: "Day30 - 後記"
-  text: "完賽了~ 但是之後的路還很長。<br />最近發生很多事，接下來要好好的沉澱一下。"
-  tagline: '完賽感言'
+  name: Day30 - 後記
+  text: 完賽了~ 但是之後的路還很長。<br />最近發生很多事，接下來要好好的沉澱一下。
+  tagline: 完賽感言
   image:
     src: /images/Opshell-vitepress-3.png
     alt: Opshell-3D
@@ -13,8 +12,17 @@ hero:
     - theme: brand
       text: Day30 - 後記
       link: /article/code-sea/vitepress/2024鐵人賽/day30-epilog
+title: vitepress thirty days
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-10-14'
+categories: 
+tags: 
+editLink: true
+isPublished: false
 ---
-
 <style lang="scss">
     .vitepress-thirty-days {
         .VPHero {

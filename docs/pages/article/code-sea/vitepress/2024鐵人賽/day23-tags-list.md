@@ -1,15 +1,18 @@
 ---
-title:  'Day23 - tags list'
-author: 'Opshell'
-createdAt: '2024/09/24'
-categories: 'vitepress-thirty-days'
+title: Day23 - tags list
+author: Opshell
+createdAt: '2024-09-24'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner23](https://ithelp.ithome.com.tw/upload/images/20240924/201099186M6EvWMZDX.png)
 
 既然都做了 `classification` 那我們就把順便利用他把文章列表也做出來吧，前面我們是歸檔了 `tags` 就來做一個基於 `tags` 然後帶簡單分頁功能的列表吧。

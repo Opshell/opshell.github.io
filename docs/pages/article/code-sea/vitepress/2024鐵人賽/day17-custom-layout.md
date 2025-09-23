@@ -1,15 +1,18 @@
 ---
-title:  "Day17 - 自訂一個Layout"
-author: 'Opshell'
-createdAt: '2024/09/18'
-categories: 'vitepress-thirty-days'
+title: Day17 - 自訂一個Layout
+author: Opshell
+createdAt: '2024-09-18'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![Banner17](https://ithelp.ithome.com.tw/upload/images/20240918/20109918jmf5iZLjyZ.png)
 
 前面我們透過了引用 `Vue Component` 的方式做了一個履歷表，可以客製我們想要的排版和內容，如果 Opshell 想要應徵多種職缺，需要多篇履歷，這樣就會一直增加元件和 `data` ，管理和維護會越來越不方便，有沒有辦法像是管理 `.md` 的方式管理履歷呢?如果可以自己做 `layout` 就好了!

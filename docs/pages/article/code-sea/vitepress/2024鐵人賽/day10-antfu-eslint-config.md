@@ -1,8 +1,9 @@
 ---
-title:  'Day10 - antfu/eslint-config'
-author: 'Opshell'
-createdAt: '2024/09/11'
-categories: 'vitepress-thirty-days'
+title: Day10 - antfu/eslint-config
+author: Opshell
+createdAt: '2024-09-11'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
@@ -10,8 +11,11 @@ tags:
   - VS Code
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
+version: 1.0.0
 ---
-
 ![banner10](https://ithelp.ithome.com.tw/upload/images/20240911/20109918gb9KCw4r61.png)
 
 從第二階段開始就會寫一些程式啦~終於開始擠牙膏出來了，

@@ -1,3 +1,15 @@
+---
+title: refer
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-02-12'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 [Google 登入 JavaScript 用戶端參考資料](https://developers.google.com/identity/sign-in/web/reference?hl=zh-tw)
 [Google Calendar API](https://developers.google.com/calendar/api/v3/reference?hl=zh-tw)
 

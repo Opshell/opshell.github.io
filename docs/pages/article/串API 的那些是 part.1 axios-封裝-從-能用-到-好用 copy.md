@@ -1,18 +1,17 @@
 ---
 title: 串API 的那些事 part.1 Axios 封裝，從「能用」到「好用」
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-09-11
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-09-11'
 categories:
-  - '未分類'
+  - 未分類
 tags:
-  -
+  - null
 editLink: true
 isPublished: false
 ---
-
 # Axios 封裝，從「能用」到「好用」
 今天在群組看到有位大大貼了他專案中封裝 axios 的 useApi composable，想問問大家的看法。這是一個非常經典的議題，幾乎每個專案都會有類似的檔案。把 API 請求的邏輯抽離出來，統一管理，絕對是正確的方向。
 

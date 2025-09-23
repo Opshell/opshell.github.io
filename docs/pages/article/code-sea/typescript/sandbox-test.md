@@ -1,17 +1,18 @@
 ---
-title: 'sandbox-test'
-author: 'Opshell'
-createdAt: '2024/08/10'
+title: sandbox-test
+author: Opshell
+createdAt: '2024-08-10'
 categories:
   - 使用實例
 tags:
-  - typescript
+  - TypeScript
   - vue
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
-
 ::: sandbox {template=vue3-ts}
 ```vue /src/App.vue
 <script setup lang="ts">

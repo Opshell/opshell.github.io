@@ -1,18 +1,17 @@
 ---
 title: computed
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-05-15
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-05-15'
 categories:
-  - '未分類'
+  - 未分類
 tags:
-  -
+  - null
 editLink: true
 isPublished: false
 ---
-
 #
 
 

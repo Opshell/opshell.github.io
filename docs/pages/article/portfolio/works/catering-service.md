@@ -1,17 +1,19 @@
 ---
-title: '校園食材登錄平臺3.0'
+title: 校園食材登錄平臺3.0
 image: ''
-author: 'Opshell'
-createdAt: '2024/10/14'
-categories: 'portfolio'
+author: Opshell
+createdAt: '2024-10-14'
+categories:
+  - portfolio
 tags:
   - portfolio
   - 前端
   - UI/UX
 editLink: false
 isPublished: false
+description: ''
+keywords: ''
 ---
-
 ## 教育部國教署 - 校園食材登錄平臺3.0：
 
 ## 專案內容概述：

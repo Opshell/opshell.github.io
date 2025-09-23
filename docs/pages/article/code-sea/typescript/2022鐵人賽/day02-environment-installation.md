@@ -1,16 +1,19 @@
 ---
-title: 'Day02 - 環境安裝'
-author: 'Opshell'
-createdAt: '2022/09/02'
-categories: 'typescript-thirty-days'
+title: Day02 - 環境安裝
+author: Opshell
+createdAt: '2022-09-02'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
   - env
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day02] - 環境什麼的... 最討厭了 - 環境安裝
 ![Day02 - banner](https://ithelp.ithome.com.tw/upload/images/20220902/20109918e4fpAeFASa.jpg)
 

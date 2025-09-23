@@ -1,18 +1,19 @@
 ---
 title: 關於VS Code Git GUI 的那些事
-image:
-author: 'Opshell'
-createdAt: 2025-04-11
+image: ''
+author: Opshell
+createdAt: '2025-04-11'
 categories:
-  - 'Git'
+  - Git
 tags:
-  - 'Git'
-  - 'VS Code'
-  - 'Git Graph'
+  - Git
+  - VS Code
+  - Git Graph
 editLink: true
 isPublished: false
+description: ''
+keywords: ''
 ---
-
 # 目標：教導如何使用 Git Graph 和 Git History 建立、切換和管理分支，為多人協作奠定基礎。
 內容：
 分支的核心概念：

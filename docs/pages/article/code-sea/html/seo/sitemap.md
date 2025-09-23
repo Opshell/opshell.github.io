@@ -1,8 +1,9 @@
 ---
-title:  'Sitemap 筆記'
-author: 'Opshell'
-createdAt: '2024/09/02'
-categories: 'SEO'
+title: Sitemap 筆記
+author: Opshell
+createdAt: '2024-09-02'
+categories:
+  - SEO
 tags:
   - seo
   - sitemap
@@ -11,8 +12,10 @@ sitemap:
   - changefreq: yearly
 editLink: true
 isPublished: false
+image: ''
+description: ''
+keywords: ''
 ---
-
 ## Sitemap 介紹
 搜尋引擎的原理是透過『網路爬蟲』（Crawler）把一個網站上的網頁抓取後進行分析與索引。然而『網路爬蟲』一頁一頁的爬取過程中可能因爲執行效率或爬取時間的因素，部分網頁一直沒有出現在搜尋結果網頁（Search Engine Result Page）中。因此，這時候 Sitemap 就可以扮演很重要的角色，就如同出去旅行一樣，我們可以每到一個觀光景點後，才到『遊客服務中心』索取導覽地圖，這樣的行為就是『網路爬蟲』的動作。也可以安裝 Google Map 或紙本地圖，掌握所有資訊，這時候 Google Map 或紙本地圖就像是 sitemap 一樣提供我們全局的資訊。
 

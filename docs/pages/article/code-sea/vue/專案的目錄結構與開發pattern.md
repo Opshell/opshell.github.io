@@ -1,17 +1,20 @@
 ---
-title:  '基本的 Vue3 + Vite + Typescript 的基本專案結構'
-author: 'Opshell'
-createdAt: '2024/09/05'
-categories: 'Project Structure'
+title: 基本的 Vue3 + Vite + Typescript 的基本專案結構
+author: Opshell
+createdAt: '2024-09-05'
+categories:
+  - Project Structure
 tags:
   - structure
   - pattern
 editLink: true
 isPublished: false
 refer:
-  -
+  - null
+image: ''
+description: ''
+keywords: ''
 ---
-
 ## 基本的 Vue3 + Vite + Typescript 的基本專案結構
 在基本的專案中，大部分的專案結構都會長得像(或類似)這樣：
 ```sh

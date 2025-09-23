@@ -1,15 +1,18 @@
 ---
-title:  'Day25 - busuanzi'
-author: 'Opshell'
-createdAt: '2024/09/26'
-categories: 'vitepress-thirty-days'
+title: Day25 - busuanzi
+author: Opshell
+createdAt: '2024-09-26'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner25](https://ithelp.ithome.com.tw/upload/images/20240926/20109918G8L1uIEdWO.png)
 
 紀錄頁面的閱讀數量，網站的訪客數，應該已經是部落格標配了看著數字的增加，總是會有一咪咪成就感。

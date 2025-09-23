@@ -1,15 +1,18 @@
 ---
-title:  "Day14 - build a resume resource"
-author: 'Opshell'
-createdAt: '2024/09/15'
-categories: 'vitepress-thirty-days'
+title: Day14 - build a resume resource
+author: Opshell
+createdAt: '2024-09-15'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner14](https://ithelp.ithome.com.tw/upload/images/20240915/20109918UQKck510xH.png)
 
 ## 在 Markdown 中使用 Vue

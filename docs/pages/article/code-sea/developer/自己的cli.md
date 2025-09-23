@@ -1,3 +1,15 @@
+---
+title: 自己的cli
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-10-09'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 我跟我主管提說 我們之前產品基本上功能跟介面相似度很高 我們可以開一個 template project 之後開案就 clone 那個專案就好 他先說 但技術會更新 我說所以那個專案也要迭代啊 然後說可是每個專案邏輯不一樣 接著若有所思
 
 13:17 Mesak 阿米 這個很必要耶

@@ -1,18 +1,19 @@
 ---
 title: 關於VS Code Git GUI 的那些事
-image:
-author: 'Opshell'
-createdAt: 2025-04-11
+image: ''
+author: Opshell
+createdAt: '2025-04-11'
 categories:
-  - 'Git'
+  - Git
 tags:
-  - 'Git'
-  - 'VS Code'
-  - 'Git Graph'
+  - Git
+  - VS Code
+  - Git Graph
 editLink: true
 isPublished: false
+description: ''
+keywords: ''
 ---
-
 # 目標：變基與進階分支管理：打造乾淨的提交歷史
 目標：介紹變基（Rebase）作為合併的替代方案，使用 Git Graph 和 Git History 管理複雜分支結構和乾淨的提交歷史。
 內容：

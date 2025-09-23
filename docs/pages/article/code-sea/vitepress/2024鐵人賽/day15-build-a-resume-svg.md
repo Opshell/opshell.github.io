@@ -1,13 +1,17 @@
 ---
-title:  "Day15 - build a resume svg"
-author: 'Opshell'
-createdAt: '2024/09/16'
-categories: 'vitepress-thirty-days'
+title: Day15 - build a resume svg
+author: Opshell
+createdAt: '2024-09-16'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
 ![banner15](https://ithelp.ithome.com.tw/upload/images/20240916/20109918zbY4sUxND9.png)
 

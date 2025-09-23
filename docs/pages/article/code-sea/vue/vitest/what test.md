@@ -1,3 +1,15 @@
+---
+title: what test
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-10-09'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 https://codedrivendevelopment.com/posts/tdd-for-frontend-engineers
 
 TDD 目前看國外論壇，蠻不推崇的，現在應該比較推 BDD

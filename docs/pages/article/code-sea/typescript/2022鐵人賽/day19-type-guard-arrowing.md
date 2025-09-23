@@ -1,15 +1,18 @@
 ---
-title:  'Day19 - Type Guard 型別檢測 & Narrowing'
-author: 'Opshell'
-createdAt: '2022/09/19'
-categories: 'typescript-thirty-days'
+title: Day19 - Type Guard 型別檢測 & Narrowing
+author: Opshell
+createdAt: '2022-09-19'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day19]：紅燈停綠燈行 - 型別檢測&Narrowing
 ![Day 19 Banner](https://ithelp.ithome.com.tw/upload/images/20220919/201099180PlOyk91m1.jpg)
 

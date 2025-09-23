@@ -1,7 +1,7 @@
 ---
-title: '檢索陣列的那些方式'
-author: 'Opshell'
-createdAt: '2025/01/24'
+title: 檢索陣列的那些方式
+author: Opshell
+createdAt: '2025-01-24'
 categories:
   - 使用實例
 tags:
@@ -10,9 +10,11 @@ tags:
 editLink: true
 isPublished: false
 refer:
-  -
+  - null
+image: ''
+description: ''
+keywords: ''
 ---
-
 ## Some
 `Some` 是不常用但是用起來超級方便的好東西，最常用的地方就是拿來檢查陣列中是否有符合條件的項目，有的話就直接回傳 `true` 否則回傳 `false`。
 來個範例：

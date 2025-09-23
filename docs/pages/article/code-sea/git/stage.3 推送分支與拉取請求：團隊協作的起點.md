@@ -1,18 +1,19 @@
 ---
 title: 關於VS Code Git GUI 的那些事
-image:
-author: 'Opshell'
-createdAt: 2025-04-11
+image: ''
+author: Opshell
+createdAt: '2025-04-11'
 categories:
-  - 'Git'
+  - Git
 tags:
-  - 'Git'
-  - 'VS Code'
-  - 'Git Graph'
+  - Git
+  - VS Code
+  - Git Graph
 editLink: true
 isPublished: false
+description: ''
+keywords: ''
 ---
-
 # 推送分支與拉取請求：團隊協作的起點
 
 ## 目標：展示如何將分支推送至遠端儲存庫並建立拉取請求（Pull Request, PR），使用 Git Graph 和 Git History 監控進度。

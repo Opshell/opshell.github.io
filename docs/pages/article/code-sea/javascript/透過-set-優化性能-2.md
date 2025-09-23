@@ -1,18 +1,17 @@
 ---
 title: 透過 set 優化性能 2
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-08-27
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-08-27'
 categories:
-  - '未分類'
+  - 未分類
 tags:
-  -
+  - null
 editLink: true
 isPublished: false
 ---
-
 # TypeScript 程式碼分析與優化：從型別錯誤到性能提升
 
 本文檔旨在分析一段常見的 TypeScript 程式碼片段，解決其型別錯誤，並提供兩種優化方案以提高程式碼的可讀性與執行性能。

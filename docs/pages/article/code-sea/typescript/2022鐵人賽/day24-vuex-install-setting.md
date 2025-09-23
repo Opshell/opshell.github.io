@@ -1,15 +1,18 @@
 ---
-title:  'Day24 - Vuex install & setting'
-author: 'Opshell'
-createdAt: '2022/09/24'
-categories: 'typescript-thirty-days'
+title: Day24 - Vuex install & setting
+author: Opshell
+createdAt: '2022-09-24'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day24]：Vuex安裝&設定
 ![Day24 Banner](https://ithelp.ithome.com.tw/upload/images/20220924/20109918GfzKzAInd6.jpg)
 

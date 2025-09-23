@@ -1,17 +1,19 @@
 ---
 layout: doc
-
 title: Life Mumur
-author: 'Opshell'
+author: Opshell
 editLink: true
 categories:
   - life murmur
 tags:
   - murmur
-date: '2024.08.12'
-
+date: 2024.08.12
+image: ''
+description: ''
+keywords: ''
+createdAt: '2024-08-14'
+isPublished: false
 ---
-
 # Markdown Extension Examples
 
 This page demonstrates some of the built-in markdown extensions provided by VitePress.

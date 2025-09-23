@@ -1,15 +1,18 @@
 ---
-title:  'Day28 - getData Refactoring'
-author: 'Opshell'
-createdAt: '2022/09/28'
-categories: 'typescript-thirty-days'
+title: Day28 - getData Refactoring
+author: Opshell
+createdAt: '2022-09-28'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day28]：剩下的包了 - getData 改寫
 ![Day 28 Banner](https://ithelp.ithome.com.tw/upload/images/20220928/20109918U59y6fxLyq.jpg)
 

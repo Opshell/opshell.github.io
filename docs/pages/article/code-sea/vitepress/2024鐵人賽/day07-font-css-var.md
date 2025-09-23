@@ -1,15 +1,18 @@
 ---
-title:  'Day07 - custom font & css'
-author: 'Opshell'
-createdAt: '2024/09/08'
-categories: 'vitepress-thirty-days'
+title: Day07 - custom font & css
+author: Opshell
+createdAt: '2024-09-08'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner07](https://ithelp.ithome.com.tw/upload/images/20240908/20109918O14k6TeClz.png)
 
 共用的主題 `config` 設定完之後，部落格終於有了基礎的雛形啦~

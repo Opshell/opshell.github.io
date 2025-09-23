@@ -1,7 +1,7 @@
 ---
-title: '遍歷迴圈組資料 - 效能優化'
-author: 'Opshell'
-createdAt: '2025/02/12'
+title: 遍歷迴圈組資料 - 效能優化
+author: Opshell
+createdAt: '2025-02-12'
 categories:
   - 使用實例
 tags:
@@ -10,8 +10,10 @@ tags:
   - array
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 有時候會有資料遍歷組合出新資料的需求，API 中不提供相關的群組功能，於是把群組資料直接寫進每筆資料中，抓取資料後要渲染時，最直覺得寫法就會是像下面的例子：
 
 ```ts

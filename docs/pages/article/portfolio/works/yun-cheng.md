@@ -1,16 +1,18 @@
 ---
-title: '允成建設(全端)'
+title: 允成建設(全端)
 image: ''
-author: 'Opshell'
-createdAt: '2024/10/14'
-categories: 'portfolio'
+author: Opshell
+createdAt: '2024-10-14'
+categories:
+  - portfolio
 tags:
   - portfolio
   - 全端
 editLink: false
 isPublished: false
+description: ''
+keywords: ''
 ---
-
 ## [允成建設(全端)](http://www.yun-cheng.com.tw/)
 
 ## Summary

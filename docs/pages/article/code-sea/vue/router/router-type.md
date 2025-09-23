@@ -1,3 +1,15 @@
+---
+title: router type
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-12'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 順便分享一下純 Vue 專案的 router，我們是用這個
 
 https://github.com/posva/unplugin-vue-router

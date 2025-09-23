@@ -1,14 +1,17 @@
 ---
-title:  'What is JWT'
-author: 'Opshell'
-createdAt: '2024/08/27'
-categories: 'Web Application'
+title: What is JWT
+author: Opshell
+createdAt: '2024-08-27'
+categories:
+  - Web Application
 tags:
   - Web Application
 editLink: true
 isPublished: false
+image: ''
+description: ''
+keywords: ''
 ---
-
 oauth
 
 https://5xcampus.com/posts/what-is-jwt

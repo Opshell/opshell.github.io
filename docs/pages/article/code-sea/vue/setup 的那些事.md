@@ -1,3 +1,15 @@
+---
+title: setup 的那些事
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-11-26'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 https://ithelp.ithome.com.tw/articles/10304992
 
 1. await 遇到問題

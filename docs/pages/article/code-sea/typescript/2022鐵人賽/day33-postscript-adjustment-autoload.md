@@ -1,15 +1,18 @@
 ---
-title: 'Day33 - Postscript Adjustment AutoLoad'
-author: 'Opshell'
-createdAt: '2022/10/03'
-categories: 'typescript-thirty-days'
+title: Day33 - Postscript Adjustment AutoLoad
+author: Opshell
+createdAt: '2022-10-03'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day33]：後記 - 環境調整 Part3 AutoLoad
 ![Day32 Banner](https://ithelp.ithome.com.tw/upload/images/20221001/20109918EjcEQcDdDz.jpg)
 

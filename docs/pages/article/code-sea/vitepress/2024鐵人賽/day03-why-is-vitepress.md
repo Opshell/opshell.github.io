@@ -1,15 +1,18 @@
 ---
-title:  'Day03 - VitePress 部落格'
-author: 'Opshell'
-createdAt: '2024/09/04'
-categories: 'vitepress-thirty-days'
+title: Day03 - VitePress 部落格
+author: Opshell
+createdAt: '2024-09-04'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner03](https://ithelp.ithome.com.tw/upload/images/20240904/20109918mYCs6LYrzp.png)
 
 ## Why write & Why is vitepress

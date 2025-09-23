@@ -1,15 +1,18 @@
 ---
-title:  'Day04 - 推論、註記、斷言'
-author: 'Opshell'
-createdAt: '2022/09/04'
-categories: 'typescript-thirty-days'
+title: Day04 - 推論、註記、斷言
+author: Opshell
+createdAt: '2022-09-04'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day04] - 一切的源頭 - 推論、註記、斷言
 ![Day 04-2](https://ithelp.ithome.com.tw/upload/images/20220904/20109918zYSZIgGEC9.jpg)
 

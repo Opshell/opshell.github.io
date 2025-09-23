@@ -1,3 +1,15 @@
+---
+title: axios封裝 錯誤
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-26'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 ```ts
 // 從Axios 拉型別出來用
 import { AxiosProgressEvent, AxiosRequestConfig, AxiosRequestHeaders, Method } from 'axios';

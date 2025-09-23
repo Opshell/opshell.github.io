@@ -1,3 +1,15 @@
+---
+title: zero
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-06'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 生活的歸零
 
 工作  小孩  修行  家事  突發事件

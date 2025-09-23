@@ -1,18 +1,17 @@
 ---
 title: 串API 的那些事 part.2 取名-是小事-也是大事
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-09-11
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-09-11'
 categories:
-  - '未分類'
+  - 未分類
 tags:
-  -
+  - null
 editLink: true
 isPublished: false
 ---
-
 # 取名-是小事-也是大事
 哈哈哈，這個問題問得太好了！檔案命名、變數命名，這種看似「小事」的地方，其實最能體現一個前端工程師{.vue}的經驗和對專案架構的思考深度。這絕對是我們會在群組裡花時間討論的議題。
 

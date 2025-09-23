@@ -1,15 +1,18 @@
 ---
-title:  'Day05 - 基礎的型別'
-author: 'Opshell'
-createdAt: '2022/09/05'
-categories: 'typescript-thirty-days'
+title: Day05 - 基礎的型別
+author: Opshell
+createdAt: '2022-09-05'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day05]-萬丈高樓平地起-基礎的型別
 ![Day 05](https://ithelp.ithome.com.tw/upload/images/20220905/20109918sHpZpZJ8qP.jpg)
 

@@ -1,3 +1,15 @@
+---
+title: animate
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-07-22'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 ```ts
 // [M] 過渡效果相關狀態
 const isTransitioning = ref(false);

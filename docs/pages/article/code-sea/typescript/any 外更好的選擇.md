@@ -1,3 +1,16 @@
+---
+title: any 外更好的選擇
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-26'
+categories:
+tags:
+    - TypeScript
+editLink: true
+isPublished: false
+---
 ```ts
 export interface iResult {
     status: boolean

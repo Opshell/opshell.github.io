@@ -1,15 +1,18 @@
 ---
-title:  'Day27 - sandbox'
-author: 'Opshell'
-createdAt: '2024/09/28'
-categories: 'vitepress-thirty-days'
+title: Day27 - sandbox
+author: Opshell
+createdAt: '2024-09-28'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![Banner27](https://ithelp.ithome.com.tw/upload/images/20240928/20109918RzXsBbiZJh.png)
 
 鐵人賽也接近尾聲了，各位看官可以發現一個部落格大體的架構都幾乎完成了，stage 5 只是在補一些小套件來 ~~水~~ 完善一些小功能，今天就來補點 `andbox(沙盒)` 吧。

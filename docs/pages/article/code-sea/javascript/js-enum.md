@@ -1,3 +1,15 @@
+---
+title: js enum
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-12'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 17:06 Ava 想問問一個菜鳥問題，這樣的寫法是合理的嗎？
  if( xxx = 1 ){...} else if( xxx = 2)
 

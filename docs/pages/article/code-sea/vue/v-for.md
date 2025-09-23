@@ -1,16 +1,19 @@
 ---
-title:  'v-for 的那些事'
-author: 'Opshell'
-createdAt: '2025/02/04'
-categories: 'Vue'
+title: v-for 的那些事
+author: Opshell
+createdAt: '2025-02-04'
+categories:
+  - Vue
 tags:
   - vue
 editLink: true
 isPublished: false
 refer:
-  -
+  - null
+image: ''
+description: ''
+keywords: ''
 ---
-
 3.2開始就有這個東西能用
 
 v-memo讓你指定哪些值需要被監聽，有變動才去整個重新渲染

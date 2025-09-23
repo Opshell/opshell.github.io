@@ -1,3 +1,15 @@
+---
+title: 原子化 SCSS
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-20'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 原子化CSS的概念應用在SCSS上會變得更強大
 
 因為SCSS是允許動態給定class name的結構組合的，包括attribute

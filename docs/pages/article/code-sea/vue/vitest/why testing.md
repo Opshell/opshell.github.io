@@ -1,3 +1,15 @@
+---
+title: why testing
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-10-07'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 ## 測試的目的
 https://www.youtube.com/watch?v=OIpfWTThrK8
 

@@ -1,3 +1,15 @@
+---
+title: early return
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-10-17'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 ```ts
 let shouldDeleteFlag = false;
 

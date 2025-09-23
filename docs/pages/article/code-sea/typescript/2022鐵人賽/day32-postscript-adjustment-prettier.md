@@ -1,15 +1,18 @@
 ---
-title: 'Day32 - Postscript Adjustment Prettier'
-author: 'Opshell'
-createdAt: '2022/10/02'
-categories: 'typescript-thirty-days'
+title: Day32 - Postscript Adjustment Prettier
+author: Opshell
+createdAt: '2022-10-02'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day32]：後記 - 環境調整 Part2 Prettier
 ![Day32 Banner](https://ithelp.ithome.com.tw/upload/images/20221002/20109918uBNxvoNmR5.jpg)
 

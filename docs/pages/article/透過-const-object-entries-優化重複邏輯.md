@@ -1,18 +1,17 @@
 ---
 title: 透過 const + Object.entries 優化重複邏輯
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-05-19
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-05-19'
 categories:
-  - '未分類'
+  - 未分類
 tags:
-  -
+  - null
 editLink: true
 isPublished: false
 ---
-
 #
 ```
 function getOptionsHandler(changer: 'class' | 'county' | 'area') {

@@ -1,15 +1,17 @@
 ---
-title:  'Component Design'
-author: 'Opshell'
-createdAt: '2024/08/27'
-categories: 'Web Application'
+title: Component Design
+author: Opshell
+createdAt: '2024-08-27'
+categories:
+  - Web Application
 tags:
   - Web Application
 editLink: true
 isPublished: false
+image: ''
+description: ''
+keywords: ''
 ---
-
-
 我今天是教到寫元件，我範例是寫個delete button,click會先confirm,使用者按確定時，才會觸發delete-click
 
 我以前有一陣子很喜歡寫綁業務邏輯的 UI

@@ -1,3 +1,15 @@
+---
+title: try vs then
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-10-30'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 在 處理Promise 的兩種方式比較
 
 ## try... catch...

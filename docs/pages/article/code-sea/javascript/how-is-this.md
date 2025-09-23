@@ -1,7 +1,7 @@
 ---
-title: 'This 到底是誰?'
-author: 'Opshell'
-createdAt: '2024/08/23'
+title: This 到底是誰?
+author: Opshell
+createdAt: '2024-08-23'
 categories:
   - 使用實例
 tags:
@@ -9,8 +9,10 @@ tags:
   - vue
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # this
 
 ## 這是一個 QR CODE 讀取的例子

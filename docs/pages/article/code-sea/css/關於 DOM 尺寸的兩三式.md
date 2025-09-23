@@ -1,3 +1,15 @@
+---
+title: 關於 DOM 尺寸的兩三式
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-02-12'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 ### width
 ### min-wdith
 ### max-wdith

@@ -1,15 +1,18 @@
 ---
-title:  'Day04 - Init VitePress'
-author: 'Opshell'
-createdAt: '2024/09/05'
-categories: 'vitepress-thirty-days'
+title: Day04 - Init VitePress
+author: Opshell
+createdAt: '2024-09-05'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner04](https://ithelp.ithome.com.tw/upload/images/20240905/20109918yiEJ8n17GR.png)
 
 今天我們要來安裝、啟動還有調整 `VitePress` 的首頁，：

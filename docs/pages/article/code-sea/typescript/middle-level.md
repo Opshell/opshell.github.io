@@ -1,3 +1,16 @@
+---
+title: middle level
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-11'
+categories:
+tags:
+    - TypeScript
+editLink: true
+isPublished: false
+---
 除了型別推論
 omit、pick、partial、record、exclude、extract等常用的型別處理方法
 interface的繼承
@@ -24,8 +37,6 @@ https://pjchender.dev/ironman-2021/ironman-2021-day02/
 3. 請解釋泛型的用途和具體實作方式
 
 其他的還會有如何手動配置 declare 來避免一些套件可能沒有提供 type 的問題
-
-
 
 ## 型別繼承
 ```ts

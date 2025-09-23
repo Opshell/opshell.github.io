@@ -1,15 +1,18 @@
 ---
-title:  'Day21 - Dynamic article list'
-author: 'Opshell'
-createdAt: '2024/09/22'
-categories: 'vitepress-thirty-days'
+title: Day21 - Dynamic article list
+author: Opshell
+createdAt: '2024-09-22'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![Banner21](https://ithelp.ithome.com.tw/upload/images/20240922/20109918wRnYYX5273.png)
 
 經過昨天的 `Layout` 擴充之後，文章版面越來越成熟了，不禁開始思考一個問題，每次新增文章、調整目錄結構都要手動在 `sidebar.ts` 裡面調來調去的，體驗好差阿，來把 `sidebar` 的產生自動化好了。

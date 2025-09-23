@@ -1,3 +1,15 @@
+---
+title: api 回傳的資料
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-11-29'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 前後端分離時 新增、修改 請求， 後端丟結果回來的時候 要順便帶目前的資料狀態 還是說 另外開一支查詢的api?
 
 在前後端分離的架構中，當進行新增或修改請求時，後端應該如何返回結果以及是否需要帶回目前的資料狀態，這取決於具體的需求和系統設計。以下是兩種常見的做法及其優缺點：

@@ -1,18 +1,17 @@
 ---
 title: 串API 的那些是 part.3 用 Typescript-收起你的碼腳
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-09-11
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-09-11'
 categories:
-  - '未分類'
+  - 未分類
 tags:
-  -
+  - null
 editLink: true
 isPublished: false
 ---
-
 # 用 Typescript-收起你的碼腳
 ## 問題
 ```ts

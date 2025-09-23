@@ -1,16 +1,19 @@
 ---
-title:  'Day09 - Deploy to GitHub Pages'
-author: 'Opshell'
-createdAt: '2024/09/10'
-categories: 'vitepress-thirty-days'
+title: Day09 - Deploy to GitHub Pages
+author: Opshell
+createdAt: '2024-09-10'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
   - Deploy(部署)
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner09](https://ithelp.ithome.com.tw/upload/images/20240910/20109918Jy69CO00n0.png)
 
 經過前幾天的水之後，我們部落格的基本設定應該都處理的差不多了，積極的看官可能都新增了一堆頁面在玩了，那我們今天就來正式部署出來，快速拉高成就感吧。

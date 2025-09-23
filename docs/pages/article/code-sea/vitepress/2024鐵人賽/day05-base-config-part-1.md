@@ -1,15 +1,19 @@
 ---
-title:  'Day05 - 基本設定 Part1'
-author: 'Opshell'
-createdAt: '2024/09/06'
-categories: 'vitepress-thirty-days'
+title: Day05 - 基本設定 Part1
+author: Opshell
+createdAt: '2024-09-06'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
+version: 1.0.0
 ---
-
 ![banner05](https://ithelp.ithome.com.tw/upload/images/20240906/2010991860UjaFgbno.png)
 
 改完首頁樣式之後，就會開始想把 `header` 調整成自己想要的樣子了，

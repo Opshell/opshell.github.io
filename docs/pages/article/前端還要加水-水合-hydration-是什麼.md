@@ -1,18 +1,17 @@
 ---
 title: 前端還要加水?水合(Hydration)是什麼?
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-09-19
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-09-19'
 categories:
-  - '未分類'
+  - 未分類
 tags:
-  -
+  - null
 editLink: true
 isPublished: false
 ---
-
 # 前端術語｜「水合」(Hydration) 到底是什麼？從一杯即溶咖啡談起
 
 在 **Vue**, **Nuxt**, React, Next.js 或其他現代前端框架的技術文章中，你很可能看過「**水合**」或 **Hydration** 這個詞。它聽起來很學術，但概念其實非常直觀且重要。

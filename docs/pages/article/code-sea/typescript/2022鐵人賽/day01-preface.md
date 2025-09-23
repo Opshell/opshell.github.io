@@ -1,15 +1,18 @@
 ---
-title:  'Day01 - 前言'
-author: 'Opshell'
-createdAt: '2022/09/01'
-categories: 'typescript-thirty-days'
+title: Day01 - 前言
+author: Opshell
+createdAt: '2022-09-01'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day01] - Opshell的碎念 - 前言
 ![banner-v4](https://ithelp.ithome.com.tw/upload/images/20220901/20109918jm8R7REYAN.jpg)
 

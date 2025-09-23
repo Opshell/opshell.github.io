@@ -1,8 +1,9 @@
 ---
-title:  'Day19 - plus markdown'
-author: 'Opshell'
-createdAt: '2024/09/20'
-categories: 'vitepress-thirty-days'
+title: Day19 - plus markdown
+author: Opshell
+createdAt: '2024-09-20'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
@@ -10,9 +11,12 @@ tags:
 editLink: true
 isPublished: true
 refer:
-  - https://gzcloudhome.cn/posts/write-markdown-it-plugin-to-customize-syntax/
-  - https://juejin.cn/post/7055597191150174238
-  - https://www.widcard.win/blog/posts/write-plugins/write-mdit-plugin/
+  - 'https://gzcloudhome.cn/posts/write-markdown-it-plugin-to-customize-syntax/'
+  - 'https://juejin.cn/post/7055597191150174238'
+  - 'https://www.widcard.win/blog/posts/write-plugins/write-mdit-plugin/'
+image: ''
+description: ''
+keywords: ''
 ---
 ![banner19](https://ithelp.ithome.com.tw/upload/images/20240920/20109918DGF72pEmBN.png)
 

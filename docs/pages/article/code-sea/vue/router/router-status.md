@@ -1,3 +1,15 @@
+---
+title: router status
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-12'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 如果不想用 query string 或 path 傳遞資料，想傳輸完整的物件資料的話，可以考慮使用 history API 提供的 state
 
 不過由於 Vue Router 已經占用了 state 資料，所以不能直接覆蓋，要這樣寫：

@@ -1,3 +1,15 @@
+---
+title: design token
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-20'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 也不是每個設計懂 design token 就是了
 有些還牽拖是工程師的問題
 seed token

@@ -1,14 +1,17 @@
 ---
-title:  '程序猿技能樹'
-author: 'Opshell'
-createdAt: '2024/08/27'
-categories: 'Web Application'
+title: 程序猿技能樹
+author: Opshell
+createdAt: '2024-08-27'
+categories:
+  - Web Application
 tags:
   - Web Application
 editLink: true
 isPublished: false
+image: ''
+description: ''
+keywords: ''
 ---
-
 會有一定程度，只是這樣會變成對於那個框架選型容易遇到有障礙
 
 所以對於特定的ecosystem常用哪些也不會知道

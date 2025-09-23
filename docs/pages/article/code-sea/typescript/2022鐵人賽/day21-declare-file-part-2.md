@@ -1,15 +1,18 @@
 ---
-title:  'Day21 - 宣告檔案 Part 2'
-author: 'Opshell'
-createdAt: '2022/09/21'
-categories: 'typescript-thirty-days'
+title: Day21 - 宣告檔案 Part 2
+author: Opshell
+createdAt: '2022-09-21'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day21]：自己做說明書 - 宣告檔案 part 2
 ![Day21 Banner](https://ithelp.ithome.com.tw/upload/images/20220921/20109918CwC7e2Fepp.jpg)
 

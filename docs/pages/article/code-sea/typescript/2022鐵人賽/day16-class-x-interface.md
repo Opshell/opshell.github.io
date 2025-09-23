@@ -1,15 +1,18 @@
 ---
-title:  'Day16 - Class X Interface'
-author: 'Opshell'
-createdAt: '2022/09/16'
-categories: 'typescript-thirty-days'
+title: Day16 - Class X Interface
+author: Opshell
+createdAt: '2022-09-16'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day16]：大部分解 - class X interface
 ![Day16 Banner](https://ithelp.ithome.com.tw/upload/images/20220916/20109918fwYi0TCtsZ.jpg)
 

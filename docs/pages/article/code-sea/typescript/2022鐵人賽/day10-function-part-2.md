@@ -1,15 +1,18 @@
 ---
-title:  'Day10 - Function Type Part2'
-author: 'Opshell'
-createdAt: '2022/09/10'
-categories: 'typescript-thirty-days'
+title: Day10 - Function Type Part2
+author: Opshell
+createdAt: '2022-09-10'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day10] - 那我就再宣告一個 - Function part 2
 ![Day10 Banner](https://ithelp.ithome.com.tw/upload/images/20220910/20109918LiHjP7G10H.jpg)
 

@@ -1,18 +1,19 @@
 ---
 title: 關於VS Code Git GUI 的那些事
-image:
-author: 'Opshell'
-createdAt: 2025-04-11
+image: ''
+author: Opshell
+createdAt: '2025-04-11'
 categories:
-  - 'Git'
+  - Git
 tags:
-  - 'Git'
-  - 'VS Code'
-  - 'Git Graph'
+  - Git
+  - VS Code
+  - Git Graph
 editLink: true
 isPublished: false
+description: ''
+keywords: ''
 ---
-
 #
 
 好的，這是一個很棒的主題！在 VS Code 中使用 Git Graph 和 Git History 這類視覺化工具，確實能大大提升大型專案的 Git 操作效率和理解度。

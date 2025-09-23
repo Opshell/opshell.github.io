@@ -1,15 +1,18 @@
 ---
-title: 'Day03 - Hello Typescript'
-author: 'Opshell'
-createdAt: '2022/09/03'
-categories: 'typescript-thirty-days'
+title: Day03 - Hello Typescript
+author: Opshell
+createdAt: '2022-09-03'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day03] - 牙牙學語Hello World !- tsconfig設定.md
 ![Day3 -Banner](https://ithelp.ithome.com.tw/upload/images/20220903/20109918d6a3eWnlKC.jpg)
 

@@ -1,19 +1,18 @@
 ---
 title: 重構 Vue Typescript 非同步Composable 實現真正的型別安全
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-08-26
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-08-26'
 categories:
-  - 'TypeScript'
+  - TypeScript
 tags:
   - TypeScript
   - Composables
 editLink: true
 isPublished: false
 ---
-
 # TypeScript 開發實戰：如何優雅地設計可預測的非同步 API Hook
 別再讓 TypeScript 猜測：打造健壯的 useApi Composable
 Vue + TypeScript: 優化非同步 Composable，告別 ! 非空斷言

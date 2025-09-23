@@ -1,7 +1,7 @@
 ---
-title: '規則設計'
-author: 'Opshell'
-createdAt: '2025/01/08'
+title: 規則設計
+author: Opshell
+createdAt: '2025-01-08'
 categories:
   - 環境設定
 tags:
@@ -9,8 +9,10 @@ tags:
   - Pixi Js
 editLink: true
 isPublished: false
+image: ''
+description: ''
+keywords: ''
 ---
-
 ## 基礎規則
 1. 從起點經歷 5 ~ 10 個選擇後 打贏 BOSS 通關
 2. 期間會有商店、事件 1 ~ 2 次

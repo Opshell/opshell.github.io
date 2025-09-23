@@ -1,18 +1,17 @@
 ---
 title: vee-validate
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-07-25
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-07-25'
 categories:
-  - '未分類'
+  - 未分類
 tags:
-  -
+  - null
 editLink: true
 isPublished: false
 ---
-
 #
 感覺只要做驗證都是一件很麻煩的事
 

@@ -1,16 +1,19 @@
 ---
-title:  "Day30 - Epilog"
-author: 'Opshell'
-createdAt: '2024/10/01'
-categories: 'vitepress-thirty-days'
+title: Day30 - Epilog
+author: Opshell
+createdAt: '2024-10-01'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
   - murmur
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner30](https://ithelp.ithome.com.tw/upload/images/20241001/20109918ymZoUXUHSQ.png)
 
 ## 後記

@@ -1,3 +1,15 @@
+---
+title: symbol
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-13'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 知道symbol 這東西，但還沒實際用過在專案上過QQ
 
 我通常用在兩個情境：

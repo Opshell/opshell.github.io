@@ -1,15 +1,18 @@
 ---
-title: 'Day27 - App.vue & Login Refactoring'
-author: 'Opshell'
-createdAt: '2022/09/27'
-categories: 'typescript-thirty-days'
+title: Day27 - App.vue & Login Refactoring
+author: Opshell
+createdAt: '2022-09-27'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day27]：App.vue & Login 重構
 ![Day27 Banner](https://ithelp.ithome.com.tw/upload/images/20220927/20109918pI0oNjF83n.jpg)
 

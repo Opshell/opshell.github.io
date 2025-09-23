@@ -1,15 +1,18 @@
 ---
-title: 'Day31 - Postscript Adjustment ESLint'
-author: 'Opshell'
-createdAt: '2022/10/01'
-categories: 'typescript-thirty-days'
+title: Day31 - Postscript Adjustment ESLint
+author: Opshell
+createdAt: '2022-10-01'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day31]：後記 - 環境調整 Part1 ESLint
 ![Day31 Banner](https://ithelp.ithome.com.tw/upload/images/20221001/20109918EjcEQcDdDz.jpg)
 

@@ -1,15 +1,18 @@
 ---
-title:  "Day16 - build a resume data"
-author: 'Opshell'
-createdAt: '2024/09/17'
-categories: 'vitepress-thirty-days'
+title: Day16 - build a resume data
+author: Opshell
+createdAt: '2024-09-17'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner16](https://ithelp.ithome.com.tw/upload/images/20240917/20109918PJ9MKLB0yO.png)
 
 履歷表最重要的還是工作經歷吧，普遍的操作都是後端 API 拉資料，前端迴圈渲染出來，但是我們 `VitePress` 專案沒有後端阿~ 總不可能寫死一大片資料在 vue 裡面吧? 也太醜了。

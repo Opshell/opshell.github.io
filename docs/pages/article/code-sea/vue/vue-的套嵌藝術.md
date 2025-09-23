@@ -1,18 +1,17 @@
 ---
 title: vue 的套嵌藝術
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-06-27
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-06-27'
 categories:
-  - '未分類'
+  - 未分類
 tags:
-  -
+  - null
 editLink: true
 isPublished: false
 ---
-
 # 告別俄羅斯娃娃：用 `工廠模式` 與 `Slot` 打造優雅的 Vue 動態表單
 
 身為一個天天跟表單打交道的 Vue 開發者，你一定遇過這種場景：一個表單，根據使用者的身份、權限、或是某個選項，需要動態顯示或隱藏某些欄位。最直覺的作法，可能就是在 `<template>` 裡塞滿 `v-if`。

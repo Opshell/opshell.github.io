@@ -1,18 +1,17 @@
 ---
 title: forEach 錦囊
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-06-09
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-06-09'
 categories:
-  - '未分類'
+  - 未分類
 tags:
-  -
+  - null
 editLink: true
 isPublished: false
 ---
-
 #
 
 ## 陣列元素移除時

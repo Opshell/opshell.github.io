@@ -1,15 +1,18 @@
 ---
-title:  'Day25 - Store'
-author: 'Opshell'
-createdAt: '2022/09/25'
-categories: 'typescript-thirty-days'
+title: Day25 - Store
+author: Opshell
+createdAt: '2022-09-25'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day25]：一個大Store - Store改寫
 ![Day25 Banner](https://ithelp.ithome.com.tw/upload/images/20220925/20109918lEZoYTmj4c.jpg)
 

@@ -1,19 +1,18 @@
 ---
 title: any、unknown 與 TS 工程師的掙扎
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-08-21
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-08-21'
 categories:
-  - 'TypeScript'
+  - TypeScript
 tags:
-  - 'TypeScript'
-  - '型別管理'
+  - TypeScript
+  - 型別管理
 editLink: true
 isPublished: false
 ---
-
 ## 緣起
 
 any 這個型別，幾乎是所有人寫 TypeScript 的第一個捷徑。

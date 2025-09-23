@@ -1,16 +1,18 @@
 ---
-title:  'Day01 - 前言'
+title: Day01 - 前言
 image: 'https://ithelp.ithome.com.tw/upload/images/20240902/20109918l3iLJ7f009.png'
-author: 'Opshell'
-createdAt: '2024/09/02'
-categories: 'vitepress-thirty-days'
+author: Opshell
+createdAt: '2024-09-02'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+description: ''
+keywords: ''
 ---
-
 ## 緣起
 在全端打滾久了後，
 終於在去年底默默轉職了純前端，

@@ -1,1 +1,13 @@
+---
+title: defineModel
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-02-12'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 [Vue3 如何用 defineModel 實作 props / emit 的父子元件傳值，讓傳值變得更方便簡單](https://muki.tw/vmodel-definemodel-props-emit/)

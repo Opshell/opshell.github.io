@@ -1,17 +1,19 @@
 ---
-title: '宇軒綠能(全端 UI/UX)'
+title: 宇軒綠能(全端 UI/UX)
 image: ''
-author: 'Opshell'
-createdAt: '2024/10/14'
-categories: 'portfolio'
+author: Opshell
+createdAt: '2024-10-14'
+categories:
+  - portfolio
 tags:
   - portfolio
   - 全端
   - UI/UX
 editLink: false
 isPublished: false
+description: ''
+keywords: ''
 ---
-
 ## [富德土雞(全端 UI/UX)](https://www.solargo.com.tw/)
 
 ## Summary

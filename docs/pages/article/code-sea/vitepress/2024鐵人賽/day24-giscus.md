@@ -1,18 +1,22 @@
 ---
-title:  'Day24 - giscus'
-author: 'Opshell'
-createdAt: '2024/09/25'
-categories: 'vitepress-thirty-days'
+title: Day24 - giscus
+author: Opshell
+createdAt: '2024-09-25'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
 refer:
-  - https://site.quteam.com/technology/front-end/vitepress-comment/
-  - https://wenlei.wang/life-doc/view/temp/%E5%B7%A5%E5%85%B7/%E6%89%93%E9%80%A0%E7%AB%99%E7%82%B9/%E7%AB%99%E7%82%B9%E6%B7%BB%E5%8A%A0%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F.html#giscus
+  - 'https://site.quteam.com/technology/front-end/vitepress-comment/'
+  - >-
+    https://wenlei.wang/life-doc/view/temp/%E5%B7%A5%E5%85%B7/%E6%89%93%E9%80%A0%E7%AB%99%E7%82%B9/%E7%AB%99%E7%82%B9%E6%B7%BB%E5%8A%A0%E8%AF%84%E8%AE%BA%E7%B3%BB%E7%BB%9F.html#giscus
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner24](https://ithelp.ithome.com.tw/upload/images/20240925/20109918OCbos8fHO8.png)
 
 進入了 stage 5 慢慢的也接近賽季的尾聲啦，做部落格除了分享以外，也想要有交流討論，和大家交交朋友，所以在我們的文章中需要個評論的功能。

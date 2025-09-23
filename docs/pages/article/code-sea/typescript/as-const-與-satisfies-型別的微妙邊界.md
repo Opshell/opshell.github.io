@@ -1,19 +1,18 @@
 ---
 title: as const 與 satisfies —— 型別的微妙邊界
-image:
-description:
-keywords:
-author: 'Opshell'
-createdAt: 2025-08-21
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2025-08-21'
 categories:
-  - 'TypeScript'
+  - TypeScript
 tags:
-  - 'TypeScript'
-  - '型別管理'
+  - TypeScript
+  - 型別管理
 editLink: true
 isPublished: false
 ---
-
 #
 ## 緣起
 

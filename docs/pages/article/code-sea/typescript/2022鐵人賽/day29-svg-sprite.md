@@ -1,15 +1,18 @@
 ---
-title:  'Day29 - svg sprite'
-author: 'Opshell'
-createdAt: '2022/09/29'
-categories: 'typescript-thirty-days'
+title: Day29 - svg sprite
+author: Opshell
+createdAt: '2022-09-29'
+categories:
+  - typescript-thirty-days
 tags:
   - 鐵人賽
-  - typescript
+  - TypeScript
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 # [Day29]：喜歡的都裝一起 - svg sprite
 ![Day 28 Banner](https://ithelp.ithome.com.tw/upload/images/20220928/20109918U59y6fxLyq.jpg)
 

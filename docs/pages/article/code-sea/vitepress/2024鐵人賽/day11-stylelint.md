@@ -1,8 +1,9 @@
 ---
-title:  'Day11 - stylelint'
-author: 'Opshell'
-createdAt: '2024/09/12'
-categories: 'vitepress-thirty-days'
+title: Day11 - stylelint
+author: Opshell
+createdAt: '2024-09-12'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
@@ -10,8 +11,10 @@ tags:
   - VS Code
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner11](https://ithelp.ithome.com.tw/upload/images/20240912/20109918fuJ6gJH494.png)
 
 昨天千辛萬苦 ~~(只有我)~~ 的把 `ESLiint` 處理好了，

@@ -1,15 +1,18 @@
 ---
-title:  'Day13 - VitePress Plugin Setting'
-author: 'Opshell'
-createdAt: '2024/09/14'
-categories: 'vitepress-thirty-days'
+title: Day13 - VitePress Plugin Setting
+author: Opshell
+createdAt: '2024-09-14'
+categories:
+  - vitepress-thirty-days
 tags:
   - 鐵人賽
   - VitePress
 editLink: true
 isPublished: true
+image: ''
+description: ''
+keywords: ''
 ---
-
 ![banner13](https://ithelp.ithome.com.tw/upload/images/20240914/20109918F3cxjjsPYv.png)
 
 到昨天，整個環境才算是設定好了，水了 12 天了，接下來該認認真真的寫一點程式了，那我們今天來水點 `Vite` 的 plugin 吧 ~~(被拖去打)~~

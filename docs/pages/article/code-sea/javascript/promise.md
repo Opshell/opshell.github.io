@@ -1,3 +1,15 @@
+---
+title: promise
+image: ''
+description: ''
+keywords: ''
+author: Opshell
+createdAt: '2024-09-25'
+categories: 
+tags: 
+editLink: true
+isPublished: false
+---
 https://eyesofkids.gitbooks.io/javascript-start-es6-promise/content/contents/ch5_flow_n_error.html
 
 ```ts
