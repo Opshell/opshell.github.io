@@ -4,7 +4,7 @@ image: ''
 description: ''
 keywords: ''
 author: Opshell
-version: 1.0.0
+version: 2.0.0
 createdAt: '2025-09-22'
 categories:
   - 開發手冊
@@ -19,20 +19,22 @@ isPublished: true
 # TypeScript 型別規範
 
 本規範旨在建立一套以 `Zod` Schema 為核心的、清晰、可維護且易於團隊協作的 `TypeScript` 資料層撰寫標準。
-核心思想是：**從 SSoT Schema 衍生出一切**
-基本情況是，當資料到達 UI層要使用時，已經是經過嚴格驗證且符合 UI 需求的狀態。
-不額外花成本處理他的欄位狀態。
+核心思想是：**從 SSoT Schema 衍生出一切**。
+基本情況是，當資料到達 UI 層要使用時，已經是經過嚴格驗證且符合 UI 需求的狀態，不額外花成本處理他的欄位狀態。
 
 目標是，任何開發者看到一個 Schema 的名稱，就能立刻回答以下問題：
-1. 它的核心職責是什麼？（是核心模型、API Payload？）
-2. 它的資料流向是怎樣的？（是流向後端，還是來自後端？）
-3. 它的資料狀態是原始的還是處理過的？
+
+1.  它的核心職責是什麼？（是核心模型、API Payload？）
+2.  它的資料流向是怎樣的？（是流向後端，還是來自後端？）
+3.  它的資料狀態是原始的還是處理過的？
+
 ---
 
 ## 設計原則
+
 1.  ### **以 Zod 核心 Schema 為單一事實來源 (SSoT)**
     `前端`內部使用的所有業務邏輯、驗證規則和資料模型，都應定義在一份核心 Zod Schema 中。
-    核心 Schema 是一切 API 型別（Parsers, Payloads）的衍生來源。
+    核心 Schema 是一切 API 型別（Parsers, Payloads, Params）的衍生來源。
 
 2.  ### **由內而外 (Bottom-Up)**
     巢狀 Schema 先定義最深層，逐層組合。
@@ -41,218 +43,230 @@ isPublished: true
     Schema 與其衍生型別的命名應能清楚表達業務實體與責任。
 
 4.  ### **避免魔法數字**
-    使用 `z.number()` 定義寫死在前端或UI使用的有意義數字時，使用 `z.enum()` 或 `z.nativeEnum()` 取代單純的數字，賦予業務語意。
+    使用 `z.number()` 定義寫死在前端或 UI 使用的有意義數字時，使用 `z.enum()` 或 `z.nativeEnum()` 取代單純的數字，賦予業務語意。
 
-```ts
-export const CategorySchema = z.object({
-    id: z.number(),
-    parentId: z.number(),
-    title: z.string().min(1, '題目為必填'),
-    type: z.enum(['color', 'material']), // 取代 type: z.string()
-    enable: z.boolean().default(true)
-});
-```
+    ```ts
+    export const CategorySchema = z.object({
+        id: z.number(),
+        parentId: z.number(),
+        title: z.string().min(1, '題目為必填'),
+        type: z.enum(['color', 'material']), // 取代 type: z.string()
+        enable: z.boolean().default(true)
+    });
+    ```
 
 ## Schema 與型別命名規則
-1. ### **統一使用 PascalCase**
-    - Schema：`CategorySchema`
-    - 型別：`type Category = z.infer<typeof CategorySchema>`
 
-2. ### **後綴規則**
-    - `...`：該 Schema.infer 的核心型別結構
-    - `...Schema`：核心實體 (SSoT)
-    - `...Payload`：API 請求（送出給後端，通常轉換成 `snake_case`）
-    - `...Parser`：API 回應解析器（從 Raw → camelCase → 驗證 → 核心 Schema）
-    - `...RawSchema`：後端原始回應結構（snake_case，允許 optional/nullable) 通常只用來衍生 `...Parser`
-    - `...Input`：該 Schema.input 的輸入型別，通常是Payload 的輸入狀態
-    - `...Output`：該 Schema.output 的輸出型別，通常是Parser 的輸出狀態
+1.  ### **統一使用 PascalCase**
+    -   Schema：`CategorySchema`
+    -   型別：`type Category = z.infer<typeof CategorySchema>`
+
+2.  ### **後綴規則**
+    -   `...`：該 `Schema.infer` 的核心型別結構，例如 `Category`。
+    -   `...Schema`：核心實體 (SSoT)，例如 `CategorySchema`。
+    -   `...Params`：**`GET`** API 請求參數（Query or Path params），例如 `GetCategoryListParams`。
+    -   `...Payload`：**`POST`/`PUT`/`PATCH`** API 請求體 (Body)，例如 `UpdateCategoryPayload`。
+    -   `...Parser`：API 回應解析器（從 Raw → camelCase → 驗證 → 核心 Schema），例如 `UpdateCategoryParser`。
+    -   `...RawSchema`：後端原始回應結構（snake\_case，允許 optional/nullable），通常只用來衍生 `...Parser`。
+    -   `...Input`：該 `Schema.input` 的輸入型別，通常是 `Params` 或 `Payload` 的輸入狀態。
+    -   `...Output`：該 `Schema.output` 的輸出型別，通常是 `Parser` 的輸出狀態。
 
 ## 檔案結構
+
+檔案結構應遵循 **feature-sliced** 的原則，將與特定功能相關的檔案放在一起。
+
 ```
 src/
-  ├─ features/{featureName}/
-  │   ├─ {featureName}.schema.ts
-  │   └─ {context}{featureName}.schema.ts
-  ├─ types/
-  │   ├─ common.ts // 共用 interface 或 type（非 Zod）。
-  │   └─ globals.d.ts // 全域環境變數與型別工具。
-  └─ utils/
-      └─ zod.ts //Zod 相關工具。
+ ├─ features/{featureName}/
+ │   ├─ apis/
+ │   ├─ components/
+ │   ├─ hooks/
+ │   ├─ services/
+ │   └─ schemas/                // [!code focus]
+ │      ├─ {featureName}.schema.ts
+ │      └─ {subContext}.schema.ts
+ ├─ types/
+ │   ├─ common.ts               // 共用 interface 或 type（非 Zod）。
+ │   └─ globals.d.ts            // 全域環境變數與型別工具。
+ └─ utils/
+     └─ zod.ts                  // Zod 相關工具。
 ```
-1.  **`src/features/{featureName}/{featureName}.schema.ts`**
-    * **用途**：**最重要的檔案**。定義與特定功能模組相關的所有 Zod Schema，包括核心 Schema (SSoT)、Parsers 和 Payloads。
-    * **原則**：每個功能模組都應該有自己的 `schema.ts` 檔案來管理其資料契約。
-    * **衍生**：根據模組需求，衍生出來的Schema，需另開檔案管理，請參考下方範例的 `AnswerCategory.Schema.ts`。
 
-2.  **`src/types/common.ts`**
-    * **用途**：定義**可被多個功能模組共用**的、**非 Zod**{.info} 的 `interface`{.info} 或 `type`{.info}。
-    * **放置內容範例**：`ImageData` (圖片資訊), `Pagination` (分頁結構)。
+1.  **`src/features/{featureName}/schemas/{featureName}.schema.ts`**
+    * **用途**：**最重要的檔案**。定義與特定功能模組相關的所有 Zod Schema，包括核心 Schema (SSoT)、Params, Payloads 和 Parsers。
+    * **原則**：**總是為 schema 建立一個 `schemas` 資料夾**，即使初期只有一個檔案。這確保了專案結構的一致性和可預測性。
 
-3.  **`src/utils/zod.ts`**
+2.  **`src/utils/zod.ts`**
     * **用途**：放置與 Zod 相關的全域輔助函式。
-    * **放置內容**：`parseWithSchema`, `snakeToCamel`, `camelToSnake`。
+    * **放置內容**：`snakeToCamel`, `camelToSnake`, `createParser` 工廠函式等。
 
-4.  **`src/types/globals.d.ts`**
-    * **用途**：定義**無需 `import`** 的全域環境變數或擴充型別。
-    * **放置內容**：Vite 環境變數 (`__TITLE__`)，泛用工具型別 (`PartialBy`)。
+## 檔案內部結構與排序
+
+為了提升 `*.schema.ts` 檔案的可讀性和可維護性，應遵循「**SSoT先行，Action分明**」的原則進行排序。
+
+1.  **核心 SSoT Schema 置頂**：檔案中最重要的核心 `...Schema` 和其 `infer` 型別應放在檔案的最上方。
+2.  **以 API Action 為單位分組**：其餘的 schema 應按照 API 端點/功能（例如：Get List, Update Item）進行分組，並使用註解明確標示。
+3.  **組內遵循「請求 → 回應」順序**：在每個 Action 群組內部，先定義請求相關的 `...Params`/`...Payload`，再定義回應相關的 `...RawSchema`/`...Parser`，最後集中導出 `...Input`/`...Output` 型別。
 
 ## 衍生與組合原則
-流程
-1. ### 核心 Schema (SSoT)
-    定義 camelCase + 嚴格驗證規則。
-2. ### Payload
-    .pick() / .omit() → .transform(camelToSnake)
-3. ### Parser
-    定義 RawSchema → .transform(snakeToCamel) → .pipe(CoreSchema)
-4. ### 型別輸出
-    z.input / z.output
-5. ### 單一職責
-    不同情境需求 → 新 Schema，而不是在同一個 Schema 加過多條件。
+
+1.  ### **核心 Schema (SSoT)**
+    定義 `camelCase` + 嚴格驗證規則。
+
+2.  ### **Params / Payload (請求)**
+    獨立定義或從 `CoreSchema` 中 `.pick()` / `.omit()` → `z.coerce` 處理型別 → `.transform(camelToSnake)`。
+
+3.  ### **Parser (回應)**
+    定義 `RawSchema` → `.transform(snakeToCamel)` → `.pipe(CoreSchema)`。
+
+4.  ### **型別輸出**
+    使用 `z.input` 獲取轉換前的型別，用於函式參數；使用 `z.output` 獲取轉換後的型別，用於 API 回應。
+
+5.  ### **單一職責**
+    不同情境需求應建立新的 Schema，而不是在同一個 Schema 上附加過多條件邏輯。
 
 ## 注意事項
-- RawSchema 可寬鬆，但 Parser 必須嚴格。
-- Schema 命名用 PascalCase，欄位用 camelCase。
-- `.schema.ts` 檔案內，保持純粹，不應該知道 `ref`、`composable` 等拉高耦合的存在，如有處理`與 UI 狀態耦合的 Zod 驗證`需求，透過 `動態/情境式`規則應用工廠函式
+
+-   `RawSchema` 可寬鬆（`nullable`, `optional`），但 `Parser` 經 `CoreSchema` `.pipe()` 後必須嚴格。
+-   Schema 命名用 `PascalCase`，欄位用 `camelCase`。
+-   `.schema.ts` 檔案內應保持純粹，不應 `import` **Vue**{.vue} 的 `ref`、`composable` 等。如有處理與 UI 狀態耦合的驗證需求，應透過工廠函式模式處理。
     ```ts
-    export const LoginFormSchema = z.object({
-        account: z.string().min(1, '請輸入帳號'),
-        password: z.string().min(1, '請輸入密碼'),
-        captcha: z.string().min(1, '請輸入驗證碼')
-    });
-    /** [-] 包含動態 Captcha 驗證的登入 Schema
-     * @param captcha - 正確的驗證碼字串 (來自 UI 層的 ref.value)
+    // Base schema (static rules)
+    export const LoginFormSchema = z.object({ /* ... */ });
+
+    /**
+     * Factory function for dynamic rules
+     * @param captcha - The correct captcha string from UI state
      */
     export function createLoginSchema(captcha: string) {
         return LoginFormSchema.refine(
             data => data.captcha.toUpperCase() === captcha.toUpperCase(),
             {
-                message: '驗證碼錯誤，如果看不清楚請點擊圖片進行更換！',
-                path: ['captcha'] // 指定錯誤訊息要顯示在哪個欄位
+                message: '驗證碼錯誤！',
+                path: ['captcha']
             }
         );
     }
-    export type LoginForm = z.infer<typeof LoginFormSchema>;
     ```
 
-## 操作細則&說明
-1. ### 核心實體層 (Entity Layer) - `Schema`{.brand}
-    這是我們系統的基石，前端世界裡的 **單一事實來源 (SSoT)**{.brand}。
+## 操作細則 & 說明
 
-    * **職責：**
-        定義應用程式中最核心、最純粹的資料模型(bluePrint)。它應該是 名稱為 `PascalCase`，欄位用 `camelCase`。
-        且符合前端最理想(帶有UIUX 控制)的使用形態，檢驗條件應該是最嚴苛的，在不同情境下會有其他衍生態，到時候在調整檢驗條件。
+1.  ### **核心實體層 (Entity Layer) - `*Schema`**
+    這是我們系統的基石，前端世界裡的 **單一事實來源 (SSoT)**{.brand}。它定義了應用程式中最核心、最純粹的資料模型，並應符合前端最理想的使用形態。
 
-    * **命名：{EntityName}Schema**
+2.  ### **API 互動層 (API Layer) - `*Params`, `*Payload`, `*Parser`**
+    此層專門處理與後端 API 溝通時的資料轉換與驗證。
 
-    * **範例：**
-        - TopicOptionSchema
-        - TopicSchema
-        - CategorySchema
-        - AuditFormTypeSchema
-        - AuditFormSchema
+    * **`...Params`** (GET 請求參數)
+        * **職責**：定義 `GET` 請求的 URL 查詢參數或路徑參數。
+        * **要點**：大量使用 `z.coerce` 進行型別轉換，並善用 `.optional()` 和 `.default()`。
+        * **命名**：`Get{EntityName}ListParams`, `Get{EntityName}Params`
 
-2. ### API 互動層 (API Layer) - `Payload`{.brand} & `Parser`{.brand}
-    這一層專門處理與後端 API 溝通時的資料形狀。職責非常明確：將前端資料校驗、打包 與 將後端資料校驗、解包，用於 `POST`, `PUT`, `PATCH` 等情況，並產生 API 使用時的 `Input` 與 `Output` type。
+    * **`...Payload`** (POST/PUT/PATCH 請求體)
+        * **職責**：定義發送給後端的請求體（Body）形狀。
+        * **命名**：`{Action}{EntityName}Payload`
 
-    * **Payload**
-        前往後端的酬載 (Outgoing Payloads)
-        * **職責：**
-            定義發送給後端（POST, PUT, PATCH）的請求體的形狀。從核心實體中 pick 欄位，並 transform 成 snake_case。
-
-        * **命名：** {Action}{EntityName}Payload
-        * **範例：**
-            - CreateCategoryPayload
-            - UpdateCategoryPayload
-            - SaveCategoryTopicsPayload
-
-        * **型別：**
-            命名：{Action}{EntityName}Input (在repository、Service 或業務層送出請求所需參數的型別)
-        * **範例：**
-            ```ts
-            export type CreateCategoryInput = z.input<typeof CreateCategoryPayload>;
-            ```
-
-    * **Parser**
-        來自後端的回應 (RawSchema & Parser)
-        * **職責：**
-            驗證並解析從後端 請求回來的原始資料(`RawSchema`)，並將其轉換(`Parser`)成符合我們核心實體 (*Schema) 的形狀。
-
-        * **命名：**
-            - {Action}{EntityName}RawSchema
-            - {Action}{EntityName}Parser
-        * **範例：**
-            - CreateCategoryRawSchema
-            - CreateCategoryParser
-            ```ts
-            // [-] Category 的原始 API 資料形狀
-            const CategoryRawSchema = z.object({
-                id: z.number(),
-                title: z.string(),
-                sort: z.number().nullable()
-            });
-            // CategoryParser 的內部實現
-            export const CreateCategoryParser = CreateCategoryRawSchema
-                .transform(snakeToCamel())
-                .pipe(CategorySchema); // 核心已經定義了 CategorySchema 這個 SSoT
-            ```
-        * **型別：**
-            命名：{Action}{EntityName}Output (請求回來後 repository 的輸出的型別)
-        * **範例：**
-            ```ts
-            export type CreateCategoryOutput = z.input<typeof CreateCategoryParser>;
-            ```
+    * **`...Parser`** (API 回應)
+        * **職責**：驗證並解析從後端請求回來的原始資料 (`RawSchema`)，並將其轉換成符合我們核心實體 (`*Schema`) 的形狀。
+        * **命名**：`{Action}{EntityName}Parser`
 
 ## 範例
+
 ::: code-group
-```ts [Category.Schema.ts]
-import { camelToSnake, snakeToCamel } from '@utils/zod';
+```ts [category.schema.ts]
+import { camelToSnake, snakeToCamel } from '@/utils/zod';
 import { z } from 'zod';
 
-// [P] 核心 Schema (SSoT)
+// =================================================================
+// 1. 核心 SSoT (Core SSoT)
+// =================================================================
 export const CategorySchema = z.object({
-    id: z.number(),
+    id: z.number().int().positive(),
     title: z.string().min(1, '分類標題為必填'),
-    sort: z.number(),
-    parentId: z.number().optional().default(0)
+    sort: z.number().int(),
+    parentId: z.number().int().default(0),
+    isEnabled: z.boolean().default(true)
 });
+
 export type Category = z.infer<typeof CategorySchema>;
 
-// [P] Payload (送出 API 請求)
-export const UpdateCategoryPayload = CategorySchema
-    .pick({ id: true, title: true, sort: true })
-    .transform(camelToSnake);
-export type UpdateCategoryInput = z.input<typeof UpdateCategoryPayload>;
+// =================================================================
+// API: Get Category List
+// =================================================================
 
-// [P] Parser (解析 API 回應)
-const UpdateCategoryRawSchema = z.object({
+// [-] Outgoing: 請求參數
+export const GetCategoryListParams = z
+    .object({
+        isEnabled: z.coerce.boolean().optional(),
+        search: z.string().optional(),
+        page: z.coerce.number().int().positive().default(1)
+    })
+    .transform(camelToSnake);
+
+// [-] Incoming: API 回應
+const CategoryListItemRawSchema = z.object({
     id: z.number(),
-    title: z.string().nullable(),
+    title: z.string(),
     sort: z.number(),
-    parentId: z.number().optional()
+    parent_id: z.number(),
+    is_enabled: z.boolean()
 });
 
-export const UpdateCategoryParser = CategoryRawSchema
+export const GetCategoryListParser = z.array(CategoryListItemRawSchema)
+    .transform(snakeToCamel)
+    .pipe(z.array(CategorySchema));
+
+// [-] Types
+export type GetCategoryListInput = z.input<typeof GetCategoryListParams>;
+export type GetCategoryListOutput = z.output<typeof GetCategoryListParser>;
+
+// =================================================================
+// API: Update Category
+// =================================================================
+
+// [-] Outgoing: 請求體
+export const UpdateCategoryPayload = CategorySchema.pick({
+    id: true,
+    title: true,
+    sort: true,
+    isEnabled: true
+}).transform(camelToSnake);
+
+// [-] Incoming: API 回應
+const UpdateCategoryRawSchema = CategoryListItemRawSchema; // 假設更新後回傳的 Raw 結構與列表項相同
+export const UpdateCategoryParser = UpdateCategoryRawSchema
     .transform(snakeToCamel)
     .pipe(CategorySchema);
-export type UpdateCategoryOuput = z.output<typeof CategoryParser>;
+
+// [-] Types
+export type UpdateCategoryInput = z.input<typeof UpdateCategoryPayload>;
+export type UpdateCategoryOutput = z.output<typeof UpdateCategoryParser>;
 ```
-```ts [AnswerCategory.Schema.ts]
+```ts [answerCategory.schema.ts]
+import { z } from 'zod';
+import { CategorySchema } from './category.schema';
+
 // [P] 核心 Schema (SSoT)
+// 衍生自 CategorySchema，並擴充 UI 相關狀態
 export const AnswerCategorySchema = CategorySchema
     .pick({ id: true, title: true })
     .extend({
         isChecked: z.boolean().default(false)
     });
+
 export type AnswerCategory = z.infer<typeof AnswerCategorySchema>;
 
-// AnswerCategory 的Payload 與 Parser 也可以依此類推建立
-// 命名規則為：{Action}{context}{EntityName}Payload / {Action}{context}{EntityName}Parser 同基礎規則
+// 如果 AnswerCategory 需要獨立的 API 進行 CRUD，
+// 則可依此類推建立其 Params, Payload, Parser。
+// 命名規則為：{Action}AnswerCategory{Suffix}
 ```
 :::
 
 ## 總結
+
 | 層級 | 職責 | 命名範例 | TS 型別範例 |
 | :--- | :--- | :--- | :--- |
-| Entity | 核心 SSoT | CategorySchema | Category |
-| API | 送往後端的酬載 | UpateCategoryPayload | UpateCategoryInput|
-| API | 解析後端的回應 | UpateCategoryParser | UpateCategoryOutput |
+| **Entity** | **核心 SSoT** | `CategorySchema` | `Category` |
+| **API** | **`GET` 請求參數** | `GetCategoryListParams` | `GetCategoryListInput`|
+| **API** | **`POST`/`PUT` 請求體** | `UpdateCategoryPayload` | `UpdateCategoryInput`|
+| **API** | **解析後端的回應** | `GetCategoryListParser` | `GetCategoryListOutput` |
