@@ -2,6 +2,10 @@ import { DefaultTheme } from 'vitepress';
 
 export default [
     {
+        text: 'Time Line',
+        link: '/time-line'
+    },
+    {
         text: 'Article',
         items: [
             {
@@ -69,6 +73,7 @@ export default [
             }
         ]
     },
+
     {
         text: 'Tags',
         link: '/tags-list'
