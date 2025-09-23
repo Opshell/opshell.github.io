@@ -1,12 +1,10 @@
 <script setup lang="ts">
     import { useData, useRouter } from 'vitepress';
     import { type TagSummary, tagSummaries } from '@data/tagSummeries';
-    import { iClassification } from '@hooks/useArticleClassification';
+    import { useSiteData } from '@hooks/useSiteData';
+    import type { Post } from '@/hooks/useBuildSiteData';
 
-    const { theme } = useData();
-
-    // 取得全部分類
-    const classification = computed(() => theme.value.classification as iClassification);
+    const siteData = useSiteData();
 
     const urlParams = ref(new URLSearchParams(window.location.search));
     const currentTag = ref(urlParams.value.get('tag') ? urlParams.value.get('tag') : 'TypeScript'); // 當前Tag
@@ -22,40 +20,120 @@
 
     const pageSize = 10; // 每頁顯示幾筆
 
+    // 取得當前 Tag 的所有文章
+    const postsOfCurrentTag = computed<Post[]>(() => {
+        if (!siteData.value || !currentTag.value)
+            return [];
+
+        const tagIndex = siteData.value.tags.get(currentTag.value);
+        if (!tagIndex)
+            return [];
+
+        // 根據 url 列表，從 posts Map 中取出完整的文章資料
+        // .filter(Boolean) 是一個小技巧，可以過濾掉因意外 url 錯誤而找不到的 post (undefined)
+        return tagIndex.postUrls
+            .map(url => siteData.value?.posts.get(url))
+            .filter(Boolean) as Post[];
+    });
+
     // 總筆數
-    const totalCount = computed(() => {
-        return classification.value.tags[currentTag.value as string].group.length;
-    });
-
+    const totalCount = computed(() => postsOfCurrentTag.value.length);
     // 總頁數
-    const totalPage = computed(() => {
-        return Math.ceil(totalCount.value / pageSize);
-    });
-
+    const totalPage = computed(() => Math.ceil(totalCount.value / pageSize));
     // 取出當前頁面的資料
     const currentPageData = computed(() => {
         const start = (currentPage.value - 1) * pageSize;
         const end = currentPage.value * pageSize;
-        return classification.value.tags[currentTag.value as string].group.slice(start, end);
+
+        return postsOfCurrentTag.value.slice(start, end);
     });
 
-    // 目前Tag的摘要資訊(如果有的話)
+    // [-] 目前Tag的摘要資訊(如果有的話)
     const currentTagSummary = computed<TagSummary | undefined>(() => {
         return tagSummaries[currentTag.value as string];
     });
+
+    // [P] 標籤搜尋
+    const searchTerm = ref('');
+    const filteredTags = computed(() => {
+        if (!siteData.value)
+            return [];
+
+        // 從 Map 轉換為陣列
+        const tagsAsArray = Array.from(siteData.value.tags.entries()).map(([name, data]) => ({
+            name,
+            count: data.count
+        }));
+
+        if (!searchTerm.value) {
+            return tagsAsArray;
+        }
+
+        // 篩選邏輯不變
+        return tagsAsArray.filter(tag =>
+            tag.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+        );
+    });
+
+    // [P] 標籤雲效果
+    // 從原始資料計算最大與最小值
+    const allCounts = computed(() => {
+        if (!siteData.value) { return []; }
+
+        // 從 Map 的 values() 中取得所有 count
+        return Array.from(siteData.value.tags.values()).map(tag => tag.count);
+    });
+    const maxCount = computed(() => Math.max(...allCounts.value));
+    const minCount = computed(() => Math.min(...allCounts.value));
+
+    // 計算樣式的函式
+    function getTagStyle(count: number) {
+        const minFontSize = 1; // rem
+        const maxFontSize = 1.8; // rem
+
+        // 避免分母為 0
+        if (maxCount.value === minCount.value) {
+            return { fontSize: `${minFontSize}rem` };
+        }
+
+        const ratio = (count - minCount.value) / (maxCount.value - minCount.value);
+        const fontSize = minFontSize + (maxFontSize - minFontSize) * ratio;
+
+        return {
+            fontSize: `${fontSize.toFixed(2)}rem`
+        };
+    }
+
+    // 計算顏色的函式 (使用階層式 Class)
+    function getTagClass(count: number) {
+        const tiers = 5; // 分成 5 個等級
+        const range = maxCount.value - minCount.value;
+        if (range === 0)
+            return 'tag-level-1';
+
+        const level = Math.ceil(((count - minCount.value) / range) * tiers);
+        return `tag-level-${Math.max(1, level)}`; // 確保至少是 level-1
+    }
 </script>
 
 <template>
     <div class="article-list-block">
         <div class="left-block">
+            <div class="search-box">
+                <input v-model="searchTerm" type="text" placeholder="搜尋標籤..." />
+            </div>
             <a
-                v-for="(info, tag) in classification.tags"
-                :key="`tabs-${tag}`"
+                v-for="tag in filteredTags"
+                :key="`tabs-${tag.name}`"
                 class="tab"
-                :class="[{ current: currentTag === tag }]"
+                :class="[
+                    { current: currentTag === tag.name },
+                    getTagClass(tag.count),
+                ]"
+                :style="getTagStyle(tag.count)"
                 :href="`?tag=${tag}&page=1`"
             >
-                <span>{{ tag }}: {{ info.count }}</span>
+                <span>{{ tag.name }}: {{ tag.count }}</span>
             </a>
         </div>
 
@@ -117,7 +195,8 @@
             top: var(--vp-nav-height);
             @include setFlex(flex-start);
             flex-wrap: wrap;
-            gap: 10px;
+
+            // gap: 10px;
             background-color: var(--vp-c-bg);
             @include setSize(100%, 100%);
             max-width: 300px;
@@ -125,19 +204,36 @@
 
             .tab {
                 padding: 5px 10px;
-                border: 1px solid var(--vp-c-divider);
+
+                // border: 1px solid var(--vp-c-divider);
                 border-radius: 5px;
                 color: var(--vp-c-text-1);
                 font-size: 1rem;
                 font-weight: 500;
                 cursor: pointer;
-                transition: 0.4s;
-                &:hover {
-                    color: var(--vp-c-brand);
+                transition: 0.2s;
+
+                // 定義不同等級的顏色
+                @for $i from 1 through 5 {
+                    &.tag-level-#{$i} {
+                        // $i/5 會得到 0.2, 0.4, ..., 1
+                        // 讓顏色從 70% 亮度 變到 100% 亮度的品牌色
+                        color: color-mix(in srgb, var(--vp-c-text-2) 30%, var(--vp-c-brand) calc($i / 5 * 100%));
+                    }
                 }
-                &.current {
-                    color: var(--vp-c-brand);
+
+                &.current, &:hover {
+                    color: var(--vp-c-brand-dark);
+                    transform: scale(1.1); // 加個小互動
                 }
+
+                // &:hover {
+                //     color: var(--vp-c-brand);
+
+                // }
+                // &.current {
+                //     color: var(--vp-c-brand);
+                // }
             }
         }
 

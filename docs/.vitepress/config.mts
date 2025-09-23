@@ -11,7 +11,7 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 
 import { absolutePath, getFrontMatter, isDirectory } from '../hooks/useFrontMatter';
 import { getSidebar } from '../hooks/useGetSidebar';
-import { getArticleClassification, iClassification } from '../hooks/useArticleClassification';
+import { buildSiteData, iSiteData } from '../hooks/useBuildSiteData';
 
 import nav from './theme/configs/nav';
 import socialLinks from './theme/configs/socialLinks';
@@ -21,10 +21,10 @@ const startPathDir = path.resolve(__dirname, '../pages'); // 把pages 設定成�
 const mdFiles = fs.readdirSync(startPathDir); // 讀取目錄下的資料夾&文件
 
 interface iThemeConfig extends DefaultTheme.Config {
-    classification: iClassification
+    siteData: iSiteData
 }
 
-const classification = await getArticleClassification(mdFiles, startPathDir);
+const siteData = await buildSiteData(startPathDir);
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -63,7 +63,7 @@ export default defineConfig({
         'pages/(.*)': '(.*)'
     },
     themeConfig: {
-        classification,
+        siteData,
         // siteTitle: 'Opshell\'s Blog',
         logo: {
             light: '/logo.jpg',

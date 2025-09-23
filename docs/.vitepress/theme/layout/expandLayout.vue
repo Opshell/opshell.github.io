@@ -4,11 +4,16 @@
 
     import useKeyBoardControl from '@hooks/useKeyBoardControl';
 
+    // const classification = theme.value.classification;
+
+    import { useSiteData } from '@hooks/useSiteData';
+
     const { Layout } = DefaultTheme;
 
     const { site, frontmatter, page, isDark, theme } = useData();
+    const siteData = useSiteData();
 
-    const classification = theme.value.classification;
+    console.log(siteData);
 
     const lastUpdated = computed(() => {
         // 把 page.value.lastUpdated 從時間戳轉換成 西元年月日
@@ -108,6 +113,12 @@
             }
         }
     }, true);
+
+    // 從 Map 轉換為陣列
+    const tags = Array.from(siteData.value?.tags.entries()).map(([name, data]) => ({
+        name,
+        count: data.count
+    }));
 </script>
 
 <template>
@@ -150,11 +161,11 @@
         <template #aside-ads-before>
             <ul class="blog-summay-box">
                 在 Opshell 的 Blog 中：
-                <li class="blog-summay">
-                    目前已分享 <span class="number">{{ classification.count.published }}</span> 篇文章
+                <li v-if="siteData?.counts.published" class="blog-summay">
+                    目前已分享 <span class="number">{{ siteData?.counts.published }}</span> 篇文章
                 </li>
-                <li class="blog-summay">
-                    還有 <span class="number">{{ classification.count.unpublished }}</span> 個坑正在填補中
+                <li v-if="siteData?.counts.unpublished" class="blog-summay">
+                    還有 <span class="number">{{ siteData?.counts.unpublished }}</span> 個坑正在填補中
                 </li>
 
                 <li class="blog-summay">
@@ -169,14 +180,14 @@
         <template #aside-ads-after>
             <div class="tag-box">
                 分享了以下的主題：
-                <template v-for="(info, tag) in classification.tags" :key="`tag-${tag}`">
+                <template v-for="(tag) in tags" :key="`tag-${tag}`">
                     <a
-                        v-if="info.count > 1"
+                        v-if="tag.count > 1"
                         class="tag"
-                        :href="`/tags-list.html?tag=${tag}&page=1`"
+                        :href="`/tags-list.html?tag=${tag.name}&page=1`"
                     >
-                        <span>{{ tag }}：</span>
-                        <span class="count">{{ info.count }}</span>
+                        <span>{{ tag.name }}：</span>
+                        <span class="count">{{ tag.count }}</span>
                     </a>
                 </template>
                 <a class="tag" href="/tags-list.html?tag=typescript&page=1">
