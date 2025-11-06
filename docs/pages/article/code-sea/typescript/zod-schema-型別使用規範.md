@@ -14,7 +14,7 @@ tags:
   - 型別管理
   - 開發規範
 editLink: true
-isPublished: true
+isPublished: false
 ---
 # TypeScript 型別規範
 

@@ -25,6 +25,7 @@ interface iThemeConfig extends DefaultTheme.Config {
 }
 
 const siteData = await buildSiteData(startPathDir);
+// const themeLocalStorageKey = 'vitepress-theme-appearance';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -57,6 +58,16 @@ export default defineConfig({
     head: [
         ['link', { rel: 'icon', href: '/favicon.ico' }],
         ['meta', { name: 'google-site-verification', content: 'dGLNijJ_wb3p1_OyBLI_t8GbiJ4W8CdjIlbB7N8pkt8' }]
+        // [
+        //     'script',
+        //     { id: 'check-theme' },
+        //     `
+        //         const theme = localStorage.getItem('${themeLocalStorageKey}');
+        //         if (!theme) {
+        //             localStorage.setItem('${themeLocalStorageKey}', 'light');
+        //         }
+        //     `
+        // ],
         // ['script', {defer: 'true', src: 'https://vercount.one/js'}] // vercount
     ],
     rewrites: { // 我们在nav設定的連結應該要是重寫後的路徑
