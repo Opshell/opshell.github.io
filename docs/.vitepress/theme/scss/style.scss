@@ -9,3 +9,26 @@
 
 // markdown 樣式
 // @import 'md';
+
+// View Transition API 樣式修正 (解決切換主題時的閃爍問題)
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+    z-index: 1;
+}
+
+::view-transition-new(root) {
+    z-index: 9999;
+}
+
+.dark::view-transition-old(root) {
+    z-index: 9999;
+}
+
+.dark::view-transition-new(root) {
+    z-index: 1;
+}
