@@ -42,8 +42,9 @@ export default {
             }
 
             // 新增錨點
-            if (env.frontmatter?.title)
-                return md.render(`# ${env.frontmatter.title}`) + html;
+            const frontmatter = env.frontmatter as { title?: string } | undefined;
+            if (frontmatter?.title)
+                return md.render(`# ${frontmatter.title}`) + html;
 
             return html;
         }

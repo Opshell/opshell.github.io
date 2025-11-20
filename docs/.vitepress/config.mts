@@ -1,21 +1,22 @@
+/* eslint-disable antfu/no-top-level-await */
+import fs from 'node:fs';
 /// <reference types="vitest" />
 import path from 'node:path';
-import fs from 'node:fs';
-import { DefaultTheme, defineConfig } from 'vitepress';
 import container from 'markdown-it-container';
-import { renderSandbox } from 'vitepress-plugin-sandpack';
-
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+import { DefaultTheme, defineConfig } from 'vitepress';
+import { renderSandbox } from 'vitepress-plugin-sandpack';
+
+import { buildSiteData, iSiteData } from '../hooks/useBuildSiteData';
 import { absolutePath, getFrontMatter, isDirectory } from '../hooks/useFrontMatter';
 import { getSidebar } from '../hooks/useGetSidebar';
-import { buildSiteData, iSiteData } from '../hooks/useBuildSiteData';
 
 import nav from './theme/configs/nav';
-import socialLinks from './theme/configs/socialLinks';
 import search from './theme/configs/search';
+import socialLinks from './theme/configs/socialLinks';
 
 const startPathDir = path.resolve(__dirname, '../pages'); // 把pages 設定成根目錄
 const mdFiles = fs.readdirSync(startPathDir); // 讀取目錄下的資料夾&文件
@@ -44,8 +45,8 @@ export default defineConfig({
                     const frontmatter = getFrontMatter(filepath);
 
                     if (frontmatter.isPublished) {
-                        const { sitemap } = frontmatter;
-                        item.changefreq = sitemap?.changefreq || 'yearly';
+                        const { sitemap } = frontmatter as { sitemap?: { changefreq?: string, priority?: number } };
+                        item.changefreq = (sitemap?.changefreq as any) || 'yearly';
                         item.priority = sitemap?.priority || 0.6;
 
                         return item;

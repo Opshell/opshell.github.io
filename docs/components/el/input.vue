@@ -1,15 +1,15 @@
 <script setup lang="ts">
-    const data = defineModel<string | number>({ default: ''});
+    const data = defineModel<string | number>({ default: '' });
 </script>
 
 <template>
     <q-input
-        class="el-input"
         v-model="data"
+        class="el-input"
         v-bind="$attrs"
     >
         <template v-if="$slots.icon" #append>
-            <slot name="icon"></slot>
+            <slot name="icon" />
         </template>
     </q-input>
 </template>

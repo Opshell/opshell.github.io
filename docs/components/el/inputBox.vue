@@ -1,8 +1,8 @@
 <script setup lang="ts">
     withDefaults(defineProps<{
-        fieldName?: string,
-        type?: 'row' | 'column',
-        remark?: string,
+        fieldName?: string
+        type?: 'row' | 'column'
+        remark?: string
     }>(), {
         fieldName: '',
         type: 'column'
@@ -13,9 +13,9 @@
     <label class="input-box" :class="{ row: type === 'row' }">
         <span class="text">{{ fieldName }}</span>
         <div class="slot-box">
-            <slot></slot>
+            <slot />
         </div>
-        <span v-if="remark != ''" class="remark">{{ remark }}</span>
+        <span v-if="remark !== ''" class="remark">{{ remark }}</span>
     </label>
 </template>
 

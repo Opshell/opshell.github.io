@@ -1,21 +1,31 @@
 <script setup lang="ts">
-    import { useData, useRouter } from 'vitepress';
-    import { type TagSummary, tagSummaries } from '@data/tagSummeries';
-    import { useSiteData } from '@hooks/useSiteData';
+    import type { TagSummary } from '@data/tagSummeries';
     import type { Post } from '@/hooks/useBuildSiteData';
+    import { tagSummaries } from '@data/tagSummeries';
+    import { useSiteData } from '@hooks/useSiteData';
+    import { useRouter } from 'vitepress';
 
     const siteData = useSiteData();
 
-    const urlParams = ref(new URLSearchParams(window.location.search));
-    const currentTag = ref(urlParams.value.get('tag') ? urlParams.value.get('tag') : 'TypeScript'); // 當前Tag
-    const currentPage = ref(urlParams.value.get('page') ? Number(urlParams.value.get('page')) : 1); // 當前頁碼
+    const currentTag = ref('TypeScript'); // 當前Tag
+    const currentPage = ref(1); // 當前頁碼
+
+    onMounted(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('tag')) {
+            currentTag.value = urlParams.get('tag')!;
+        }
+        if (urlParams.get('page')) {
+            currentPage.value = Number(urlParams.get('page'));
+        }
+    });
 
     const router = useRouter();
     router.onAfterRouteChanged = (to) => {
-        urlParams.value = new URLSearchParams(to.split('?')[1]);
+        const urlParams = new URLSearchParams(to.split('?')[1]);
 
-        currentTag.value = urlParams.value.get('tag') ? urlParams.value.get('tag') : 'TypeScript'; // 當前Tag
-        currentPage.value = urlParams.value.get('page') ? Number(urlParams.value.get('page')) : 1; // 當前頁碼
+        currentTag.value = urlParams.get('tag') ? urlParams.get('tag')! : 'TypeScript'; // 當前Tag
+        currentPage.value = urlParams.get('page') ? Number(urlParams.get('page')) : 1; // 當前頁碼
     };
 
     const pageSize = 10; // 每頁顯示幾筆

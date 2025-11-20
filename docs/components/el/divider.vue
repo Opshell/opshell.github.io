@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <div class="divider"></div>
+    <div class="divider" />
 </template>
 
 <style lang="scss">

@@ -1,19 +1,19 @@
 <script setup lang="ts">
-    import DefaultTheme from 'vitepress/theme';
-    import { useData, useRouter } from 'vitepress';
-
     import useKeyBoardControl from '@hooks/useKeyBoardControl';
+    import { useSiteData } from '@hooks/useSiteData';
+
+    import { useData } from 'vitepress';
 
     // const classification = theme.value.classification;
 
-    import { useSiteData } from '@hooks/useSiteData';
+    import DefaultTheme from 'vitepress/theme';
 
     const { Layout } = DefaultTheme;
 
     const { site, frontmatter, page, isDark, theme } = useData();
     const siteData = useSiteData();
 
-    console.log(siteData);
+    // console.log(siteData);
 
     const lastUpdated = computed(() => {
         // 把 page.value.lastUpdated 從時間戳轉換成 西元年月日

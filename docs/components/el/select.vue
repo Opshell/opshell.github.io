@@ -4,7 +4,7 @@
 
     const props = withDefaults(
         defineProps<{
-            options: iOptions[]
+            options?: iOptions[]
             type?: 'select' | 'feature'
             defaultText?: string
             defaultInactive?: boolean

@@ -209,8 +209,8 @@ src/
 
 ::: code-group
 ```ts [category.schema.ts]
-import { camelToSnake, snakeToCamel } from '@/utils/zod';
 import { z } from 'zod';
+import { camelToSnake, snakeToCamel } from '@/utils/zod';
 
 // #region [P] 核心 SSoT (Core SSoT)
 

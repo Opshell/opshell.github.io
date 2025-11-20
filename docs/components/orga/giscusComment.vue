@@ -1,6 +1,6 @@
 <script setup>
     import Giscus from '@giscus/vue';
-    import { useRoute, useData } from 'vitepress';
+    import { useData, useRoute } from 'vitepress';
 
     const route = useRoute();
     const { isDark } = useData();
@@ -10,6 +10,7 @@
     <div style="margin-top: 24px">
         <Giscus
             id="comments"
+            :key="route.path"
             repo="Opshell/opshell.github.io"
             repoid="R_kgDOMjQqsg"
             category="Announcements"
@@ -23,8 +24,7 @@
             lang="zh-TW"
             crossorigin="anonymous"
             :theme="isDark ? 'dark' : 'light'"
-            :key="route.path"
-        ></Giscus>
+        />
     </div>
 </template>
 

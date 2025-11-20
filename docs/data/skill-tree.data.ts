@@ -34,9 +34,9 @@ export default defineLoader({
                         title: 'Javascript',
                         summary: 'JavaScript 是前端的核心技術，是必須要掌握的。基礎中包含了數據類型、基礎語法、內置對象、事件、BOM、DOM 對象模型。',
                         href: '/article/code-sea/html'
-                    },
+                    }
                 ]
-            },
+            }
         ];
     }
 });

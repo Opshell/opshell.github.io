@@ -1,26 +1,27 @@
 <script setup lang="ts">
     withDefaults(
         defineProps<{
-            label: string;
-            val: string | number;
+            label?: string
+            val?: string | number
         }>(),
         {
             label: '',
-            val: '',
-        },
+            val: ''
+        }
     );
 
     const data = defineModel<string | number>({ default: '' });
 </script>
 
 <template>
-    <q-radio class="el-radio"
-             v-model="data"
+    <q-radio
+        v-model="data"
+        class="el-radio"
 
-             :label
-             :val
+        :label
+        :val
     >
-        <slot></slot>
+        <slot />
     </q-radio>
 </template>
 

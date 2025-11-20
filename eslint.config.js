@@ -18,7 +18,9 @@ export default antfu(
             '**/node_modules',
             '**/resource',
             '**/.vitepress/cache',
-            '**/.vitepress/dist'
+            '**/.vitepress/dist',
+            '**/*.md',
+            'docs/pages/article/**'
         ],
 
         yaml: false,

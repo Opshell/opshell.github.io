@@ -1,18 +1,10 @@
-<template>
-    <div class="icon" :class="{ btn: href !== '' }">
-        <svg class="svg">
-            <use :xlink:href="`#${name}`" />
-        </svg>
-    </div>
-</template>
-
 <script setup lang="ts">
     // import { Router } from 'vue-router';
 
     // 用於存放元件的 props
     defineProps({
-        name: { type: String, required: true, default: 'circle' },
-        href: { type: String, default: '' },
+        name: { type: String, default: 'circle' },
+        href: { type: String, default: '' }
     });
 
     // let router: Router | null = null;
@@ -27,6 +19,14 @@
     //     }
     // };
 </script>
+
+<template>
+    <div class="icon" :class="{ btn: href !== '' }">
+        <svg class="svg">
+            <use :xlink:href="`#${name}`" />
+        </svg>
+    </div>
+</template>
 
 <style lang="scss">
     .icon {

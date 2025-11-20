@@ -8,7 +8,7 @@ import type { iSiteData, iSiteDataSerializable } from './useBuildSiteData'; // å
  */
 export function useSiteData() {
     const { theme } = useData();
-    const serializableSiteData = computed(() => theme.value.siteData as iSiteDataSerializable | undefined);
+    const serializableSiteData = computed(() => (theme.value as { siteData?: iSiteDataSerializable }).siteData);
 
     return computed<iSiteData | undefined>(() => {
         if (!serializableSiteData.value) {

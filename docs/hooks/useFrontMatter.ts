@@ -1,5 +1,5 @@
-import path from 'node:path';
 import fs from 'node:fs';
+import path from 'node:path';
 import matter from 'gray-matter';
 
 const PAGES_PATH = path.resolve(__dirname, '../pages'); // 把pages 設定成根目錄

@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
-import matter from 'gray-matter';
 import { globby } from 'globby';
+import matter from 'gray-matter';
 
 const ROOT = path.resolve('c:/wamp64/www/opshell.github.io');
 const TARGET_GLOB = 'docs/**/*.md';

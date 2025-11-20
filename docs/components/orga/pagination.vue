@@ -1,8 +1,8 @@
 <script setup lang="ts">
     const prop = withDefaults(defineProps<{
-        totalPage: number
-        currentPage: number
-        pageSize: number
+        totalPage?: number
+        currentPage?: number
+        pageSize?: number
     }>(), {
         totalPage: 1,
         currentPage: 1,

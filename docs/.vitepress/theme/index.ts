@@ -1,13 +1,12 @@
-import { DefineComponent, h } from 'vue';
-import { Theme, useRoute } from 'vitepress';
-import DefaultTheme from 'vitepress/theme-without-fonts';
 import mediumZoom from 'medium-zoom';
-
+import { Theme, useRoute } from 'vitepress';
 import { Sandbox } from 'vitepress-plugin-sandpack';
-import 'vitepress-plugin-sandpack/dist/style.css';
+import DefaultTheme from 'vitepress/theme-without-fonts';
 
 import ExpandLayout from './layout/expandLayout.vue';
+
 import LayoutResume from './layout/resume.vue';
+import 'vitepress-plugin-sandpack/dist/style.css';
 
 // https://vitepress.dev/guide/custom-theme
 
@@ -54,7 +53,7 @@ export default {
             reloadBusuanzi();
         });
         watch(() => route.path, () => {
-            nextTick(() => {
+            void nextTick(() => {
                 initZoom();
                 reloadBusuanzi();
             });
