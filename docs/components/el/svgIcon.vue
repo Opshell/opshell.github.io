@@ -31,7 +31,6 @@
 <style lang="scss">
     .icon {
         --color-cube-background: var(--color-view-block);
-
         position: relative;
         @include setFlex();
         @include setSize(33px, 33px);
@@ -59,6 +58,7 @@
             border: 1px solid var(--color-border-box);
             border-radius: 5px;
             fill: var(--color-text);
+
             // fill: #b4bdce;
             cursor: pointer;
 

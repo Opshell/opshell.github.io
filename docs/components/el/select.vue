@@ -93,10 +93,9 @@
                 background: var(--color-extreme-reverse);
                 border: 1px solid var(--color-border-box);
                 border-radius: 5px;
-
                 font-size: var(--font-size-remark);
-                overflow: hidden;
                 transition: 0.2s $cubic-FiSo;
+                overflow: hidden;
 
                 &::before {
                     display: none;
@@ -118,14 +117,14 @@
             }
 
             &__prepend {
-                //前方icon
+                // 前方icon
                 padding: 0;
                 .circle {
                     content: '';
+                    background-color: var(--color-primary);
                     width: 10px;
                     height: 10px;
                     border-radius: 100%;
-                    background-color: var(--color-primary);
                     margin-left: 10px;
                     transform: translateY(-1px);
                 }
@@ -211,7 +210,7 @@
         max-height: 200px;
         padding: 5px;
         border-radius: 5px;
-        box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 15px 0 rgb(0, 0, 0, 10%);
         overflow: hidden;
         .q-virtual-scroll {
             &__padding {
@@ -231,11 +230,12 @@
                     @include setSize(3px, 3px);
                     border-radius: 1.5px;
                 }
+
                 // 卷軸體
                 &::-webkit-scrollbar-thumb {
                     background: var(--color-primary-light);
                     border-radius: 1.5px;
-                    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.3);
+                    box-shadow: 0 0 1px 0 rgb(0, 0, 0, 30%);
                 }
                 &::-webkit-scrollbar-button {
                     display: none;

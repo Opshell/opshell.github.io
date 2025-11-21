@@ -12,6 +12,7 @@
     "@mdit/plugin-tasklist": "0.22.2",
     "@pinia/testing": "1.0.3",
     "@types/fs-extra": "11.0.4",
+    "@types/markdown-it-container": "^2.0.10",
     "@types/markdown-it-footnote": "3.0.4",
     "@vitest/ui": "2.1.2",
     "@vue/test-utils": "2.4.6",

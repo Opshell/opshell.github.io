@@ -26,8 +26,8 @@
         > .text {
             flex-shrink: 0;
             color: var(--color-text);
-            font-weight: 300;
             font-size: .875rem;
+            font-weight: 300;
             line-height: 1.188rem;
         }
         .slot-box {
@@ -36,15 +36,14 @@
         }
 
         &.row {
-            flex-direction: row;
-            align-items: center;
-            flex-wrap: nowrap;
+            flex-flow: row nowrap;
             gap: 10px;
+            align-items: center;
             > .text {
                 flex-shrink: 0;
                 color: var(--color-text);
-                font-weight: 300;
                 font-size: 2rem;
+                font-weight: 300;
                 line-height: 1;
             }
         }

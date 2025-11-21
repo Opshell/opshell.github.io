@@ -25,5 +25,6 @@ declare module 'vue' {
     OrgaPagination: typeof import('./../components/orga/pagination.vue')['default']
     OrgaSectionBlock: typeof import('./../components/orga/sectionBlock.vue')['default']
     TemplateTagsList: typeof import('./../components/template/tagsList.vue')['default']
+    TemplateTimelineList: typeof import('./../components/template/timelineList.vue')['default']
   }
 }

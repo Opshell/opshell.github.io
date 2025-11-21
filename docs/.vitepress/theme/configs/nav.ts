@@ -70,8 +70,17 @@ export default [
         ]
     },
     {
-        text: 'Tags',
-        link: '/tags-list'
+        text: 'Archive',
+        items: [
+            {
+                text: 'Tags List',
+                link: '/tags-list'
+            },
+            {
+                text: 'TimeLine',
+                link: '/time-line'
+            }
+        ]
     },
     {
         text: 'Resume',

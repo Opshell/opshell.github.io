@@ -1,6 +1,7 @@
+/// <reference types="vitest" />
+
 /* eslint-disable antfu/no-top-level-await */
 import fs from 'node:fs';
-/// <reference types="vitest" />
 import path from 'node:path';
 import container from 'markdown-it-container';
 import AutoImport from 'unplugin-auto-import/vite';
@@ -53,7 +54,10 @@ export default defineConfig({
                     }
                 }
                 return false;
-            }).filter(item => item);
+            })
+            // 利用 typeof items[number] 抓取引數 items 的元素型別
+            // 用 NonNullable 排除掉 false / null / undefined
+            .filter((item): item is NonNullable<typeof items[number]> => !!item);
         }
     },
     head: [
@@ -143,7 +147,7 @@ export default defineConfig({
             linkText: '回到首頁'
         },
         externalLinkIcon: true
-    } as iThemeConfig,
+    } as unknown as iThemeConfig,
     markdown: {
         theme: 'one-dark-pro',
         lineNumbers: true,
@@ -161,7 +165,8 @@ export default defineConfig({
             allowedAttributes: [] // empty array = all attributes are allowed
         },
         config: (md) => {
-            md.use(container, 'sandbox', {
+            // 避開 markdown-it 版本差異造成的深層型別檢查錯誤 (jump 屬性缺失)
+            md.use(container as any, 'sandbox', {
                 render(tokens: any[], idx: number) {
                     return renderSandbox(tokens, idx, 'sandbox');
                 }
@@ -393,8 +398,14 @@ export default defineConfig({
             devSourcemap: true, // scss sourcemap
             preprocessorOptions: {
                 scss: {
-                    additionalData: `@import "@vitepress/theme/scss/mixin.scss";`,
+                    // 啟用現代編譯器 API
+                    api: 'modern-compiler',
+                    // 加上 as * 保持全域引用
+                    additionalData: `@use "@vitepress/theme/scss/mixin.scss" as *;`,
+                    // [#] 如果未來有時間：建議建立一個 index.scss 使用 @forward 匯出所有變數與 mixin，然後在需要的地方顯式地 @use
                     charset: false
+                    // 如果有第三方套件還是拋出 legacy-js-api 警告，可以強制關閉
+                    // silenceDeprecations: ['legacy-js-api'],
                 }
             }
         },

@@ -78,7 +78,7 @@
             @include setFlex();
             position: absolute;
             inset: 0;
-            background: rgba(255, 255, 255, 80%);
+            background: rgb(255, 255, 255, 80%);
             backdrop-filter: blur(10px);
             .spinner {
                 width: 40px;

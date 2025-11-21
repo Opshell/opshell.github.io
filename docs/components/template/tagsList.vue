@@ -1,378 +1,532 @@
 <script setup lang="ts">
-    import type { TagSummary } from '@data/tagSummeries';
-    import type { Post } from '@/hooks/useBuildSiteData';
-    import { tagSummaries } from '@data/tagSummeries';
-    import { useSiteData } from '@hooks/useSiteData';
-    import { useRouter } from 'vitepress';
+import { computed, ref, onMounted } from 'vue';
+import { useRouter } from 'vitepress';
+import type { TagSummary } from '@data/tagSummeries';
+import type { Post } from '@/hooks/useBuildSiteData';
+import { tagSummaries } from '@data/tagSummeries';
+import { useSiteData } from '@hooks/useSiteData';
 
-    const siteData = useSiteData();
+// **關注點分離**{.brand}: 資料處理邏輯
+const siteData = useSiteData();
+const router = useRouter();
 
-    const currentTag = ref('TypeScript'); // 當前Tag
-    const currentPage = ref(1); // 當前頁碼
+const currentTag = ref('TypeScript');
+const currentPage = ref(1);
+const searchTerm = ref('');
+const pageSize = 10;
 
-    onMounted(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('tag')) {
-            currentTag.value = urlParams.get('tag')!;
-        }
-        if (urlParams.get('page')) {
-            currentPage.value = Number(urlParams.get('page'));
-        }
-    });
+// 初始化與路由監聽
+const updateStateFromUrl = () => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    const tag = url.searchParams.get('tag');
+    const page = url.searchParams.get('page');
 
-    const router = useRouter();
-    router.onAfterRouteChanged = (to) => {
-        const urlParams = new URLSearchParams(to.split('?')[1]);
+    if (tag) currentTag.value = tag;
+    if (page) currentPage.value = Number(page);
+};
 
-        currentTag.value = urlParams.get('tag') ? urlParams.get('tag')! : 'TypeScript'; // 當前Tag
-        currentPage.value = urlParams.get('page') ? Number(urlParams.get('page')) : 1; // 當前頁碼
-    };
+onMounted(() => {
+    updateStateFromUrl();
+});
 
-    const pageSize = 10; // 每頁顯示幾筆
+router.onAfterRouteChanged = () => {
+    updateStateFromUrl();
+};
 
-    // 取得當前 Tag 的所有文章
-    const postsOfCurrentTag = computed<Post[]>(() => {
-        if (!siteData.value || !currentTag.value)
-            return [];
+// --- Computed Logic ---
+const postsOfCurrentTag = computed<Post[]>(() => {
+    if (!siteData.value || !currentTag.value) return [];
+    const tagIndex = siteData.value.tags.get(currentTag.value);
+    if (!tagIndex) return [];
 
-        const tagIndex = siteData.value.tags.get(currentTag.value);
-        if (!tagIndex)
-            return [];
+    // 排序：最新的在前面
+    const sorted = tagIndex.postUrls
+        .map(url => siteData.value?.posts.get(url))
+        .filter(Boolean) as Post[];
 
-        // 根據 url 列表，從 posts Map 中取出完整的文章資料
-        // .filter(Boolean) 是一個小技巧，可以過濾掉因意外 url 錯誤而找不到的 post (undefined)
-        return tagIndex.postUrls
-            .map(url => siteData.value?.posts.get(url))
-            .filter(Boolean) as Post[];
-    });
+    return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+});
 
-    // 總筆數
-    const totalCount = computed(() => postsOfCurrentTag.value.length);
-    // 總頁數
-    const totalPage = computed(() => Math.ceil(totalCount.value / pageSize));
-    // 取出當前頁面的資料
-    const currentPageData = computed(() => {
-        const start = (currentPage.value - 1) * pageSize;
-        const end = currentPage.value * pageSize;
+const totalCount = computed(() => postsOfCurrentTag.value.length);
+const totalPage = computed(() => Math.ceil(totalCount.value / pageSize));
+const currentPageData = computed(() => {
+    const start = (currentPage.value - 1) * pageSize;
+    return postsOfCurrentTag.value.slice(start, start + pageSize);
+});
 
-        return postsOfCurrentTag.value.slice(start, end);
-    });
+const currentTagSummary = computed<TagSummary | undefined>(() => {
+    return tagSummaries[currentTag.value as string];
+});
 
-    // [-] 目前Tag的摘要資訊(如果有的話)
-    const currentTagSummary = computed<TagSummary | undefined>(() => {
-        return tagSummaries[currentTag.value as string];
-    });
+// 左側標籤雲邏輯
+const filteredTags = computed(() => {
+    if (!siteData.value) return [];
+    const tagsAsArray = Array.from(siteData.value.tags.entries())
+        .map(([name, data]) => ({ name, count: data.count }))
+        .sort((a, b) => b.count - a.count);
 
-    // [P] 標籤搜尋
-    const searchTerm = ref('');
-    const filteredTags = computed(() => {
-        if (!siteData.value)
-            return [];
+    if (!searchTerm.value) return tagsAsArray;
+    return tagsAsArray.filter(tag => tag.name.toLowerCase().includes(searchTerm.value.toLowerCase()));
+});
 
-        // 從 Map 轉換為陣列
-        const tagsAsArray = Array.from(siteData.value.tags.entries()).map(([name, data]) => ({
-            name,
-            count: data.count
-        }));
-
-        if (!searchTerm.value) {
-            return tagsAsArray;
-        }
-
-        // 篩選邏輯不變
-        return tagsAsArray.filter(tag =>
-            tag.name.toLowerCase().includes(searchTerm.value.toLowerCase())
-        );
-    });
-
-    // [P] 標籤雲效果
-    // 從原始資料計算最大與最小值
-    const allCounts = computed(() => {
-        if (!siteData.value) { return []; }
-
-        // 從 Map 的 values() 中取得所有 count
-        return Array.from(siteData.value.tags.values()).map(tag => tag.count);
-    });
-    const maxCount = computed(() => Math.max(...allCounts.value));
-    const minCount = computed(() => Math.min(...allCounts.value));
-
-    // 計算樣式的函式
-    function getTagStyle(count: number) {
-        const minFontSize = 1; // rem
-        const maxFontSize = 1.8; // rem
-
-        // 避免分母為 0
-        if (maxCount.value === minCount.value) {
-            return { fontSize: `${minFontSize}rem` };
-        }
-
-        const ratio = (count - minCount.value) / (maxCount.value - minCount.value);
-        const fontSize = minFontSize + (maxFontSize - minFontSize) * ratio;
-
-        return {
-            fontSize: `${fontSize.toFixed(2)}rem`
-        };
-    }
-
-    // 計算顏色的函式 (使用階層式 Class)
-    function getTagClass(count: number) {
-        const tiers = 5; // 分成 5 個等級
-        const range = maxCount.value - minCount.value;
-        if (range === 0)
-            return 'tag-level-1';
-
-        const level = Math.ceil(((count - minCount.value) / range) * tiers);
-        return `tag-level-${Math.max(1, level)}`; // 確保至少是 level-1
-    }
+// 日期格式化
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    if(isNaN(date.getTime())) return dateString;
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+};
 </script>
 
 <template>
-    <div class="article-list-block">
-        <div class="left-block">
-            <div class="search-box">
-                <input v-model="searchTerm" type="text" placeholder="搜尋標籤..." />
-            </div>
-            <a
-                v-for="tag in filteredTags"
-                :key="`tabs-${tag.name}`"
-                class="tab"
-                :class="[
-                    { current: currentTag === tag.name },
-                    getTagClass(tag.count),
-                ]"
-                :style="getTagStyle(tag.count)"
-                :href="`?tag=${tag}&page=1`"
-            >
-                <span>{{ tag.name }}: {{ tag.count }}</span>
-            </a>
-        </div>
-
-        <div class="right-block">
-            <div v-if="currentTagSummary" class="tag-summary-block">
-                <h2>{{ currentTagSummary.title }}</h2>
-                <p>{{ currentTagSummary.description }}</p>
+    <div class="tags-list-layout">
+        <aside class="sidebar">
+            <div class="search-wrapper">
+                <ElSvgIcon name="search" class="icon" />
+                <input v-model="searchTerm" type="text" placeholder="Filter tags..." />
             </div>
 
-            <ul class="list-block">
-                <li v-for="item in currentPageData" :key="`list-${currentTag}-${currentPage}-${item.title}`">
-                    <a :href="`${item.url}`" class="item-box">
-                        <img class="image" :src="item.image || '/images/no_image.jpg'" />
-                        <span class="date">
-                            <ElSvgIcon name="calendar_month" />
-                            {{ item.date }}
-                        </span>
-                        <span class="category">
-                            <ElSvgIcon name="folder" />
-                            {{ item.category }}
-                        </span>
-                        <h3 class="title">{{ item.title }}</h3>
-                        <span class="view">
-                            <ElSvgIcon name="pageview" />
-                            view
-                        </span>
+            <nav class="tags-nav">
+                <a
+                    v-for="tag in filteredTags"
+                    :key="tag.name"
+                    class="tag-link"
+                    :class="{ active: currentTag === tag.name }"
+                    :href="`?tag=${tag.name}&page=1`"
+                >
+                    <span class="name"># {{ tag.name }}</span>
+                    <span class="count">{{ tag.count }}</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="list-header">
+                <div class="title-row">
+                    <h1 class="tag-title">
+                        <span class="hash">#</span> {{ currentTag }}
+                    </h1>
+                    <span class="post-count">{{ totalCount }} posts</span>
+                </div>
+                <p v-if="currentTagSummary" class="tag-desc">
+                    {{ currentTagSummary.description }}
+                </p>
+            </header>
+
+            <div class="cards-grid">
+                <article
+                    v-for="post in currentPageData"
+                    :key="post.url"
+                    class="modern-card"
+                >
+                    <a :href="post.url" class="card-link-wrapper">
+                        <div class="card-body">
+                            <div class="card-meta-header">
+                                <div class="category-pill" v-if="post.category">
+                                    <ElSvgIcon name="folder" class="icon" />
+                                    {{ post.category }}
+                                </div>
+                                <div class="date-info">
+                                    <ElSvgIcon name="calendar_month" class="icon" />
+                                    {{ formatDate(post.date) }}
+                                </div>
+                            </div>
+
+                            <h2 class="card-title">{{ post.title }}</h2>
+                            <p class="card-excerpt">
+                                {{ (post as any).excerpt || '點擊閱讀更多關於這篇文章的內容...' }}
+                            </p>
+
+                            <div class="card-footer">
+                                <div class="tags-list">
+                                    <span class="tag-pill"># {{ currentTag }}</span>
+                                </div>
+                                <span class="read-more">
+                                    Read More
+                                    <ElSvgIcon name="arrow_forward" class="icon arrow" />
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-thumbnail" v-if="post.image">
+                            <img :src="post.image" loading="lazy" alt="cover" />
+                        </div>
                     </a>
-                </li>
-            </ul>
-
-            <div class="pagination-box">
-                <template v-for="num in totalPage" :key="`page-${num}`">
-                    <a
-                        v-if="num !== currentPage"
-                        :href="`?tag=${currentTag}&page=${num}`"
-                        class="pagination"
-                    >
-                        {{ num }}
-                    </a>
-                    <span v-else class="pagination current">{{ num }}</span>
-                </template>
+                </article>
             </div>
-        </div>
+
+            <div class="pagination-wrapper" v-if="totalPage > 1">
+                <a
+                    v-for="num in totalPage"
+                    :key="num"
+                    :href="`?tag=${currentTag}&page=${num}`"
+                    class="page-num"
+                    :class="{ active: num === currentPage }"
+                >
+                    {{ num }}
+                </a>
+            </div>
+        </main>
     </div>
 </template>
 
 <style lang="scss" scoped>
-    .article-list-block {
-        position: relative;
-        @include setFlex(space-between, stretch, 1.5rem);
-        width: 100%;
+    // **Variables & Mixins**
+    $radius-card: 12px;
+    $radius-pill: 6px;
+    $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-        // height: calc(100dvh - var(--vp-nav-height) - 113px);
-        padding: 0 calc((100% - 1200px) / 2);
+    .tags-list-layout {
+        display: flex;
+        gap: 3rem;
+        align-items: flex-start;
+        max-width: 1100px;
+        padding: 3rem 1.5rem;
         margin: 0 auto;
+        @media (width <= 900px) {
+            flex-direction: column;
+            gap: 2rem;
+        }
+    }
 
-        .left-block {
-            position: sticky;
-            top: var(--vp-nav-height);
-            @include setFlex(flex-start);
-            flex-wrap: wrap;
+    // --- Sidebar ---
+    .sidebar {
+        position: sticky;
+        top: calc(var(--vp-nav-height) + 2rem);
+        flex-shrink: 0;
+        width: 260px;
+        @media (width <= 900px) {
+            position: relative;
+            top: 0;
+            width: 100%;
+        }
+    }
 
-            // gap: 10px;
-            background-color: var(--vp-c-bg);
-            @include setSize(100%, 100%);
-            max-width: 300px;
-            padding: 1.5rem 0;
+    .search-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
 
-            .tab {
-                padding: 5px 10px;
+        .icon {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            width: 16px;
+            height: 16px;
+            transform: translateY(-50%);
+            fill: var(--vp-c-text-3);
+        }
 
-                // border: 1px solid var(--vp-c-divider);
-                border-radius: 5px;
-                color: var(--vp-c-text-1);
-                font-size: 1rem;
-                font-weight: 500;
-                cursor: pointer;
-                transition: 0.2s;
+        input {
+            background: var(--vp-c-bg-alt);
+            width: 100%;
+            padding: 10px 10px 10px 36px;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 8px;
+            color: var(--vp-c-text-1);
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
 
-                // 定義不同等級的顏色
-                @for $i from 1 through 5 {
-                    &.tag-level-#{$i} {
-                        // $i/5 會得到 0.2, 0.4, ..., 1
-                        // 讓顏色從 70% 亮度 變到 100% 亮度的品牌色
-                        color: color-mix(in srgb, var(--vp-c-text-2) 30%, var(--vp-c-brand) calc($i / 5 * 100%));
-                    }
-                }
-
-                &.current, &:hover {
-                    color: var(--vp-c-brand-dark);
-                    transform: scale(1.1); // 加個小互動
-                }
-
-                // &:hover {
-                //     color: var(--vp-c-brand);
-
-                // }
-                // &.current {
-                //     color: var(--vp-c-brand);
-                // }
+            &:focus {
+                border-color: var(--vp-c-brand);
+                outline: none;
             }
         }
+    }
 
-        .right-block {
-            @include setFlex(flex-start, stretch, 10px, column);
-            gap: 10px;
-            width: 100%;
-            padding: 1.5rem 0;
+    .tags-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+        @media (width <= 900px) {
+            flex-flow: row wrap;
+            max-height: none;
         }
-        .tag-summary-block {
-            background-color: var(--vp-c-bg-soft);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1rem; // 與文章列表拉開距離
 
-            h2 {
-                border-bottom: none; // 覆蓋 vitepress 預設樣式
-                margin-bottom: 0.5rem;
-                font-size: 1.8rem;
+        .tag-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: var(--vp-c-text-2);
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: 0.2s;
+
+            &:hover {
+                background: var(--vp-c-bg-alt);
+                color: var(--vp-c-brand);
+            }
+
+            &.active {
+                background: color-mix(in srgb, var(--vp-c-brand) 10%, transparent);
+                color: var(--vp-c-brand);
                 font-weight: 600;
             }
 
-            p {
-                color: var(--vp-c-text-2);
-                font-size: 1rem;
-                line-height: 1.7;
-            }
-        }
-        .list-block {
-            flex-grow: 1;
-            @include setFlex(flex-start, stretch, 10px, column);
-            .item-box {
-                display: grid;
-                grid-template-areas: "image date category view"
-                                     "image title title   view";
-                grid-template-columns: 120px 140px 1fr 100px;
-                gap: 10px;
-                align-items: center;
-                min-height: 80px;
-                border: 1px solid var(--vp-c-divider);
-                border-radius: 10px;
-
-                &:hover {
-                    .date, .category {
-                        color: var(--vp-c-text-2);
-                        transition-delay: 0.05s;
-                    }
-                    .title {
-                        color: var(--vp-c-brand);
-                    }
-                }
-            }
-
-            .image {
-                grid-area: image;
-                background: var(--vp-c-divider);
-                border-radius: 5px 0 0 5px;
-            }
-
-            .date {
-                grid-area: date;
-                place-self: flex-end start;
-                @include setFlex();
-                padding-left: .625rem;
-                color: var(--vp-c-text-3);
-                transition: 0.25s;
-                .icon {
-                    @include setSize(22px, 22px);
-                    transform: translate(-3px, -1px);
-                }
-            }
-            .category {
-                grid-area: category;
-                place-self: flex-end start;
-                color: var(--vp-c-text-3);
-                transform: translateY(-2px);
-                transition: 0.25s;
-                @include setFlex();
-                .icon {
-                    @include setSize(24px, 24px);
-                    transform: translateX(-2px);
-                }
-            }
-            .title {
-                grid-area: title;
-                padding-left: .625rem;
-                color: var(--vp-c-text-1);
-                font-size: 1.6rem;
-                line-height: 2.4rem;
-                transition: 0.25s;
-            }
-            .view {
-                grid-area: view;
-                justify-self: start;
-                @include setFlex();
-                color: var(--vp-c-text-1);
-                font-size: 1.25rem;
-                .icon {
-                    margin-right: 5px;
-                }
-            }
-        }
-
-        .pagination-box {
-            @include setFlex();
-            gap: 5px;
-            @include setSize(100%, 80px);
-
-            .pagination {
-                @include setFlex();
+            .count {
                 background: var(--vp-c-bg-alt);
-                @include setSize(40px, 40px);
-                padding: 5px;
+                padding: 1px 6px;
+                border-radius: 10px;
+                font-size: 0.8rem;
+                opacity: 0.6;
+            }
+
+            // Mobile style override
+            @media (width <= 900px) {
+                background: var(--vp-c-bg-alt);
                 border: 1px solid var(--vp-c-divider);
-                border-radius: 3px;
-                color: var(--vp-c-text-3);
-                font-size: 1rem;
-                font-weight: 500;
-                transition: .25s $cubic-FiSo;
+                .count { display: none; }
+                &.active { border-color: var(--vp-c-brand); }
+            }
+        }
+    }
 
-                &:hover {
-                    background: var(--vp-c-brand);
-                    color: var(--vp-c-text-1);
-                }
+    // --- Main Content ---
+    .main-content {
+        flex-grow: 1;
+        width: 100%; // Avoid flex overflow
+    }
 
-                &.current {
-                    background: var(--vp-c-brand);
-                    color: var(--vp-c-text-1);
-                }
+    .list-header {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--vp-c-divider);
+        margin-bottom: 2rem;
+
+        .title-row {
+            display: flex;
+            gap: 1rem;
+            align-items: baseline;
+            margin-bottom: 0.5rem;
+        }
+
+        .tag-title {
+            margin: 0;
+            color: var(--vp-c-text-1);
+            font-size: 2rem;
+            font-weight: 800;
+            .hash {
+                color: var(--vp-c-brand);
+                opacity: 0.8;
+            }
+        }
+
+        .post-count {
+            color: var(--vp-c-text-3);
+            font-family: var(--vp-font-family-mono);
+            font-size: 0.9rem;
+        }
+
+        .tag-desc {
+            margin: 0;
+            color: var(--vp-c-text-2);
+            line-height: 1.6;
+        }
+    }
+
+    // --- Modern Card Style (The "React" Vibe) ---
+    .cards-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .modern-card {
+        position: relative;
+        background: var(--vp-c-bg);
+        border: 1px solid var(--vp-c-bg-alt); // Start with subtle border
+        border-radius: $radius-card;
+        box-shadow: 0 1px 3px rgb(0,0,0,5%); // Shadow-sm
+        transition: $transition-base;
+        overflow: hidden;
+
+        &:hover {
+            border-color: color-mix(in srgb, var(--vp-c-brand) 30%, transparent);
+            box-shadow: 0 10px 25px -5px rgb(0, 0, 0, 10%), 0 8px 10px -6px rgb(0, 0, 0, 10%); // Shadow-lgish
+            transform: translateY(-4px); // Lift effect
+
+            .card-title { color: var(--vp-c-brand); }
+            .read-more { color: var(--vp-c-brand-dark); }
+            .arrow { transform: translateX(4px); }
+        }
+    }
+
+    .card-link-wrapper {
+        display: flex;
+        min-height: 180px; // Maintain some height
+        color: inherit;
+        text-decoration: none !important;
+        @media (width <= 640px) {
+            flex-direction: column-reverse;
+            min-height: auto;
+        }
+    }
+
+    .card-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        padding: 1.5rem;
+    }
+
+    // 1. Header Meta
+    .card-meta-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        font-size: 0.8rem;
+
+        .category-pill {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+
+            // **Dynamic Brand Color Pill**{.brand}
+            background-color: color-mix(in srgb, var(--vp-c-brand) 10%, transparent);
+            padding: 4px 10px;
+            border-radius: $radius-pill;
+            color: var(--vp-c-brand-dark);
+            font-weight: 600;
+
+            .icon {
+                width: 14px;
+                height: 14px;
+            }
+        }
+
+        .date-info {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            color: var(--vp-c-text-3);
+            font-family: var(--vp-font-family-mono);
+
+            .icon {
+                width: 14px;
+                height: 14px;
+            }
+        }
+    }
+
+    // 2. Title & Excerpt
+    .card-title {
+        margin-bottom: 0.75rem;
+        color: var(--vp-c-text-1);
+        font-size: 1.4rem;
+        font-weight: 700;
+        line-height: 1.4;
+        transition: color 0.2s;
+    }
+
+    .card-excerpt {
+        flex-grow: 1; // Push footer down
+        display: -webkit-box;
+        margin-bottom: 1.5rem;
+        color: var(--vp-c-text-2);
+        font-size: 1rem;
+        line-height: 1.6;
+        overflow: hidden;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    // 3. Footer
+    .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 1rem;
+        border-top: 1px solid var(--vp-c-divider);
+
+        .tags-list {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tag-pill {
+            background: var(--vp-c-bg-alt);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: var(--vp-c-text-3);
+            font-size: 0.75rem;
+        }
+
+        .read-more {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            color: var(--vp-c-brand);
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.2s;
+
+            .arrow {
+                width: 16px;
+                height: 16px;
+                transition: transform 0.2s;
+            }
+        }
+    }
+
+    // 4. Thumbnail (Right side)
+    .card-thumbnail {
+        background: var(--vp-c-bg-alt);
+        width: 200px;
+        border-left: 1px solid var(--vp-c-divider);
+        @media (width <= 640px) {
+            width: 100%;
+            height: 160px;
+            border-bottom: 1px solid var(--vp-c-divider);
+            border-left: none;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+
+            // Image subtle zoom on card hover
+            transition: transform 0.5s ease;
+        }
+    }
+
+    // Zoom effect from parent hover
+    .modern-card:hover .card-thumbnail img {
+        transform: scale(1.05);
+    }
+
+    // --- Pagination ---
+    .pagination-wrapper {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 3rem;
+
+        .page-num {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--vp-c-bg);
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 8px;
+            color: var(--vp-c-text-2);
+            text-decoration: none;
+            transition: 0.2s;
+
+            &:hover {
+                border-color: var(--vp-c-brand);
+                color: var(--vp-c-brand);
+            }
+
+            &.active {
+                background: var(--vp-c-brand);
+                border-color: var(--vp-c-brand);
+                color: white;
             }
         }
     }
