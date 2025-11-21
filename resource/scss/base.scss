@@ -1,0 +1,232 @@
+// @extend class
+* {
+    padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+// 最底三層
+html{
+    // 下面兩項參數是為了 在全版頁面的設計下
+    // 手機瀏覽器可以正確排除工具列的高度p
+    // 後來出現了統一標準 dvh 只剩firefix 不支援
+    position: fixed;
+    font-size: 16px;
+    overflow: -moz-scrollbars-vertical;
+    @include setSize(100%, 100%);
+    @include useBreakPoint('md') {
+        font-size: 16px;
+    }
+    @include useBreakPoint('sm') {
+        font-size: 14px;
+    }
+}
+body{
+    background: var(--color-gray-050);
+    width: 100%;
+    fill: var(--color-primary);
+    color: var(--color-gray-700);
+    font-family: var(--font-family-outline);
+    font-size: var(--font-size-m);
+    font-weight: 400;
+    -webkit-text-stroke: 0.1px;
+    letter-spacing: 1.8px;
+    visibility: visible;
+
+    &.fixed{ overflow: hidden; }
+}
+
+// 表單相關
+form{
+    font-size: var(--font-size-m);
+    }
+    label{
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+    }
+    input {
+        // [#]自動填入  input底色修正
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+
+        // [-]Edge 的眼睛icon
+        &[type=password] {
+            ::-ms-reveal { display: none; }
+        }
+
+        // [-] hide number input arrow
+
+        /* Firefox */
+        &[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        /* Chrome, Safari, Edge, Opera */
+        &[type=number]::-webkit-inner-spin-button,
+        &[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    }
+
+    select{
+        padding: 2px;
+        padding-right:40px;
+        border: 0;
+        outline: none;
+        margin: 0;
+        color: #333;
+        font-size: var(--font-size-m);
+
+
+        /* 移除箭頭樣式 */
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+
+        /* IE隱藏箭頭樣式 */
+        &::-ms-expand { display: none;}
+
+        /* 改變右邊箭頭樣式 */
+        @include setSize(100%, 34px);
+
+        /* 卷軸設定 */
+        &::-webkit-scrollbar {
+            background: #eee;
+            width: 4px;
+            border-radius: 2px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--color-primary)
+        }
+    }
+    textarea{
+        padding: 5px;
+        border: 1px solid rgba(216, 216, 216, 80%);
+        box-sizing: border-box;
+        resize: none;
+        font-size: var(--font-size-m);
+}
+
+img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+a {
+    color: inherit;
+    font-size: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.required {
+    color: var(--color-red);
+    font-weight: 400;
+    line-height: 1.438;
+}
+
+// 套件 ally 覆蓋
+.q-avatar {
+    font-size: 3rem;
+}
+
+// 客製化 Notify
+.custom-toast-notification {
+    @include setFlex();
+    gap: 15px;
+    background: var(--color-sub-subtle);
+    @include setSize(auto, auto);
+    min-width: 330px;
+    min-height: 120px;
+    padding: 20px;
+    border-radius: 10px;
+    transition: 0.3s var(--cubic-FiSo);
+    .q-notification {
+        &__wrapper,
+        &__content {
+            flex: unset;
+        }
+        &__message {
+            padding: 0;
+            font-size: var(--font-size-l);
+        }
+        &__icon {
+            @include setSize(40px, 40px);
+            margin: 0 15px 0 0;
+            color: var(--color-sub);
+            font-size: 2.5rem;
+        }
+        &__caption {
+            color: var(--color-sub-dark);
+            font-size: var(--font-size-l);
+            opacity: 1;
+        }
+    }
+    .badge-count { // 通知數量
+        top: 5px;
+        left: 65px;
+        background: transparent;
+        padding: 0;
+        box-shadow: none;
+        font-size: var(--font-size-m);
+        letter-spacing: 2px;
+        &::before { content: '('; }
+        &::after { content: ')'; }
+    }
+}
+
+// popup-modal
+.popup-modal {
+    &-block {
+        pointer-events: auto !important;
+        .q-dialog{
+            &__inner { // 解決按鈕不能按問題，預設會出現 .no-pointer-events
+                pointer-events: auto !important;
+            }
+        }
+    }
+
+    &-header {
+        position: relative;
+        @include setFlex();
+        .title {
+            color: var(--color-gray-800);
+            font-size: var(--font-size-l);
+            @include setLetterSpacing(3px);
+        }
+    }
+
+    &-container {
+        position: relative;
+        @include setFlex(space-between, stretch, 40px, column);
+        background: var(--color-gray-000);
+        @include setSize(auto, auto);
+        min-width: 500px;
+        max-width: 550px;
+        min-height: 250px;
+        padding: 25px 50px 60px;
+        border-radius: 10px;
+        transition: .2s var(--cubic-FiSo);
+        overflow: hidden;
+    }
+
+    &-btn-box {
+        @include setFlex(center, stretch, 10px, row);
+        margin: 20px 0 0;
+    }
+}
+
+// 無資料時要顯示的
+.no-data {
+    padding: 20px;
+    border: 1px solid var(--color-sub-light);
+    margin: 20px 0;
+    color: var(--color-red);
+    font-size: var(--font-size-xl);
+    text-align: left;
+}

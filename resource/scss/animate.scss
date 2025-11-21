@@ -1,0 +1,27 @@
+// 左右搖晃
+@keyframes horizontally-shake{
+    0% { transform: translate3d(-50px, 0, 0); }
+   20% { transform: translate3d(40px, 0, 0); }
+   40% { transform: translate3d(-30px, 0, 0); }
+   60% { transform: translate3d(20px, 0, 0); }
+   80% { transform: translate3d(-10px, 0, 0); }
+   100%{ transform: translate3d(0, 0, 0); }
+}
+
+// 淡入
+@keyframes fade-in{
+    0% { opacity: 0; }
+   100%{ opacity: 1; }
+}
+
+// 旋轉(1圈)
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+// 上到下移動
+@keyframes scroll-down-loop {
+    0% { transform: translateY(-5%); }
+    100% { transform: translateY(105%); }
+}

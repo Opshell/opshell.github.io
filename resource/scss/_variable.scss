@@ -1,0 +1,15 @@
+// 大區域 範圍設定
+%scope {
+    width: 100%;
+    padding-left: calc((100% - 1610px) / 2);
+    padding-right: calc((100% - 1610px) / 2);
+    margin: 0 auto;
+    @include useBreakPoint ('xl') {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+    @include useBreakPoint ('md') {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}

@@ -1,0 +1,177 @@
+// [-]純淡入淡出 (範例
+.fade-enter-active,
+.fade-leave-active { transition: .3s var(--cubic-FiSo); }
+
+// 進入開始 & 離開結束
+.fade-enter-from,
+.fade-leave-to {
+    position: absolute;
+    opacity: 0;
+}
+
+// 進入結束 & 離開開始
+.fade-enter-to,
+.fade-leave-from { opacity: 1; }
+
+
+// 垂直填滿
+.vGrow-enter-active,
+.vGrow-leave-active { transition: all .5s var(--cubic-FiSo); }
+.vGrow-enter-from,
+.vGrow-leave-to { height: 0; }
+.vGrow-enter-to,
+.vGrow-leave-from { height: 100%; }
+
+// 黑洞
+.blackHole-enter-active,
+.blackHole-leave-active { transition: .3s var(--cubic-FiSo); }
+.blackHole-enter-from,
+.blackHole-leave-to {
+    transform: rotateZ(360deg) scale3d(0.75, 0.75, 1);
+    opacity: 0;
+}
+.blackHole-enter-to,
+.blackHole-leave-from {
+    transform: rotateZ(360deg) scale3d(1.25, 1.25, 1);
+    opacity: 1;
+}
+
+
+// 放大 淡入淡出
+.zoom-enter-active,
+.zoom-leave-active {
+    transition: .2s var(--cubic-FiSo);
+}
+.zoom-enter-from,
+.zoom-leave-to {
+    position: absolute;
+    transform: scale3d(1.25, 1.25, 1);
+    opacity: 0;
+}
+
+// 垂直位移淡入淡出
+.fadeY-enter-active,
+.fadeY-leave-active {
+    transition: .2s var(--cubic-FiSo);
+}
+.fadeY-enter-from {
+    transform: translateY(-30px);
+    opacity: 0;
+}
+.fadeY-leave-to {
+    transform: translateY(30px);
+    opacity: 0;
+}
+
+// 水平位移淡入淡出
+.fadeX-enter-active,
+.fadeX-leave-active {
+    transition: .2s var(--cubic-FiSo);
+}
+.fadeX-enter-from,
+.fadeX-leave-to {
+    position: absolute;
+    opacity: 0;
+}
+.fadeX-enter-from { transform: translateX(-100px); }
+.fadeX-leave-to { transform: translateX(100px); }
+
+// Z軸位移淡入淡出
+.fadeZ-enter-active,
+.fadeZ-leave-active {
+    transition: .3s var(--cubic-FiSo);
+}
+.fadeZ-enter-from,
+.fadeZ-leave-to {
+    transform: scale(0.8, 0.8);
+    opacity: 0;
+}
+
+
+
+// 水平展開
+.unfold-enter-active,
+.unfold-leave-active {
+    transform: scaleX(1);
+    transition: .3s var(--cubic-FiSo);
+}
+.unfold-enter-from {
+    transform: scaleX(0);
+    opacity: 0;
+}
+.unfold-leave-to {
+    transform: scaleX(0);
+    opacity: 0;
+}
+
+
+// 逐字出現
+.verbatim-enter-active{ transition: .5s var(--cubic-FiSo); }
+.verbatim-move {
+    position: absolute;
+    transition: .5s var(--cubic-FiSo);
+}
+.verbatim-enter-from,
+.verbatim-leave-to {
+    transform: translateX(-10px);
+    opacity: 0;
+}
+
+
+// [-] Group 用
+.list-move, /* 对移动中的元素应用的过渡 */
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.3s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+    opacity: 0;
+
+    // transform: scale3d(0.8, 0.8, 1);
+}
+
+// 确保将离开的元素从布局流中删除，以便能够正确地计算移动的动画。
+.list-leave-active {
+    position: absolute;
+}
+
+// [-] 水平位移
+.moveX-move,
+.moveX-enter-active,
+.moveX-leave-active {
+    transition: .3s ease;
+}
+.moveX-enter-from,
+.moveX-leave-to {
+    transform: translate3d(50px, 0, 0);
+    opacity: 0;
+}
+.moveX-leave-active { position: absolute; }
+
+
+.page-move, /* 对移动中的元素应用的过渡 */
+.page-enter-active,
+.page-leave-active {
+    transition: all 0.35s ease;
+}
+.page-enter-from,
+.page-leave-to {
+    transform: transform(-200px, -400px);
+    opacity: 0;
+}
+.page-leave-active {
+    position: absolute;
+}
+
+
+// 純動畫
+@keyframes horizontally-shake{
+     0% { transform: translate3d(-50px, 0, 0); }
+    20% { transform: translate3d(40px, 0, 0); }
+    40% { transform: translate3d(-30px, 0, 0); }
+    60% { transform: translate3d(20px, 0, 0); }
+    80% { transform: translate3d(-10px, 0, 0); }
+    100%{ transform: translate3d(0, 0, 0); }
+}

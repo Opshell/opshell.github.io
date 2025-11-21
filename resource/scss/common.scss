@@ -1,0 +1,18 @@
+
+// [-] 宣告型的東西不會重複import 所以直接在這邊引入
+// scss 函式
+@import 'mixin';
+
+// 專案主題變數定義
+@import 'variable';
+
+// 動畫
+@import 'animate';
+
+// [-] 實際宣告的CSS 在vite.config.js中 import
+// [-] 會重複import 所以改在App.vue 裡面引用
+// // vue 漸變樣式
+// @import 'vueTransition.scss';
+
+// // 基礎元件與行為
+// @import 'base.scss';
