@@ -62,8 +62,9 @@ provide('toggle-appearance', async ({ clientX: x, clientY: y }: MouseEvent) => {
         { clipPath: isDark.value ? clipPath.reverse() : clipPath },
         {
             duration: 300,
-            easing: 'ease-in',
-            pseudoElement: `::view-transition-${isDark.value ? 'old' : 'new'}(root)`
+            easing: 'cubic-bezier(.37, .99, .92, .96)',
+            pseudoElement: `::view-transition-${isDark.value ? 'old' : 'new'}(root)`,
+            fill: 'forwards'
         }
     );
 });
@@ -218,9 +219,9 @@ useKeyBoardControl({
     }
     .VPSwitchAppearance { width: 22px !important; }
     .VPSwitchAppearance .check { transform: none !important; }
-    </style>
+</style>
 
-    <style lang="scss" scoped>
+<style lang="scss" scoped>
     // --- 1. Article Meta Header (Clean Style) ---
     .article-meta-header {
         padding-bottom: 1.5rem;
