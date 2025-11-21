@@ -8,6 +8,7 @@ export default {
         'stylelint-order'
     ],
     rules: {
+        'scss/operator-no-newline-after': null,
         'order/order': [
             'custom-properties',
             'declarations'
@@ -22,6 +23,7 @@ export default {
             'bottom',
             'left',
             'grid-area',
+            'order',
             'flex-grow',
             'flex-shrink',
             'place-self',
@@ -33,7 +35,6 @@ export default {
             'flex-wrap',
             'flex-flow',
             'flex-basis',
-            'order',
             'grid',
             'grid-template',
             'grid-template-areas',
@@ -224,7 +225,9 @@ export default {
         'scss/percent-placeholder-pattern': null, // 繼承型變數的命名模式。
         'value-keyword-case': null, // 屬性值的大小寫。
 
-        'no-descending-specificity': null // 低權重選擇器無法宣告在高權重選擇器之後。(檢測邏輯不夠完善 不開啟)
+        'no-descending-specificity': null, // 低權重選擇器無法宣告在高權重選擇器之後。(檢測邏輯不夠完善 不開啟)
+        'custom-property-empty-line-before': null, // CSS 屬性 之前不允許空行。
+        'custom-property-pattern': null // 自定義屬性的命名模式。
         // 'at-rule-no-unknown': [
         //     true,
         //     {
@@ -237,5 +240,5 @@ export default {
             files: ['*.vue', '**/*.vue']
         }
     ],
-    ignoreFiles: ['**/*.js', '**/*.jsx', '**/*.tsx', '**/*.ts', '**/*.json', 'node_modules/', 'docs/.vitrepress/cache/', 'docs/.vitrepress/dist/']
+    ignoreFiles: ['**/*.js', '**/*.jsx', '**/*.tsx', '**/*.ts', '**/*.json', 'node_modules/', 'dist/']
 };
