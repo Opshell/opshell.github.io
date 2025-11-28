@@ -1,44 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
-const icons = [
-    'add_circle',
-    'calendar_month',
-    'call',
-    'check_circle',
-    'css',
-    'figma',
-    'folder',
-    'html',
-    'illustrator',
-    'info',
-    'ios_share',
-    'javascript',
-    'language',
-    'laravel',
-    'lightbulb',
-    'link',
-    'location_on',
-    'mail',
-    'notifications_active',
-    'pageview',
-    'photoshop',
-    'php',
-    'report',
-    'scss',
-    'settings',
-    'sql',
-    'star_empty',
-    'star_fall',
-    'star_half',
-    'typescript',
-    'vite',
-    'vue',
-    'warning',
-    'zoom_in_map',
-    'zoom_out_map'
-];
-
+const iconList = ref<string[]>([]);
 const copiedIcon = ref<string | null>(null);
 
 const copyIconName = (icon: string) => {
@@ -49,18 +12,38 @@ const copyIconName = (icon: string) => {
         }, 1500);
     });
 };
+
+onMounted(() => {
+    iconList.value = [];
+
+    const spriteSvg = document.getElementById('__svg__icons__dom__');
+    if (spriteSvg !== null) {
+        const svgList = Array.from(spriteSvg.children);
+
+        svgList.forEach((svgDom) => {
+            // The id is usually 'icon-filename' or just 'filename' depending on config.
+            // Config says symbolId: '[name]', so it should be just the filename.
+            // However, let's check what the actual IDs are.
+            // If the ID is 'icon-foo', we might want to strip 'icon-'.
+            // But based on config `symbolId: '[name]'`, it should be exact.
+            iconList.value.push(svgDom.id);
+        });
+    }
+});
 </script>
 
 <template>
     <div class="icon-gallery">
         <div
-            v-for="icon in icons"
+            v-for="icon in iconList"
             :key="icon"
             class="icon-item"
             @click="copyIconName(icon)"
         >
             <div class="icon-preview">
-                <img :src="`/icons/${icon}.svg`" :alt="icon" />
+                <svg class="icon-svg" aria-hidden="true">
+                    <use :href="`#${icon}`" />
+                </svg>
                 <div class="copy-overlay" :class="{ 'show': copiedIcon === icon }">
                     <span>Copied!</span>
                 </div>
@@ -103,9 +86,10 @@ const copyIconName = (icon: string) => {
     align-items: center;
     justify-content: center;
 
-    img {
+    .icon-svg {
         width: 100%;
         height: 100%;
+        fill: currentColor; // Allow coloring via CSS if needed, or keep original colors
         object-fit: contain;
     }
 }

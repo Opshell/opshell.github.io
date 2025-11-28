@@ -60,39 +60,39 @@
             <hr class="divider" />
 
             <div class="skills-block">
-                <OrgaSectionBlock
+                <SectionBlock
                     v-for="skills in frontmatter.skills"
                     :key="skills.type"
                     :title="skills.type"
                 >
-                    <MoleSkillBox>
-                        <ElSkill
+                    <SkillUiSkillBox>
+                        <Skill
                             v-for="skill in skills.items"
                             :key="skill.text"
                             :style="{ '--color-skill': `#${skill.color}` }"
                         >
                             <template #icon>
-                                <ElSvgIcon :name="skill.icon" />
+                                <SvgIcon :name="skill.icon" />
                             </template>
                             <span class="text">{{ skill.text }}</span>
-                        </ElSkill>
-                    </MoleSkillBox>
-                </OrgaSectionBlock>
+                        </Skill>
+                    </SkillUiSkillBox>
+                </SectionBlock>
             </div>
 
             <hr class="divider" />
 
-            <OrgaSectionBlock class="contact-block" title="Contact">
+            <SectionBlock class="contact-block" title="Contact">
                 <ul class="contact-box">
                     <li v-for="contact in frontmatter.contact" :key="`contact-${contact.text}`" class="contact">
-                        <ElSvgIcon :name="contact.icon" />
+                        <SvgIcon :name="contact.icon" />
                         <a :href="contact.href" target="_blank" rel="noopener noreferrer">{{ contact.text }}</a>
                     </li>
                 </ul>
-            </OrgaSectionBlock>
+            </SectionBlock>
         </div>
         <div class="left-block-switch" @click="leftBlockTrigger">
-            <ElSvgIcon name="arrow_forward_ios" />
+            <SvgIcon name="arrow_forward_ios" />
         </div>
 
         <hr class="divider" />

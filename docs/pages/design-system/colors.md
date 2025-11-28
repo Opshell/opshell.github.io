@@ -5,7 +5,7 @@ layout: doc
 ---
 
 <script setup>
-import ColorPalette from '@components/design/ColorPalette.vue'
+import ColorPalette from '@features/design-system/ui/ColorPalette.vue';
 </script>
 
 # 色彩 (Colors)

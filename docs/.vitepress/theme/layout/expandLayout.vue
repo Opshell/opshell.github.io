@@ -2,8 +2,8 @@
 import { computed, provide, nextTick, onMounted } from 'vue';
 import { useData } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
-import useKeyBoardControl from '@hooks/useKeyBoardControl';
-import { useSiteData } from '@hooks/useSiteData';
+import useKeyBoardControl from '@shared/hooks/useKeyBoardControl';
+import { useSiteData } from '@shared/hooks/useSiteData';
 
 // Layout Component
 const { Layout } = DefaultTheme;

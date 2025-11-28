@@ -7,6 +7,10 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    DesignColorPalette: typeof import('./../components/design/ColorPalette.vue')['default']
+    DesignDesignSystem: typeof import('./../components/design/DesignSystem.vue')['default']
+    DesignIconGallery: typeof import('./../components/design/IconGallery.vue')['default']
+    DesignTypeScale: typeof import('./../components/design/TypeScale.vue')['default']
     ElBtn: typeof import('./../components/el/btn.vue')['default']
     ElBtnToggle: typeof import('./../components/el/btnToggle.vue')['default']
     ElCheckbox: typeof import('./../components/el/checkbox.vue')['default']

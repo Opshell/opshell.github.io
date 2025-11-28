@@ -1,3 +1,4 @@
+
 {
     "compilerOptions": {
         "target": "ESNext",
@@ -14,7 +15,12 @@
             "@components/*": ["./docs/components/*"],
             "@data/*": ["./docs/data/*"],
             "@hooks/*": ["./docs/hooks/*"],
-            "@pages/*": ["./docs/pages/*"]
+            "@pages/*": ["./docs/pages/*"],
+
+            "@shared/*": ["./docs/shared/*"],
+            "@features/*": ["./docs/features/*"],
+            "@widgets/*": ["./docs/widgets/*"],
+            "@entities/*": ["./docs/entities/*"]
         }
     },
     "include": [
@@ -28,10 +34,20 @@
         "docs/components/**/*.vue",
         "docs/data/*.data.ts",
         "docs/hooks/*.ts",
-        "docs/types/*.d.ts", "docs/data/tagSummeries.ts",
+        "docs/types/*.d.ts",
+        "docs/data/tagSummeries.ts",
+
+        "docs/shared/**/*.ts",
+        "docs/shared/**/*.vue",
+        "docs/features/**/*.ts",
+        "docs/features/**/*.vue",
+        "docs/widgets/**/*.ts",
+        "docs/widgets/**/*.vue",
+        "docs/entities/**/*.ts",
+        "docs/entities/**/*.vue"
     ],
     "exclude": [
         "node_modules",
-        "resource",
+        "resource"
     ]
 }

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
 import { useRouter } from 'vitepress';
-import type { TagSummary } from '@data/tagSummeries';
-import type { Post } from '@/hooks/useBuildSiteData';
-import { tagSummaries } from '@data/tagSummeries';
-import { useSiteData } from '@hooks/useSiteData';
+import type { TagSummary } from '@shared/data/tagSummeries';
+import type { Post } from '@shared/hooks/useBuildSiteData';
+import { tagSummaries } from '@shared/data/tagSummeries';
+import { useSiteData } from '@shared/hooks/useSiteData';
 
 // **關注點分離**{.brand}: 資料處理邏輯
 const siteData = useSiteData();
@@ -29,11 +29,6 @@ const updateStateFromUrl = () => {
 onMounted(() => {
     updateStateFromUrl();
 });
-
-router.onAfterRouteChanged = () => {
-    updateStateFromUrl();
-};
-
 // --- Computed Logic ---
 const postsOfCurrentTag = computed<Post[]>(() => {
     if (!siteData.value || !currentTag.value) return [];
@@ -82,7 +77,7 @@ const formatDate = (dateString: string) => {
     <div class="tags-list-layout">
         <aside class="sidebar">
             <div class="search-wrapper">
-                <ElSvgIcon name="search" class="icon" />
+                <SvgIcon name="search" class="icon" />
                 <input v-model="searchTerm" type="text" placeholder="Filter tags..." />
             </div>
 
@@ -123,11 +118,11 @@ const formatDate = (dateString: string) => {
                         <div class="card-body">
                             <div class="card-meta-header">
                                 <div class="category-pill" v-if="post.category">
-                                    <ElSvgIcon name="folder" class="icon" />
+                                    <SvgIcon name="folder" class="icon" />
                                     {{ post.category }}
                                 </div>
                                 <div class="date-info">
-                                    <ElSvgIcon name="calendar_month" class="icon" />
+                                    <SvgIcon name="calendar_month" class="icon" />
                                     {{ formatDate(post.date) }}
                                 </div>
                             </div>
@@ -143,7 +138,7 @@ const formatDate = (dateString: string) => {
                                 </div>
                                 <span class="read-more">
                                     Read More
-                                    <ElSvgIcon name="arrow_forward" class="icon arrow" />
+                                    <SvgIcon name="arrow_forward" class="icon arrow" />
                                 </span>
                             </div>
                         </div>

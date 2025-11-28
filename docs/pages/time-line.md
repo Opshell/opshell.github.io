@@ -8,4 +8,8 @@ sitemap:
   changefreq: weekly
 ---
 
-<TemplateTimelineList />
+<script setup>
+import TimelineList from '@widgets/timeline-list/ui/TimelineList.vue';
+</script>
+
+<TimelineList />

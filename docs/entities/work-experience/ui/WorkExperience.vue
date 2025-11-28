@@ -71,7 +71,7 @@
                 {{ company }}
             </h3>
             <div class="location">
-                <ElSvgIcon name="location_on" />
+                <SvgIcon name="location_on" />
                 <span>{{ location }}</span>
             </div>
             <span class="job-title">{{ jobTitle }}</span>

@@ -11,9 +11,9 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import { DefaultTheme, defineConfig } from 'vitepress';
 import { renderSandbox } from 'vitepress-plugin-sandpack';
 
-import { buildSiteData, iSiteData } from '../hooks/useBuildSiteData';
-import { absolutePath, getFrontMatter, isDirectory } from '../hooks/useFrontMatter';
-import { getSidebar } from '../hooks/useGetSidebar';
+import { buildSiteData, iSiteData } from '../shared/hooks/useBuildSiteData';
+import { absolutePath, getFrontMatter, isDirectory } from '../shared/hooks/useFrontMatter';
+import { getSidebar } from '../shared/hooks/useGetSidebar';
 
 import nav from './theme/configs/nav';
 import search from './theme/configs/search';
@@ -306,13 +306,13 @@ export default defineConfig({
                 '@components': path.resolve(__dirname, '../', 'components'),
                 '@data': path.resolve(__dirname, '../', 'data'),
                 '@hooks': path.resolve(__dirname, '../', 'hooks'),
-                '@pages': path.resolve(__dirname, '../', 'pages')
+                '@pages': path.resolve(__dirname, '../', 'pages'),
 
-                // '@': new URL('../', import.meta.url).pathname, // docs 當根目錄
-                // '@vitepress': new URL('../.vitepress', import.meta.url).pathname, // .vitepress 目錄
-                // '@components': new URL('../components', import.meta.url).pathname,
-                // '@data': new URL('../data', import.meta.url).pathname,
-                // '@pages': new URL('../pages', import.meta.url).pathname
+                // FSD Aliases
+                '@shared': path.resolve(__dirname, '../', 'shared'),
+                '@features': path.resolve(__dirname, '../', 'features'),
+                '@widgets': path.resolve(__dirname, '../', 'widgets'),
+                '@entities': path.resolve(__dirname, '../', 'entities')
             }
         },
         plugins: [
@@ -340,8 +340,11 @@ export default defineConfig({
                         'vue': ['PropType', 'defineProps', 'InjectionKey', 'Ref']
                     }
                 ],
-                dirs: [],
-                dts: './types/auto-imports.d.ts', // typescript 宣告檔案位置
+                dirs: [
+                    '../shared/hooks',
+                    '../shared/utils'
+                ],
+                dts: '../shared/types/auto-imports.d.ts', // typescript 宣告檔案位置
                 vueTemplate: false,
                 eslintrc: {
                     enabled: false, // Default `false`
@@ -350,8 +353,14 @@ export default defineConfig({
                 }
             }),
             Components({
-                dirs: ['./components'], // 指定components位置 預設是'src/components'
-                dts: './types/components.d.ts', // .d.ts生成位置
+                dirs: [
+                    './components',
+                    '../shared/components',
+                    '../features',
+                    '../widgets',
+                    '../entities'
+                ], // 指定components位置
+                dts: '../shared/types/components.d.ts', // .d.ts生成位置
                 extensions: ['vue', 'md'], // allow auto load markdown components under dirs
                 include: [/\.vue$/, /\.vue\?vue/, /\.md$/], // allow auto import and register components used in markdown
                 directoryAsNamespace: true, // 允許子目錄作為命名空間

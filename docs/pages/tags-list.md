@@ -8,4 +8,8 @@ tags:
 layout: page
 ---
 
-<TemplateTagsList />
+<script setup>
+import TagsList from '@widgets/tags-list/ui/TagsList.vue';
+</script>
+
+<TagsList />

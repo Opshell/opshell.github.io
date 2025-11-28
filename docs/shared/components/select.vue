@@ -64,7 +64,7 @@
             <span v-else class="circle" />
         </template>
         <template v-if="type !== 'feature'" #append>
-            <ElSvgIcon name="arrow_drop_down" />
+            <SvgIcon name="arrow_drop_down" />
         </template>
     </q-select>
 </template>

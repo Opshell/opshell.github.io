@@ -7,7 +7,7 @@ aside: false
 ---
 
 <script setup>
-import DesignSystem from '@components/design/DesignSystem.vue'
+import DesignSystem from '@features/design-system/ui/DesignSystem.vue';
 </script>
 
 # Design System

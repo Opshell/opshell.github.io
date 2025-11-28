@@ -9,47 +9,47 @@ summary:
 skills:
   - type: Front-End Skills
     items:
-      - icon: vue
+      - icon: colorful/vue
         text: Vue
         color: 4da986
-      - icon: vite
+      - icon: colorful/vite
         text: Vite
         color: 9B5FFC
-      - icon: typescript
+      - icon: colorful/typescript
         text: Typescript
         color: 3178C6
-      - icon: css
+      - icon: colorful/css
         text: CSS
         color: 1872B7
-      - icon: javascript
+      - icon: colorful/javascript
         text: Javascript
         color: FFBB00
-      - icon: scss
+      - icon: colorful/scss
         text: SCSS
         color: CC6699
-      - icon: html
+      - icon: colorful/html
         text: HTML
         color: E24B2A
   - type: Back-End Skills
     items:
-      - icon: php
+      - icon: colorful/php
         text: php
         color: 8993BE
-      - icon: sql
+      - icon: colorful/sql
         text: SQL
         color: F16529
-      - icon: laravel
+      - icon: colorful/laravel
         text: Laravel
         color: F35045
   - type: Design Skills
     items:
-      - icon: figma
+      - icon: colorful/figma
         text: Figma
         color: A259FF
-      - icon: photoshop
+      - icon: colorful/photoshop
         text: Photoshop
         color: 86caf7
-      - icon: illustrator
+      - icon: colorful/illustrator
         text: illustrator
         color: febd39
 contact:
@@ -78,24 +78,19 @@ contact:
 
 **前端工程師**{.vue}，要成為 **UIUX 設計師**{.info}、**後端**{.info}、**PM**{.info} 及 **客戶**{.info} 之間的潤滑油，協同處理問題，讓產品順利產出。<br/><br/>
 
-學習與成長，面對新的挑戰，一步步超越自己。<br/>
-在時代與技術的洪流中，不想被沖走就逆流而上吧。
-
----
-
 <script setup lang="ts">
-  import { data as workExperienceData } from '@/data/works.data';
+import { computed, ref, type Ref } from 'vue';
+import { data as workExperienceData } from '@shared/data/works.data';
+import ElSvgIcon from '@shared/components/svgIcon.vue';
+import MoleWorkExperience from '@entities/work-experience/ui/WorkExperience.vue';
 
-  import ElSvgIcon from '@components/el/svgIcon.vue';
-  import MoleWorkExperience from '@components/mole/workExperience.vue';
+const workMonths: Ref<{[key: number]: number}> = ref({});
 
-  const workMonths: Ref<{[key: number]}> = ref({});
-
-  const calcMonths = (index, months) => {
+const calcMonths = (index: number, months: number) => {
     workMonths.value[index] = months + 1;
-  }
+}
 
-  const workExperienceTotal = computed(() => {
+const workExperienceTotal = computed(() => {
       const count = Object.values(workMonths.value).reduce((acc, cur) => acc + cur, 0);
 
       const years = Math.floor(count / 12);
@@ -123,13 +118,12 @@ contact:
   ## Work Experience {{ workExperienceTotal }}
 
 <div class="btn-box" @click="() => { isDescriptionOpen = !isDescriptionOpen }">
-  <ElSvgIcon :name="isDescriptionOpen? 'zoom_in_map' : 'zoom_out_map'" />
+  <SvgIcon :name="isDescriptionOpen? 'zoom_in_map' : 'zoom_out_map'" />
   <span> {{ isDescriptionOpen ? '關閉' : '展開' }} </span>
 </div>
 </header>
 
 <MoleWorkExperience
-  :key="workExperienceData[0].company"
   :comp-img="workExperienceData[0].compImg"
   :company="workExperienceData[0].company"
   :location="workExperienceData[0].location"

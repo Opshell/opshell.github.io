@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useSiteData } from '@hooks/useSiteData';
-import type { Post } from '@/hooks/useBuildSiteData';
+import { getFrontMatter } from '@shared/hooks/useFrontMatter';
+import type { Post } from '@shared/hooks/useBuildSiteData';
+import { useSiteData } from '@shared/hooks/useSiteData';
 
 const siteData = useSiteData();
 
@@ -119,11 +120,11 @@ const formatDate = (dateString: string) => {
                                     <div class="card-body">
                                         <div class="card-meta">
                                             <div class="date-badge">
-                                                <ElSvgIcon name="calendar_month" class="icon" />
+                                                <SvgIcon name="calendar_month" class="icon" />
                                                 {{ formatDate(post.date) }}
                                             </div>
                                             <div class="category-pill" v-if="post.category">
-                                                <ElSvgIcon name="folder" class="icon" />
+                                                <SvgIcon name="folder" class="icon" />
                                                 {{ post.category }}
                                             </div>
                                         </div>
@@ -136,7 +137,7 @@ const formatDate = (dateString: string) => {
                                         <div class="card-footer">
                                             <span class="read-more">
                                                 Read Article
-                                                <ElSvgIcon name="arrow_forward" class="icon arrow" />
+                                                <SvgIcon name="arrow_forward" class="icon arrow" />
                                             </span>
                                         </div>
                                     </div>

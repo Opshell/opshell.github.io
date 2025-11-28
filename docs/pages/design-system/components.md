@@ -5,12 +5,11 @@ layout: doc
 ---
 
 <script setup>
-import Btn from '@components/el/btn.vue'
-import Input from '@components/el/input.vue'
-import Checkbox from '@components/el/checkbox.vue'
-import Radio from '@components/el/radio.vue'
-import Select from '@components/el/select.vue'
-import Divider from '@components/el/divider.vue'
+import ElButton from '@shared/components/btn.vue';
+import ElInput from '@shared/components/input.vue';
+import ElCard from '@shared/components/card.vue';
+import ElTag from '@shared/components/tag.vue';
+import ElImg from '@shared/components/img.vue';
 import { ref } from 'vue'
 
 const inputValue = ref('')
