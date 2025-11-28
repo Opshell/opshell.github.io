@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import type { VueStyleProp } from 'quasar';
-    import { useGlobalProperties } from '@/hooks/utilityFunctions';
+    // import { useGlobalProperties } from '@/hooks/utilityFunctions'; // Removed
 
     const props = withDefaults(
         defineProps<{
@@ -19,18 +19,21 @@
         }
     );
 
-    const porxy = useGlobalProperties();
+    // const porxy = useGlobalProperties(); // Removed
 
     interface iOptions {
         title: number | string
         value: number
+        inactive?: boolean
     }
 
     const finalOptions = computed(() => {
-        const options = porxy._.cloneDeep(props.options);
+        // const options = porxy._.cloneDeep(props.options);
+        const options = JSON.parse(JSON.stringify(props.options));
 
         // 預設值 value = 0
-        if (porxy._.findIndex(options, (option: iOptions) => option.value === 0) === -1) {
+        // if (porxy._.findIndex(options, (option: iOptions) => option.value === 0) === -1) {
+        if (options.findIndex((option: iOptions) => option.value === 0) === -1) {
             options.unshift({ title: props.defaultText, value: 0, inactive: props.defaultInactive });
         }
 
