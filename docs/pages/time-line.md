@@ -9,7 +9,7 @@ sitemap:
 ---
 
 <script setup>
-import TimelineList from '@widgets/timeline-list/ui/TimelineList.vue';
+import { TimelineList } from '@features/time-line';
 </script>
 
 <TimelineList />

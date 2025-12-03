@@ -19,9 +19,6 @@ hero:
     - theme: brand
       text: ✨️ Vitepress Thirty Days
       link: /vitepress-thirty-days
-    - theme: alt
-      text: Quick Key Guide
-      link: /quick-key-guide
 
 features:
   - icon: 🛠️

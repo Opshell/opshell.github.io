@@ -84,6 +84,6 @@ export default [
     },
     {
         text: 'Resume',
-        link: '/resume-layout'
+        link: '/resume'
     }
 ] as DefaultTheme.NavItem[];

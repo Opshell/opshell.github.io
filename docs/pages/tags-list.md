@@ -9,7 +9,7 @@ layout: page
 ---
 
 <script setup>
-import TagsList from '@widgets/tags-list/ui/TagsList.vue';
+import { TagsList } from '@features/tags-list';
 </script>
 
 <TagsList />

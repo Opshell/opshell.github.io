@@ -12,15 +12,16 @@
         "paths": {
             "@/*": ["./docs/*"],
             "@vitepress/*": ["./docs/.vitepress/*"],
-            "@components/*": ["./docs/components/*"],
+
+            "@shared/*": ["./docs/shared/*"],
+            "@components/*": ["./docs/shared/components/*"],
+            "@features/*": ["./docs/features/*"],
+            "@widgets/*": ["./docs/widgets/*"],
+            "@entities/*": ["./docs/entities/*"],
+
             "@data/*": ["./docs/data/*"],
             "@hooks/*": ["./docs/hooks/*"],
             "@pages/*": ["./docs/pages/*"],
-
-            "@shared/*": ["./docs/shared/*"],
-            "@features/*": ["./docs/features/*"],
-            "@widgets/*": ["./docs/widgets/*"],
-            "@entities/*": ["./docs/entities/*"]
         }
     },
     "include": [
@@ -31,14 +32,15 @@
         "docs/.vitepress/theme/**/*.ts",
         "docs/.vitepress/theme/**/*.vue",
 
-        "docs/components/**/*.vue",
-        "docs/data/*.data.ts",
-        "docs/hooks/*.ts",
-        "docs/types/*.d.ts",
-        "docs/data/tagSummeries.ts",
-
         "docs/shared/**/*.ts",
         "docs/shared/**/*.vue",
+        "docs/shared/hooks/*.ts",
+        "docs/shared/data/*.data.ts",
+        "docs/shared/components/**/*.vue",
+        "docs/shared/data/tagSummeries.ts",
+
+        "docs/types/*.d.ts",
+
         "docs/features/**/*.ts",
         "docs/features/**/*.vue",
         "docs/widgets/**/*.ts",

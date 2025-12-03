@@ -5,6 +5,7 @@ createdAt: '2024-07-26'
 categories: demo
 tags:
   - demo
+  - Archive
 editLink: true
 isPublished: true
 ---
@@ -19,6 +20,14 @@ This page demonstrates some of the built-in markdown extensions provided by Vite
 ## Syntax Highlighting
 
 VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shikijs/shiki), with additional features like line-highlighting:
+
+## 部落格快速鍵操作指南
+
+- 上一篇 ←
+- 下一篇 →
+
+- 上一章節 Ctrl + ↑
+- 下一章節 Ctrl + ↓
 
 Hight Light Demo
 ::: code-group

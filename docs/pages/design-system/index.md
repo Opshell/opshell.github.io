@@ -1,7 +1,8 @@
 ---
 title: Design System
 description: Opshell's Blog Design System & UI Kit
-layout: doc
+layout: page
+designSystem: true
 sidebar: false
 aside: false
 ---

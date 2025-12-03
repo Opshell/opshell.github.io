@@ -1,4 +1,9 @@
 <script setup lang="ts">
+    import {
+        Skill,
+        SkillBox
+    } from '@features/resume';
+
     import { useData } from 'vitepress';
 
     const { frontmatter } = useData();
@@ -60,39 +65,39 @@
             <hr class="divider" />
 
             <div class="skills-block">
-                <SectionBlock
+                <ElSectionBlock
                     v-for="skills in frontmatter.skills"
                     :key="skills.type"
                     :title="skills.type"
                 >
-                    <SkillUiSkillBox>
+                    <SkillBox>
                         <Skill
                             v-for="skill in skills.items"
                             :key="skill.text"
                             :style="{ '--color-skill': `#${skill.color}` }"
                         >
                             <template #icon>
-                                <SvgIcon :name="skill.icon" />
+                                <ElSvgIcon :name="skill.icon" />
                             </template>
                             <span class="text">{{ skill.text }}</span>
                         </Skill>
-                    </SkillUiSkillBox>
-                </SectionBlock>
+                    </SkillBox>
+                </ElSectionBlock>
             </div>
 
             <hr class="divider" />
 
-            <SectionBlock class="contact-block" title="Contact">
+            <ElSectionBlock class="contact-block" title="Contact">
                 <ul class="contact-box">
                     <li v-for="contact in frontmatter.contact" :key="`contact-${contact.text}`" class="contact">
-                        <SvgIcon :name="contact.icon" />
+                        <ElSvgIcon :name="contact.icon" />
                         <a :href="contact.href" target="_blank" rel="noopener noreferrer">{{ contact.text }}</a>
                     </li>
                 </ul>
-            </SectionBlock>
+            </ElSectionBlock>
         </div>
         <div class="left-block-switch" @click="leftBlockTrigger">
-            <SvgIcon name="arrow_forward_ios" />
+            <ElSvgIcon name="arrow_forward_ios" />
         </div>
 
         <hr class="divider" />
@@ -139,7 +144,7 @@
         .cover {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 15%);
+            background: rgb(0, 0, 0, 15%);
             backdrop-filter: blur(5px);
             opacity: 0;
             z-index: -1;
@@ -208,10 +213,6 @@
                 background-color: var(--vp-c-bg);
                 padding: 20px 0;
                 border-bottom: 2px solid var(--vp-c-divider);
-
-                .image-box {
-                    // @include setSize(150px, 150px);
-                }
             }
         }
         .mbti {

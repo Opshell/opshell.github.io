@@ -303,13 +303,14 @@ export default defineConfig({
             alias: { // 設定別名
                 '@': path.resolve(__dirname, '../'), // docs 當根目錄
                 '@vitepress': path.resolve(__dirname), // .vitepress 目錄
-                '@components': path.resolve(__dirname, '../', 'components'),
-                '@data': path.resolve(__dirname, '../', 'data'),
-                '@hooks': path.resolve(__dirname, '../', 'hooks'),
+
+                '@shared': path.resolve(__dirname, '../', 'shared'),
+                '@components': path.resolve(__dirname, '../shared/', 'components'),
+                '@data': path.resolve(__dirname, '../shared/', 'data'),
+                '@hooks': path.resolve(__dirname, '../shared/', 'hooks'),
+
                 '@pages': path.resolve(__dirname, '../', 'pages'),
 
-                // FSD Aliases
-                '@shared': path.resolve(__dirname, '../', 'shared'),
                 '@features': path.resolve(__dirname, '../', 'features'),
                 '@widgets': path.resolve(__dirname, '../', 'widgets'),
                 '@entities': path.resolve(__dirname, '../', 'entities')
@@ -344,7 +345,7 @@ export default defineConfig({
                     '../shared/hooks',
                     '../shared/utils'
                 ],
-                dts: '../shared/types/auto-imports.d.ts', // typescript 宣告檔案位置
+                dts: './types/auto-imports.d.ts', // typescript 宣告檔案位置
                 vueTemplate: false,
                 eslintrc: {
                     enabled: false, // Default `false`
@@ -354,13 +355,11 @@ export default defineConfig({
             }),
             Components({
                 dirs: [
-                    './components',
-                    '../shared/components',
-                    '../features',
-                    '../widgets',
-                    '../entities'
+                    './shared/components',
+                    './widgets',
+                    './entities'
                 ], // 指定components位置
-                dts: '../shared/types/components.d.ts', // .d.ts生成位置
+                dts: './types/components.d.ts', // .d.ts生成位置
                 extensions: ['vue', 'md'], // allow auto load markdown components under dirs
                 include: [/\.vue$/, /\.vue\?vue/, /\.md$/], // allow auto import and register components used in markdown
                 directoryAsNamespace: true, // 允許子目錄作為命名空間
