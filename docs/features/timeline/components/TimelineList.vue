@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useSiteData } from '@hooks/useSiteData';
-import type { Post } from '@/hooks/useBuildSiteData';
+import { getFrontMatter } from '@shared/hooks/useFrontMatter';
+import type { Post } from '@shared/hooks/useBuildSiteData';
+import { useSiteData } from '@shared/hooks/useSiteData';
 
 const siteData = useSiteData();
 

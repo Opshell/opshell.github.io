@@ -1,81 +1,75 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
-import { useRouter } from 'vitepress';
-import type { TagSummary } from '@data/tagSummeries';
-import type { Post } from '@/hooks/useBuildSiteData';
-import { tagSummaries } from '@data/tagSummeries';
-import { useSiteData } from '@hooks/useSiteData';
+    import { useRouter } from 'vitepress';
+    import type { TagSummary } from '@shared/data/tagSummeries';
+    import type { Post } from '@shared/hooks/useBuildSiteData';
+    import { tagSummaries } from '@shared/data/tagSummeries';
+    import { useSiteData } from '@shared/hooks/useSiteData';
 
-// **關注點分離**{.brand}: 資料處理邏輯
-const siteData = useSiteData();
-const router = useRouter();
+    // **關注點分離**{.brand}: 資料處理邏輯
+    const siteData = useSiteData();
+    const router = useRouter();
 
-const currentTag = ref('TypeScript');
-const currentPage = ref(1);
-const searchTerm = ref('');
-const pageSize = 10;
+    const currentTag = ref('TypeScript');
+    const currentPage = ref(1);
+    const searchTerm = ref('');
+    const pageSize = 10;
 
-// 初始化與路由監聽
-const updateStateFromUrl = () => {
-    if (typeof window === 'undefined') return;
-    const url = new URL(window.location.href);
-    const tag = url.searchParams.get('tag');
-    const page = url.searchParams.get('page');
+    // 初始化與路由監聽
+    const updateStateFromUrl = () => {
+        if (typeof window === 'undefined') return;
+        const url = new URL(window.location.href);
+        const tag = url.searchParams.get('tag');
+        const page = url.searchParams.get('page');
 
-    if (tag) currentTag.value = tag;
-    if (page) currentPage.value = Number(page);
-};
+        if (tag) currentTag.value = tag;
+        if (page) currentPage.value = Number(page);
+    };
 
-onMounted(() => {
-    updateStateFromUrl();
-});
+    onMounted(() => {
+        updateStateFromUrl();
+    });
+    // --- Computed Logic ---
+    const postsOfCurrentTag = computed<Post[]>(() => {
+        if (!siteData.value || !currentTag.value) return [];
+        const tagIndex = siteData.value.tags.get(currentTag.value);
+        if (!tagIndex) return [];
 
-router.onAfterRouteChanged = () => {
-    updateStateFromUrl();
-};
+        // 排序：最新的在前面
+        const sorted = tagIndex.postUrls
+            .map(url => siteData.value?.posts.get(url))
+            .filter(Boolean) as Post[];
 
-// --- Computed Logic ---
-const postsOfCurrentTag = computed<Post[]>(() => {
-    if (!siteData.value || !currentTag.value) return [];
-    const tagIndex = siteData.value.tags.get(currentTag.value);
-    if (!tagIndex) return [];
+        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    });
 
-    // 排序：最新的在前面
-    const sorted = tagIndex.postUrls
-        .map(url => siteData.value?.posts.get(url))
-        .filter(Boolean) as Post[];
+    const totalCount = computed(() => postsOfCurrentTag.value.length);
+    const totalPage = computed(() => Math.ceil(totalCount.value / pageSize));
+    const currentPageData = computed(() => {
+        const start = (currentPage.value - 1) * pageSize;
+        return postsOfCurrentTag.value.slice(start, start + pageSize);
+    });
 
-    return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-});
+    const currentTagSummary = computed<TagSummary | undefined>(() => {
+        return tagSummaries[currentTag.value as string];
+    });
 
-const totalCount = computed(() => postsOfCurrentTag.value.length);
-const totalPage = computed(() => Math.ceil(totalCount.value / pageSize));
-const currentPageData = computed(() => {
-    const start = (currentPage.value - 1) * pageSize;
-    return postsOfCurrentTag.value.slice(start, start + pageSize);
-});
+    // 左側標籤雲邏輯
+    const filteredTags = computed(() => {
+        if (!siteData.value) return [];
+        const tagsAsArray = Array.from(siteData.value.tags.entries())
+            .map(([name, data]) => ({ name, count: data.count }))
+            .sort((a, b) => b.count - a.count);
 
-const currentTagSummary = computed<TagSummary | undefined>(() => {
-    return tagSummaries[currentTag.value as string];
-});
+        if (!searchTerm.value) return tagsAsArray;
+        return tagsAsArray.filter(tag => tag.name.toLowerCase().includes(searchTerm.value.toLowerCase()));
+    });
 
-// 左側標籤雲邏輯
-const filteredTags = computed(() => {
-    if (!siteData.value) return [];
-    const tagsAsArray = Array.from(siteData.value.tags.entries())
-        .map(([name, data]) => ({ name, count: data.count }))
-        .sort((a, b) => b.count - a.count);
-
-    if (!searchTerm.value) return tagsAsArray;
-    return tagsAsArray.filter(tag => tag.name.toLowerCase().includes(searchTerm.value.toLowerCase()));
-});
-
-// 日期格式化
-const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    if(isNaN(date.getTime())) return dateString;
-    return date.toISOString().split('T')[0]; // YYYY-MM-DD
-};
+    // 日期格式化
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        if(isNaN(date.getTime())) return dateString;
+        return date.toISOString().split('T')[0]; // YYYY-MM-DD
+    };
 </script>
 
 <template>

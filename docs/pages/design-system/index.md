@@ -1,13 +1,14 @@
 ---
 title: Design System
 description: Opshell's Blog Design System & UI Kit
-layout: doc
+layout: page
+designSystem: true
 sidebar: false
 aside: false
 ---
 
 <script setup>
-import DesignSystem from '@components/design/DesignSystem.vue'
+import { DesignSystem } from '@features/design-system';
 </script>
 
 # Design System

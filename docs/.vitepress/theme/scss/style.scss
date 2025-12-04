@@ -1,14 +1,13 @@
 // 專案主題變數定義
-@import 'variable';
+@use 'variable' as *;
 
 // vitepress 預設樣式的覆蓋
-@import 'vitepress';
+@use 'vitepress' as *;
 
-// vitepress 預設樣式的覆蓋
-@import 'basic';
+@use 'basic' as *;
 
 // markdown 樣式
-// @import 'md';
+// @use 'md' as *;
 
 // View Transition API 樣式修正 (解決切換主題時的閃爍問題)
 ::view-transition-old(root),

@@ -1,15 +1,15 @@
 <script setup lang="ts">
-const typeScales = [
-    { name: 'H1', var: '--font-size-h1', label: 'Heading 1', sample: 'The quick brown fox' },
-    { name: 'H2', var: '--font-size-h2', label: 'Heading 2', sample: 'The quick brown fox' },
-    { name: 'Normal', var: '--font-size-normal', label: 'Body Text', sample: 'The quick brown fox jumps over the lazy dog' },
-    { name: 'Remark', var: '--font-size-remark', label: 'Remark / Small', sample: 'The quick brown fox jumps over the lazy dog' },
-];
+    const typeScales = [
+        { name: 'H1', var: '--font-size-h1', label: 'Heading 1', sample: 'The quick brown fox' },
+        { name: 'H2', var: '--font-size-h2', label: 'Heading 2', sample: 'The quick brown fox' },
+        { name: 'Normal', var: '--font-size-normal', label: 'Body Text', sample: 'The quick brown fox jumps over the lazy dog' },
+        { name: 'Remark', var: '--font-size-remark', label: 'Remark / Small', sample: 'The quick brown fox jumps over the lazy dog' },
+    ];
 
-const fontFamilies = [
-    { name: 'Base', var: '--vp-font-family-base' },
-    { name: 'Mono', var: '--vp-font-family-mono' },
-];
+    const fontFamilies = [
+        { name: 'Base', var: '--vp-font-family-base' },
+        { name: 'Mono', var: '--vp-font-family-mono' },
+    ];
 </script>
 
 <template>
@@ -84,29 +84,29 @@ const fontFamilies = [
 
 .type-meta, .font-meta {
     display: flex;
-    align-items: center;
     gap: 1rem;
+    align-items: center;
 }
 
 .type-name, .font-name {
-    font-weight: 600;
     min-width: 60px;
+    font-weight: 600;
 }
 
 .type-var, .font-var {
-    font-size: 0.75rem;
     color: var(--vp-c-text-2);
+    font-size: 0.75rem;
 }
 
 .type-sample {
-    line-height: 1.5;
     color: var(--vp-c-text-1);
+    line-height: 1.5;
 }
 
 .font-sample {
+    color: var(--vp-c-text-1);
     font-size: 1.25rem;
     line-height: 1.6;
     word-break: break-all;
-    color: var(--vp-c-text-1);
 }
 </style>

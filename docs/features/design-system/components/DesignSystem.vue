@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import ColorPalette from './ColorPalette.vue';
-import TypeScale from './TypeScale.vue';
-import IconGallery from './IconGallery.vue';
+    import ColorPalette from './ColorPalette.vue';
+    import TypeScale from './TypeScale.vue';
+    import IconGallery from './IconGallery.vue';
 
-const activeTab = ref('colors');
+    const activeTab = ref('colors');
 
-const tabs = [
-    { id: 'colors', label: 'Colors', icon: 'palette' },
-    { id: 'typography', label: 'Typography', icon: 'text_fields' },
-    { id: 'icons', label: 'Icons', icon: 'grid_view' },
-    { id: 'components', label: 'Components', icon: 'widgets' }
-];
+    const tabs = [
+        { id: 'colors', label: 'Colors', icon: 'palette' },
+        { id: 'typography', label: 'Typography', icon: 'text_fields' },
+        { id: 'icons', label: 'Icons', icon: 'grid_view' },
+        { id: 'components', label: 'Components', icon: 'widgets' }
+    ];
 </script>
 
 <template>
@@ -105,38 +104,38 @@ const tabs = [
 .design-system-container {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
     padding-bottom: 4rem;
+    margin: 0 auto;
 }
 
 /* Hero Section */
 .hero {
     position: relative;
+    background: linear-gradient(135deg, var(--vp-c-bg-soft) 0%, var(--vp-c-bg) 100%);
     padding: 6rem 2rem 4rem;
+    border-radius: 0 0 2rem 2rem;
+    margin-bottom: 3rem;
     text-align: center;
     overflow: hidden;
-    margin-bottom: 3rem;
-    border-radius: 0 0 2rem 2rem;
-    background: linear-gradient(135deg, var(--vp-c-bg-soft) 0%, var(--vp-c-bg) 100%);
 }
 
 .hero-title {
+    background: linear-gradient(120deg, var(--vp-c-brand-1), var(--vp-c-brand-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    margin-bottom: 1rem;
     font-size: 3.5rem;
     font-weight: 800;
-    letter-spacing: -0.02em;
-    margin-bottom: 1rem;
-    background: linear-gradient(120deg, var(--vp-c-brand-1), var(--vp-c-brand-2));
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     line-height: 1.1;
+    letter-spacing: -0.02em;
+    -webkit-text-fill-color: transparent;
 }
 
 .hero-subtitle {
-    font-size: 1.25rem;
-    color: var(--vp-c-text-2);
     max-width: 600px;
     margin: 0 auto;
+    color: var(--vp-c-text-2);
+    font-size: 1.25rem;
     line-height: 1.6;
 }
 
@@ -144,8 +143,8 @@ const tabs = [
 .nav-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 4rem;
     padding: 0 1rem;
+    margin-bottom: 4rem;
 }
 
 .tabs {
@@ -154,21 +153,21 @@ const tabs = [
     background: var(--vp-c-bg-soft);
     padding: 0.5rem;
     border-radius: 1rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 6px rgb(0,0,0,2%);
 }
 
 .tab-button {
     position: relative;
-    z-index: 1;
+    background: none;
+    min-width: 120px;
     padding: 0.75rem 2rem;
+    border: none;
+    color: var(--vp-c-text-2);
     font-size: 1rem;
     font-weight: 600;
-    color: var(--vp-c-text-2);
-    background: none;
-    border: none;
     cursor: pointer;
     transition: color 0.3s ease;
-    min-width: 120px;
+    z-index: 1;
 
     &:hover {
         color: var(--vp-c-text-1);
@@ -183,11 +182,11 @@ const tabs = [
     position: absolute;
     top: 0.5rem;
     left: 0.5rem;
+    background: var(--vp-c-bg);
     width: calc(25% - 0.25rem); /* Assumes 4 tabs */
     height: calc(100% - 1rem);
-    background: var(--vp-c-bg);
     border-radius: 0.75rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 4px rgb(0,0,0,5%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -197,42 +196,42 @@ const tabs = [
 }
 
 .section-header {
-    text-align: center;
     margin-bottom: 3rem;
+    text-align: center;
 
     h2 {
+        border: none;
+        margin-bottom: 0.5rem;
         font-size: 2.5rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
-        border: none;
     }
 
     p {
-        font-size: 1.125rem;
         color: var(--vp-c-text-2);
+        font-size: 1.125rem;
     }
 }
 
 .card {
     background: var(--vp-c-bg-soft);
-    border-radius: 1.5rem;
     padding: 2rem;
     border: 1px solid var(--vp-c-divider);
+    border-radius: 1.5rem;
 }
 
 .component-card {
-    text-align: center;
     padding: 4rem 2rem;
+    text-align: center;
 }
 
 .cta-button {
     display: inline-block;
-    margin-top: 1.5rem;
-    padding: 0.75rem 1.5rem;
     background: var(--vp-c-brand-1);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    margin-top: 1.5rem;
     color: white;
     font-weight: 600;
-    border-radius: 0.5rem;
     text-decoration: none;
     transition: background 0.2s;
 
@@ -245,9 +244,9 @@ const tabs = [
     margin-bottom: 3rem;
 
     h3 {
-        font-size: 1.5rem;
         margin-bottom: 1.5rem;
         color: var(--vp-c-text-1);
+        font-size: 1.5rem;
     }
 }
 
@@ -258,38 +257,37 @@ const tabs = [
 }
 
 .fade-enter-from {
-    opacity: 0;
     transform: translateY(10px);
+    opacity: 0;
 }
 
 .fade-leave-to {
-    opacity: 0;
     transform: translateY(-10px);
+    opacity: 0;
 }
-
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .hero-title {
         font-size: 2.5rem;
     }
 
     .tabs {
         flex-direction: column;
-        width: 100%;
         background: none;
-        box-shadow: none;
+        width: 100%;
         padding: 0;
+        box-shadow: none;
     }
 
     .tab-button {
         width: 100%;
-        text-align: left;
         padding: 1rem;
         border-bottom: 1px solid var(--vp-c-divider);
         border-radius: 0;
+        text-align: left;
 
         &.active {
-            color: var(--vp-c-brand-1);
             background: var(--vp-c-bg-soft);
+            color: var(--vp-c-brand-1);
         }
     }
 

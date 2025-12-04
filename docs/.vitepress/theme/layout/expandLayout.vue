@@ -2,8 +2,9 @@
 import { computed, provide, nextTick, onMounted } from 'vue';
 import { useData } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
-import useKeyBoardControl from '@hooks/useKeyBoardControl';
-import { useSiteData } from '@hooks/useSiteData';
+import DesignSystemLayout from './DesignSystemLayout.vue';
+import useKeyBoardControl from '@shared/hooks/useKeyBoardControl';
+import { useSiteData } from '@shared/hooks/useSiteData';
 
 // Layout Component
 const { Layout } = DefaultTheme;
@@ -106,7 +107,9 @@ useKeyBoardControl({
 </script>
 
 <template>
-    <Layout :class="[frontmatter.class]">
+
+    <DesignSystemLayout v-if="frontmatter.layout === 'design-system' || frontmatter.designSystem" />
+    <Layout v-else :class="[frontmatter.class]">
         <template #doc-before>
             <div class="article-meta-header">
                 <div class="meta-row">
@@ -146,7 +149,7 @@ useKeyBoardControl({
         </template>
 
         <template #doc-after>
-            <OrgaGiscusComment />
+            <WidgetGiscusComment />
         </template>
 
         <template #aside-ads-before>

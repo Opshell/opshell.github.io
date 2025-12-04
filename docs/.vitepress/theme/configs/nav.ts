@@ -77,13 +77,13 @@ export default [
                 link: '/tags-list'
             },
             {
-                text: 'TimeLine',
-                link: '/time-line'
+                text: 'Timeline',
+                link: '/timeline'
             }
         ]
     },
     {
         text: 'Resume',
-        link: '/resume-layout'
+        link: '/resume'
     }
 ] as DefaultTheme.NavItem[];

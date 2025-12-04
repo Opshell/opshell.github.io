@@ -8,4 +8,8 @@ tags:
 layout: page
 ---
 
-<TemplateTagsList />
+<script setup>
+import { TagsList } from '@features/tags-list';
+</script>
+
+<TagsList />

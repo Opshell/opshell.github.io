@@ -1,13 +1,17 @@
 <script setup lang="ts">
-    import { getImage } from '@hooks/useApi';
-    import { file } from '@hooks/utilityFunctions';
+import { ref, watch, withDefaults } from 'vue';
+import { file } from '@shared/hooks/utilityFunctions';
+import useBackendApi from '@shared/hooks/useApi';
 
-    interface iProps {
-        src?: string
-        origin?: 'public' | 'src' | 'token' // public: 靜態資源, src: 動態資源(會編譯), token: 動態資源(請求要加token)
-        renderMethod?: 'blob' | 'base64'
-    }
-    const props = withDefaults(defineProps<iProps>(), {
+const { getImage } = useBackendApi();
+
+interface iProps {
+    src: string;
+    origin?: 'public' | 'src' | 'token';
+    renderMethod?: 'blob' | 'base64';
+}
+
+const props = withDefaults(defineProps<iProps>(), {
         src: '',
         origin: 'public',
         renderMethod: 'blob'

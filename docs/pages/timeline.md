@@ -8,4 +8,8 @@ sitemap:
   changefreq: weekly
 ---
 
-<TemplateTimelineList />
+<script setup>
+import { TimelineList } from '@features/timeline';
+</script>
+
+<TimelineList />

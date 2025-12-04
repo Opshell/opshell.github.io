@@ -9,47 +9,47 @@ summary:
 skills:
   - type: Front-End Skills
     items:
-      - icon: vue
+      - icon: colorful/vue
         text: Vue
         color: 4da986
-      - icon: vite
+      - icon: colorful/vite
         text: Vite
         color: 9B5FFC
-      - icon: typescript
+      - icon: colorful/typescript
         text: Typescript
         color: 3178C6
-      - icon: css
+      - icon: colorful/css
         text: CSS
         color: 1872B7
-      - icon: javascript
+      - icon: colorful/javascript
         text: Javascript
         color: FFBB00
-      - icon: scss
+      - icon: colorful/scss
         text: SCSS
         color: CC6699
-      - icon: html
+      - icon: colorful/html
         text: HTML
         color: E24B2A
   - type: Back-End Skills
     items:
-      - icon: php
+      - icon: colorful/php
         text: php
         color: 8993BE
-      - icon: sql
+      - icon: colorful/sql
         text: SQL
         color: F16529
-      - icon: laravel
+      - icon: colorful/laravel
         text: Laravel
         color: F35045
   - type: Design Skills
     items:
-      - icon: figma
+      - icon: colorful/figma
         text: Figma
         color: A259FF
-      - icon: photoshop
+      - icon: colorful/photoshop
         text: Photoshop
         color: 86caf7
-      - icon: illustrator
+      - icon: colorful/illustrator
         text: illustrator
         color: febd39
 contact:
@@ -78,24 +78,23 @@ contact:
 
 **前端工程師**{.vue}，要成為 **UIUX 設計師**{.info}、**後端**{.info}、**PM**{.info} 及 **客戶**{.info} 之間的潤滑油，協同處理問題，讓產品順利產出。<br/><br/>
 
-學習與成長，面對新的挑戰，一步步超越自己。<br/>
-在時代與技術的洪流中，不想被沖走就逆流而上吧。
-
----
-
 <script setup lang="ts">
-  import { data as workExperienceData } from '@/data/works.data';
+import { computed, ref, type Ref } from 'vue';
+// import { data as workExperienceData } from '@shared/data/works.data';
 
-  import ElSvgIcon from '@components/el/svgIcon.vue';
-  import MoleWorkExperience from '@components/mole/workExperience.vue';
+import {
+    data as workExperienceData,
+    WorkExperience,
+    SkillBox
+} from '@features/resume';
 
-  const workMonths: Ref<{[key: number]}> = ref({});
+const workMonths: Ref<{[key: number]: number}> = ref({});
 
-  const calcMonths = (index, months) => {
+const calcMonths = (index: number, months: number) => {
     workMonths.value[index] = months + 1;
-  }
+}
 
-  const workExperienceTotal = computed(() => {
+const workExperienceTotal = computed(() => {
       const count = Object.values(workMonths.value).reduce((acc, cur) => acc + cur, 0);
 
       const years = Math.floor(count / 12);
@@ -128,8 +127,7 @@ contact:
 </div>
 </header>
 
-<MoleWorkExperience
-  :key="workExperienceData[0].company"
+<WorkExperience
   :comp-img="workExperienceData[0].compImg"
   :company="workExperienceData[0].company"
   :location="workExperienceData[0].location"
@@ -151,9 +149,9 @@ contact:
   - 導入 **Postman Workspaces**{.info} + **Mock**{.info} 前後端串接SOP，**降低串接負載150%**。
   - 開發 **OAuth 2.0**{.info} 身份識別系統，**撰寫技術文件**及**執行相關教育訓練**。
   - 開發 無障礙網站，通過**無障礙 2A 級**{.info}審查。
-</MoleWorkExperience>
+</WorkExperience>
 
-<MoleWorkExperience
+<WorkExperience
   :key="workExperienceData[1].company"
   :comp-img="workExperienceData[1].compImg"
   :company="workExperienceData[1].company"
@@ -177,9 +175,9 @@ contact:
   - 主導 多團隊 **API 整合**{.info}：APP Team + 機臺 Team + 外包 Team。
   - 開發 **藍新金流**{.info}串接、**電子發票**{.info}串接，**內部團隊 API**{.info} 規劃及串接。
   - 開發 **外國金流串接(2C2P)**{.info}串接，**定期定額扣款**功能。
-</MoleWorkExperience>
+</WorkExperience>
 
-<MoleWorkExperience
+<WorkExperience
   :key="workExperienceData[2].company"
   :comp-img="workExperienceData[2].compImg"
   :company="workExperienceData[2].company"
@@ -201,9 +199,9 @@ contact:
   - 導入 **flex**{.info}、**grid**{.info}等更具效率，邏輯的現代切版方式，**實現更複雜的排版**，**提高切版效率**。
   - 開發 多套件底層整合，頁面**提高渲染效能50%**。
   - 開發 Slide 特效演算法並模組化。
-</MoleWorkExperience>
+</WorkExperience>
 
-<MoleWorkExperience
+<WorkExperience
   :key="workExperienceData[3].company"
   :comp-img="workExperienceData[3].compImg"
   :company="workExperienceData[3].company"
@@ -221,7 +219,7 @@ contact:
   - "客戶試用車牌辨識軟體"硬體金鑰鎖設計及撰寫。
   - "高速公路遠距無線車辨系統"，軟硬體開發、整合。
   - "barCode 無紅外影像辨識機"，核心演算法韌體化。
-</MoleWorkExperience>
+</WorkExperience>
 </section>
 
 <style lang="scss">

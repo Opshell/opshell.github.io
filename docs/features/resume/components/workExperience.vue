@@ -13,7 +13,7 @@
         calcMonths: [months: number]
     }>();
 
-    // [-]做一個可以開關的description 區塊
+    // [-] 做一個可以開關的description 區塊
     const isOpen = ref(props.isDescriptionOpen);
     const descriptionDom = ref<HTMLElement | null>(null);
     const descriptionHeight = computed(() => {
