@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, provide, nextTick, onMounted } from 'vue';
 import { useData } from 'vitepress';
+
 import DefaultTheme from 'vitepress/theme';
 import DesignSystemLayout from './DesignSystemLayout.vue';
+import CustomLayout from './fullyCustomerLayout.vue';
+
 import useKeyBoardControl from '@shared/hooks/useKeyBoardControl';
 import { useSiteData } from '@shared/hooks/useSiteData';
 
@@ -10,6 +13,8 @@ import { useSiteData } from '@shared/hooks/useSiteData';
 const { Layout } = DefaultTheme;
 
 // Data Hooks
+const aa = useData();
+console.log(aa);
 const { frontmatter, page, isDark } = useData();
 const siteData = useSiteData();
 
@@ -107,8 +112,10 @@ useKeyBoardControl({
 </script>
 
 <template>
+    <CustomLayout v-if="frontmatter.layout === 'custom'" />
 
-    <DesignSystemLayout v-if="frontmatter.layout === 'design-system' || frontmatter.designSystem" />
+    <DesignSystemLayout v-else-if="frontmatter.layout === 'design-system' || frontmatter.designSystem" />
+
     <Layout v-else :class="[frontmatter.class]">
         <template #doc-before>
             <div class="article-meta-header">
