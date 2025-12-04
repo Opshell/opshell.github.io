@@ -5,12 +5,6 @@ layout: doc
 ---
 
 <script setup>
-import ElButton from '@shared/components/btn.vue';
-import ElInput from '@shared/components/input.vue';
-import ElCard from '@shared/components/card.vue';
-import ElTag from '@shared/components/tag.vue';
-import ElImg from '@shared/components/img.vue';
-import { ref } from 'vue'
 
 const inputValue = ref('')
 const checkboxValue = ref(false)
@@ -32,56 +26,56 @@ const selectOptions = [
 ### 基礎按鈕
 
 <div class="demo-block">
-    <Btn>Default Button</Btn>
-    <Btn theme="primary">Primary Button</Btn>
-    <Btn theme="danger">Danger Button</Btn>
+    <ElBtn>Default Button</ElBtn>
+    <ElBtn theme="primary">Primary Button</ElBtn>
+    <ElBtn theme="danger">Danger Button</ElBtn>
 </div>
 
 ### 尺寸
 
 <div class="demo-block">
-    <Btn size="small">Small</Btn>
-    <Btn>Normal</Btn>
-    <Btn size="large">Large</Btn>
+    <ElBtn size="small">Small</ElBtn>
+    <ElBtn>Normal</ElBtn>
+    <ElBtn size="large">Large</ElBtn>
 </div>
 
 ### 樣式
 
 <div class="demo-block">
-    <Btn outline>Outline</Btn>
-    <Btn loading>Loading</Btn>
-    <Btn disabled>Disabled</Btn>
+    <ElBtn outline>Outline</ElBtn>
+    <ElBtn loading>Loading</ElBtn>
+    <ElBtn disabled>Disabled</ElBtn>
 </div>
 
 ## 輸入框 (Input)
 
 <div class="demo-block column">
-    <Input v-model="inputValue" placeholder="Basic Input" />
-    <Input v-model="inputValue" label="With Label" placeholder="Input with label" />
-    <Input v-model="inputValue" disabled placeholder="Disabled Input" />
+    <ElInput v-model="inputValue" placeholder="Basic Input" />
+    <ElInput v-model="inputValue" label="With Label" placeholder="Input with label" />
+    <ElInput v-model="inputValue" disabled placeholder="Disabled Input" />
     <p>Value: {{ inputValue }}</p>
 </div>
 
 ## 選擇器 (Select)
 
 <div class="demo-block">
-    <Select v-model="selectValue" :options="selectOptions" placeholder="Select an option" />
+    <ElSelect v-model="selectValue" :options="selectOptions" placeholder="Select an option" />
     <p>Selected: {{ selectValue }}</p>
 </div>
 
 ## 核取方塊 (Checkbox)
 
 <div class="demo-block">
-    <Checkbox v-model="checkboxValue" label="Check me" />
-    <Checkbox v-model="checkboxValue" label="Disabled" disabled />
+    <ElCheckbox v-model="checkboxValue" label="Check me" />
+    <ElCheckbox v-model="checkboxValue" label="Disabled" disabled />
     <p>Checked: {{ checkboxValue }}</p>
 </div>
 
 ## 單選按鈕 (Radio)
 
 <div class="demo-block">
-    <Radio v-model="radioValue" label="Option 1" value="option1" name="demo-radio" />
-    <Radio v-model="radioValue" label="Option 2" value="option2" name="demo-radio" />
+    <ElRadio v-model="radioValue" label="Option 1" value="option1" name="demo-radio" />
+    <ElRadio v-model="radioValue" label="Option 2" value="option2" name="demo-radio" />
     <p>Selected: {{ radioValue }}</p>
 </div>
 
@@ -89,11 +83,11 @@ const selectOptions = [
 
 <div class="demo-block column">
     <p>Text above</p>
-    <Divider />
+    <ElDivider />
     <p>Text below</p>
-    <Divider position="left">Left Text</Divider>
-    <Divider position="center">Center Text</Divider>
-    <Divider position="right">Right Text</Divider>
+    <ElDivider position="left">Left Text</ElDivider>
+    <ElDivider position="center">Center Text</ElDivider>
+    <ElDivider position="right">Right Text</ElDivider>
 </div>
 
 <style>

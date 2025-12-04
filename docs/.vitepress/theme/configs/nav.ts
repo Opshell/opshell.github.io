@@ -77,8 +77,8 @@ export default [
                 link: '/tags-list'
             },
             {
-                text: 'TimeLine',
-                link: '/time-line'
+                text: 'Timeline',
+                link: '/timeline'
             }
         ]
     },

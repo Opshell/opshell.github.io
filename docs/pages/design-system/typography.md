@@ -5,7 +5,7 @@ layout: doc
 ---
 
 <script setup>
-import TypeScale from '@features/design-system/ui/TypeScale.vue';
+import { TypeScale } from '@features/design-system';
 </script>
 
 # 排版 (Typography)

@@ -1,3 +1,20 @@
+// 預設文字樣式
+%baseFont {
+    fill: var(--color-primary);
+    color: var(--color-text);
+    font-family: Roboto, NotoSansTC, '微軟正黑體', Arial, sans-serif;
+    font-weight: 400;
+    -webkit-text-stroke: 0.1px;
+    letter-spacing: 1px;
+}
+
+$shadow: 0 0 1px 0 rgba(0, 0, 0, 15%);
+$shadow-in: 0 0 1px 0 rgba(0, 0, 0, 15%) inset;
+$cubic-FiSo: cubic-bezier(.37, .99, .92, .96); // 快進場緩停
+$cubic-FiFo: cubic-bezier(.25, .65, .85, .45); // 快進快出
+$cubic-SiRo: cubic-bezier(.31, 1.26, .19, 1.11); // 快速回彈
+$cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1); // 緩進微彈
+
 // 設定卷軸樣式
 @mixin setScroll($size: 10px) {
     // 卷軸體
@@ -191,16 +208,6 @@
     }
 }
 
-// 預設文字樣式
-%baseFont {
-    fill: var(--color-primary);
-    color: var(--color-text);
-    font-family: Roboto, NotoSansTC, '微軟正黑體', Arial, sans-serif;
-    font-weight: 400;
-    -webkit-text-stroke: 0.1px;
-    letter-spacing: 1px;
-}
-
 // 大區域 範圍設定
 %scope {
     width: 100%;
@@ -220,10 +227,3 @@
         padding-right: .83rem;
     }
 }
-
-$shadow: 0 0 1px 0 rgba(0, 0, 0, 15%);
-$shadow-in: 0 0 1px 0 rgba(0, 0, 0, 15%) inset;
-$cubic-FiSo: cubic-bezier(.37, .99, .92, .96); // 快進場緩停
-$cubic-FiFo: cubic-bezier(.25, .65, .85, .45); // 快進快出
-$cubic-SiRo: cubic-bezier(.31, 1.26, .19, 1.11); // 快速回彈
-$cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1); // 緩進微彈

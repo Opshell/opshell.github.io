@@ -1,3 +1,5 @@
+@use 'mixin' as *;
+
 .VPNav {
     .logo {
         @include setSize(40px, 40px);
