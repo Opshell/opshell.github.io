@@ -12,15 +12,15 @@
         "paths": {
             "@/*": ["./docs/*"],
             "@vitepress/*": ["./docs/.vitepress/*"],
+            "@theme/*": ["./docs/.vitepress/theme/*"],
 
             "@shared/*": ["./docs/shared/*"],
             "@components/*": ["./docs/shared/components/*"],
-            "@features/*": ["./docs/features/*"],
-            "@widgets/*": ["./docs/widgets/*"],
-            "@entities/*": ["./docs/entities/*"],
+            "@hooks/*": ["./docs/shared/hooks/*"],
+            "@data/*": ["./docs/shared/data/*"],
+            "@utils/*": ["./docs/shared/utils/*"],
 
-            "@data/*": ["./docs/data/*"],
-            "@hooks/*": ["./docs/hooks/*"],
+            "@features/*": ["./docs/features/*"],
             "@pages/*": ["./docs/pages/*"],
         }
     },
