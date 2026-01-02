@@ -3,6 +3,8 @@ import { computed } from 'vue';
 import { useData } from 'vitepress';
 import { useSiteData } from '@hooks/useSiteData'; // 使用你提供的 Hook
 
+import { useSidebar } from 'vitepress/dist/client/theme-default/composables/sidebar';
+
 const { frontmatter, page } = useData();
 const siteData = useSiteData();
 
@@ -58,6 +60,8 @@ const isActive = (url: string) => {
     const targetPath = url.replace(/\.html$/, '').replace(/^\//, '');
     return currentPath === targetPath;
 };
+
+
 </script>
 
 <template>
