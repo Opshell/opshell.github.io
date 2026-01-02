@@ -115,7 +115,7 @@ useKeyBoardControl({
 
     <DesignSystemLayout v-else-if="frontmatter.layout === 'design-system' || frontmatter.designSystem" />
 
-    <Layout v-else :class="[frontmatter.class]">
+    <Layout v-else-if="frontmatter.layout === 'aerg'" :class="[frontmatter.class]">
         <template #doc-before>
             <div class="article-meta-header">
                 <div class="meta-row">
@@ -210,7 +210,7 @@ useKeyBoardControl({
         </template>
     </Layout>
 
-    <!-- <ArticleLayout v-else /> -->
+    <ArticleLayout v-else :class="[frontmatter.class]" />
 </template>
 
 <style lang="scss">
