@@ -25,10 +25,10 @@ const timelineData = computed<YearGroup[]>(() => {
     const allPosts = Array.from(siteData.value.posts.values())
         .filter(post => post.date);
 
-    // 1. 先排序所有文章 (新 -> 舊)
+    // 先排序所有文章 (新 -> 舊)
     allPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    // 2. 建立巢狀結構
+    // 建立巢狀結構
     const grouped: Record<string, Record<string, Post[]>> = {};
 
     allPosts.forEach(post => {
@@ -43,7 +43,7 @@ const timelineData = computed<YearGroup[]>(() => {
         grouped[year][month].push(post);
     });
 
-    // 3. 轉為陣列並排序
+    // 轉為陣列並排序
     // Outer: Years (Desc)
     return Object.keys(grouped)
         .sort((a, b) => Number(b) - Number(a))
@@ -65,8 +65,8 @@ const timelineData = computed<YearGroup[]>(() => {
 // Helper: 數字轉英文月份 (更有質感)
 const getMonthName = (month: string) => {
     const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "[端] January", "[杏] February", "[桃] March", "[槐] April", "[蒲] May", "[荷] June",
+        "[蘭] July", "[桂] August", "[菊] September", "[陽] October", "[葭] November", "[臘] December"
     ];
     const index = parseInt(month) - 1;
     return monthNames[index] || month;
@@ -81,52 +81,55 @@ const formatDate = (dateString: string) => {
 </script>
 
 <template>
-    <div class="timeline-layout">
+    <div class="timeline-page">
         <div v-if="!timelineData.length" class="empty-state">
             <div class="msg">時間軸空空如也...</div>
         </div>
 
-        <div v-else class="timeline-wrapper">
-            <section
+        <div v-else class="timeline-page__wrap">
+            <div
                 v-for="yearGroup in timelineData"
                 :key="yearGroup.year"
-                class="year-section"
+                class="timeline-page__year-section"
             >
-                <div class="year-header">
-                    <span class="year-number">{{ yearGroup.year }}</span>
+                <div class="timeline-page__year-header">
+                    <span class="year">{{ yearGroup.year }}</span>
                 </div>
 
-                <div class="year-content-track">
-                    <div
+                <div class="timeline-page__year-container">
+                    <section
                         v-for="monthGroup in yearGroup.months"
                         :key="monthGroup.month"
-                        class="month-section"
+                        class="timeline-page__month-section"
                     >
-                        <div class="month-label">
-                            {{ monthGroup.monthLabel }}
-                        </div>
+                        <header class="timeline-page__month-header">
+                            <h2 class="month">
+                                {{ monthGroup.monthLabel }}
+                                <span class="sr-only">{{ yearGroup.year }}</span>
+                            </h2>
+                        </header>
 
-                        <div class="posts-group">
-                            <article
+                        <ul class="timeline-page__month-container">
+                            <li
                                 v-for="post in monthGroup.posts"
                                 :key="post.url"
-                                class="timeline-item"
+                                class="timeline-page__post-item"
                             >
-                                <div class="time-marker">
+                                <div class="timeline-page__post-marker">
                                     <div class="dot"></div>
                                 </div>
 
-                                <a :href="post.url" class="modern-card">
+                                <a :href="post.url" class="timeline-page__post-card">
                                     <div class="card-body">
                                         <div class="card-meta">
-                                            <div class="date-badge">
+                                            <time class="date-badge" :datetime="post.date">
                                                 <ElSvgIcon name="calendar_month" class="icon" />
                                                 {{ formatDate(post.date) }}
-                                            </div>
-                                            <div class="category-pill" v-if="post.category">
+                                            </time>
+                                            <span class="category-pill" v-if="post.category">
                                                 <ElSvgIcon name="folder" class="icon" />
                                                 {{ post.category }}
-                                            </div>
+                                            </span>
                                         </div>
 
                                         <h3 class="card-title">{{ post.title }}</h3>
@@ -146,11 +149,11 @@ const formatDate = (dateString: string) => {
                                         <img :src="post.image" loading="lazy" alt="cover" />
                                     </div>
                                 </a>
-                            </article>
-                        </div>
-                    </div>
+                            </li>
+                        </ul>
+                    </section>
                 </div>
-            </section>
+            </div>
         </div>
     </div>
 </template>
@@ -161,11 +164,196 @@ $line-width: 2px;
 $dot-size: 14px;
 $line-left-pos: 24px;
 
-.timeline-layout {
-    max-width: 900px;
+
+// **Variables & Config**
+$line-color: var(--vp-c-divider);       // 靜態線條顏色
+$active-color: var(--vp-c-brand);       // 互動發光顏色
+$dot-size: 12px;                        // 節點大小
+$line-offset: 19px;                     // 線條距離左邊的距離 (對齊 Month header 的視覺中心或自訂)
+// **Animations**
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(var(--vp-c-brand-1), 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(var(--vp-c-brand-1), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--vp-c-brand-1), 0); }
+}
+@keyframes flow-down {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 0% 100%; }
+}
+
+
+
+.timeline-page {
+    max-width: var(--vp-layout-max-width);
     min-height: 60vh;
     padding: 3rem 1.5rem;
     margin: 0 auto;
+
+    &__wrap {
+
+    }
+
+    &__year {
+        &-section {
+            // display: flex;
+            // align-items: flex-start;
+            display: grid;
+            grid-template: "year section" auto / 120px 1fr;
+            gap: 1rem;
+        }
+
+        &-header {
+            position: sticky;
+            align-self: start;
+            top: calc(var(--vp-nav-height) + 1rem);
+            padding-bottom: 1.5rem;
+            z-index: 10;
+
+            .year {
+                padding-right: 1rem;
+                color: var(--vp-c-text-1);
+                font-size: 2.5rem;
+                font-weight: 900;
+                line-height: 1;
+                z-index: 2;
+                -webkit-text-stroke: 1px var(--vp-c-brand-light);
+            }
+        }
+
+        &-container {
+
+        }
+    }
+
+    &__month {
+        &-section {
+            position: relative; // 為了讓線條定位
+            // display: flex;
+            // align-items: flex-start;
+            display: grid;
+            grid-template: "month section" auto / 300px 1fr;
+            gap: 1rem;
+        }
+
+        &-header {
+            background-color: var(--vp-c-bg);
+            position: sticky;
+            align-self: start;
+            top: calc(var(--vp-nav-height) + 1rem);
+            padding-bottom: 1.5rem;
+            z-index: 10;
+            .month {
+                padding-right: 1rem;
+                color: var(--vp-c-text-1);
+                font-size: 2.5rem;
+                font-weight: 900;
+                line-height: 1;
+                z-index: 2;
+                -webkit-text-stroke: 1px var(--vp-c-brand-light);
+            }
+        }
+
+        // 時間軸的主線 (垂直線)
+        &-container {
+            position: relative;
+            padding-left: 3rem; // 留出空間給線條和節點
+            list-style: none;
+            margin: 0;
+
+            // 科技感主線：使用漸層讓它頭尾消失，不顯得生硬
+            &::before {
+                content: '';
+                position: absolute;
+                left: 6px; // 調整到圓點中心
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: linear-gradient(
+                    to bottom,
+                    transparent 0%,
+                    $line-color 15%,
+                    $line-color 85%,
+                    transparent 100%
+                );
+                z-index: 1;
+            }
+        }
+    }
+
+    &__post {
+        &-item {
+            position: relative;
+            margin-bottom: 2rem;
+
+            // Hover 效果：當滑鼠移到卡片，觸發整個項目的活性
+            &:hover {
+                .timeline-page__post-marker .dot {
+                    background-color: $active-color;
+                    border-color: $active-color;
+                    box-shadow: 0 0 10px $active-color; // 發光
+                    transform: scale(1.2); // 稍微放大
+                }
+
+                // 連結線變色
+                .timeline-page__post-marker::after {
+                    width: 2rem; // 伸長
+                    background-color: $active-color;
+                    opacity: 1;
+                }
+            }
+        }
+
+        &-marker {
+            position: absolute;
+    left: -3rem; // 回推到 padding 的位置
+    top: 1.5rem; // 對齊卡片的 Title 高度 (視你的 Card padding 而定)
+    width: 20px;
+    height: 20px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // 水平連接線 (從圓點連到卡片的線)
+    &::after {
+      content: '';
+      position: absolute;
+      left: 100%; // 從圓點右邊開始
+      top: 50%;
+                width: 0.5rem; // 預設很短
+                height: 1px;
+                background-color: $line-color;
+                transition: all 0.3s ease;
+                opacity: 0.5;
+            }
+
+            .dot {
+                width: $dot-size;
+      height: $dot-size;
+      border-radius: 50%;
+      border: 2px solid $line-color;
+      background-color: var(--vp-c-bg); // 中間鏤空 (背景色)
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      z-index: 2;
+            }
+        }
+
+        &-card {
+            display: block; // 讓它吃滿寬度
+    position: relative;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    &:hover {
+      transform: translateX(5px); // 輕微右移，配合水平線伸長
+      // 這裡可以加一點 Glassmorphism 效果
+    }
+            .card {
+
+            }
+        }
+    }
+
 }
 
 .year-section {
@@ -186,27 +374,6 @@ $line-left-pos: 24px;
 
     &:last-child::before {
         display: none;
-    }
-}
-
-.year-header {
-    position: sticky;
-    top: var(--vp-nav-height);
-    background: transparent;
-    padding-bottom: 1.5rem;
-    z-index: 10;
-
-    .year-number {
-        position: relative;
-        display: inline-block;
-        background: var(--vp-c-bg);
-        padding-right: 1rem;
-        color: transparent;
-        font-size: 2.5rem;
-        font-weight: 900;
-        line-height: 1;
-        z-index: 2;
-        -webkit-text-stroke: 1px var(--vp-c-brand-light);
     }
 }
 

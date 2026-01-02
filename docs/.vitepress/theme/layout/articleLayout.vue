@@ -7,6 +7,7 @@ import useKeyBoardControl from '@shared/hooks/useKeyBoardControl';
 // 深度引入 VitePress 原生導航與頁尾 (這是合法的黑魔法)
 import VPNav from 'vitepress/dist/client/theme-default/components/VPNav.vue';
 import VPFooter from 'vitepress/dist/client/theme-default/components/VPFooter.vue';
+import VPSidebar from 'vitepress/dist/client/theme-default/components/VPSidebar.vue';
 import VPLocalNav from 'vitepress/dist/client/theme-default/components/VPLocalNav.vue'; // 手機版選單控制用
 
 import {
