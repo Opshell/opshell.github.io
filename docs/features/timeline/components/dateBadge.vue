@@ -19,8 +19,8 @@
 <template>
   <time class="date-badge" :datetime="date">
     <span class="day">{{ splitDate.day }}</span>
-    <span class="year">{{ splitDate.year }}</span>
-    <span class="month">{{ splitDate.month }}</span>
+    <!-- <span class="year">{{ splitDate.year }}</span>
+    <span class="month">{{ splitDate.month }}</span> -->
   </time>
 </template>
 
@@ -30,14 +30,14 @@
         grid-template: "day  day" auto
                        "year month" auto /
                         auto auto;
-        font-family: var(--vp-font-family-mono);
+        padding: calc(1rem - 2px) 1rem 0 0;
         line-height: 1;
 
         .day {
             grid-area: day;
             @include setFlex(center, flex-end);
             color: var(--vp-c-brand);
-            font-size: 4rem;
+            font-size: var(--op-timeline-font-size);
             font-weight: bold;
         }
         .year {

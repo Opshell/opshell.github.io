@@ -380,7 +380,7 @@ export default defineConfig({
             //     cert: fs.readFileSync('./certs/localhost+2.pem'),
             // },
             host: true, // [!]預設是掛載 localhost，設定為 true 可以允許外部連接 (Vite 才能連 Docker Container 的 port)
-            port: 8080,
+            port: 8086,
             strictPort: false, // Port被占用時直接退出， false會嘗試連接下一個可用Port
             open: true, // dev時自動打開網頁，也可以給網址指定。
             // 自訂代理規則，配合後端進行Api呼叫等。

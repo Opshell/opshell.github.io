@@ -1,30 +1,25 @@
 <script setup lang="ts">
-    // import { Router } from 'vue-router';
+    interface iProps {
+        name: string
+        href?: string
+    }
+    const { name = 'circle', href = '' } = defineProps<iProps>();
 
-    // 用於存放元件的 props
-    defineProps({
-        name: { type: String, default: 'circle' },
-        href: { type: String, default: '' }
-    });
+    // 跳轉
+    function jump() {
+        if (href === '') { return; }
 
-    // let router: Router | null = null;
-    // if(props.href !== ''){
-    //     router = useRouter(); // 操作路由
-    // }
-
-    // 跳轉ss
-    // const jump = () => {
-    //     if (props.href !== '' && router) {
-    //         router.push(props.href);
-    //     }
-    // };
+        window.open(href, '_self');
+    }
 </script>
 
 <template>
-    <div class="icon" :class="{ btn: href !== '' }">
+    <div class="icon" :class="{ btn: href !== '' }" @click="jump">
         <svg class="svg">
             <use :xlink:href="`#${name}`" />
         </svg>
+
+        <slot />
     </div>
 </template>
 
@@ -35,8 +30,8 @@
         @include setFlex();
         @include setSize(33px, 33px);
         padding: 2px;
-        fill: #bbb;
-        transition: 0.2s $cubic-FiSo;
+        fill: currentColor;
+        transition: 0.2s var(--op-cubic-FiSo);
         .svg {
             @include setFlex();
             @include setSize(100%, 100%);

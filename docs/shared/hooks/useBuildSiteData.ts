@@ -30,7 +30,7 @@ export interface Post {
     title: string
     date: string
     image: string
-    category: string
+    category: string[]
     tags: string[]
     excerpt: string
     // ... 之後可擴充其他需要的 frontmatter 欄位
@@ -157,7 +157,7 @@ function processFile(fullPath: string, contentRoot: string): Post | null {
         url,
         title: frontmatter.title as string,
         image: frontmatter.image as string ?? '/images/no_image.svg',
-        category: frontmatter.categories as string ?? '',
+        category: frontmatter.categories ?? ['雜談'],
         date: frontmatter.createdAt as string ?? '',
         tags: frontmatter.tags as string[] ?? [],
         excerpt: getExcerpt(content, frontmatter.description as string)

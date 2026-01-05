@@ -35,44 +35,9 @@
         #f4b936 50%
     );
     --vp-home-hero-image-filter: blur(44px);
-}
-
-.dark {
-    --vp-c-brand-1: #f5b81f;
-    --vp-c-brand-2: #d8a72b;
-    --vp-c-brand-3: #b99436;
-    --vp-c-brand-soft: rgb(185, 148, 54, 16%);
-    --vp-c-indigo-1: #5c9cf1;
-    --vp-c-indigo-2: #3079d7;
-    --vp-c-indigo-3: #2866b6;
-    --vp-c-indigo-soft: rgb(80, 143, 224, 14%);
-}
-@media (width >= 640px) {
-    :root {
-        --vp-home-hero-image-filter: blur(56px);
-    }
-}
-@media (width >= 960px) {
-    :root {
-        --vp-home-hero-image-filter: blur(68px);
-    }
-}
-
-/**
-* Component: Algolia
-* -------------------------------------------------------------------------- */
-
-.DocSearch {
-    --docsearch-primary-color: var(--vp-c-brand-1) !important;
-}
 
 
-:root {
-    --color-primary: #FF7B00;
-    --color-primary-light: #FFA100;
-    --color-primary-dark: #853D14;
-    --color-primary-dilute: #FFD4A1;
-    --color-sub: #e5b436;
+    // meals
     --color-hover-light: #FFD4A1;
     --color-extreme: #000;
     --color-extreme-reverse: #fff;
@@ -101,5 +66,95 @@
     --font-size-remark: 0.875rem;
 
     --op-timing-FiSo: cubic-bezier(.37, .99, .92, .96);
+
+    // check
+       // 主題色
+    --color-primary: #318b90;
+    --color-primary-soft: rgb(49, 139, 144, 60%);
+    --color-primary-dark: #216d71;
+    --color-primary-light: #3fa5aa; // #3a7c7f
+    --color-primary-subtle: #e4edee;
+
+    // 輔助色(警示也用這組)
+    --color-sub: #dc9956;
+    --color-sub-dark: #cf7f50;
+    --color-sub-light: #FAAD14;
+    --color-sub-subtle: #faf2e9;
+
+    // 中性色
+    --color-gray-000: #FFF; /* 純白 */
+    --color-gray-050: #F7F7F7;
+    --color-gray-100: #ECECEC;
+    --color-gray-200: #D8D8D8;
+    --color-gray-300: #C4C4C4;
+    --color-gray-400: #A8A8A8;
+    --color-gray-500: #8C8C8C;
+    --color-gray-600: #6A6A6A;
+    --color-gray-700: #404040;
+    --color-gray-800: #262626;
+    --color-gray-900: #000; /* 純黑 */
+
+    // 狀態色
+    --color-green: #4CAA45;
+
+    --color-red-dark: #c45a3f;
+    --color-red: #DE6042;
+    --color-red-light: #e17559;
+    --color-red-subtle: #FFDFDF;
+
+    --color-blue: #1899d2;
+    --color-blue-light: #f3fafd;
+    --color-blue-dark: #0b88bf;
+
+    --color-cover-background: rgb(0, 0, 0, 60%); // 覆蓋層背景色
+    --color-chiffon: rgb(255, 255, 255, 100%);
+
+    // 字體
+    --font-family-outline: NotoSansTC, '微軟正黑體', Arial, sans-serif;
+    --font-family-ronud: "GenSenRounded2TW", NotoSansTC, '微軟正黑體', Arial, sans-serif;
+
+    // 字級
+    --font-size-s: 1rem; // 16px
+    --font-size-m: 1.125rem; // 18px
+    --font-size-l: 1.25rem;  // 20px
+    --font-size-xl: 1.5rem;  // 24px
+    --font-size-xxl: 1.625rem;  // 26px
+
+    // 動畫時間曲線
+    --cubic-FiSo: cubic-bezier(.37, .99, .92, .96); // 快進場緩停
+    --cubic-FiFo: cubic-bezier(.25, .65, .85, .45); // 快進快出
+    --cubic-SiRo: cubic-bezier(.31, 1.26, .19, 1.11); // 快速回彈
+    --cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1); // 緩進微彈
 }
 
+.dark {
+    --vp-c-brand-1: #f5b81f;
+    --vp-c-brand-2: #d8a72b;
+    --vp-c-brand-3: #b99436;
+    --vp-c-brand-soft: rgb(185, 148, 54, 16%);
+    --vp-c-indigo-1: #5c9cf1;
+    --vp-c-indigo-2: #3079d7;
+    --vp-c-indigo-3: #2866b6;
+    --vp-c-indigo-soft: rgb(80, 143, 224, 14%);
+
+    --color-extreme: #fff;
+    --color-extreme-reverse: #000;
+}
+@media (width >= 640px) {
+    :root {
+        --vp-home-hero-image-filter: blur(56px);
+    }
+}
+@media (width >= 960px) {
+    :root {
+        --vp-home-hero-image-filter: blur(68px);
+    }
+}
+
+/**
+* Component: Algolia
+* -------------------------------------------------------------------------- */
+
+.DocSearch {
+    --docsearch-primary-color: var(--vp-c-brand-1) !important;
+}
