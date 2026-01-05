@@ -104,7 +104,7 @@ export default defineConfig({
                 items: await getSidebar('/article/code-sea/css')
             }],
             '/article/code-sea/javascript/': [{
-                text: 'Jypescript',
+                text: 'Javascript',
                 items: await getSidebar('/article/code-sea/javascript')
             }],
             '/article/code-sea/typescript/': [{
