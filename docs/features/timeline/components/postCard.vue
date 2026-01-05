@@ -31,9 +31,7 @@
             </p>
 
             <div v-if="post.tags.length > 0" class="tag-box">
-                <a v-for="tag in post.tags" class="tag" :href="`/tags-list.html?tag=${tag}`">
-                    #{{tag}}
-                </a>
+                <ElTag v-for="tag in post.tags" :key="tag" :tag />
             </div>
 
             <a :href="post.url" class="read-more">
