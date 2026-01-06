@@ -37,14 +37,25 @@ const tags = computed(() => {
         </div>
 
         <div class="widget-card tags">
-            <h4 class="w-title"><ElSvgIcon name="tag" class="icon"/> Topics</h4>
+            <h4 class="w-title">
+                <ElSvgIcon name="tag" class="icon"/>
+                Topics
+            </h4>
+
             <div class="tags-cloud">
-                 <a v-for="tag in tags" :key="tag.name"
-                    :href="`/tags-list.html?tag=${tag.name}&page=1`"
+                <template v-for="tag in tags" :key="tag.name">
+                    <a v-if="tag.count > 1"
+                        :href="`/tags-list.html?tag=${tag.name}&page=1`"
+                        class="tag-link">
+                        <span class="hash">#</span>{{ tag.name }}
+                        <span class="t-count">{{ tag.count }}</span>
+                    </a>
+                </template>
+                <a
+                    :href="`/tags-list.html?tag=vue&page=1`"
                     class="tag-link">
-                    <span class="hash">#</span>{{ tag.name }}
-                    <span class="t-count">{{ tag.count }}</span>
-                 </a>
+                    More ...
+                </a>
             </div>
         </div>
     </div>
