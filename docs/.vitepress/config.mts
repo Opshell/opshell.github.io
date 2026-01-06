@@ -337,7 +337,8 @@ export default defineConfig({
                             // default imports
                             ['default', 'axios']
                         ],
-                        'vue': ['PropType', 'defineProps', 'InjectionKey', 'Ref']
+                        // vue 3.5.x
+                        vue: ['useTemplateRef', 'onWatcherCleanup', 'useId']
                     }
                 ],
                 dirs: [
@@ -345,9 +346,9 @@ export default defineConfig({
                     '../shared/utils'
                 ],
                 dts: './types/auto-imports.d.ts', // typescript 宣告檔案位置
-                vueTemplate: false,
+                vueTemplate: true,
                 eslintrc: {
-                    enabled: false, // Default `false`
+                    enabled: true, // Default `false`
                     filepath: './.eslintrc-auto-import.json',
                     globalsPropValue: true
                 }

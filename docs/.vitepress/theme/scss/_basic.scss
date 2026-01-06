@@ -31,14 +31,14 @@ html {
 // 視覺隱藏，但機器可讀 (SEO Friendly)
 .sr-only {
     position: absolute;
+    clip: rect(0, 0, 0, 0);
     width: 1px;
     height: 1px;
     padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
     border-width: 0;
+    margin: -1px;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 // text color
@@ -48,6 +48,7 @@ html {
 .warning { color: var(--vp-c-yellow-1) !important; }
 .success { color: var(--vp-c-green-2) !important; }
 .vue { color: #4AA985 !important; }
+.typescript { color: #3178C6 !important; }
 
 .vp-doc {
     // group
@@ -120,7 +121,7 @@ html {
                     transition: border-color 0.15s $cubic-FiSo,
                                 height 0.05s $cubic-FiSo,
                                 width 0.1s $cubic-FiSo 0.04s;
-                    filter: drop-shadow(0 0 3px rgba(0, 0, 0, 100%));
+                    filter: drop-shadow(0 0 3px rgb(0, 0, 0, 100%));
                 }
             }
         }

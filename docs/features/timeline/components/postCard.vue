@@ -199,6 +199,7 @@
                 margin-bottom: .5rem;
                 color: var(--vp-c-text-2);
                 font-size: 1rem;
+                font-weight: 300;
                 line-height: 1.6;
                 overflow: hidden;
                 line-clamp: 2;

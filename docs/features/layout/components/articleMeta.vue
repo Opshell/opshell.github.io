@@ -35,7 +35,7 @@ import { useData } from 'vitepress';
         </div>
 
         <div v-if="frontmatter.image" class="banner-block">
-            <img :src="frontmatter.image" :alt="`${frontmatter.title}_image`" />
+            <img :src="frontmatter.image" :alt="`${frontmatter.title}_image`" loading="lazy"/>
         </div>
     </header>
 </template>
@@ -64,13 +64,6 @@ import { useData } from 'vitepress';
             display: flex;
             gap: 6px;
             align-items: center;
-
-            .icon {
-                width: 16px;
-                height: 16px;
-                fill: currentColor;
-                opacity: 0.8;
-            }
 
             // Font fix for numbers/dates
             &.date, &.views {
