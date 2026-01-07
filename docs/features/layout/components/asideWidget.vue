@@ -80,7 +80,7 @@
 
     .widget-card {
         background: var(--vp-c-bg-soft);
-        padding: 1.5rem;
+        padding: var(--card-padding);
         border-radius: 12px;
         box-shadow: var(--card-shadow);
 

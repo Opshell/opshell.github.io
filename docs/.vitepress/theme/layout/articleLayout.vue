@@ -271,6 +271,13 @@
             }
         }
 
+        &__article {
+            background: var(--vp-c-bg-soft);
+            padding: var(--card-padding);
+            border-radius: .75rem;
+            box-shadow: var(--card-shadow);
+        }
+
         // --- Focus Mode ---
         &.focus-mode .article-layout {
             &__container {

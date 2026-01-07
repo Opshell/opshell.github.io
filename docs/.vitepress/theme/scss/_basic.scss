@@ -51,6 +51,28 @@ html {
 .typescript { color: #3178C6 !important; }
 
 .vp-doc {
+    // basic
+    // h1, h2, h3, h4, h5, h6 {
+    //     color: var(--color-title);
+    // }
+
+    // h2, h3, h4 {
+    //     padding-left: 0;
+    //     transition: .2s var(--cubic-FiSo);
+    //     &:hover {
+    //         padding-left: 1.2em;
+    //     }
+    // }
+
+    // 程式碼區塊
+    div[class*=language-], .vp-block {
+        // background: var(--color-gray-100);
+        border-radius: .5rem;
+        margin: 1rem 0;
+        box-shadow: 0 0 1px 0 rgb(0, 0, 0, 10%);
+    }
+
+
     // group
     .in-out-demo-block {
         background-color: var(--vp-c-indigo-soft);
