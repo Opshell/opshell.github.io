@@ -79,7 +79,10 @@ const handleClick = (e: MouseEvent, link: string) => {
         v-if="headers.length > 0"
         aria-label="Table of Contents"
     >
-        <h3 class="toc-title">ON THIS PAGE</h3>
+        <h3 class="toc-title">
+            <ElSvgIcon name="menu_book" />
+            ON THIS PAGE
+        </h3>
 
         <div
             class="active-marker"
@@ -129,6 +132,9 @@ const handleClick = (e: MouseEvent, link: string) => {
         }
 
         .toc-title {
+            @include setFlex(flex-start, center, .5rem);
+            padding-left: 2.5rem;
+
             // 建議加上具體高度或 margin 以便計算，雖然我們改用 rect 計算了所以沒差
             margin-bottom: 0.75rem;
 

@@ -1,135 +1,135 @@
 <script setup lang="ts">
-import { ref, provide, nextTick, computed } from 'vue';
-import { useData } from 'vitepress';
-import { useSiteData } from '@hooks/useSiteData';
+    import { ref, provide, nextTick, computed } from 'vue';
+    import { useData } from 'vitepress';
+    import { useSiteData } from '@hooks/useSiteData';
 
 
 
-// 深度引入 VitePress 原生導航與頁尾 (這是合法的黑魔法)
-import VPNav from 'vitepress/dist/client/theme-default/components/VPNav.vue';
-import VPFooter from 'vitepress/dist/client/theme-default/components/VPFooter.vue';
-import VPSidebar from 'vitepress/dist/client/theme-default/components/VPSidebar.vue';
-import VPDocAsideOutline from 'vitepress/dist/client/theme-default/components/VPDocAsideOutline.vue';
-import VPLocalNav from 'vitepress/dist/client/theme-default/components/VPLocalNav.vue'; // 手機版選單控制用
+    // 深度引入 VitePress 原生導航與頁尾 (這是合法的黑魔法)
+    import VPNav from 'vitepress/dist/client/theme-default/components/VPNav.vue';
+    import VPFooter from 'vitepress/dist/client/theme-default/components/VPFooter.vue';
+    import VPSidebar from 'vitepress/dist/client/theme-default/components/VPSidebar.vue';
+    import VPDocAsideOutline from 'vitepress/dist/client/theme-default/components/VPDocAsideOutline.vue';
+    import VPLocalNav from 'vitepress/dist/client/theme-default/components/VPLocalNav.vue'; // 手機版選單控制用
 
-import {
-    ArticleTOC,
-    AsideWidget,
-    SeriesSidebar,
-    ArticleMeta,
-    useTOC
-} from '@features/layout';
-
-
-const { frontmatter, page, isDark } = useData();
-const siteData = useSiteData();
+    import {
+        ArticleTOC,
+        AsideWidget,
+        SeriesSidebar,
+        ArticleMeta,
+        useTOC
+    } from '@features/layout';
 
 
-const contentDom = ref<HTMLElement>();
-// 把 ref 丟進去 useTOC
-const { headers, activeAnchor } = useTOC(contentDom);
-
-// --- Focus Mode ---
-const isFocusMode = ref(false);
-const toggleFocus = () => isFocusMode.value = !isFocusMode.value;
-
-// --- Mobile Sidebar Logic (VPNav 需要這個來控制手機版選單) ---
-const isSidebarOpen = ref(false);
-const openSidebar = () => { isSidebarOpen.value = true; };
-const closeSidebar = () => { isSidebarOpen.value = false; };
+    const { frontmatter, page, isDark } = useData();
+    const siteData = useSiteData();
 
 
-// --- 1. TypeScript Fix & Data Logic ---
-// 修復：使用 computed 並處理 siteData 可能為 undefined 的情況
-const tags = computed(() => {
-    if (!siteData.value) return [];
+    const contentDom = ref<HTMLElement>();
+    // 把 ref 丟進去 useTOC
+    const { headers, activeAnchor } = useTOC(contentDom);
 
-    return Array.from(siteData.value.tags.entries())
-        .map(([name, data]) => ({
-            name,
-            count: data.count
-        }))
-        // 排序：數量多的在前面
-        .sort((a, b) => b.count - a.count);
-});
+    // --- Focus Mode ---
+    const isFocusMode = ref(false);
+    const toggleFocus = () => isFocusMode.value = !isFocusMode.value;
 
-const lastUpdated = computed(() => {
-    const timestamp = page.value.lastUpdated as number;
-    return timestamp > 0 ? new Date(timestamp).toLocaleDateString() : '';
-});
+    // --- Mobile Sidebar Logic (VPNav 需要這個來控制手機版選單) ---
+    const isSidebarOpen = ref(false);
+    const openSidebar = () => { isSidebarOpen.value = true; };
+    const closeSidebar = () => { isSidebarOpen.value = false; };
 
-// --- 2. View Transitions Logic (保持原樣) ---
-function enableTransitions() {
-    return (
-        'startViewTransition' in document
-        && window.matchMedia('(prefers-reduced-motion: no-preference)').matches
-    );
-}
 
-provide('toggle-appearance', async ({ clientX: x, clientY: y }: MouseEvent) => {
-    if (!enableTransitions()) {
-        isDark.value = !isDark.value;
-        return;
+    // --- 1. TypeScript Fix & Data Logic ---
+    // 修復：使用 computed 並處理 siteData 可能為 undefined 的情況
+    const tags = computed(() => {
+        if (!siteData.value) return [];
+
+        return Array.from(siteData.value.tags.entries())
+            .map(([name, data]) => ({
+                name,
+                count: data.count
+            }))
+            // 排序：數量多的在前面
+            .sort((a, b) => b.count - a.count);
+    });
+
+    const lastUpdated = computed(() => {
+        const timestamp = page.value.lastUpdated as number;
+        return timestamp > 0 ? new Date(timestamp).toLocaleDateString() : '';
+    });
+
+    // --- 2. View Transitions Logic (保持原樣) ---
+    function enableTransitions() {
+        return (
+            'startViewTransition' in document
+            && window.matchMedia('(prefers-reduced-motion: no-preference)').matches
+        );
     }
 
-    const clipPath = [
-        `circle(0px at ${x}px ${y}px)`,
-        `circle(${Math.hypot(
-            Math.max(x, innerWidth - x),
-            Math.max(y, innerHeight - y)
-        )}px at ${x}px ${y}px)`
-    ];
-
-    await document.startViewTransition(async () => {
-        isDark.value = !isDark.value;
-        await nextTick();
-    }).ready;
-
-    document.documentElement.animate(
-        { clipPath: isDark.value ? clipPath.reverse() : clipPath },
-        {
-            duration: 300,
-            easing: 'cubic-bezier(.37, .99, .92, .96)',
-            pseudoElement: `::view-transition-${isDark.value ? 'old' : 'new'}(root)`,
-            fill: 'forwards'
+    provide('toggle-appearance', async ({ clientX: x, clientY: y }: MouseEvent) => {
+        if (!enableTransitions()) {
+            isDark.value = !isDark.value;
+            return;
         }
-    );
-});
 
-// --- 3. Keyboard Control Logic (保持原樣) ---
-function selectorClickHandler(selector: string) {
-    const element = document.querySelector(selector) as HTMLElement;
-    if (element) element.click();
-}
+        const clipPath = [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${Math.hypot(
+                Math.max(x, innerWidth - x),
+                Math.max(y, innerHeight - y)
+            )}px at ${x}px ${y}px)`
+        ];
 
-function getOutlines() {
-    const outlines = document.querySelectorAll('.VPDocOutlineItem.root .outline-link');
-    const activeIndex = Array.from(outlines).findIndex(outline => outline.classList.contains('active'));
-    return { outlines, activeIndex };
-}
+        await document.startViewTransition(async () => {
+            isDark.value = !isDark.value;
+            await nextTick();
+        }).ready;
 
-// useKeyBoardControl({
-//     'ArrowLeft': () => selectorClickHandler('.pager-link.prev'),
-//     'ArrowRight': () => selectorClickHandler('.pager-link.next'),
-//     'Ctrl+ArrowUp': () => {
-//         const { outlines, activeIndex } = getOutlines();
-//         if (outlines.length <= 0) return;
-//         if (activeIndex > 0) {
-//             (outlines[activeIndex - 1] as HTMLElement).click();
-//         } else {
-//             window.scrollTo(0, 0);
-//         }
-//     },
-//     'Ctrl+ArrowDown': () => {
-//         const { outlines, activeIndex } = getOutlines();
-//         if (outlines.length > 0) {
-//             const nextIndex = activeIndex + 1;
-//             if (nextIndex < outlines.length) {
-//                 (outlines[nextIndex] as HTMLElement).click();
-//             }
-//         }
-//     }
-// }, true);
+        document.documentElement.animate(
+            { clipPath: isDark.value ? clipPath.reverse() : clipPath },
+            {
+                duration: 300,
+                easing: 'cubic-bezier(.37, .99, .92, .96)',
+                pseudoElement: `::view-transition-${isDark.value ? 'old' : 'new'}(root)`,
+                fill: 'forwards'
+            }
+        );
+    });
+
+    // --- 3. Keyboard Control Logic (保持原樣) ---
+    function selectorClickHandler(selector: string) {
+        const element = document.querySelector(selector) as HTMLElement;
+        if (element) element.click();
+    }
+
+    function getOutlines() {
+        const outlines = document.querySelectorAll('.VPDocOutlineItem.root .outline-link');
+        const activeIndex = Array.from(outlines).findIndex(outline => outline.classList.contains('active'));
+        return { outlines, activeIndex };
+    }
+
+    // useKeyBoardControl({
+    //     'ArrowLeft': () => selectorClickHandler('.pager-link.prev'),
+    //     'ArrowRight': () => selectorClickHandler('.pager-link.next'),
+    //     'Ctrl+ArrowUp': () => {
+    //         const { outlines, activeIndex } = getOutlines();
+    //         if (outlines.length <= 0) return;
+    //         if (activeIndex > 0) {
+    //             (outlines[activeIndex - 1] as HTMLElement).click();
+    //         } else {
+    //             window.scrollTo(0, 0);
+    //         }
+    //     },
+    //     'Ctrl+ArrowDown': () => {
+    //         const { outlines, activeIndex } = getOutlines();
+    //         if (outlines.length > 0) {
+    //             const nextIndex = activeIndex + 1;
+    //             if (nextIndex < outlines.length) {
+    //                 (outlines[nextIndex] as HTMLElement).click();
+    //             }
+    //         }
+    //     }
+    // }, true);
 </script>
 
 <template>
@@ -141,15 +141,18 @@ function getOutlines() {
         <div class="article-layout__container">
             <aside class="article-layout__container-left">
                 <div class="sticky-content">
-                    <!-- <SeriesSidebar /> -->
-                    <VPSidebar :open="isSidebarOpen"/>
+                    <SeriesSidebar />
+                    <!-- <VPSidebar :open="isSidebarOpen"/> -->
                 </div>
             </aside>
 
             <main class="article-layout__container-main">
-                <button class="zen-mode-btn" @click="toggleFocus" :title="isFocusMode ? 'Exit Zen Mode' : 'Enter Zen Mode'">
-                    <ElSvgIcon :name="isFocusMode ? 'zoom_in_map' : 'zoom_out_map'" class="icon" />
-                </button>
+                <ElSvgIcon
+                    class="zen-mode-btn"
+                    :name="isFocusMode ? 'zoom_in_map' : 'zoom_out_map'"
+                    :title="isFocusMode ? 'Exit Zen Mode' : 'Enter Zen Mode'"
+                    @click="toggleFocus"
+                />
 
                 <article class="article-layout__article">
                     <ArticleMeta />
@@ -315,13 +318,29 @@ function getOutlines() {
     }
 
     .zen-mode-btn {
-        position: absolute; top: 0; right: -50px; display: flex; align-items: center; justify-content: center;
+        position: absolute;
+        top: 0;
+        right: -65px;
         background: var(--vp-c-bg);
-        width: 40px; height: 40px; border: 1px solid var(--vp-c-divider); border-radius: 50%;
+        padding: .2rem;
+        border: 1px solid var(--vp-c-divider);
+        border-radius: .5rem;
         color: var(--vp-c-text-2);
-        cursor: pointer; transition: 0.2s;
-        &:hover { box-shadow: 0 4px 12px rgb(0,0,0,10%); color: var(--vp-c-brand); transform: scale(1.1); }
-        @media (width <= 1280px) { top: 1rem; right: 1rem; }
+        cursor: pointer;
+        transform: scale(1);
+        transition: 2.2s var(--op-cubic-FiSo);
+        z-index: 10;
+        @include setFlex();
+        @include setSize(35px, 35px);
+        &:hover {
+            box-shadow: 0 4px 12px rgb(0,0,0,10%);
+            color: var(--vp-c-brand);
+            transform: scale(1.2);
+        }
+        @media (width <= 1280px) {
+            top: 1rem;
+            right: 1rem;
+        }
     }
 
     // RWD

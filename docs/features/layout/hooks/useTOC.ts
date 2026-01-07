@@ -1,4 +1,5 @@
 import { throttle } from '@utils/throttle';
+import { useData } from 'vitepress';
 
 // --- Types ---
 export interface Header {
@@ -45,6 +46,7 @@ function getAbsoluteTop(element: HTMLElement | null): number {
  * @param contentRef 文章內容的容器 Ref (通常是 <article> 或 .vp-doc)
  */
 export function useTOC(contentRef: Ref<HTMLElement | undefined>) {
+    const { page } = useData();
     const headers = shallowRef<Header[]>([]);
     const activeAnchor = ref<string>('');
 
@@ -132,7 +134,8 @@ export function useTOC(contentRef: Ref<HTMLElement | undefined>) {
         window.addEventListener('resize', onScroll); // resize 也要監聽，防止高度變化
     });
 
-    onUpdated(() => {
+    watch(() => page.value.relativePath, async () => {
+        await nextTick();
         updateHeaders();
         setActiveLink();
     });

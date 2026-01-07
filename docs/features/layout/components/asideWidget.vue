@@ -23,7 +23,9 @@
 <template>
     <div class="widgets-container">
         <div class="widget-card stats">
-            <!-- <h4 class="w-title"><ElSvgIcon name="analytics" class="icon"/> Data</h4> -->
+            <h4 class="w-title">
+                <ElSvgIcon name="group_search" /> Data
+            </h4>
             <div class="stat-grid">
                 <div class="stat-item">
                     <span class="val">{{ siteData?.counts.published || 0 }}</span>
@@ -46,7 +48,7 @@
 
         <div class="widget-card tags">
             <h4 class="w-title">
-                <ElSvgIcon name="tag" class="icon"/>
+                <ElSvgIcon name="sell" />
                 Tags
             </h4>
 
@@ -71,24 +73,31 @@
 
 <style lang="scss">
     .widgets-container {
-        display: flex; flex-direction: column; gap: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap);
     }
 
     .widget-card {
         background: var(--vp-c-bg-soft);
         padding: 1.5rem;
         border-radius: 12px;
+        box-shadow: var(--card-shadow);
 
         // border: 1px solid var(--vp-c-divider); // 可選：加邊框更俐落
 
         .w-title {
-            display: flex; gap: 8px; align-items: center;
-            margin-bottom: 1.2rem; color: var(--vp-c-text-2);
-            font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            color: var(--vp-c-text-2);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             .icon {
-                width: 14px;
-                height: 14px;
-                opacity: 0.7;
+                @include setSize(20px, 20px);
             }
         }
     }
