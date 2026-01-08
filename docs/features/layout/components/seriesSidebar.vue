@@ -1,5 +1,4 @@
 <script setup lang="ts">
-    import { ref, onMounted, watch, nextTick } from 'vue';
     import { useRoute } from 'vitepress';
     import { useSidebarData } from '../hooks/useSidebarData';
     import SidebarLink from './sidebarLink.vue'; // 引入遞迴組件
@@ -51,14 +50,20 @@
         overflow-y: auto;
 
         // Scrollbar styling
-        scrollbar-width: thin;
-        &::-webkit-scrollbar { width: 4px; }
+        // scrollbar-width: thin;
+        @include setScroll();
+
+        &::-webkit-scrollbar {
+            background: transparent;
+            width: 4px;
+        }
         &::-webkit-scrollbar-thumb {
             background: transparent;
             border-radius: 4px;
+            transition: .2s var(--cubic-FiFo);
         }
         &:hover::-webkit-scrollbar-thumb {
-            background: var(--vp-c-divider);
+            background: var(--vp-c-brand-3);
         }
 
         .sidebar-group {

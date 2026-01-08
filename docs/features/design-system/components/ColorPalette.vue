@@ -1,6 +1,6 @@
 <script setup lang="ts">
     interface Props {
-        category: 'brand' | 'functional' | 'neutral';
+        category: 'brand' | 'color' | 'gray' | 'functional' | 'neutral';
     }
 
     const props = defineProps<Props>();
@@ -9,13 +9,45 @@
         switch (props.category) {
             case 'brand':
                 return [
+                    { name: 'Brand', var: '--color-brand', hex: '#f4b936' },
                     { name: 'Brand 1', var: '--vp-c-brand-1', hex: '#dc8419' },
                     { name: 'Brand 2', var: '--vp-c-brand-2', hex: '#cd8f42' },
                     { name: 'Brand 3', var: '--vp-c-brand-3', hex: '#c7975d' },
                     { name: 'Brand Soft', var: '--vp-c-brand-soft', hex: 'rgba(234, 182, 119, 14%)' },
+
+                    { name: 'Sub', var: '--color-sub', hex: '#bd34fe' },
+                    { name: 'Indigo 1', var: '--vp-c-indigo-1', hex: '#2866b6' },
+                    { name: 'Indigo 2', var: '--vp-c-indigo-2', hex: '#3079d7' },
+                    { name: 'Indigo 3', var: '--vp-c-indigo-3', hex: '#508fe0' },
+                    { name: 'Indigo Soft', var: '--vp-c-indigo-soft', hex: 'rgb(40, 103, 184, 14%)' },
+
                     { name: 'Primary', var: '--color-primary', hex: '#FF7B00' },
                     { name: 'Primary Light', var: '--color-primary-light', hex: '#FFA100' },
                     { name: 'Primary Dark', var: '--color-primary-dark', hex: '#853D14' },
+                ];
+            case 'gray':
+                return [
+                    { name: 'gray-000', var: '--color-gray-000', hex: '#FFF' },
+                    { name: 'gray-050', var: '--color-gray-050', hex: '#F7F7F7' },
+                    { name: 'gray-100', var: '--color-gray-100', hex: '#ECECEC' },
+                    { name: 'gray-200', var: '--color-gray-200', hex: '#D8D8D8' },
+                    { name: 'gray-300', var: '--color-gray-300', hex: '#C4C4C4' },
+                    { name: 'gray-400', var: '--color-gray-400', hex: '#A8A8A8' },
+                    { name: 'gray-500', var: '--color-gray-500', hex: '#8C8C8C' },
+                    { name: 'gray-600', var: '--color-gray-600', hex: '#6A6A6A' },
+                    { name: 'gray-700', var: '--color-gray-700', hex: '#404040' },
+                    { name: 'gray-800', var: '--color-gray-800', hex: '#262626' },
+                    { name: 'gray-900', var: '--color-gray-900', hex: '#000' }
+                ];
+            case 'color':
+                return [
+                    { name: 'Red', var: '--color-red', hex: '#FF4D4F' },
+                    { name: 'Orange', var: '--color-orange', hex: '#FA8C16' },
+                    { name: 'Yellow', var: '--color-yellow', hex: '#FADB14' },
+                    { name: 'Green', var: '--color-green', hex: '#52C41A' },
+                    { name: 'Blue', var: '--color-blue', hex: '#1890FF' },
+                    { name: 'Purple', var: '--color-purple', hex: '#722ED1' },
+                    { name: 'Pink', var: '--color-pink', hex: '#EB2F96' },
                 ];
             case 'functional':
                 return [

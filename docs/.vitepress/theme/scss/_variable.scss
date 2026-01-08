@@ -2,9 +2,25 @@
     // design system
 
 
+    --color-brand: #f4b936;
+    --color-sub: #bd34fe;
 
+    // #region [-] home
+    --vp-home-hero-name-color: transparent;
+    --vp-home-hero-name-background: -webkit-linear-gradient(
+        120deg,
+        var(--color-brand) 30%,
+        var(--color-sub) 80%
+    );
 
+    --vp-home-hero-image-background-image: linear-gradient(
+        -45deg,
+        var(--color-brand) 50%,
+        var(--color-sub) 50%
+    );
+    --vp-home-hero-image-filter: blur(44px);
 
+    // #endregion
 
     // 品牌色、tip色
     --vp-c-brand-1: #dc8419;
@@ -24,24 +40,14 @@
     --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
     --vp-custom-block-tip-code-bg: var(--vp-c-brand-soft);
 
-    // 字型設定
+    // 字型
     --vp-font-family-base: 'Roboto', 'NotoSansTC', '微軟正黑體', 'Arial', sans-serif;
     --vp-font-family-mono: 'FiraCode', 'Roboto', sans-serif;
 
-    // home
-    --vp-home-hero-name-color: transparent;
-    --vp-home-hero-name-background: -webkit-linear-gradient(
-        120deg,
-        #f4b936 30%,
-        #bd34fe 80%
-    );
 
-    --vp-home-hero-image-background-image: linear-gradient(
-        -45deg,
-        #bd34fe 50%,
-        #f4b936 50%
-    );
-    --vp-home-hero-image-filter: blur(44px);
+
+
+
 
 
     // meals
@@ -83,7 +89,6 @@
     --color-primary-subtle: #e4edee;
 
     // 輔助色(警示也用這組)
-    --color-sub: #dc9956;
     --color-sub-dark: #cf7f50;
     --color-sub-light: #FAAD14;
     --color-sub-subtle: #faf2e9;
@@ -122,9 +127,6 @@
     --card-shadow: 1px 1px 10px 0 rgb(0, 0, 0, 10%);
 
 
-    // 字體
-    --font-family-outline: NotoSansTC, '微軟正黑體', Arial, sans-serif;
-    --font-family-ronud: "GenSenRounded2TW", NotoSansTC, '微軟正黑體', Arial, sans-serif;
 
     // 字級
     --font-size-s: 1rem; // 16px

@@ -3,6 +3,7 @@
     import { useData } from 'vitepress';
     import { useSiteData } from '@hooks/useSiteData';
 
+    import { useScroll } from '@vueuse/core';
 
 
     // 深度引入 VitePress 原生導航與頁尾 (這是合法的黑魔法)
@@ -37,6 +38,21 @@
     const isSidebarOpen = ref(false);
     const openSidebar = () => { isSidebarOpen.value = true; };
     const closeSidebar = () => { isSidebarOpen.value = false; };
+
+    // #region [P] 捲動監測 左右欄 模糊判斷
+
+    // --- Scroll & Focus Logic ---
+    const { y } = useScroll(window); // 監聽視窗捲動 Y 軸
+
+    // 定義「閱讀模式」觸發條件
+    // 例如：捲動超過 200px (大概是 Banner 離開視線後)
+    const isReadingMode = computed(() => {
+        // 如果已經手動進入 Focus Mode (全螢幕)，這裡就不需要判斷了，交給 CSS 處理
+        if (isFocusMode.value) return false;
+
+        return y.value > 200;
+    });
+    // #endregion
 
 
     // --- 1. TypeScript Fix & Data Logic ---
@@ -133,7 +149,13 @@
 </script>
 
 <template>
-    <div class="article-layout" :class="{ 'focus-mode': isFocusMode }">
+    <div
+        class="article-layout"
+        :class="{
+            'focus-mode': isFocusMode,
+            'reading-mode': isReadingMode
+        }"
+    >
         <header class="article-layout__header">
             <VPNav :is-sidebar-open="isSidebarOpen" @open-menu="openSidebar" />
         </header>
@@ -255,7 +277,7 @@
             // --- Columns ---
             &-left {
                 grid-area: left;
-                transition: 0.2s var(--op-cubic-FiSo);
+                transition: .3s var(--cubic-FiSo);
             }
             &-main {
                 position: relative;
@@ -267,15 +289,19 @@
             }
             &-right {
                 grid-area: right;
-                transition: 0.2s var(--op-cubic-FiSo);
+                .widgets-area {
+                    transition: .3s var(--cubic-FiFo);
+                }
             }
         }
 
         &__article {
             background: var(--vp-c-bg-soft);
-            padding: var(--card-padding);
+            padding: 2rem;
+            border: 1px solid var(--vp-c-divider);
             border-radius: .75rem;
-            box-shadow: var(--card-shadow);
+
+            // box-shadow: var(--card-shadow);
         }
 
         // --- Focus Mode ---
@@ -290,6 +316,29 @@
                     opacity: 0;
                 }
             }
+        }
+
+        // --- reading-mode ---
+        &.reading-mode .article-layout {
+            &__container-left {
+                // 當進入閱讀模式時，變半透明
+                opacity: 0.3;
+
+                // 互動恢復
+                &:hover { opacity: 1; }
+            }
+
+            &__container-right {
+                .widgets-area { opacity: 0.3; }
+                &:hover .widgets-area{ opacity: 1; }
+            }
+        }
+
+        // 為了讓變化平滑，要在原來的 class 加上 transition
+        .article-layout__container-left,
+        .article-layout__container-right {
+            transition: opacity 0.5s ease, filter 0.5s ease; // 設定 0.5s 讓過渡很優雅
+            opacity: 1; // 預設是不透明
         }
     }
 

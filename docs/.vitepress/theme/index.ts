@@ -39,7 +39,7 @@ function reloadBusuanzi() {
 }
 
 function initZoom() {
-    mediumZoom('.content-container img', { background: 'var(--vp-c-bg)' });
+    mediumZoom('.vp-doc img', { background: 'var(--vp-c-bg)' });
 }
 
 export default {

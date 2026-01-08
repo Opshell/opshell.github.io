@@ -154,3 +154,68 @@ html {
         }
     }
 }
+
+
+// [+] 之後換地方
+.custom-quote {
+    position: relative;
+    display: flex;       // 開啟 Flex 佈局
+    flex-direction: column; // 垂直排列
+    background: var(--vp-c-bg-soft);
+    padding: 2rem 2.5rem;
+    border-left: 4px solid var(--vp-c-brand);
+    border-radius: 12px;
+    margin: 2rem 0;
+    box-shadow: 0 4px 12px rgb(0, 0, 0, 5%);
+
+    // 1. 調整順序：讓 figcaption (原本在第一個) 跑到最後面
+    .quote-author {
+        order: 2; // 放到最後
+        margin-top: 1.5rem;
+        color: var(--vp-c-text-2);
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-align: right;
+
+        // 如果沒有作者名，就把這個區域隱藏 (避免佔空間)
+        &:empty { display: none; }
+
+        &::before {
+            content: '— ';
+            margin-right: 4px;
+            color: var(--vp-c-brand-light);
+        }
+    }
+
+    // 2. 內容區域
+    .quote-body {
+        order: 1; // 放在中間
+        padding: 0;
+        border: none;
+        margin: 0;
+        color: var(--vp-c-text-1);
+        font-family: Georgia, serif;
+        font-size: 1.1rem;
+        font-style: italic;
+        line-height: 1.8;
+
+        p { margin: 0; }
+    }
+
+    // 3. Icon 裝飾
+    .quote-icon {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        width: 24px;
+        height: 24px;
+        color: var(--vp-c-brand);
+        opacity: 0.2; // 淡一點比較不搶戲
+    }
+
+    // Hover 效果
+    &:hover {
+        box-shadow: 0 8px 24px rgb(0, 0, 0, 8%);
+        transform: translateY(-2px);
+    }
+}
