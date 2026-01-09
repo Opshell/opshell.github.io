@@ -1,7 +1,7 @@
 // 預設文字樣式
 %baseFont {
-    fill: var(--color-primary);
-    color: var(--color-text);
+    fill: var(--color-primary-1);
+    color: var(--color-gray-700);
     font-family: Roboto, NotoSansTC, '微軟正黑體', Arial, sans-serif;
     font-weight: 400;
     -webkit-text-stroke: 0.1px;
@@ -172,7 +172,7 @@ $breakpoints: (
 }
 
 // 特殊邊框
-@mixin setBorder($notchSize: 25px, $notchColor: var(--color-view-block), $borderColor: var(--color-primary-light)) {
+@mixin setBorder($notchSize: 25px, $notchColor: var(--color-gray-050), $borderColor: var(--color-primary-light)) {
     position: relative;
     background-clip: padding-box;
     border: 2px solid $borderColor;
@@ -200,7 +200,7 @@ $breakpoints: (
 }
 
 // 設定卷軸樣式
-@mixin setScroll($size: 10px, $thumbColor: var(--color-primary), $barColor: var(--color-gray-050)) {
+@mixin setScroll($size: 10px, $thumbColor: var(--color-primary-1), $barColor: var(--color-gray-050)) {
     // 卷軸底
     &::-webkit-scrollbar {
         background: $barColor;

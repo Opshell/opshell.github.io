@@ -31,9 +31,8 @@ html {
 // 視覺隱藏，但機器可讀 (SEO Friendly)
 .sr-only {
     position: absolute;
-    clip: rect(0, 0, 0, 0);
-    width: 1px;
-    height: 1px;
+    clip-path: rect(0, 0, 0, 0);
+    @include setSize(1px, 1px);
     padding: 0;
     border-width: 0;
     margin: -1px;
@@ -47,13 +46,14 @@ html {
 .error { color: var(--vp-c-red-1) !important; }
 .warning { color: var(--vp-c-yellow-1) !important; }
 .success { color: var(--vp-c-green-2) !important; }
+
 .vue { color: #4AA985 !important; }
-.typescript { color: #3178C6 !important; }
+.typescript { color: var(--color-tag-typescript) !important; }
 
 .vp-doc {
     // basic
     // h1, h2, h3, h4, h5, h6 {
-    //     color: var(--color-title);
+    //     color: var(--color-gray-850);
     // }
 
     // h2, h3, h4 {

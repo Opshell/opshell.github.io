@@ -21,9 +21,9 @@
                     { name: 'Indigo 3', var: '--vp-c-indigo-3', hex: '#508fe0' },
                     { name: 'Indigo Soft', var: '--vp-c-indigo-soft', hex: 'rgb(40, 103, 184, 14%)' },
 
-                    { name: 'Primary', var: '--color-primary', hex: '#FF7B00' },
+                    { name: 'Primary', var: '--color-primary-1', hex: '#FF7B00' },
                     { name: 'Primary Light', var: '--color-primary-light', hex: '#FFA100' },
-                    { name: 'Primary Dark', var: '--color-primary-dark', hex: '#853D14' },
+                    { name: 'Primary Dark', var: '--color-primary-3', hex: '#853D14' },
                 ];
             case 'gray':
                 return [
@@ -59,13 +59,13 @@
                 ];
             case 'neutral':
                 return [
-                    { name: 'Title', var: '--color-title', hex: '#1F1F1F' },
-                    { name: 'Text', var: '--color-text', hex: '#595959' },
-                    { name: 'Text Light', var: '--color-text-light', hex: '#BFBFBF' },
-                    { name: 'Border Box', var: '--color-border-box', hex: '#D9D9D9' },
-                    { name: 'View Block', var: '--color-view-block', hex: '#F2F2F2' },
-                    { name: 'Extreme', var: '--color-extreme', hex: '#000000' },
-                    { name: 'Extreme Reverse', var: '--color-extreme-reverse', hex: '#FFFFFF' },
+                    { name: 'Title', var: '--color-gray-850', hex: '#1F1F1F' },
+                    { name: 'Text', var: '--color-gray-700', hex: '#595959' },
+                    { name: 'Text Light', var: '--color-gray-300', hex: '#BFBFBF' },
+                    { name: 'Border Box', var: '--color-gray-200', hex: '#D9D9D9' },
+                    { name: 'View Block', var: '--color-gray-050', hex: '#F2F2F2' },
+                    { name: 'Extreme', var: '--color-gray-900', hex: '#000000' },
+                    { name: 'Extreme Reverse', var: '--color-gray-000', hex: '#FFFFFF' },
                 ];
             default:
                 return [];

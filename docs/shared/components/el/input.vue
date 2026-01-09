@@ -26,10 +26,9 @@
             }
 
             &__control { // 主外殼
-                background: var(--color-extreme-reverse);
+                background: var(--color-gray-000);
                 padding: 0 5px 0 15px;
-
-                border: 1px solid var(--color-border-box);
+                border: 1px solid var(--color-gray-200);
                 border-radius: 5px;
                 transition: .2s $cubic-FiSo;
                 &::before,
@@ -60,15 +59,15 @@
             .q-field__native,
             .q-field__prefix,
             .q-field__suffix {
-                color: var(--color-primary);
+                color: var(--color-primary-1);
             }
 
             .icon {
-                fill: var(--color-hover-light);
+                fill: var(--color-brand);
             }
 
             .q-field__control{
-                border-color: var(--color-hover-light);
+                border-color: var(--color-brand);
             }
         }
 
@@ -77,17 +76,17 @@
             &--focused {
                 .q-field {
                     &__control {
-                        border-color: var(--color-primary);
-                        box-shadow: 0 0 0 2px var(--color-hover-light);
+                        border-color: var(--color-primary-1);
+                        box-shadow: 0 0 0 2px var(--color-brand);
                     }
 
                     &__marginal {
-                        color: var(--color-primary);
-                        fill: var(--color-primary);
+                        color: var(--color-primary-1);
+                        fill: var(--color-primary-1);
                         .icon {
-                            background: var(--color-hover-light);
-                            color: var(--color-primary);
-                            fill: var(--color-primary);
+                            background: var(--color-brand);
+                            color: var(--color-primary-1);
+                            fill: var(--color-primary-1);
                         }
                     }
                 }
@@ -96,13 +95,13 @@
             &--disabled {
                 .q-field {
                     &__control {
-                        background: var(--color-view-block);
+                        background: var(--color-gray-050);
                     }
                 }
             }
         }
 
-        &.close:not(.q-field--focused):not(.q-field--float){
+        &.close:not(.q-field--focused, .q-field--float){
             max-width: 45px;
             .q-field {
                 &__control,
@@ -116,9 +115,10 @@
             }
 
             .icon {
-                background: var(--color-view-block);
+                background: var(--color-gray-050);
                 @include setSize(45px, 45px);
                 padding: 5px;
+
                 // border-color: transparent;
             }
         }

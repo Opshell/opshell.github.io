@@ -1,27 +1,105 @@
 :root {
-    // design system
+    // #region [P] design system
+    // 先設定好自己的 然後再覆蓋 vp
 
+    // 主題色
+    --color-primary-1: #f4b936;
+    --color-primary-2: #d8a72b;
+    --color-primary-3: #b99436;
+    --color-primary-soft: rgb(185, 148, 54, 16%);
 
-    --color-brand: #f4b936;
-    --color-sub: #bd34fe;
+    // 點綴色
+    --color-adorn: #bd34fe;
 
-    // #region [-] home
+    // 灰階
+    --color-gray-000: #FFF; /* 純白 */
+    --color-gray-050: #F7F7F7;
+    --color-gray-100: #ECECEC;
+    --color-gray-200: #D8D8D8;
+    --color-gray-300: #C4C4C4;
+    --color-gray-400: #A8A8A8;
+    --color-gray-500: #8C8C8C;
+    --color-gray-600: #6A6A6A;
+    --color-gray-700: #404040;
+    --color-gray-800: #262626;
+    --color-gray-850: #1F1F1F;
+    --color-gray-900: #000; /* 純黑 */
+
+    // 狀態色
+    --color-green: #4CAA45;
+
+    --color-red-dark: #c45a3f;
+    --color-red: #DE6042;
+    --color-red-light: #e17559;
+    --color-red-subtle: #FFDFDF;
+
+    --color-yellow: #FAAD14;
+    --color-yellow-dark: #cf7f50;
+    --color-yellow-subtle: #faf2e9;
+
+    --color-blue: #1899d2;
+    --color-blue-light: #f3fafd;
+    --color-blue-dark: #0b88bf;
+
+    --color-success: #03A61C;
+    --color-warning: #FAAD14;
+    --color-error: #F23005;
+    --color-info: #1890FF;
+
+    // 社群色
+    --color-facebook: #3b5998;
+    --color-twitter: #1DA1F2;
+    --color-line: #00BA01;
+
+    // tag color
+    --color-tag-typescript: #3574d1;
+
+    // 字型
+    --vp-font-family-base: 'Roboto', 'NotoSansTC', '微軟正黑體', 'Arial', sans-serif;
+    --vp-font-family-mono: 'FiraCode', 'Roboto', sans-serif;
+
+    --font-sans-serif: 'Roboto', 'NotoSansTC', '微軟正黑體', 'Arial', sans-serif !important;
+    --font-monospace: 'FiraCode', 'Roboto', sans-serif !important;
+
+    // 字級
+    --font-size-xs: .625rem;    // 10px
+    --font-size-s: .875rem      // 14px
+    --font-size-m: 1rem;        // 16px
+    --font-size-l: 1.25rem;     // 20px
+    --font-size-xl: 1.5rem;     // 24px
+    --font-size-xxl: 2.25rem;   // 36px
+
+    // 動畫時間曲線
+    --cubic-FiSo: cubic-bezier(.37, .99, .92, .96);     // 快進緩停
+    --cubic-FiFo: cubic-bezier(.25, .65, .85, .45);     // 快進快出
+    --cubic-SiRo: cubic-bezier(.31, 1.26, .19, 1.11);   // 快速回彈
+    --cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1);        // 緩進微彈
+
+    // 版面配置
+    --gap: 1.5rem;
+    --card-padding: 1.25rem;
+    --card-shadow: 1px 1px 10px 0 rgb(0, 0, 0, 10%);
+
+    // #endregion
+
+    // #region [P] home
     --vp-home-hero-name-color: transparent;
     --vp-home-hero-name-background: -webkit-linear-gradient(
         120deg,
-        var(--color-brand) 30%,
-        var(--color-sub) 80%
+        var(--color-primary-1) 30%,
+        var(--color-adorn) 80%
     );
 
     --vp-home-hero-image-background-image: linear-gradient(
         -45deg,
-        var(--color-brand) 50%,
-        var(--color-sub) 50%
+        var(--color-primary-1) 50%,
+        var(--color-adorn) 50%
     );
     --vp-home-hero-image-filter: blur(44px);
 
     // #endregion
 
+    // #region [P] --VP
     // 品牌色、tip色
     --vp-c-brand-1: #dc8419;
     --vp-c-brand-2: #cd8f42;
@@ -40,106 +118,7 @@
     --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
     --vp-custom-block-tip-code-bg: var(--vp-c-brand-soft);
 
-    // 字型
-    --vp-font-family-base: 'Roboto', 'NotoSansTC', '微軟正黑體', 'Arial', sans-serif;
-    --vp-font-family-mono: 'FiraCode', 'Roboto', sans-serif;
-
-
-
-
-
-
-
-    // meals
-    --color-hover-light: #FFD4A1;
-    --color-extreme: #000;
-    --color-extreme-reverse: #fff;
-    --color-title: #1F1F1F;
-    --color-text: #595959;
-    --color-view-block: #F2F2F2;
-    --color-border-box: #D9D9D9;
-    --color-text-light: #BFBFBF;
-    --color-btn-background: #cfd6dc;
-    --color-btn-fill: #696a70;
-
-    // 狀態色
-    --color-success: #03A61C;
-    --color-warning: #FAAD14;
-    --color-error: #F23005;
-    --color-info: #1890FF;
-    --color-link: #853D14;
-
-    // 社群色
-    --color-facebook: #3b5998;
-    --color-line: #00BA01;
-    --color-twitter: #1DA1F2;
-    --font-size-h1: 1.5rem;
-    --font-size-h2: 1.25rem;
-    --font-size-normal: 1rem;
-    --font-size-remark: 0.875rem;
-
-    --op-timing-FiSo: cubic-bezier(.37, .99, .92, .96);
-
-    // check
-    // 主題色
-    --color-primary: #318b90;
-    --color-primary-soft: rgb(49, 139, 144, 60%);
-    --color-primary-dark: #216d71;
-    --color-primary-light: #3fa5aa; // #3a7c7f
-    --color-primary-subtle: #e4edee;
-
-    // 輔助色(警示也用這組)
-    --color-sub-dark: #cf7f50;
-    --color-sub-light: #FAAD14;
-    --color-sub-subtle: #faf2e9;
-
-    // 中性色
-    --color-gray-000: #FFF; /* 純白 */
-    --color-gray-050: #F7F7F7;
-    --color-gray-100: #ECECEC;
-    --color-gray-200: #D8D8D8;
-    --color-gray-300: #C4C4C4;
-    --color-gray-400: #A8A8A8;
-    --color-gray-500: #8C8C8C;
-    --color-gray-600: #6A6A6A;
-    --color-gray-700: #404040;
-    --color-gray-800: #262626;
-    --color-gray-900: #000; /* 純黑 */
-
-    // 狀態色
-    --color-green: #4CAA45;
-
-    --color-red-dark: #c45a3f;
-    --color-red: #DE6042;
-    --color-red-light: #e17559;
-    --color-red-subtle: #FFDFDF;
-
-    --color-blue: #1899d2;
-    --color-blue-light: #f3fafd;
-    --color-blue-dark: #0b88bf;
-
-    --color-cover-background: rgb(0, 0, 0, 60%); // 覆蓋層背景色
-    --color-chiffon: rgb(255, 255, 255, 100%);
-
-    // 版面配置
-    --gap: 1.5rem;
-    --card-padding: 1.25rem;
-    --card-shadow: 1px 1px 10px 0 rgb(0, 0, 0, 10%);
-
-
-
-    // 字級
-    --font-size-s: 1rem; // 16px
-    --font-size-m: 1.125rem; // 18px
-    --font-size-l: 1.25rem;  // 20px
-    --font-size-xl: 1.5rem;  // 24px
-    --font-size-xxl: 1.625rem;  // 26px
-
-    // 動畫時間曲線
-    --cubic-FiSo: cubic-bezier(.37, .99, .92, .96); // 快進場緩停
-    --cubic-FiFo: cubic-bezier(.25, .65, .85, .45); // 快進快出
-    --cubic-SiRo: cubic-bezier(.31, 1.26, .19, 1.11); // 快速回彈
-    --cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1); // 緩進微彈
+    // #endregion
 }
 
 .dark {
@@ -153,8 +132,10 @@
     --vp-c-indigo-3: #2866b6;
     --vp-c-indigo-soft: rgb(80, 143, 224, 14%);
 
-    --color-extreme: #fff;
-    --color-extreme-reverse: #000;
+    --color-gray-900: #fff;
+    --color-gray-000: #000;
+
+    --color-tag-typescript: #509aff;
 }
 @media (width >= 640px) {
     :root {

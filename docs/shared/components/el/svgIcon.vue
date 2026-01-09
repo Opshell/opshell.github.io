@@ -25,7 +25,7 @@
 
 <style lang="scss">
     .icon {
-        --color-cube-background: var(--color-view-block);
+        --color-cube-background: var(--color-gray-050);
         position: relative;
         @include setFlex();
         @include setSize(33px, 33px);
@@ -42,17 +42,17 @@
 
             &:hover,
             &.current {
-                fill: var(--color-primary);
+                fill: var(--color-primary-1);
             }
         }
 
         &.cube {
-            background: var(--color-view-block);
+            background: var(--color-gray-050);
             @include setSize(45px, 45px);
             padding: 8px;
-            border: 1px solid var(--color-border-box);
+            border: 1px solid var(--color-gray-200);
             border-radius: 5px;
-            fill: var(--color-text);
+            fill: var(--color-gray-700);
 
             // fill: #b4bdce;
             cursor: pointer;
@@ -60,7 +60,7 @@
             &:hover {
                 background: var(--color-primary-light);
                 border: 1px solid var(--color-primary-light);
-                fill: var(--color-extreme-reverse);
+                fill: var(--color-gray-000);
             }
         }
     }
