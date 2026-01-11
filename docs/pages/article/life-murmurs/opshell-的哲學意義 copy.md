@@ -4,7 +4,7 @@ image:
 description: 從科學、哲學、神學與電腦科學的交會點，探討 Opshell 這個暱稱背後的深層意涵，以及如何面對網路世界的惡意與雜訊。
 keywords: Opshell, 哲學, 生命意義, 圓周率, 指標, Shell
 author: 'Opshell'
-createdAt: 2026-01-08
+createdAt: '2026-01-08'
 categories:
   - 'Belief'
 tags:

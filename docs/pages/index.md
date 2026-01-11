@@ -16,12 +16,15 @@ hero:
     - theme: alt
       text: Resume
       link: /resume
-    - theme: alt
-      text: Markdown Theme
-      link: /markdown-theme-preview
     - theme: brand
+      text: Timeline
+      link: /timeline
+    - theme: alt
       text: ✨️ Vitepress Thirty Days
       link: /vitepress-thirty-days
+    - theme: alt
+      text: Design system
+      link: /design-system
 
 features:
   - icon: 🛠️

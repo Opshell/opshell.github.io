@@ -62,12 +62,12 @@
                         <ColorPalette category="gray" />
                     </div>
                     <div class="palette-group">
-                        <h3>Functional Colors</h3>
-                        <ColorPalette category="color" />
-                    </div>
-                    <div class="palette-group">
                         <h3>Status Colors</h3>
                         <ColorPalette category="functional" />
+                    </div>
+                    <div class="palette-group">
+                        <h3>Functional Colors</h3>
+                        <ColorPalette category="mdtag" />
                     </div>
                 </div>
 

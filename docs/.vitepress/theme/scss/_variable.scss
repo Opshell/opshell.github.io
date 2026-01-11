@@ -1,3 +1,5 @@
+@use 'mixin' as *;
+
 :root {
     // #region [P] design system
     // 先設定好自己的 然後再覆蓋 vp
@@ -54,19 +56,15 @@
     // tag color
     --color-tag-typescript: #3574d1;
 
-    // 字型
-    --vp-font-family-base: 'Roboto', 'NotoSansTC', '微軟正黑體', 'Arial', sans-serif;
-    --vp-font-family-mono: 'FiraCode', 'Roboto', sans-serif;
-
     --font-sans-serif: 'Roboto', 'NotoSansTC', '微軟正黑體', 'Arial', sans-serif !important;
     --font-monospace: 'FiraCode', 'Roboto', sans-serif !important;
 
     // 字級
-    --font-size-xs: .625rem;    // 10px
-    --font-size-s: .875rem      // 14px
+    --font-size-xs: .75rem;     // 12px
+    --font-size-s: .875rem;     // 14px
     --font-size-m: 1rem;        // 16px
     --font-size-l: 1.25rem;     // 20px
-    --font-size-xl: 1.5rem;     // 24px
+    --font-size-xl: 1.625rem;   // 26px
     --font-size-xxl: 2.25rem;   // 36px
 
     // 動畫時間曲線
@@ -118,35 +116,42 @@
     --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
     --vp-custom-block-tip-code-bg: var(--vp-c-brand-soft);
 
+        // 字型
+    --vp-font-family-base: var(--font-sans-serif);
+    --vp-font-family-mono: var(--font-monospace);
+
+
+    // #endregion
+
+    // #region [P] RWD
+    @include setRWD(640px) {
+        --vp-home-hero-image-filter: blur(56px);
+    }
+    @include setRWD(960px) {
+        --vp-home-hero-image-filter: blur(68px);
+    }
+
     // #endregion
 }
 
 .dark {
-    --vp-c-brand-1: #f5b81f;
-    --vp-c-brand-2: #d8a72b;
-    --vp-c-brand-3: #b99436;
-    --vp-c-brand-soft: rgb(185, 148, 54, 16%);
-
-    --vp-c-indigo-1: #5c9cf1;
-    --vp-c-indigo-2: #3079d7;
-    --vp-c-indigo-3: #2866b6;
-    --vp-c-indigo-soft: rgb(80, 143, 224, 14%);
-
-    --color-gray-900: #fff;
-    --color-gray-000: #000;
+    // 灰階
+    --color-gray-900: #FFF; /* 純白 */
+    --color-gray-850: #F7F7F7;
+    --color-gray-800: #ECECEC;
+    --color-gray-700: #D8D8D8;
+    --color-gray-600: #C4C4C4;
+    --color-gray-500: #A8A8A8;
+    --color-gray-400: #8C8C8C;
+    --color-gray-300: #6A6A6A;
+    --color-gray-200: #404040;
+    --color-gray-100: #262626;
+    --color-gray-050: #1F1F1F;
+    --color-gray-000: #000; /* 純黑 */
 
     --color-tag-typescript: #509aff;
 }
-@media (width >= 640px) {
-    :root {
-        --vp-home-hero-image-filter: blur(56px);
-    }
-}
-@media (width >= 960px) {
-    :root {
-        --vp-home-hero-image-filter: blur(68px);
-    }
-}
+
 
 /**
 * Component: Algolia

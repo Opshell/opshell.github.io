@@ -1,6 +1,10 @@
 <script setup lang="ts">
+    import { useData } from 'vitepress';
+
+    const { frontmatter, page, isDark } = useData();
+
     interface Props {
-        category: 'brand' | 'color' | 'gray' | 'functional' | 'neutral';
+        category: 'brand' | 'gray' | 'functional' | 'mdtag';
     }
 
     const props = defineProps<Props>();
@@ -9,45 +13,26 @@
         switch (props.category) {
             case 'brand':
                 return [
-                    { name: 'Brand', var: '--color-brand', hex: '#f4b936' },
-                    { name: 'Brand 1', var: '--vp-c-brand-1', hex: '#dc8419' },
-                    { name: 'Brand 2', var: '--vp-c-brand-2', hex: '#cd8f42' },
-                    { name: 'Brand 3', var: '--vp-c-brand-3', hex: '#c7975d' },
-                    { name: 'Brand Soft', var: '--vp-c-brand-soft', hex: 'rgba(234, 182, 119, 14%)' },
+                    { name: 'Primary 1', var: '--color-primary-1', hex: '#f4b936' },
+                    { name: 'Primary 2', var: '--color-primary-2', hex: '#d8a72b' },
+                    { name: 'Primary 3', var: '--color-primary-3', hex: '#b99436' },
+                    { name: 'Primary soft', var: '--color-primary-soft', hex: 'rgb(185, 148, 54, 16%)', darkHex: '#c4882c' },
 
-                    { name: 'Sub', var: '--color-sub', hex: '#bd34fe' },
-                    { name: 'Indigo 1', var: '--vp-c-indigo-1', hex: '#2866b6' },
-                    { name: 'Indigo 2', var: '--vp-c-indigo-2', hex: '#3079d7' },
-                    { name: 'Indigo 3', var: '--vp-c-indigo-3', hex: '#508fe0' },
-                    { name: 'Indigo Soft', var: '--vp-c-indigo-soft', hex: 'rgb(40, 103, 184, 14%)' },
-
-                    { name: 'Primary', var: '--color-primary-1', hex: '#FF7B00' },
-                    { name: 'Primary Light', var: '--color-primary-light', hex: '#FFA100' },
-                    { name: 'Primary Dark', var: '--color-primary-3', hex: '#853D14' },
+                    { name: 'Adorn', var: '--color-adorn', hex: '#bd34fe' },
                 ];
             case 'gray':
                 return [
-                    { name: 'gray-000', var: '--color-gray-000', hex: '#FFF' },
-                    { name: 'gray-050', var: '--color-gray-050', hex: '#F7F7F7' },
-                    { name: 'gray-100', var: '--color-gray-100', hex: '#ECECEC' },
-                    { name: 'gray-200', var: '--color-gray-200', hex: '#D8D8D8' },
-                    { name: 'gray-300', var: '--color-gray-300', hex: '#C4C4C4' },
-                    { name: 'gray-400', var: '--color-gray-400', hex: '#A8A8A8' },
-                    { name: 'gray-500', var: '--color-gray-500', hex: '#8C8C8C' },
-                    { name: 'gray-600', var: '--color-gray-600', hex: '#6A6A6A' },
-                    { name: 'gray-700', var: '--color-gray-700', hex: '#404040' },
-                    { name: 'gray-800', var: '--color-gray-800', hex: '#262626' },
-                    { name: 'gray-900', var: '--color-gray-900', hex: '#000' }
-                ];
-            case 'color':
-                return [
-                    { name: 'Red', var: '--color-red', hex: '#FF4D4F' },
-                    { name: 'Orange', var: '--color-orange', hex: '#FA8C16' },
-                    { name: 'Yellow', var: '--color-yellow', hex: '#FADB14' },
-                    { name: 'Green', var: '--color-green', hex: '#52C41A' },
-                    { name: 'Blue', var: '--color-blue', hex: '#1890FF' },
-                    { name: 'Purple', var: '--color-purple', hex: '#722ED1' },
-                    { name: 'Pink', var: '--color-pink', hex: '#EB2F96' },
+                    { name: 'gray-000', var: '--color-gray-000', hex: '#FFF', darkHex: '#000' },
+                    { name: 'gray-050', var: '--color-gray-050', hex: '#F7F7F7', darkHex: '#262626' },
+                    { name: 'gray-100', var: '--color-gray-100', hex: '#ECECEC', darkHex: '#404040' },
+                    { name: 'gray-200', var: '--color-gray-200', hex: '#D8D8D8', darkHex: '#6A6A6A' },
+                    { name: 'gray-300', var: '--color-gray-300', hex: '#C4C4C4', darkHex: '#8C8C8C' },
+                    { name: 'gray-400', var: '--color-gray-400', hex: '#A8A8A8', darkHex: '#A8A8A8' },
+                    { name: 'gray-500', var: '--color-gray-500', hex: '#8C8C8C', darkHex: '#C4C4C4' },
+                    { name: 'gray-600', var: '--color-gray-600', hex: '#6A6A6A', darkHex: '#D8D8D8' },
+                    { name: 'gray-700', var: '--color-gray-700', hex: '#404040', darkHex: '#ECECEC' },
+                    { name: 'gray-800', var: '--color-gray-800', hex: '#262626', darkHex: '#F7F7F7' },
+                    { name: 'gray-900', var: '--color-gray-900', hex: '#000', darkHex: '#FFF' }
                 ];
             case 'functional':
                 return [
@@ -55,17 +40,11 @@
                     { name: 'Warning', var: '--color-warning', hex: '#FAAD14' },
                     { name: 'Error', var: '--color-error', hex: '#F23005' },
                     { name: 'Info', var: '--color-info', hex: '#1890FF' },
-                    { name: 'Link', var: '--color-link', hex: '#853D14' },
                 ];
-            case 'neutral':
+            case 'mdtag':
                 return [
-                    { name: 'Title', var: '--color-gray-850', hex: '#1F1F1F' },
-                    { name: 'Text', var: '--color-gray-700', hex: '#595959' },
-                    { name: 'Text Light', var: '--color-gray-300', hex: '#BFBFBF' },
-                    { name: 'Border Box', var: '--color-gray-200', hex: '#D9D9D9' },
-                    { name: 'View Block', var: '--color-gray-050', hex: '#F2F2F2' },
-                    { name: 'Extreme', var: '--color-gray-900', hex: '#000000' },
-                    { name: 'Extreme Reverse', var: '--color-gray-000', hex: '#FFFFFF' },
+                    { name: 'typescript', var: '--color-mdtag-typescript', hex: '#3574d1', darkHex: '#509aff' },
+                    { name: 'vue', var: '--color-mdtag-vue', hex: '#4AA985' },
                 ];
             default:
                 return [];
@@ -74,9 +53,14 @@
 
     const copiedColor = ref<string | null>(null);
 
-    const copyColor = (color: { hex: string, var: string }) => {
-        navigator.clipboard.writeText(color.hex).then(() => {
+    const copyColor = (color: { hex: string, darkHex?: string }) => {
+        const targetHex = isDark.value
+            ? (color.darkHex || color.hex)
+            : color.hex;
+
+        navigator.clipboard.writeText(targetHex).then(() => {
             copiedColor.value = color.hex;
+
             setTimeout(() => {
                 copiedColor.value = null;
             }, 1500);
@@ -101,7 +85,7 @@
             <div class="color-palette__info">
                 <span class="color-name">{{ color.name }}</span>
                 <code class="color-var">{{ color.var }}</code>
-                <span class="color-hex">{{ color.hex }}</span>
+                <span class="color-hex">{{ isDark ? color.darkHex || color.hex : color.hex }}</span>
             </div>
         </div>
     </div>
