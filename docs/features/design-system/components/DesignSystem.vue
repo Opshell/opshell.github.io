@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import { useRoute, useRouter } from 'vitepress';
+
     import ColorPalette from './colorPalette.vue';
     import TypeScale from './typeScale.vue';
     import FontFamily from './fontFamily.vue';
@@ -17,17 +19,43 @@
         { id: 'components', label: 'Components', icon: 'widgets' }
     ];
 
-    // --- Indicator Logic ---
-    const tabRefs = ref<HTMLElement[]>([]); // 儲存所有按鈕的 DOM
+    // #region [P] Tab 切換與 Hash 同步邏輯
+
+    // 點擊 Tab 時觸發：切換狀態 + 更新網址
+    const switchTab = (id: string) => {
+        activeTab.value = id;
+
+        // 使用 pushState 更新 URL hash 但不觸發頁面跳轉 (不使用 router.go)
+        // 這樣使用者按上一頁可以回到上一個 Tab
+        history.pushState(null, '', `#${id}`);
+    };
+
+    // [-] 處理 Hash 變更的邏輯
+    function hashChange () {
+        // 確保在瀏覽器環境執行 (因為 VitePress 有 SSR)
+        if (typeof window !== 'undefined') {
+            const hash = window.location.hash;
+            if (hash) {
+                const id = hash.replace('#', '');
+                // 確保該 id 存在於我們的 tabs 中
+                if (tabs.some(t => t.id === id)) {
+                    activeTab.value = id;
+                }
+            }
+        }
+    };
+
+    // --- Indicator Logic (維持原樣) ---
+    const tabRefs = ref<HTMLElement[]>([]);
     const indicatorStyle = ref({ left: '0px', width: '0px' });
 
     const updateIndicator = () => {
         const currentIndex = tabs.findIndex(t => t.id === activeTab.value);
-        const currentTabEl = tabRefs.value[currentIndex];
+        // 防呆：如果找不到 (例如 hash 是亂碼)，預設回 0
+        const safeIndex = currentIndex === -1 ? 0 : currentIndex;
+        const currentTabEl = tabRefs.value[safeIndex];
 
         if (currentTabEl) {
-            // offsetLeft 是相對於父層 (.tabs) 的距離
-            // offsetWidth 是元素本身的寬度
             indicatorStyle.value = {
                 left: `${currentTabEl.offsetLeft}px`,
                 width: `${currentTabEl.offsetWidth}px`
@@ -35,16 +63,35 @@
         }
     };
 
-    // 監聽 activeTab 變化
+    // 監聽 activeTab 變化來更新 Indicator
     watch(activeTab, () => {
-        updateIndicator();
+        // 這裡加個 nextTick 比較保險，確保 active class 變更造成寬度微調後再計算
+        nextTick(() => {
+            updateIndicator();
+        });
     });
 
-    // 初始化與視窗縮放
+    // #endregion
+
+    // 生命週期處理
     onMounted(async () => {
-        await nextTick(); // 確保 DOM 渲染完成
+        await nextTick();
+
+        // 初始化 Indicator
         updateIndicator();
         window.addEventListener('resize', updateIndicator);
+
+        // 處理初始 Hash (例如直接貼上網址進入)
+        hashChange();
+
+        // 監聽瀏覽器 "上一頁/下一頁" (hashchange 事件)
+        window.addEventListener('hashchange', hashChange);
+    });
+
+    // 記得移除監聽，雖然 DesignSystem 頁面可能不常切換，但這是好習慣
+    onUnmounted(() => {
+        window.removeEventListener('resize', updateIndicator);
+        window.removeEventListener('hashchange', hashChange);
     });
 </script>
 
@@ -64,12 +111,11 @@
                 <button
                     v-for="(tab, index) in tabs"
                     :key="tab.id"
-
                     :ref="(el) => { if(el) tabRefs[index] = el as HTMLElement }"
-
                     class="tab-button"
                     :class="{ active: activeTab === tab.id }"
-                    @click="activeTab = tab.id"
+
+                    @click="switchTab(tab.id)"
                 >
                     <span class="tab-label">{{ tab.label }}</span>
                 </button>

@@ -140,13 +140,13 @@
             <h4 class="w-title">
                 <ElSvgIcon name="sell" />
                 <span class="text">Tags</span>
-                <ElSvgIcon
+                <!-- <ElSvgIcon
                     v-if="hasMoreTags"
                     class="toggle-btn"
                     :name="isTagsExpanded ? 'bookmark_stacks' : 'style'"
                     :title="isTagsExpanded ? 'Show Less' : 'Show More'"
                     @click="toggleTags"
-                />
+                /> -->
             </h4>
 
             <div class="tags-cloud">
@@ -158,7 +158,6 @@
                 </template>
 
                 <a
-                    v-if="isTagsExpanded"
                     href="/tags-list.html"
                     class="tag-link more-link"
                 >
