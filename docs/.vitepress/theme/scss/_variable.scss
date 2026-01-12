@@ -49,12 +49,16 @@
     --color-info: #1890FF;
 
     // 社群色
+    --color-instagram: #FD1389;
     --color-facebook: #3b5998;
+    --color-linkedin: #1366C0;
     --color-twitter: #1DA1F2;
     --color-line: #00BA01;
+    --color-cake: #1DAB69;
 
     // tag color
-    --color-tag-typescript: #3574d1;
+    --color-mdtag-typescript: #3574d1;
+    --color-mdtag-vue: #41B883;
 
     --font-sans-serif: 'Roboto', 'NotoSansTC', '微軟正黑體', 'Arial', sans-serif !important;
     --font-monospace: 'FiraCode', 'Roboto', sans-serif !important;
@@ -74,6 +78,7 @@
     --cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1);        // 緩進微彈
 
     // 版面配置
+    --view-width: 1200px;
     --gap: 1.5rem;
     --card-padding: 1.25rem;
     --card-shadow: 1px 1px 10px 0 rgb(0, 0, 0, 10%);
