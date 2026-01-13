@@ -77,6 +77,13 @@
     --cubic-SiRo: cubic-bezier(.31, 1.26, .19, 1.11);   // 快速回彈
     --cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1);        // 緩進微彈
 
+    // RWD
+    --break-point-xs: 500px;
+    --break-point-sm: 768px;    // ipad mini
+    --break-point-md: 1024px;   // ipad mini
+    --break-point-lg: 1366px;   // ipad pro
+    --break-point-xl: 1680px;
+
     // 版面配置
     --view-width: 1200px;
     --gap: 1.5rem;
