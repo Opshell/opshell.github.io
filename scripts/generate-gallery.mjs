@@ -1,4 +1,4 @@
-/* scripts/generate-gallery.js */
+/* scripts/generate-gallery.mjs */
 import fs from 'fs/promises';
 import path from 'path';
 import sharp from 'sharp';
@@ -9,7 +9,7 @@ const RAW_DIR = path.resolve('photos/raw');
 const THUMB_DIR = path.resolve('photos/thumbs');
 const OUTPUT_JSON = path.resolve('photos/data.json');
 
-const THUMB_WIDTH = 600;
+const THUMB_WIDTH = 600; // 建議縮圖寬度設大一點點 (例如 600)，在 Retina 螢幕上看比較清楚
 const THUMB_QUALITY = 80;
 
 // 將快門時間轉為分數
@@ -20,12 +20,12 @@ function formatExposureTime(time) {
 }
 
 async function generate() {
-    console.log('📸 開始處理相簿...');
+    console.log('📸 開始處理相簿 (含自動旋轉修正)...');
 
     // 1. 確保縮圖根目錄存在
     try { await fs.access(THUMB_DIR); } catch { await fs.mkdir(THUMB_DIR, { recursive: true }); }
 
-    // 2. 讀取 RAW 目錄下的所有「資料夾」 (每個資料夾是一本相簿)
+    // 2. 讀取 RAW 目錄下的所有「資料夾」
     const items = await fs.readdir(RAW_DIR, { withFileTypes: true });
     const albumDirs = items.filter(dirent => dirent.isDirectory());
 
@@ -34,7 +34,7 @@ async function generate() {
     console.log(`📂 找到 ${albumDirs.length} 本相簿`);
 
     for (const dir of albumDirs) {
-        const albumId = dir.name; // 資料夾名稱即 ID (例如 "2024_Japan")
+        const albumId = dir.name;
         const albumPath = path.join(RAW_DIR, albumId);
         const albumThumbPath = path.join(THUMB_DIR, albumId);
 
@@ -57,16 +57,24 @@ async function generate() {
             process.stdout.write(`  Processing: ${file} ... `);
 
             try {
-                // A. 生成縮圖
+                // A. 處理圖片 (包含旋轉修正)
                 const image = sharp(inputPath);
                 const metadata = await image.metadata();
 
-                // 檢查縮圖是否已存在 (增量編譯)
+                // [修正重點 1] 判斷是否需要交換寬高
+                // EXIF Orientation >= 5 代表圖片帶有 90 或 270 度的旋轉標籤
+                // 如果不交換，前端瀑布流拿到的寬高比會是錯的 (把直圖當橫圖排)
+                const isRotated = metadata.orientation >= 5;
+                const visualWidth = isRotated ? metadata.height : metadata.width;
+                const visualHeight = isRotated ? metadata.width : metadata.height;
+
+                // 檢查縮圖是否已存在
                 let fileExists = false;
                 try { await fs.access(outputPath); fileExists = true; } catch {}
 
                 if (!fileExists) {
                     await image
+                        .rotate() // [修正重點 2] 自動依據 EXIF 轉正圖片
                         .resize(THUMB_WIDTH)
                         .webp({ quality: THUMB_QUALITY })
                         .toFile(outputPath);
@@ -82,13 +90,13 @@ async function generate() {
 
                 photos.push({
                     filename: file,
-                    // R2 路徑結構: /thumbs/相簿名/圖片名
                     src: `${albumId}/${file}`,
                     thumb: `${albumId}/${thumbName}`,
-                    width: metadata.width,
-                    height: metadata.height,
-                    aspectRatio: metadata.width / metadata.height,
-                    date: exif?.DateTimeOriginal, // 用來排序
+                    // 使用修正後的「視覺寬高」
+                    width: visualWidth,
+                    height: visualHeight,
+                    aspectRatio: visualWidth / visualHeight,
+                    date: exif?.DateTimeOriginal,
                     exif: {
                         camera: exif?.Model || '',
                         lens: exif?.LensModel || '',
@@ -104,22 +112,19 @@ async function generate() {
             }
         }
 
-        // 相簿處理完畢，整理相簿資訊
         if (photos.length > 0) {
-            // 依拍攝時間排序
             photos.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
 
             galleryData.push({
                 id: albumId,
-                title: albumId.replace(/_/g, ' '), // 把底線換成空白當標題
-                cover: photos[0].thumb, // 預設用第一張當封面
+                title: albumId.replace(/_/g, ' '),
+                cover: photos[0].thumb,
                 count: photos.length,
                 photos: photos
             });
         }
     }
 
-    // 依相簿 ID (或可改成日期) 排序相簿
     galleryData.sort((a, b) => b.id.localeCompare(a.id));
 
     await fs.writeFile(OUTPUT_JSON, JSON.stringify(galleryData, null, 2));

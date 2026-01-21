@@ -9,7 +9,7 @@ sitemap:
 ---
 
 <script setup>
-import { TimelineList } from '@features/timeline';
+import { Gallery } from '@features/gallery';
 </script>
 
-<TimelineList />
+<Gallery />

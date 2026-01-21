@@ -65,7 +65,7 @@ export default [
             },
             {
                 text: 'photography',
-                link: '/article/portfolio/photography/'
+                link: '/gallery' // /article/portfolio/photography/
             }
         ]
     },

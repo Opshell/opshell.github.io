@@ -50,7 +50,7 @@
     "fix-tags": "node scripts/fix-tags.mjs",
     "fix-empty-frontmatter": "node scripts/fix-empty-categories-tags.mjs",
     "fix-createdAt": "node scripts/fix-createdAt-format.mjs",
-    "gallery-thumbnails": "node scripts/gallery-thumbnails.mjs"
+    "gallery-thumb": "node scripts/generate-gallery.mjs"
   },
   "dependencies": {
     "@giscus/vue": "3.1.1",
