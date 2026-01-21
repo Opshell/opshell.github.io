@@ -115,10 +115,13 @@ async function generate() {
         if (photos.length > 0) {
             photos.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
 
+            const coverPhoto = photos[0];
+
             galleryData.push({
                 id: albumId,
                 title: albumId.replace(/_/g, ' '),
-                cover: photos[0].thumb,
+                cover: coverPhoto.thumb,
+                aspectRatio: coverPhoto.width / coverPhoto.height,
                 count: photos.length,
                 photos: photos
             });
