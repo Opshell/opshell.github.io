@@ -56,6 +56,7 @@ declare global {
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
   const useId: typeof import('vue')['useId']
+  const useModel: typeof import('vue')['useModel']
   const useMouse: typeof import('@vueuse/core')['useMouse']
   const useMyFetch: typeof import('@vueuse/core')['useFetch']
   const useSlots: typeof import('vue')['useSlots']
@@ -68,7 +69,7 @@ declare global {
 // for type re-export
 declare global {
   // @ts-ignore
-  export type { Component, ComponentPublicInstance, ComputedRef, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, VNode, WritableComputedRef } from 'vue'
+  export type { Component, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
 }
 // for vue template auto import
@@ -126,6 +127,7 @@ declare module 'vue' {
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
+    readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useMouse: UnwrapRef<typeof import('@vueuse/core')['useMouse']>
     readonly useMyFetch: UnwrapRef<typeof import('@vueuse/core')['useFetch']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
