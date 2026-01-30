@@ -303,17 +303,16 @@ export default defineConfig({
             alias: { // 設定別名
                 '@': path.resolve(__dirname, '../'), // docs 當根目錄
                 '@vitepress': path.resolve(__dirname), // .vitepress 目錄
+                '@theme': path.resolve(__dirname, './theme'), // .vitepress 目錄
 
                 '@shared': path.resolve(__dirname, '../', 'shared'),
                 '@components': path.resolve(__dirname, '../shared/', 'components'),
                 '@data': path.resolve(__dirname, '../shared/', 'data'),
                 '@hooks': path.resolve(__dirname, '../shared/', 'hooks'),
-
-                '@pages': path.resolve(__dirname, '../', 'pages'),
+                '@utils': path.resolve(__dirname, '../shared/', 'utils'),
 
                 '@features': path.resolve(__dirname, '../', 'features'),
-                '@widgets': path.resolve(__dirname, '../', 'widgets'),
-                '@entities': path.resolve(__dirname, '../', 'entities')
+                '@pages': path.resolve(__dirname, '../', 'pages'),
             }
         },
         plugins: [

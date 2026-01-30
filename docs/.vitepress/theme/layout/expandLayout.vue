@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, provide, nextTick, onMounted } from 'vue';
 import { useData } from 'vitepress';
+
 import DefaultTheme from 'vitepress/theme';
 import DesignSystemLayout from './DesignSystemLayout.vue';
+import ArticleLayout from './articleLayout.vue';
 import useKeyBoardControl from '@shared/hooks/useKeyBoardControl';
 import { useSiteData } from '@shared/hooks/useSiteData';
 
@@ -10,6 +12,8 @@ import { useSiteData } from '@shared/hooks/useSiteData';
 const { Layout } = DefaultTheme;
 
 // Data Hooks
+const aa = useData();
+console.log(aa);
 const { frontmatter, page, isDark } = useData();
 const siteData = useSiteData();
 
@@ -107,8 +111,10 @@ useKeyBoardControl({
 </script>
 
 <template>
+    <CustomLayout v-if="frontmatter.layout === 'custom'" />
 
-    <DesignSystemLayout v-if="frontmatter.layout === 'design-system' || frontmatter.designSystem" />
+    <DesignSystemLayout v-else-if="frontmatter.layout === 'design-system' || frontmatter.designSystem" />
+
     <Layout v-else :class="[frontmatter.class]">
         <template #doc-before>
             <div class="article-meta-header">
@@ -203,6 +209,8 @@ useKeyBoardControl({
             </div>
         </template>
     </Layout>
+
+    <!-- <ArticleLayout v-else /> -->
 </template>
 
 <style lang="scss">
@@ -222,6 +230,25 @@ useKeyBoardControl({
     }
     .VPSwitchAppearance { width: 22px !important; }
     .VPSwitchAppearance .check { transform: none !important; }
+</style>
+
+<style lang="scss" scoped>
+    // 框架調整
+    // 範例：將原本的 Sidebar 和 Content 左右互換
+    .VPContent {
+        // VitePress 預設通常是 Flex 或 Grid
+        display: flex;
+        flex-direction: row-reverse; // 這樣內容就會跑到左邊，Sidebar 跑到右邊
+    }
+
+    // 範例：利用 Grid Area 重新定義版面
+    // 這需要你去查閱 VitePress 預設的 class name
+    .VPDoc {
+        display: grid;
+        grid-template-areas:
+            "header header"
+            "content aside"; // 把目錄(Aside)放到右邊
+    }
 </style>
 
 <style lang="scss" scoped>

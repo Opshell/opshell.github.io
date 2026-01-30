@@ -1,0 +1,52 @@
+
+> opshell-blog@1.0.0 docs:build
+> vitepress build docs
+
+
+  [32m[1mvitepress[22m v1.3.2[39m
+
+- building client + server bundles...
+
+The language 'vue-ts' is not loaded, falling back to 'txt' for syntax highlighting.
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  ??2 ??@import 'variable';
+  ??        ^^^^^^^^^^
+  ??    docs\.vitepress\theme\scss\style.scss 2:9  root stylesheet
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  ??5 ??@import 'vitepress';
+  ??        ^^^^^^^^^^^
+  ??    docs\.vitepress\theme\scss\style.scss 5:9  root stylesheet
+
+DEPRECATION WARNING [import]: Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+  ??8 ??@import 'basic';
+  ??        ^^^^^^^
+  ??    docs\.vitepress\theme\scss\style.scss 8:9  root stylesheet
+
+x Build failed in 16.43s
+??[0m building client + server bundles...
+build error:
+[vite]: Rollup failed to resolve import "axios" from "C:/wamp64/www/opshell.github.io/docs/shared/hooks/useApi.ts".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`
+[vite]: Rollup failed to resolve import "axios" from "C:/wamp64/www/opshell.github.io/docs/shared/hooks/useApi.ts".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`
+    at viteWarn (file:///C:/wamp64/www/opshell.github.io/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65855:17)
+    at onRollupWarning (file:///C:/wamp64/www/opshell.github.io/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65887:5)
+    at onwarn (file:///C:/wamp64/www/opshell.github.io/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65550:7)
+    at file:///C:/wamp64/www/opshell.github.io/node_modules/rollup/dist/es/shared/node-entry.js:19393:13
+    at Object.logger [as onLog] (file:///C:/wamp64/www/opshell.github.io/node_modules/rollup/dist/es/shared/node-entry.js:21119:9)
+    at ModuleLoader.handleInvalidResolvedId (file:///C:/wamp64/www/opshell.github.io/node_modules/rollup/dist/es/shared/node-entry.js:20008:26)
+    at file:///C:/wamp64/www/opshell.github.io/node_modules/rollup/dist/es/shared/node-entry.js:19966:26
