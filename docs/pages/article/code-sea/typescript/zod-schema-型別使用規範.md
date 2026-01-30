@@ -97,12 +97,13 @@ src/
 
 **✅ 組件化 BEM (清爽且語意化)**
 `<div class="btn btn--primary" :class="{ 'is-open': isOpen }">`
-
+```scss
 .btn {
     ...
     &--primary { ... } // Modifier
     &.is-open { ... } // State
 }
+```
 
 :::
 
@@ -777,7 +778,7 @@ Raw Request：程式邏輯補完資料後的 (加上 Token)。
 Payload：經過變形 (Transform) 要送給後端的。
 
 假設你使用的是 Zod{.brand} (根據語法判斷)，以下是我的優化建議與實作方式。
-
+```ts
 // 1. 定義純粹的使用者輸入 (View Model)
 // 這是給 UI 綁定用的，或是 component props
 export const LoginInputSchema = LoginFormSchema.pick({
@@ -801,3 +802,4 @@ export type LoginInput = z.infer<typeof LoginInputSchema>;
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 // 注意：Transform 後的型別推斷通常需要小心，Zod 會推斷出 output type
 export type LoginPayload = z.output<typeof LoginPayloadSchema>;
+```
