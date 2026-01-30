@@ -97,6 +97,13 @@ src/
 
 **✅ 組件化 BEM (清爽且語意化)**
 `<div class="btn btn--primary" :class="{ 'is-open': isOpen }">`
+
+.btn {
+    ...
+    &--primary { ... } // Modifier
+    &.is-open { ... } // State
+}
+
 :::
 
 ---
@@ -458,7 +465,6 @@ Version:3.0.0
 
 本規範旨在建立一套以 `Zod` Schema 為核心的、清晰、可維護且易於團隊協作的 `TypeScript` 資料層撰寫標準。
 核心思想是：**從 SSoT Schema 衍生出一切**。
-基本情況是，當資料到達 UI 層要使用時，已經是經過嚴格驗證且符合 UI 需求的狀態，不額外花成本處理他的資料格式與欄位狀態。
 
 目標是，任何開發者看到一個 Schema 的名稱，就能立刻回答以下問題：
 
