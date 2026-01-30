@@ -1,7 +1,8 @@
 {
   "type": "module",
   "name": "opshell-blog",
-  "version": "1.0.0",
+  "private": true,
+  "version": "2.10.0",
   "description": "Opshell's blog",
   "main": "index.js",
   "repository": "https://github.com/Opshell/opshell.github.io.git",
@@ -12,7 +13,7 @@
     "@mdit/plugin-tasklist": "0.22.2",
     "@pinia/testing": "1.0.3",
     "@types/fs-extra": "11.0.4",
-    "@types/markdown-it-container": "^2.0.10",
+    "@types/markdown-it-container": "2.0.10",
     "@types/markdown-it-footnote": "3.0.4",
     "@vitest/ui": "2.1.2",
     "@vue/test-utils": "2.4.6",
@@ -52,6 +53,7 @@
   },
   "dependencies": {
     "@giscus/vue": "3.1.1",
+    "@vueuse/core": "14.1.0",
     "axios": "1.13.2",
     "vue": "3.5.24"
   }
