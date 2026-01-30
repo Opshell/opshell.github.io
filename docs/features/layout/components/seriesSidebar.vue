@@ -1,65 +1,67 @@
 <script setup lang="ts">
-    import { computed } from 'vue';
-    import { useData } from 'vitepress';
-    import { useSiteData } from '@hooks/useSiteData'; // 使用你提供的 Hook
+import { computed } from 'vue';
+import { useData } from 'vitepress';
+import { useSiteData } from '@hooks/useSiteData'; // 使用你提供的 Hook
 
-    import { useSidebar } from 'vitepress/dist/client/theme-default/composables/sidebar';
+import { useSidebar } from 'vitepress/dist/client/theme-default/composables/sidebar';
 
-    const { frontmatter, page } = useData();
-    const siteData = useSiteData();
+const { frontmatter, page } = useData();
+const siteData = useSiteData();
 
-    // 1. 決定標題：優先顯示 Series，其次 Category，最後 fallback
-    const contextTitle = computed(() => {
-        return frontmatter.value.series
-            || frontmatter.value.category
-            || 'Recent Posts';
-    });
+// 1. 決定標題：優先顯示 Series，其次 Category，最後 fallback
+const contextTitle = computed(() => {
+    return frontmatter.value.series
+        || frontmatter.value.category
+        || 'Recent Posts';
+});
 
-    const contextLabel = computed(() => {
-        if (frontmatter.value.series) return 'SERIES';
-        if (frontmatter.value.category) return 'CATEGORY';
-        return 'EXPLORE';
-    });
+const contextLabel = computed(() => {
+    if (frontmatter.value.series) return 'SERIES';
+    if (frontmatter.value.category) return 'CATEGORY';
+    return 'EXPLORE';
+});
 
-    // 2. 核心邏輯：從 Map 中篩選相關文章
-    const relatedPosts = computed(() => {
-        if (!siteData.value) return [];
+// 2. 核心邏輯：從 Map 中篩選相關文章
+const relatedPosts = computed(() => {
+    if (!siteData.value) return [];
 
-        // 將 Map 的 values 轉為陣列來進行 filter/sort
-        // 這裡的 posts 已經是還原好的 Post 物件了
-        const allPosts = Array.from(siteData.value.posts.values());
+    // 將 Map 的 values 轉為陣列來進行 filter/sort
+    // 這裡的 posts 已經是還原好的 Post 物件了
+    const allPosts = Array.from(siteData.value.posts.values());
 
-        // Scenario A: 系列文 (Series)
-        if (frontmatter.value.series) {
-            return allPosts
-                .filter(p => (p as any).series === frontmatter.value.series)
-                // 系列文通常建議：舊 -> 新 (閱讀順序)
-                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        }
+    // Scenario A: 系列文 (Series)
+    if (frontmatter.value.series) {
+        return allPosts
+            .filter(p => (p as any).series === frontmatter.value.series)
+            // 系列文通常建議：舊 -> 新 (閱讀順序)
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    }
 
-        // Scenario B: 同分類 (Category)
-        if (frontmatter.value.category) {
-            return allPosts
-                .filter(p => p.category === frontmatter.value.category)
-                // 分類文章建議：新 -> 舊
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        }
+    // Scenario B: 同分類 (Category)
+    if (frontmatter.value.category) {
+        return allPosts
+            .filter(p => p.category === frontmatter.value.category)
+            // 分類文章建議：新 -> 舊
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }
 
-        // Scenario C: 最新文章 (Recent)
-        // 利用 sortedPostUrls (已經排好序的 key) 直接去 Map 抓，效能最高
-        return siteData.value.sortedPostUrls
-            .slice(0, 10)
-            .map(url => siteData.value!.posts.get(url))
-            .filter(Boolean); // 過濾掉可能的 undefined
-    });
+    // Scenario C: 最新文章 (Recent)
+    // 利用 sortedPostUrls (已經排好序的 key) 直接去 Map 抓，效能最高
+    return siteData.value.sortedPostUrls
+        .slice(0, 10)
+        .map(url => siteData.value!.posts.get(url))
+        .filter(Boolean); // 過濾掉可能的 undefined
+});
 
-    // Helper: 判斷是否為當前頁面 (比對 URL)
-    const isActive = (url: string) => {
-        // 處理一下路徑結尾 (.html vs 無副檔名)
-        const currentPath = page.value.relativePath.replace(/\.md$/, '');
-        const targetPath = url.replace(/\.html$/, '').replace(/^\//, '');
-        return currentPath === targetPath;
-    };
+// Helper: 判斷是否為當前頁面 (比對 URL)
+const isActive = (url: string) => {
+    // 處理一下路徑結尾 (.html vs 無副檔名)
+    const currentPath = page.value.relativePath.replace(/\.md$/, '');
+    const targetPath = url.replace(/\.html$/, '').replace(/^\//, '');
+    return currentPath === targetPath;
+};
+
+
 </script>
 
 <template>

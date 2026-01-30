@@ -30,15 +30,7 @@ import { useData } from 'vitepress';
             </div>
 
             <div v-if="frontmatter.tags" class="tags-row">
-                <a
-                    v-for="tag in frontmatter.tags"
-                    :key="tag"
-                    class="tag-pill"
-                    :href="`/tags-list.html?tag=${tag}&page=1`"
-                >
-                    <ElSvgIcon name="tag" class="icon" />
-                    {{ tag }}
-                </a>
+                <ElTag v-for="tag in frontmatter.tags" :key="tag" :tag/>
             </div>
         </div>
 

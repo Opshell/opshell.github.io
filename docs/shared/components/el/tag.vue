@@ -1,21 +1,40 @@
+<script setup lang="ts">
+    defineProps<{
+        tag: string
+    }>();
+</script>
+
 <template>
-    <span class="el-tag">
-        <slot />
-    </span>
+    <a class="el-tag" :href="`/tags-list.html?tag=${tag}`">
+        <span class="hash">#</span>
+        <span>{{tag}}</span>
+        <slot></slot>
+    </a>
 </template>
 
-<style lang="scss" scoped>
-.el-tag {
-    display: inline-flex;
-    align-items: center;
-    padding: 0 8px;
-    height: 24px;
-    border-radius: 4px;
-    background: var(--vp-c-bg-alt);
-    color: var(--vp-c-text-1);
-    font-size: 0.875rem;
-    line-height: 1;
-    white-space: nowrap;
-    border: 1px solid var(--vp-c-divider);
-}
+<style lang="scss">
+    .el-tag {
+        @include setFlex();
+        gap: .25rem;
+        background-color: color-mix(in srgb, var(--vp-c-brand) 20%, transparent);
+        padding: 6px 14px;
+        border-radius: 14px;
+        color: var(--vp-c-brand-dark);
+        font-size: .9rem;
+        font-weight: 400;
+        line-height: 1;
+        transition: .2s var(--op-timing-FiSo);
+
+        .hash {
+            color: var(--vp-c-brand-1);
+            transition: .2s var(--op-timing-FiSo);
+        }
+        &:hover {
+            .hash {
+                color: var(--color-extreme-reverse);
+            }
+            background-color: var(--vp-c-brand);
+            color: var(--color-extreme-reverse);
+        }
+    }
 </style>
