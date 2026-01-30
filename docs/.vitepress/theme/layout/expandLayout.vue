@@ -1,116 +1,113 @@
 <script setup lang="ts">
-import { computed, provide, nextTick, onMounted } from 'vue';
-import { useData } from 'vitepress';
+    import { computed, provide, nextTick, onMounted } from 'vue';
+    import { useData } from 'vitepress';
 
-import DefaultTheme from 'vitepress/theme';
-import DesignSystemLayout from './DesignSystemLayout.vue';
-import ArticleLayout from './articleLayout.vue';
-import useKeyBoardControl from '@shared/hooks/useKeyBoardControl';
-import { useSiteData } from '@shared/hooks/useSiteData';
+    import DefaultTheme from 'vitepress/theme';
+    import DesignSystemLayout from './DesignSystemLayout.vue';
+    import ArticleLayout from './articleLayout.vue';
+    import useKeyBoardControl from '@shared/hooks/useKeyBoardControl';
+    import { useSiteData } from '@shared/hooks/useSiteData';
 
-// Layout Component
-const { Layout } = DefaultTheme;
+    // Layout Component
+    const { Layout } = DefaultTheme;
 
-// Data Hooks
-const aa = useData();
-console.log(aa);
-const { frontmatter, page, isDark } = useData();
-const siteData = useSiteData();
+    // Data Hooks
+    const aa = useData();
+    console.log(aa);
+    const { frontmatter, page, isDark } = useData();
+    const siteData = useSiteData();
 
-// --- 1. TypeScript Fix & Data Logic ---
-// 修復：使用 computed 並處理 siteData 可能為 undefined 的情況
-const tags = computed(() => {
-    if (!siteData.value) return [];
+    // --- 1. TypeScript Fix & Data Logic ---
+    // 修復：使用 computed 並處理 siteData 可能為 undefined 的情況
+    const tags = computed(() => {
+        if (!siteData.value) return [];
 
-    return Array.from(siteData.value.tags.entries())
-        .map(([name, data]) => ({
-            name,
-            count: data.count
-        }))
-        // 排序：數量多的在前面
-        .sort((a, b) => b.count - a.count);
-});
+        return Array.from(siteData.value.tags.entries())
+            .map(([name, data]) => ({
+                name,
+                count: data.count
+            }))
+            // 排序：數量多的在前面
+            .sort((a, b) => b.count - a.count);
+    });
 
-const lastUpdated = computed(() => {
-    const timestamp = page.value.lastUpdated as number;
-    return timestamp > 0 ? new Date(timestamp).toLocaleDateString() : '';
-});
+    const lastUpdated = computed(() => {
+        const timestamp = page.value.lastUpdated as number;
+        return timestamp > 0 ? new Date(timestamp).toLocaleDateString() : '';
+    });
 
-// --- 2. View Transitions Logic (保持原樣) ---
-function enableTransitions() {
-    return (
-        'startViewTransition' in document
-        && window.matchMedia('(prefers-reduced-motion: no-preference)').matches
-    );
-}
-
-provide('toggle-appearance', async ({ clientX: x, clientY: y }: MouseEvent) => {
-    if (!enableTransitions()) {
-        isDark.value = !isDark.value;
-        return;
+    // --- 2. View Transitions Logic (保持原樣) ---
+    function enableTransitions() {
+        return (
+            'startViewTransition' in document
+            && window.matchMedia('(prefers-reduced-motion: no-preference)').matches
+        );
     }
 
-    const clipPath = [
-        `circle(0px at ${x}px ${y}px)`,
-        `circle(${Math.hypot(
-            Math.max(x, innerWidth - x),
-            Math.max(y, innerHeight - y)
-        )}px at ${x}px ${y}px)`
-    ];
-
-    await document.startViewTransition(async () => {
-        isDark.value = !isDark.value;
-        await nextTick();
-    }).ready;
-
-    document.documentElement.animate(
-        { clipPath: isDark.value ? clipPath.reverse() : clipPath },
-        {
-            duration: 300,
-            easing: 'cubic-bezier(.37, .99, .92, .96)',
-            pseudoElement: `::view-transition-${isDark.value ? 'old' : 'new'}(root)`,
-            fill: 'forwards'
+    provide('toggle-appearance', async ({ clientX: x, clientY: y }: MouseEvent) => {
+        if (!enableTransitions()) {
+            isDark.value = !isDark.value;
+            return;
         }
-    );
-});
 
-// --- 3. Keyboard Control Logic (保持原樣) ---
-function selectorClickHandler(selector: string) {
-    const element = document.querySelector(selector) as HTMLElement;
-    if (element) element.click();
-}
+        const clipPath = [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${Math.hypot(
+                Math.max(x, innerWidth - x),
+                Math.max(y, innerHeight - y)
+            )}px at ${x}px ${y}px)`
+        ];
 
-function getOutlines() {
-    const outlines = document.querySelectorAll('.VPDocOutlineItem.root .outline-link');
-    const activeIndex = Array.from(outlines).findIndex(outline => outline.classList.contains('active'));
-    return { outlines, activeIndex };
-}
+        await document.startViewTransition(async () => {
+            isDark.value = !isDark.value;
+            await nextTick();
+        }).ready;
 
-useKeyBoardControl({
-    'ArrowLeft': () => selectorClickHandler('.pager-link.prev'),
-    'ArrowRight': () => selectorClickHandler('.pager-link.next'),
-    'Ctrl+ArrowUp': () => {
-        const { outlines, activeIndex } = getOutlines();
-        if (outlines.length <= 0) return;
-        if (activeIndex > 0) {
-            (outlines[activeIndex - 1] as HTMLElement).click();
-        } else {
-            window.scrollTo(0, 0);
-        }
-    },
-    'Ctrl+ArrowDown': () => {
-        const { outlines, activeIndex } = getOutlines();
-        if (outlines.length > 0) {
-            const nextIndex = activeIndex + 1;
-            if (nextIndex < outlines.length) {
-                (outlines[nextIndex] as HTMLElement).click();
+        document.documentElement.animate(
+            { clipPath: isDark.value ? clipPath.reverse() : clipPath },
+            {
+                duration: 300,
+                easing: 'cubic-bezier(.37, .99, .92, .96)',
+                pseudoElement: `::view-transition-${isDark.value ? 'old' : 'new'}(root)`,
+                fill: 'forwards'
+            }
+        );
+    });
+
+    // --- 3. Keyboard Control Logic (保持原樣) ---
+    function selectorClickHandler(selector: string) {
+        const element = document.querySelector(selector) as HTMLElement;
+        if (element) element.click();
+    }
+
+    function getOutlines() {
+        const outlines = document.querySelectorAll('.VPDocOutlineItem.root .outline-link');
+        const activeIndex = Array.from(outlines).findIndex(outline => outline.classList.contains('active'));
+        return { outlines, activeIndex };
+    }
+
+    useKeyBoardControl({
+        'ArrowLeft': () => selectorClickHandler('.pager-link.prev'),
+        'ArrowRight': () => selectorClickHandler('.pager-link.next'),
+        'Ctrl+ArrowUp': () => {
+            const { outlines, activeIndex } = getOutlines();
+            if (outlines.length <= 0) return;
+            if (activeIndex > 0) {
+                (outlines[activeIndex - 1] as HTMLElement).click();
+            } else {
+                window.scrollTo(0, 0);
+            }
+        },
+        'Ctrl+ArrowDown': () => {
+            const { outlines, activeIndex } = getOutlines();
+            if (outlines.length > 0) {
+                const nextIndex = activeIndex + 1;
+                if (nextIndex < outlines.length) {
+                    (outlines[nextIndex] as HTMLElement).click();
+                }
             }
         }
-    }
-}, true);
-
-console.log('frontmatter.layout', frontmatter.class);
-
+    }, true);
 </script>
 
 <template>
@@ -118,9 +115,9 @@ console.log('frontmatter.layout', frontmatter.class);
 
     <ArticleLayout v-else-if="!frontmatter.layout" />
 
-    <Layout v-else :class="[frontmatter.class]" />
+    <!-- <Layout v-else :class="[frontmatter.class]" /> -->
 
-    <Layout v-if="frontmatter.layout === '123'" :class="[frontmatter.class]">
+    <Layout v-else :class="[frontmatter.class]">
         <template #doc-before>
             <div class="article-meta-header">
                 <div class="meta-row">

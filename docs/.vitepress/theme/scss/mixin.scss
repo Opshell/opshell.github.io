@@ -8,50 +8,41 @@
     letter-spacing: 1px;
 }
 
-$shadow: 0 0 1px 0 rgba(0, 0, 0, 15%);
-$shadow-in: 0 0 1px 0 rgba(0, 0, 0, 15%) inset;
+$shadow: 0 0 1px 0 rgb(0, 0, 0, 15%);
+$shadow-in: 0 0 1px 0 rgb(0, 0, 0, 15%) inset;
 $cubic-FiSo: cubic-bezier(.37, .99, .92, .96); // 快進場緩停
 $cubic-FiFo: cubic-bezier(.25, .65, .85, .45); // 快進快出
 $cubic-SiRo: cubic-bezier(.31, 1.26, .19, 1.11); // 快速回彈
 $cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1); // 緩進微彈
 
-// 設定卷軸樣式
-@mixin setScroll($size: 10px) {
-    // 卷軸體
-    &::-webkit-scrollbar {
-        background: var(--color-btn-fill);
-        width: $size;
-        border-radius: calc($size / 2);
-    }
+// [M] RWD
+// 定義基礎 Breakpoint 的對應 尺寸
+$breakpoints: (
+    'xs': 500px,
+    'sm': 768px,  // ipad mini
+    'md': 1024px, // ipad mini
+    'lg': 1366px, // ipad pro
+    'xl': 1680px
+);
 
-    // 卷軸底
-    &::-webkit-scrollbar-thumb {
-        background: var(--color-primary);
-        border: 0.5px solid rgba(153, 153, 153, 25%);
-        border-radius: calc($size / 2);
-
-        // box-shadow: 0 0 10px 2px #20476e;
-    }
-
-    // 卷軸按鈕
-    // &::-webkit-scrollbar-button {
-    //     background: transparent; // 設定transparent會隱藏按鈕
-    //     border-radius: 4px;
-    // }
-    // &::-webkit-scrollbar-track-piece {
-    //     background: transparent; // 設定transparent會隱藏卷軸底
-    // }
-
-    // 卷軸底底 (可以幫卷軸底加陰影
-    // &::-webkit-scrollbar-track {
-    //     box-shadow: transparent;
-    // }
-}
-
-// RWD
+// 設定 media query
 @mixin setRWD($size) {
     @media(max-width: $size){
         @content;
+    }
+}
+
+// Mixin 根據 Breakpoint 名稱生成相應的 Media Query
+@mixin useBreakPoint($breakpoint) {
+    $breakpoint-value: map.get($breakpoints, $breakpoint);
+
+    // 如果找到對應尺寸，生成 Media Query
+    @if $breakpoint-value {
+        @include setRWD($breakpoint-value) {
+            @content;
+        };
+    } @else {
+        @warn "Breakpoint '#{$breakpoint}' is not defined in $breakpoints map.";
     }
 }
 
@@ -109,20 +100,20 @@ $cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1); // 緩進微彈
 }
 
 // 多行省略號
-@mixin setJustify($rows: 2){
+@mixin setMultiJustify($rows: 2){
     display: -webkit-inline-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: $rows;
     overflow: hidden;
 }
 
-// 設定文字大小&行高一樣(這樣韓padding 才不會變很大)
+// 設定文字大小&行高一樣 ※ 確認該文字不會斷行再使用
 @mixin setFontSize($size) {
     font-size: $size;
     line-height: $size;
 }
 
-//Delay Animate
+// Delay Animate
 @mixin setDelay($ty, $e, $tv, $btv: 0, $s: 1) {
     @for $i from $s through $e {
         &:nth-child(#{$i}){
@@ -139,7 +130,7 @@ $cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1); // 緩進微彈
         }
     }
 
-    //EX:{
+    // EX:{
         // @include setStr("::after", "background", "url('../image/contact/line'", 6, ".png')");
     // }
 }
@@ -157,7 +148,7 @@ $cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1); // 緩進微彈
         @content;
     }
 
-    //EX:{
+    // EX:{
         // .setIntoView{
         //     @include setIntoView(
         //         $basc:(
@@ -171,13 +162,13 @@ $cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1); // 緩進微彈
         //         $cubic: .65s $cubic-SiRo
         //     )
         // }
-    //}
+    // }
 }
 
 // 設定凹陷樣式
 @mixin setSunken() {
-    box-shadow: 1px 1px 2px -1px rgba(0, 0, 0, 35%) inset,
-                -1px -1px 2px -1px rgba(255, 255, 255, 95%) inset;
+    box-shadow: 1px 1px 2px -1px rgb(0, 0, 0, 35%) inset,
+                -1px -1px 2px -1px rgb(255, 255, 255, 95%) inset;
 }
 
 // 特殊邊框
@@ -206,6 +197,39 @@ $cubic-SiMo: cubic-bezier(.3, 1, .94, 1.1); // 緩進微彈
         @include setSize(3px, 3px);
         border-radius: 50%;
     }
+}
+
+// 設定卷軸樣式
+@mixin setScroll($size: 10px, $thumbColor: var(--color-primary), $barColor: var(--color-gray-050)) {
+    // 卷軸底
+    &::-webkit-scrollbar {
+        background: $barColor;
+        width: $size;
+        height: $size;
+        border-radius: calc($size / 2);
+    }
+
+    // 卷軸體
+    &::-webkit-scrollbar-thumb {
+        background: $thumbColor;
+        border-radius: calc($size / 2);
+
+        // box-shadow: 0 0 10px 2px #20476e;
+    }
+
+    // 卷軸按鈕
+    // &::-webkit-scrollbar-button {
+    //     background: transparent; // 設定transparent會隱藏按鈕
+    //     border-radius: 4px;
+    // }
+    // &::-webkit-scrollbar-track-piece {
+    //     background: transparent; // 設定transparent會隱藏卷軸底
+    // }
+
+    // 卷軸底底 (可以幫卷軸底加陰影
+    // &::-webkit-scrollbar-track {
+    //     box-shadow: transparent;
+    // }
 }
 
 // 大區域 範圍設定

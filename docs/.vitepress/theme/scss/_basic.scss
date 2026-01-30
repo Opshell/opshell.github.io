@@ -31,14 +31,14 @@ html {
 // 視覺隱藏，但機器可讀 (SEO Friendly)
 .sr-only {
     position: absolute;
+    clip: rect(0, 0, 0, 0);
     width: 1px;
     height: 1px;
     padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
     border-width: 0;
+    margin: -1px;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 // text color
@@ -48,8 +48,31 @@ html {
 .warning { color: var(--vp-c-yellow-1) !important; }
 .success { color: var(--vp-c-green-2) !important; }
 .vue { color: #4AA985 !important; }
+.typescript { color: #3178C6 !important; }
 
 .vp-doc {
+    // basic
+    // h1, h2, h3, h4, h5, h6 {
+    //     color: var(--color-title);
+    // }
+
+    // h2, h3, h4 {
+    //     padding-left: 0;
+    //     transition: .2s var(--cubic-FiSo);
+    //     &:hover {
+    //         padding-left: 1.2em;
+    //     }
+    // }
+
+    // 程式碼區塊
+    div[class*=language-], .vp-block {
+        // background: var(--color-gray-100);
+        border-radius: .5rem;
+        margin: 1rem 0;
+        box-shadow: 0 0 1px 0 rgb(0, 0, 0, 10%);
+    }
+
+
     // group
     .in-out-demo-block {
         background-color: var(--vp-c-indigo-soft);
@@ -120,7 +143,7 @@ html {
                     transition: border-color 0.15s $cubic-FiSo,
                                 height 0.05s $cubic-FiSo,
                                 width 0.1s $cubic-FiSo 0.04s;
-                    filter: drop-shadow(0 0 3px rgba(0, 0, 0, 100%));
+                    filter: drop-shadow(0 0 3px rgb(0, 0, 0, 100%));
                 }
             }
         }
@@ -129,5 +152,70 @@ html {
             transform: translate(0, 2px);
             transition: .2s $cubic-FiSo;
         }
+    }
+}
+
+
+// [+] 之後換地方
+.custom-quote {
+    position: relative;
+    display: flex;       // 開啟 Flex 佈局
+    flex-direction: column; // 垂直排列
+    background: var(--vp-c-bg-soft);
+    padding: 2rem 2.5rem;
+    border-left: 4px solid var(--vp-c-brand);
+    border-radius: 12px;
+    margin: 2rem 0;
+    box-shadow: 0 4px 12px rgb(0, 0, 0, 5%);
+
+    // 1. 調整順序：讓 figcaption (原本在第一個) 跑到最後面
+    .quote-author {
+        order: 2; // 放到最後
+        margin-top: 1.5rem;
+        color: var(--vp-c-text-2);
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-align: right;
+
+        // 如果沒有作者名，就把這個區域隱藏 (避免佔空間)
+        &:empty { display: none; }
+
+        &::before {
+            content: '— ';
+            margin-right: 4px;
+            color: var(--vp-c-brand-light);
+        }
+    }
+
+    // 2. 內容區域
+    .quote-body {
+        order: 1; // 放在中間
+        padding: 0;
+        border: none;
+        margin: 0;
+        color: var(--vp-c-text-1);
+        font-family: Georgia, serif;
+        font-size: 1.1rem;
+        font-style: italic;
+        line-height: 1.8;
+
+        p { margin: 0; }
+    }
+
+    // 3. Icon 裝飾
+    .quote-icon {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        width: 24px;
+        height: 24px;
+        color: var(--vp-c-brand);
+        opacity: 0.2; // 淡一點比較不搶戲
+    }
+
+    // Hover 效果
+    &:hover {
+        box-shadow: 0 8px 24px rgb(0, 0, 0, 8%);
+        transform: translateY(-2px);
     }
 }

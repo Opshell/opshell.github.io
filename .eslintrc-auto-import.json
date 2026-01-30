@@ -66,6 +66,9 @@
     "watch": true,
     "watchEffect": true,
     "watchPostEffect": true,
-    "watchSyncEffect": true
+    "watchSyncEffect": true,
+    "onWatcherCleanup": true,
+    "useId": true,
+    "useTemplateRef": true
   }
 }

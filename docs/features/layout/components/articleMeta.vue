@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useData } from 'vitepress';
+    import { useData } from 'vitepress';
+
     const { frontmatter, page, isDark } = useData();
 
     const lastUpdated = computed(() => {
@@ -13,18 +14,18 @@ import { useData } from 'vitepress';
         <div class="article-meta-header">
             <div class="meta-row">
                 <div class="meta-item author">
-                    <ElSvgIcon name="person" class="icon" />
+                    <ElSvgIcon name="history_edu" />
                     <span>{{ frontmatter.author || 'Opshell' }}</span>
                 </div>
 
                 <div v-if="lastUpdated || frontmatter.createdAt" class="meta-item date">
-                    <ElSvgIcon name="calendar_month" class="icon" />
+                    <ElSvgIcon name="calendar_month" />
                     <span v-if="frontmatter.createdAt">{{ frontmatter.createdAt }}</span>
                     <span v-else>{{ lastUpdated }}</span>
                 </div>
 
                 <div class="meta-item views">
-                    <ElSvgIcon name="visibility" class="icon" />
+                    <ElSvgIcon name="visibility" />
                     <span id="busuanzi_value_page_pv">--</span>
                 </div>
             </div>
@@ -35,7 +36,7 @@ import { useData } from 'vitepress';
         </div>
 
         <div v-if="frontmatter.image" class="banner-block">
-            <img :src="frontmatter.image" :alt="`${frontmatter.title}_image`" />
+            <img :src="frontmatter.image" :alt="`${frontmatter.title}_image`" loading="lazy"/>
         </div>
     </header>
 </template>
@@ -64,13 +65,6 @@ import { useData } from 'vitepress';
             display: flex;
             gap: 6px;
             align-items: center;
-
-            .icon {
-                width: 16px;
-                height: 16px;
-                fill: currentColor;
-                opacity: 0.8;
-            }
 
             // Font fix for numbers/dates
             &.date, &.views {

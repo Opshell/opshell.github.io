@@ -145,7 +145,7 @@
 
             // clip-path: inset(0 round 1rem); // 裁切圓角
             border-radius: 1rem;
-            box-shadow: 1px 1px 10px 0 rgb(0, 0, 0, 10%);
+            box-shadow: var(--card-shadow);
             transition: .2s var(--op-timing-FiSo);
             .date {
                 position: sticky;
@@ -199,6 +199,7 @@
                 margin-bottom: .5rem;
                 color: var(--vp-c-text-2);
                 font-size: 1rem;
+                font-weight: 300;
                 line-height: 1.6;
                 overflow: hidden;
                 line-clamp: 2;

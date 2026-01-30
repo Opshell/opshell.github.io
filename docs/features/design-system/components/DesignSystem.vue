@@ -20,6 +20,8 @@
             <div class="hero-content">
                 <h1 class="hero-title">Design System</h1>
                 <p class="hero-subtitle">
+                    歡迎來到 Opshell's Blog 的 Design System。這裡記錄了我使用的設計規範、色彩、排版以及可重用的 UI 組件。用來方便開發、調整。
+
                     The visual language and foundation of Opshell's Blog.
                 </p>
             </div>
@@ -56,12 +58,16 @@
                         <ColorPalette category="brand" />
                     </div>
                     <div class="palette-group">
-                        <h3>Functional Colors</h3>
-                        <ColorPalette category="functional" />
+                        <h3>Gray Colors</h3>
+                        <ColorPalette category="gray" />
                     </div>
                     <div class="palette-group">
-                        <h3>Neutral Colors</h3>
-                        <ColorPalette category="neutral" />
+                        <h3>Functional Colors</h3>
+                        <ColorPalette category="color" />
+                    </div>
+                    <div class="palette-group">
+                        <h3>Status Colors</h3>
+                        <ColorPalette category="functional" />
                     </div>
                 </div>
 
