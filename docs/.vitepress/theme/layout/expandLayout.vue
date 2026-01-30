@@ -108,14 +108,19 @@ useKeyBoardControl({
         }
     }
 }, true);
+
+console.log('frontmatter.layout', frontmatter.class);
+
 </script>
 
 <template>
-    <CustomLayout v-if="frontmatter.layout === 'custom'" />
+    <DesignSystemLayout v-if="frontmatter.layout === 'design-system' || frontmatter.designSystem" />
 
-    <DesignSystemLayout v-else-if="frontmatter.layout === 'design-system' || frontmatter.designSystem" />
+    <ArticleLayout v-else-if="!frontmatter.layout" />
 
-    <Layout v-else :class="[frontmatter.class]">
+    <Layout v-else :class="[frontmatter.class]" />
+
+    <Layout v-if="frontmatter.layout === '123'" :class="[frontmatter.class]">
         <template #doc-before>
             <div class="article-meta-header">
                 <div class="meta-row">

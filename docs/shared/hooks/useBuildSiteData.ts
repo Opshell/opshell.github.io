@@ -30,8 +30,9 @@ export interface Post {
     title: string
     date: string
     image: string
-    category: string
+    category: string[]
     tags: string[]
+    excerpt: string
     // ... 之後可擴充其他需要的 frontmatter 欄位
 }
 
@@ -75,6 +76,62 @@ function getFrontMatter(filePath: string) {
     return data;
 }
 
+function getExcerpt(content: string, description?: string): string {
+    // 如果有手動寫 description，直接回傳 (優先權最高)
+    if (description) return description;
+
+    let text = content;
+
+    // 先移除 Frontmatter (YAML 設定檔)
+    // 避免標題或設定參數跑進摘要裡
+    text = text.replace(/^---[\s\S]*?---/, '');
+
+    // 移除程式碼區塊 (Code Blocks)
+    // 最重要的！必須先移除，不然裡面的 markdown 符號會干擾後續解析
+    text = text.replace(/```[\s\S]*?```/g, '');
+
+    // 移除 VitePress/VuePress 自定義容器 (Custom Containers)
+    // 針對 ::: info / ::: tip ... 等語法
+    // 策略：移除 ::: 開頭的那一行，但保留中間的文字內容
+    text = text.replace(/^:::\s*[a-z]*\s*(.*)?$/gm, '$1');
+
+    // 移除圖片 (Images)
+    // 針對 ![alt](url "title") 或 ![alt](url)
+    // 使用非貪婪匹配 (.*?) 避免誤刪段落
+    text = text.replace(/!\[.*?\]\(.*?\)/g, '');
+
+    // 移除 HTML 標籤
+    // 這會一併處理 <img src="..." /> 這類標籤
+    text = text.replace(/<[^>]+>/g, '');
+
+    // 移除連結 (Links)
+    // [text](url) -> 只保留 text
+    text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+
+    // 移除標題符號 (Headers)
+    // # Title -> Title
+    text = text.replace(/^#+\s+/gm, '');
+
+    // 移除粗體與斜體 (Bold & Italic)
+    // 處理 **text**, __text__, *text*, _text_
+    text = text.replace(/([*_]{1,2})(.*?)\1/g, '$2');
+
+    // 移除行內程式碼 (Inline Code)
+    text = text.replace(/`([^`]+)`/g, '$1');
+
+    // 移除引用符號 (Blockquotes)
+    text = text.replace(/^>\s+/gm, '');
+
+    // 處理連續空白與換行
+    // 將所有換行、Tab、多餘空白轉為單一空白
+    text = text.replace(/\s+/g, ' ').trim();
+
+    // 截斷文字 (Truncate)
+    const limit = 108;
+    if (text.length <= limit) return text;
+    return text.slice(0, limit) + '...';
+}
+
 /**
  * [-] 處理單一 .md 檔案，將其轉換為 Post 物件
  * @param fullPath - 檔案的完整絕對路徑
@@ -82,7 +139,9 @@ function getFrontMatter(filePath: string) {
  * @returns Post 物件或 null
  */
 function processFile(fullPath: string, contentRoot: string): Post | null {
-    const frontmatter = getFrontMatter(fullPath);
+    const fileContent = fs.readFileSync(fullPath, 'utf-8');
+    const { data: frontmatter, content } = matter(fileContent);
+
     if (!frontmatter.isPublished) { return null; }
 
     // 計算相對於內容根目錄的路徑
@@ -98,9 +157,10 @@ function processFile(fullPath: string, contentRoot: string): Post | null {
         url,
         title: frontmatter.title as string,
         image: frontmatter.image as string ?? '/images/no_image.svg',
-        category: frontmatter.categories as string ?? '',
+        category: frontmatter.categories ?? ['雜談'],
         date: frontmatter.createdAt as string ?? '',
-        tags: frontmatter.tags as string[] ?? []
+        tags: frontmatter.tags as string[] ?? [],
+        excerpt: getExcerpt(content, frontmatter.description as string)
     };
 }
 

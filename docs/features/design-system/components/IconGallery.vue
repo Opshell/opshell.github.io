@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import { useClipboard } from '@vueuse/core';
+
     const iconList = ref<string[]>([]);
     const copiedIcon = ref<string | null>(null);
 
@@ -39,9 +41,8 @@
             @click="copyIconName(icon)"
         >
             <div class="icon-preview">
-                <svg class="icon-svg" aria-hidden="true">
-                    <use :href="`#${icon}`" />
-                </svg>
+                <ElSvgIcon :name="icon" class="icon-svg" />
+
                 <div class="copy-overlay" :class="{ 'show': copiedIcon === icon }">
                     <span>Copied!</span>
                 </div>
@@ -72,6 +73,7 @@
 
     &:hover {
         background-color: var(--vp-c-bg-soft);
+        color: var(--vp-c-brand);
         transform: translateY(-2px);
     }
 }
@@ -83,13 +85,6 @@
     justify-content: center;
     width: 48px;
     height: 48px;
-
-    .icon-svg {
-        width: 100%;
-        height: 100%;
-        fill: currentColor; // Allow coloring via CSS if needed, or keep original colors
-        object-fit: contain;
-    }
 }
 
 .copy-overlay {

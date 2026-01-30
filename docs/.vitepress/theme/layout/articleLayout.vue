@@ -7,12 +7,14 @@ import useKeyBoardControl from '@shared/hooks/useKeyBoardControl';
 // 深度引入 VitePress 原生導航與頁尾 (這是合法的黑魔法)
 import VPNav from 'vitepress/dist/client/theme-default/components/VPNav.vue';
 import VPFooter from 'vitepress/dist/client/theme-default/components/VPFooter.vue';
+import VPSidebar from 'vitepress/dist/client/theme-default/components/VPSidebar.vue';
 import VPLocalNav from 'vitepress/dist/client/theme-default/components/VPLocalNav.vue'; // 手機版選單控制用
 
 import {
     ArticleTOC,
     AsideWidget,
-    SeriesSidebar
+    SeriesSidebar,
+    ArticleMeta
 } from '@features/layout';
 
 const { frontmatter, page, isDark } = useData();
@@ -132,7 +134,8 @@ useKeyBoardControl({
 
         <aside class="grid-area-left">
            <div class="sticky-content">
-              <SeriesSidebar />
+              <!-- <SeriesSidebar /> -->
+                <VPSidebar :open="isSidebarOpen"/>
            </div>
         </aside>
 
@@ -142,6 +145,8 @@ useKeyBoardControl({
             </button>
 
             <article class="paper-card">
+                <ArticleMeta />
+
                 <div v-if="frontmatter.image" class="article-banner">
                     <img :src="frontmatter.image" loading="lazy" />
                 </div>
