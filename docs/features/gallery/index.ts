@@ -1,4 +1,4 @@
-import Gallery from "./components/gallery.vue";
+import Gallery from "./components/Gallery.vue";
 
 export {
     Gallery

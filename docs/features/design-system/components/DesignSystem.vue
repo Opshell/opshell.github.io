@@ -2,7 +2,7 @@
     import { useRoute, useRouter } from 'vitepress';
 
     import ColorPalette from './ColorPalette.vue';
-    import TypeScale from './TypeScale.vue';
+    import TypeScale from './typeScale.vue';
     import FontFamily from './fontFamily.vue';
     import MotionCurve from './motionCurve.vue';
     import IconGallery from './iconGallery.vue';
