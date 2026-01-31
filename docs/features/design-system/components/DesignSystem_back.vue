@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import ColorPalette from './colorSeries.vue';
-    import TypeScale from './typeScale.vue';
+    import TypeScale from './TypeScale.vue';
     import IconGallery from './iconGallery.vue';
 
     const activeTab = ref('colors');

@@ -1,8 +1,8 @@
 <script setup lang="ts">
     import { useRoute, useRouter } from 'vitepress';
 
-    import ColorPalette from './colorPalette.vue';
-    import TypeScale from './typeScale.vue';
+    import ColorPalette from './ColorPalette.vue';
+    import TypeScale from './TypeScale.vue';
     import FontFamily from './fontFamily.vue';
     import MotionCurve from './motionCurve.vue';
     import IconGallery from './iconGallery.vue';
