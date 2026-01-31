@@ -69,6 +69,10 @@
     "watchSyncEffect": true,
     "onWatcherCleanup": true,
     "useId": true,
-    "useTemplateRef": true
+    "useTemplateRef": true,
+    "DirectiveBinding": true,
+    "MaybeRef": true,
+    "MaybeRefOrGetter": true,
+    "useModel": true
   }
 }
