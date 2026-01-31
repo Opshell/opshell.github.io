@@ -1,4 +1,5 @@
 <script setup lang="ts">
+<<<<<<< HEAD
 <<<<<<<< HEAD:docs/features/design-system/components/DesignSystem.vue
     import ColorPalette from './ColorPalette.vue';
     import TypeScale from './TypeScale.vue';
@@ -8,17 +9,27 @@
     import TypeScale from './typeScale.vue';
     import IconGallery from './iconGallery.vue';
 >>>>>>>> 7c7f1e862d716573d4fc87e5f1e4bb2761c34231:docs/features/design-system/components/DesignSystem_back.vue
+=======
+    import ColorPalette from './colorSeries.vue';
+    import TypeScale from './typeScale.vue';
+    import IconGallery from './iconGallery.vue';
+>>>>>>> d75def7b19918975236adbd51539a500eb41315b
 
     const activeTab = ref('colors');
 
     const tabs = [
         { id: 'colors', label: 'Colors', icon: 'palette' },
         { id: 'typography', label: 'Typography', icon: 'text_fields' },
+<<<<<<< HEAD
 <<<<<<<< HEAD:docs/features/design-system/components/DesignSystem.vue
 ========
         { id: 'font', label: 'Font', icon: 'grid_view' },
         { id: 'animations', label: 'Animations', icon: 'grid_view' },
 >>>>>>>> 7c7f1e862d716573d4fc87e5f1e4bb2761c34231:docs/features/design-system/components/DesignSystem_back.vue
+=======
+        { id: 'font', label: 'Font', icon: 'grid_view' },
+        { id: 'animations', label: 'Animations', icon: 'grid_view' },
+>>>>>>> d75def7b19918975236adbd51539a500eb41315b
         { id: 'icons', label: 'Icons', icon: 'grid_view' },
         { id: 'components', label: 'Components', icon: 'widgets' }
     ];
@@ -71,6 +82,7 @@
                     <div class="palette-group">
                         <h3>Gray Colors</h3>
                         <ColorPalette category="gray" />
+<<<<<<< HEAD
 <<<<<<<< HEAD:docs/features/design-system/components/DesignSystem.vue
                     </div>
                     <div class="palette-group">
@@ -81,6 +93,8 @@
                         <h3>Status Colors</h3>
                         <ColorPalette category="functional" />
 ========
+=======
+>>>>>>> d75def7b19918975236adbd51539a500eb41315b
                     </div>
                     <div class="palette-group">
                         <h3>Status Colors</h3>
@@ -93,7 +107,10 @@
                     <div class="palette-group">
                         <h3>Article Tag Colors</h3>
                         <ColorPalette category="mdtag" />
+<<<<<<< HEAD
 >>>>>>>> 7c7f1e862d716573d4fc87e5f1e4bb2761c34231:docs/features/design-system/components/DesignSystem_back.vue
+=======
+>>>>>>> d75def7b19918975236adbd51539a500eb41315b
                     </div>
                 </div>
 
@@ -173,12 +190,15 @@
 
 /* Navigation */
 .nav-container {
+<<<<<<< HEAD
 <<<<<<<< HEAD:docs/features/design-system/components/DesignSystem.vue
     display: flex;
     justify-content: center;
     padding: 0 1rem;
     margin-bottom: 4rem;
 ========
+=======
+>>>>>>> d75def7b19918975236adbd51539a500eb41315b
     position: sticky;
     top: 65px;
     @include setFlex();
@@ -187,7 +207,10 @@
     padding: 1.25rem;
     margin-bottom: 2rem;
     z-index: 1;
+<<<<<<< HEAD
 >>>>>>>> 7c7f1e862d716573d4fc87e5f1e4bb2761c34231:docs/features/design-system/components/DesignSystem_back.vue
+=======
+>>>>>>> d75def7b19918975236adbd51539a500eb41315b
 }
 
 .tabs {

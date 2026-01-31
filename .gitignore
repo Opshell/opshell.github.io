@@ -5,3 +5,15 @@ node_modules
 
 # Editor directories and files
 .vscode/*
+
+.env
+
+# --- 攝影集設定 ---
+
+# 照片都放 R2
+photos/raw/*
+photos/thumbs/*
+
+# 強制保留 data.json VitePress 編譯網站需要這份資料
+!photos/data.json
+

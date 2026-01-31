@@ -330,6 +330,7 @@ export default defineConfig({
 
                 '@features': path.resolve(__dirname, '../', 'features'),
                 '@pages': path.resolve(__dirname, '../', 'pages'),
+                '@photos': path.resolve(__dirname, '../../', 'photos')
             }
         },
         plugins: [

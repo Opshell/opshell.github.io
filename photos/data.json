@@ -1,0 +1,218 @@
+[
+  {
+    "id": "裕鴿",
+    "title": "裕鴿",
+    "cover": "裕鴿/DSCF9061.webp",
+    "aspectRatio": 0.6666666666666666,
+    "count": 1,
+    "photos": [
+      {
+        "filename": "DSCF9061.JPG",
+        "src": "裕鴿/DSCF9061.JPG",
+        "thumb": "裕鴿/DSCF9061.webp",
+        "width": 4160,
+        "height": 6240,
+        "aspectRatio": 0.6666666666666666,
+        "date": "2025-06-08T06:45:17.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/5.6",
+          "shutter": "1/320",
+          "focalLength": "37.8mm"
+        }
+      }
+    ]
+  },
+  {
+    "id": "街拍",
+    "title": "街拍",
+    "cover": "街拍/DSCF9066.webp",
+    "aspectRatio": 1.5,
+    "count": 1,
+    "photos": [
+      {
+        "filename": "DSCF9066.JPG",
+        "src": "街拍/DSCF9066.JPG",
+        "thumb": "街拍/DSCF9066.webp",
+        "width": 6240,
+        "height": 4160,
+        "aspectRatio": 1.5,
+        "date": "2025-06-08T06:45:52.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/8",
+          "shutter": "1/320",
+          "focalLength": "50mm"
+        }
+      }
+    ]
+  },
+  {
+    "id": "鹿鹿騎馬",
+    "title": "鹿鹿騎馬",
+    "cover": "鹿鹿騎馬/_DSF9147.webp",
+    "aspectRatio": 0.6666666666666666,
+    "count": 2,
+    "photos": [
+      {
+        "filename": "_DSF9147.JPG",
+        "src": "鹿鹿騎馬/_DSF9147.JPG",
+        "thumb": "鹿鹿騎馬/_DSF9147.webp",
+        "width": 4160,
+        "height": 6240,
+        "aspectRatio": 0.6666666666666666,
+        "date": "2025-08-10T09:09:06.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/4",
+          "shutter": "1/640",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "_DSF9133.JPG",
+        "src": "鹿鹿騎馬/_DSF9133.JPG",
+        "thumb": "鹿鹿騎馬/_DSF9133.webp",
+        "width": 4160,
+        "height": 6240,
+        "aspectRatio": 0.6666666666666666,
+        "date": "2025-08-10T09:06:02.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/1250",
+          "focalLength": "36.8mm"
+        }
+      }
+    ]
+  },
+  {
+    "id": "鹿鹿餵魚",
+    "title": "鹿鹿餵魚",
+    "cover": "鹿鹿餵魚/DSCF9015.webp",
+    "aspectRatio": 0.6666666666666666,
+    "count": 1,
+    "photos": [
+      {
+        "filename": "DSCF9015.JPG",
+        "src": "鹿鹿餵魚/DSCF9015.JPG",
+        "thumb": "鹿鹿餵魚/DSCF9015.webp",
+        "width": 4160,
+        "height": 6240,
+        "aspectRatio": 0.6666666666666666,
+        "date": "2025-05-18T09:49:41.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/1250",
+          "focalLength": "90mm"
+        }
+      }
+    ]
+  },
+  {
+    "id": "鹿鹿吃薯條",
+    "title": "鹿鹿吃薯條",
+    "cover": "鹿鹿吃薯條/_DSF9103.webp",
+    "aspectRatio": 0.6666666666666666,
+    "count": 1,
+    "photos": [
+      {
+        "filename": "_DSF9103.JPG",
+        "src": "鹿鹿吃薯條/_DSF9103.JPG",
+        "thumb": "鹿鹿吃薯條/_DSF9103.webp",
+        "width": 4160,
+        "height": 6240,
+        "aspectRatio": 0.6666666666666666,
+        "date": "2025-07-07T06:12:03.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/80",
+          "focalLength": "24.5mm"
+        }
+      }
+    ]
+  },
+  {
+    "id": "鹿鹿包",
+    "title": "鹿鹿包",
+    "cover": "鹿鹿包/DSCF9052.webp",
+    "aspectRatio": 0.6666666666666666,
+    "count": 2,
+    "photos": [
+      {
+        "filename": "DSCF9052.JPG",
+        "src": "鹿鹿包/DSCF9052.JPG",
+        "thumb": "鹿鹿包/DSCF9052.webp",
+        "width": 4160,
+        "height": 6240,
+        "aspectRatio": 0.6666666666666666,
+        "date": "2025-06-01T13:12:46.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 1000",
+          "aperture": "f/2.8",
+          "shutter": "1/25",
+          "focalLength": "20.4mm"
+        }
+      },
+      {
+        "filename": "DSCF9047.JPG",
+        "src": "鹿鹿包/DSCF9047.JPG",
+        "thumb": "鹿鹿包/DSCF9047.webp",
+        "width": 6240,
+        "height": 4160,
+        "aspectRatio": 1.5,
+        "date": "2025-06-01T13:11:40.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 1000",
+          "aperture": "f/2.8",
+          "shutter": "1/25",
+          "focalLength": "18mm"
+        }
+      }
+    ]
+  },
+  {
+    "id": "夜",
+    "title": "夜",
+    "cover": "夜/DSCF9059.webp",
+    "aspectRatio": 1.5,
+    "count": 1,
+    "photos": [
+      {
+        "filename": "DSCF9059.JPG",
+        "src": "夜/DSCF9059.JPG",
+        "thumb": "夜/DSCF9059.webp",
+        "width": 6240,
+        "height": 4160,
+        "aspectRatio": 1.5,
+        "date": "2025-06-02T10:37:22.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 1000",
+          "aperture": "f/2.8",
+          "shutter": "1/25",
+          "focalLength": "19.7mm"
+        }
+      }
+    ]
+  }
+]
