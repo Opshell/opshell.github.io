@@ -6,6 +6,7 @@
   "description": "Opshell's blog",
   "main": "index.js",
   "repository": "https://github.com/Opshell/opshell.github.io.git",
+  "packageManager": "pnpm@10.28.2",
   "author": "Opshell",
   "license": "MIT",
   "devDependencies": {
