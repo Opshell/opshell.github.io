@@ -74,7 +74,7 @@
         );
     });
 
-    // --- 3. Keyboard Control Logic (保持原樣) ---
+    // #region [P] Keyboard Control Logic
     function selectorClickHandler(selector: string) {
         const element = document.querySelector(selector) as HTMLElement;
         if (element) element.click();
@@ -108,6 +108,8 @@
             }
         }
     }, true);
+
+    // #endregion
 </script>
 
 <template>
