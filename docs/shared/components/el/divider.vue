@@ -10,6 +10,6 @@
     .divider {
         flex-shrink: 0;
         @include setSize(1px, 100%);
-        background: var(--color-text);
+        background: var(--color-gray-700);
     }
 </style>

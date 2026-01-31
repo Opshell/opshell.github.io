@@ -23,18 +23,18 @@
         font-size: .9rem;
         font-weight: 400;
         line-height: 1;
-        transition: .2s var(--op-timing-FiSo);
+        transition: .2s var(--cubic-FiSo);
 
         .hash {
             color: var(--vp-c-brand-1);
-            transition: .2s var(--op-timing-FiSo);
+            transition: .2s var(--cubic-FiSo);
         }
         &:hover {
             .hash {
-                color: var(--color-extreme-reverse);
+                color: var(--color-gray-000);
             }
             background-color: var(--vp-c-brand);
-            color: var(--color-extreme-reverse);
+            color: var(--color-gray-000);
         }
     }
 </style>

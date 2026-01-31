@@ -60,8 +60,8 @@
                 &::before {
                     top: -2px;
                     @include setSize(calc(100% + 4px), calc(100% + 4px));
-                    transition: width 0.15s var(--op-timing-FiSo) .2s,
-                            height 0.15s var(--op-timing-FiSo) .1s;
+                    transition: width 0.15s var(--cubic-FiSo) .2s,
+                            height 0.15s var(--cubic-FiSo) .1s;
                 }
             }
 
@@ -74,7 +74,7 @@
                 @include setSize(0, 0);
                 clip-path: inset(0 round calc(1rem + 2px)); // 裁切圓角
                 pointer-events: none;
-                transition: 0.2s var(--op-timing-FiSo);
+                transition: 0.2s var(--cubic-FiSo);
                 z-index: -1;
             }
         }
@@ -98,7 +98,7 @@
                 border-radius: 2px;
                 transform: scaleX(0) rotateZ(180deg);
                 transform-origin: right;
-                transition: 0.2s var(--op-timing-FiSo);
+                transition: 0.2s var(--cubic-FiSo);
             }
 
             .dot {
@@ -106,9 +106,9 @@
                 background: rgba($color: #FFF, $alpha: 8%); // 中間鏤空 (背景色)
                 @include setSize(var(--op-post-dot-size), var(--op-post-dot-size));
                 backdrop-filter: blur(2px);
-                border: 2px solid var(--color-extreme);
+                border: 2px solid var(--color-gray-900);
                 border-radius: 50%;
-                transition: 0.25s var(--op-timing-FiSo);
+                transition: 0.25s var(--cubic-FiSo);
 
                 // opacity: .8;
                 z-index: 2;
@@ -146,7 +146,7 @@
             // clip-path: inset(0 round 1rem); // 裁切圓角
             border-radius: 1rem;
             box-shadow: var(--card-shadow);
-            transition: .2s var(--op-timing-FiSo);
+            transition: .2s var(--cubic-FiSo);
             .date {
                 position: sticky;
                 top: calc(var(--vp-nav-height) + 1rem);
@@ -188,7 +188,7 @@
                 font-size: var(--op-timeline-font-size);
                 font-weight: 700;
                 line-height: 1;
-                transition: .2s var(--op-timing-FiSo);
+                transition: .2s var(--cubic-FiSo);
 
                 &:hover { color: var(--vp-c-brand); }
             }
@@ -221,7 +221,7 @@
                     font-size: .9rem;
                     font-weight: 400;
                     line-height: 1;
-                    transition: .2s var(--op-timing-FiSo);
+                    transition: .2s var(--cubic-FiSo);
                     &:hover {
                         background-color: var(--vp-c-brand);
                         color: white;

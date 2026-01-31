@@ -178,7 +178,7 @@
                 <article class="article-layout__article">
                     <ArticleMeta />
 
-                    <header class="article-header">
+                    <header class="article-layout__article-header">
                         <h1 class="title">{{ frontmatter.title }}</h1>
                     </header>
 
@@ -215,8 +215,7 @@
 <style lang="scss">
     // 全域樣式修正：讓 VPNav 乖乖聽話
     .article-layout {
-        display: flex;
-        flex-direction: column;
+        @include setFlex(flex-start, stretch, 20px, column);
         background-color: var(--vp-c-bg-alt); // 底色稍微灰一點，讓 Paper Card 跳出來
         min-height: 100vh;
 
@@ -300,7 +299,9 @@
             border: 1px solid var(--vp-c-divider);
             border-radius: .75rem;
 
-            // box-shadow: var(--card-shadow);
+            &-header {
+                margin-bottom: 1.625rem;
+            }
         }
 
         // --- Focus Mode ---
@@ -356,20 +357,6 @@
         border-radius: 16px;
         box-shadow: 0 4px 24px rgb(0,0,0,4%); // 浮起來的感覺
         @media (width <= 768px) { padding: 1.5rem; }
-    }
-
-    .article-header {
-        margin-bottom: 2.5rem; text-align: center;
-        .title {
-            background: linear-gradient(120deg, var(--vp-c-text-1), var(--vp-c-text-2));
-            -webkit-background-clip: text;
-            font-size: 2.5rem; font-weight: 800; line-height: 1.2; -webkit-text-fill-color: transparent;
-        }
-        .meta-tags {
-            display: flex; gap: 10px; justify-content: center; margin-bottom: 1rem;
-            color: var(--vp-c-text-2); font-family: var(--vp-font-family-mono);
-            .pill { background: var(--vp-c-brand-dimm); padding: 2px 8px; border-radius: 4px; color: var(--vp-c-brand); }
-        }
     }
 
     .zen-mode-btn {

@@ -1,14 +1,14 @@
 :root {
     // 主題色
-    --color-primary: #318b90;
-    --color-primary-soft: rgba(49, 139, 144, 60%);
-    --color-primary-dark: #216d71;
+    --color-primary-1: #318b90;
+    --color-primary-soft: rgb(49, 139, 144, 60%);
+    --color-primary-3: #216d71;
     --color-primary-light: #3fa5aa; // #3a7c7f
     --color-primary-subtle: #e4edee;
 
     // 輔助色(警示也用這組)
     --color-sub: #dc9956;
-    --color-sub-dark: #cf7f50;
+    --color-primary-3: #cf7f50;
     --color-sub-light: #FAAD14;
     --color-sub-subtle: #faf2e9;
 
@@ -37,8 +37,8 @@
     --color-blue-light: #f3fafd;
     --color-blue-dark: #0b88bf;
 
-    --color-cover-background: rgba(0, 0, 0, 60%); // 覆蓋層背景色
-    --color-chiffon: rgba(255, 255, 255, 100%);
+    --color-cover-background: rgb(0, 0, 0, 60%); // 覆蓋層背景色
+    --color-chiffon: rgb(255, 255, 255, 100%);
 
     // 字體
     --font-family-outline: NotoSansTC, '微軟正黑體', Arial, sans-serif;

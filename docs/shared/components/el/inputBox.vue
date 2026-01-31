@@ -25,7 +25,7 @@
         @include setFlex(space-between, flex-start, 5px, column);
         > .text {
             flex-shrink: 0;
-            color: var(--color-text);
+            color: var(--color-gray-700);
             font-size: .875rem;
             font-weight: 300;
             line-height: 1.188rem;
@@ -41,7 +41,7 @@
             align-items: center;
             > .text {
                 flex-shrink: 0;
-                color: var(--color-text);
+                color: var(--color-gray-700);
                 font-size: 2rem;
                 font-weight: 300;
                 line-height: 1;

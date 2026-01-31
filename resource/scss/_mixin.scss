@@ -157,12 +157,12 @@ $breakpoints: (
 
 // 設定凹陷樣式
 @mixin setSunken() {
-    box-shadow: 1px 1px 2px -1px rgba(0, 0, 0, 35%) inset,
-                -1px -1px 2px -1px rgba(255, 255, 255, 95%) inset;
+    box-shadow: 1px 1px 2px -1px rgb(0, 0, 0, 35%) inset,
+                -1px -1px 2px -1px rgb(255, 255, 255, 95%) inset;
 }
 
 // 特殊邊框
-@mixin setBorder($notchSize: 25px, $notchColor: var(--color-gray-050), $borderColor: var(--color-primary)) {
+@mixin setBorder($notchSize: 25px, $notchColor: var(--color-gray-050), $borderColor: var(--color-primary-1)) {
     position: relative;
     background-clip: padding-box;
     border: 2px solid $borderColor;
@@ -190,7 +190,7 @@ $breakpoints: (
 }
 
 // 設定卷軸樣式
-@mixin setScroll($size: 10px, $thumbColor: var(--color-primary), $barColor: var(--color-gray-050)) {
+@mixin setScroll($size: 10px, $thumbColor: var(--color-primary-1), $barColor: var(--color-gray-050)) {
     // 卷軸底
     &::-webkit-scrollbar {
         background: $barColor;

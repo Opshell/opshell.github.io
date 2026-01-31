@@ -15,15 +15,15 @@
     .el-checkbox {
         .q-checkbox {
             &__bg {
-                background: var(--color-extreme-reverse);
-                border: 1px solid var(--color-border-box);
+                background: var(--color-gray-000);
+                border: 1px solid var(--color-gray-200);
                 border-radius: 5px;
                 .q-checkbox__svg {
                     padding: 2px;
                 }
             }
             &__label {
-                color: var(--color-extreme);
+                color: var(--color-gray-900);
                 font-weight: 400;
                 transform: translateX(-5px);
             }
@@ -32,8 +32,8 @@
                 &--truthy,
                 &--indet {
                     .q-checkbox__bg {
-                        background: var(--color-primary);
-                        border-color: var(--color-primary);
+                        background: var(--color-primary-1);
+                        border-color: var(--color-primary-1);
                     }
                 }
             }

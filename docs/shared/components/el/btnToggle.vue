@@ -18,20 +18,20 @@
 
 <style lang="scss">
     .el-btn-toggle {
-        background: var(--color-view-block);
+        background: var(--color-gray-050);
         border-radius: 5px;
 
         .q-btn {
             @include setSize(40px, 30px);
             min-height: inherit;
-            color: var(--color-text-light);
+            color: var(--color-gray-300);
             line-height: 1;
 
             &.bg-toggle-active {
-                background: var(--color-extreme-reverse);
-                border: 1px solid var(--color-border-box);
+                background: var(--color-gray-000);
+                border: 1px solid var(--color-gray-200);
                 border-radius: 5px;
-                color: var(--color-primary) !important;
+                color: var(--color-primary-1) !important;
             }
 
             &__content {

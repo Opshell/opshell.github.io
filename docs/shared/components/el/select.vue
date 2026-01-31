@@ -88,13 +88,13 @@
             &__native,
             &__prefix,
             &__suffix {
-                color: var(--color-title);
+                color: var(--color-gray-850);
             }
 
             &__control {
                 // 主外殼
-                background: var(--color-extreme-reverse);
-                border: 1px solid var(--color-border-box);
+                background: var(--color-gray-000);
+                border: 1px solid var(--color-gray-200);
                 border-radius: 5px;
                 font-size: var(--font-size-remark);
                 transition: 0.2s $cubic-FiSo;
@@ -124,7 +124,7 @@
                 padding: 0;
                 .circle {
                     content: '';
-                    background-color: var(--color-primary);
+                    background-color: var(--color-primary-1);
                     width: 10px;
                     height: 10px;
                     border-radius: 100%;
@@ -145,17 +145,17 @@
             .q-field__native,
             .q-field__prefix,
             .q-field__suffix {
-                color: var(--color-primary);
+                color: var(--color-primary-1);
             }
 
             .icon {
-                fill: var(--color-primary);
+                fill: var(--color-primary-1);
             }
             .q-icon {
-                color: var(--color-primary);
+                color: var(--color-primary-1);
             }
             .q-field__control {
-                border-color: var(--color-hover-light);
+                border-color: var(--color-brand);
             }
         }
 
@@ -174,27 +174,27 @@
                 .q-field__native,
                 .q-field__prefix,
                 .q-field__suffix {
-                    color: var(--color-primary);
+                    color: var(--color-primary-1);
                 }
 
                 .icon {
-                    fill: var(--color-primary);
+                    fill: var(--color-primary-1);
                 }
                 .q-icon {
-                    color: var(--color-primary);
+                    color: var(--color-primary-1);
                 }
 
                 .q-field__control {
-                    border-color: var(--color-primary);
-                    box-shadow: 0 0 0 2px var(--color-hover-light);
-                    color: var(--color-primary);
+                    border-color: var(--color-primary-1);
+                    box-shadow: 0 0 0 2px var(--color-brand);
+                    color: var(--color-primary-1);
                 }
             }
 
             &--disabled {
                 .q-field {
                     &__control {
-                        background: var(--color-view-block);
+                        background: var(--color-gray-050);
                     }
                 }
             }
@@ -209,7 +209,7 @@
 
     // [M]列表
     .el-select-list {
-        background: var(--color-extreme-reverse);
+        background: var(--color-gray-000);
         max-height: 200px;
         padding: 5px;
         border-radius: 5px;
@@ -229,7 +229,7 @@
 
                 // 卷軸底
                 &::-webkit-scrollbar {
-                    background: var(--color-extreme-reverse);
+                    background: var(--color-gray-000);
                     @include setSize(3px, 3px);
                     border-radius: 1.5px;
                 }
@@ -263,15 +263,15 @@
                     }
 
                     &--active {
-                        background: var(--color-primary);
-                        color: var(--color-extreme-reverse);
+                        background: var(--color-primary-1);
+                        color: var(--color-gray-000);
                     }
                     &:hover {
-                        background: var(--color-hover-light);
+                        background: var(--color-brand);
                         border-radius: 5px;
-                        color: var(--color-primary);
+                        color: var(--color-primary-1);
                         .icon {
-                            fill: var(--color-primary);
+                            fill: var(--color-primary-1);
                         }
                     }
                 }

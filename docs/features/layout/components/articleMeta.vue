@@ -15,18 +15,18 @@
             <div class="meta-row">
                 <div class="meta-item author">
                     <ElSvgIcon name="history_edu" />
-                    <span>{{ frontmatter.author || 'Opshell' }}</span>
+                    <span class="text">{{ frontmatter.author || 'Opshell' }}</span>
                 </div>
 
                 <div v-if="lastUpdated || frontmatter.createdAt" class="meta-item date">
                     <ElSvgIcon name="calendar_month" />
-                    <span v-if="frontmatter.createdAt">{{ frontmatter.createdAt }}</span>
-                    <span v-else>{{ lastUpdated }}</span>
+                    <span v-if="frontmatter.createdAt" class="text">{{ frontmatter.createdAt }}</span>
+                    <span v-else class="text">{{ lastUpdated }}</span>
                 </div>
 
                 <div class="meta-item views">
                     <ElSvgIcon name="visibility" />
-                    <span id="busuanzi_value_page_pv">--</span>
+                    <span id="busuanzi_value_page_pv" class="text">--</span>
                 </div>
             </div>
 
@@ -65,6 +65,14 @@
             display: flex;
             gap: 6px;
             align-items: center;
+            .icon {
+                @include setSize(26px, 26px);
+                transform: translateY(-1px);
+            }
+            .text {
+                color: var(--color-gray-600);
+                font-size: var(--font-size-s);
+            }
 
             // Font fix for numbers/dates
             &.date, &.views {
@@ -79,33 +87,6 @@
         gap: 8px;
     }
 
-    .tag-pill {
-        display: inline-flex;
-        gap: 4px;
-        align-items: center;
-
-        // Dynamic Color Mix
-        background-color: color-mix(in srgb, var(--vp-c-brand) 10%, transparent);
-        padding: 3px 10px;
-        border-radius: 20px; // Pill shape
-        color: var(--vp-c-brand-dark);
-        font-size: 0.8rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s ease;
-
-        .icon {
-            width: 12px;
-            height: 12px;
-            fill: currentColor;
-        }
-
-        &:hover {
-            background-color: var(--vp-c-brand);
-            color: white;
-            transform: translateY(-1px);
-        }
-    }
 
     .banner-block {
         border-radius: 12px;

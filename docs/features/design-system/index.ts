@@ -1,7 +1,7 @@
-import ColorPalette from "./components/ColorPalette.vue";
+import ColorPalette from "./components/colorSeries.vue";
 import DesignSystem from "./components/DesignSystem.vue";
-import IconGallery from "./components/IconGallery.vue";
-import TypeScale from "./components/TypeScale.vue";
+import IconGallery from "./components/iconGallery.vue";
+import TypeScale from "./components/typeScale.vue";
 
 export {
     ColorPalette,
