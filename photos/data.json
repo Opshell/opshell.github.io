@@ -54,27 +54,10 @@
   {
     "id": "鹿鹿騎馬",
     "title": "鹿鹿騎馬",
-    "cover": "鹿鹿騎馬/_DSF9147.webp",
+    "cover": "鹿鹿騎馬/_DSF9133.webp",
     "aspectRatio": 0.6666666666666666,
-    "count": 2,
+    "count": 1,
     "photos": [
-      {
-        "filename": "_DSF9147.JPG",
-        "src": "鹿鹿騎馬/_DSF9147.JPG",
-        "thumb": "鹿鹿騎馬/_DSF9147.webp",
-        "width": 4160,
-        "height": 6240,
-        "aspectRatio": 0.6666666666666666,
-        "date": "2025-08-10T09:09:06.000Z",
-        "exif": {
-          "camera": "X-S10",
-          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
-          "iso": "ISO 640",
-          "aperture": "f/4",
-          "shutter": "1/640",
-          "focalLength": "50mm"
-        }
-      },
       {
         "filename": "_DSF9133.JPG",
         "src": "鹿鹿騎馬/_DSF9133.JPG",

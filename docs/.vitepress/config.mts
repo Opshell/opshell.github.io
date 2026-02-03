@@ -326,6 +326,7 @@ export default defineConfig({
                 '@components': path.resolve(__dirname, '../shared/', 'components'),
                 '@data': path.resolve(__dirname, '../shared/', 'data'),
                 '@hooks': path.resolve(__dirname, '../shared/', 'hooks'),
+                '@directives': path.resolve(__dirname, '../shared/', 'directives'),
                 '@utils': path.resolve(__dirname, '../shared/', 'utils'),
 
                 '@features': path.resolve(__dirname, '../', 'features'),

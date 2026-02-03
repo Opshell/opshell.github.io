@@ -19,7 +19,7 @@
 </script>
 
 <template>
-    <div class="album-card waterfalls-flow-card">
+    <div class="album-card">
         <div class="album-card__container">
             <img
                 :src="`${R2_THUMB}/${encodePath(album.cover)}`"
@@ -43,6 +43,8 @@
     .album-card {
         position: relative;
         background: var(--vp-c-bg);
+
+        // height: 100%;
         border: 1px solid transparent;
         border-radius: 1rem;
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%);
@@ -53,6 +55,8 @@
             // [修正 5] 確保內容是 block 且能撐開
             display: block;
             width: 100%;
+
+            // height: 100%;
             border-radius: 1rem; // 圓角移到這裡或外層皆可
             // 防止 margin collapse 導致計算誤差
             overflow: hidden;

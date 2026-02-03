@@ -17,6 +17,7 @@
             "@shared/*": ["./docs/shared/*"],
             "@components/*": ["./docs/shared/components/*"],
             "@hooks/*": ["./docs/shared/hooks/*"],
+            "@directives/*": ["./docs/shared/directives/*"],
             "@data/*": ["./docs/shared/data/*"],
             "@utils/*": ["./docs/shared/utils/*"],
 

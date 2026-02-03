@@ -57,13 +57,12 @@ async function generate() {
             process.stdout.write(`  Processing: ${file} ... `);
 
             try {
-                // A. 處理圖片 (包含旋轉修正)
+                // 處理圖片 (包含旋轉修正)
                 const image = sharp(inputPath);
                 const metadata = await image.metadata();
 
-                // [修正重點 1] 判斷是否需要交換寬高
+                // 判斷是否需要交換寬高
                 // EXIF Orientation >= 5 代表圖片帶有 90 或 270 度的旋轉標籤
-                // 如果不交換，前端瀑布流拿到的寬高比會是錯的 (把直圖當橫圖排)
                 const isRotated = metadata.orientation >= 5;
                 const visualWidth = isRotated ? metadata.height : metadata.width;
                 const visualHeight = isRotated ? metadata.width : metadata.height;
@@ -74,7 +73,7 @@ async function generate() {
 
                 if (!fileExists) {
                     await image
-                        .rotate() // [修正重點 2] 自動依據 EXIF 轉正圖片
+                        .rotate() // 依據 EXIF 轉正圖片
                         .resize(THUMB_WIDTH)
                         .webp({ quality: THUMB_QUALITY })
                         .toFile(outputPath);
