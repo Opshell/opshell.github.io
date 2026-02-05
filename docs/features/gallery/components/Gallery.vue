@@ -238,10 +238,7 @@
         // 動畫：0.5s 快速炸開
         // animation: explode-in 0.5s cubic-bezier(0.15, 1, 0.3, 1) forwards;
         animation: explode-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)  forwards;
-
-        // 關鍵修改：基礎延遲設為 0s！
-        // 點擊瞬間，第一張照片就必須馬上開始飛
-        animation-delay: calc(.1s + (var(--i) * 0.06s));
+        animation-delay: calc(.05s + (var(--i) * 0.03s));
         opacity: 0;
         will-change: transform, opacity;
     }

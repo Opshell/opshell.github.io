@@ -1,6 +1,4 @@
 <script setup lang="ts">
-    import { onMounted, onUnmounted, nextTick, ref } from 'vue';
-
     const containerRef = ref<HTMLElement | null>(null);
     let resizeObserver: ResizeObserver | null = null;
 
@@ -12,6 +10,8 @@
         const rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
         const rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-row-gap'));
 
+        const desiredGap = 20;
+
         // 對應 brick 元件的下一層
         const content = item.querySelector('.masonry-brick > div');
 
@@ -21,7 +21,7 @@
         const contentHeight = content.getBoundingClientRect().height;
 
         // 計算需要跨越幾格
-        const rowSpan = Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap));
+        const rowSpan = Math.ceil((contentHeight + desiredGap) / rowHeight);
 
         item.style.gridRowEnd = `span ${rowSpan}`;
     };
@@ -40,11 +40,10 @@
         // 初始計算
         resizeAllGridItems();
 
-        // 監聽視窗縮放
         window.addEventListener('resize', resizeAllGridItems);
 
-        // [修正 2] 加入 ResizeObserver 自動監聽卡片高度變化
-        // 這會解決圖片載入後高度改變，導致版面重疊的問題
+        // ResizeObserver 自動監聽卡片高度變化
+        // 處理圖片載入後高度改變，導致版面重疊的問題
         resizeObserver = new ResizeObserver(() => {
             resizeAllGridItems();
         });
@@ -78,8 +77,8 @@
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 
         /* 這個數值越小，精確度越高，建議設小一點 */
-        grid-auto-rows: 5px;
-        gap: 20px;
+        grid-auto-rows: 1px;
+        gap: 0 20px;
         padding: 30px 0;
     }
 </style>

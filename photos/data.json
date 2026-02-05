@@ -1,18 +1,34 @@
 [
   {
-    "id": "裕鴿",
-    "title": "裕鴿",
-    "cover": "裕鴿/DSCF9061.webp",
-    "aspectRatio": 0.6666666666666666,
-    "count": 1,
+    "id": "街",
+    "title": "街",
+    "cover": "街/DSCF9066.webp",
+    "width": 6240,
+    "height": 4160,
+    "count": 2,
     "photos": [
       {
+        "filename": "DSCF9066.JPG",
+        "src": "街/DSCF9066.JPG",
+        "thumb": "街/DSCF9066.webp",
+        "width": 6240,
+        "height": 4160,
+        "date": "2025-06-08T06:45:52.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/8",
+          "shutter": "1/320",
+          "focalLength": "50mm"
+        }
+      },
+      {
         "filename": "DSCF9061.JPG",
-        "src": "裕鴿/DSCF9061.JPG",
-        "thumb": "裕鴿/DSCF9061.webp",
+        "src": "街/DSCF9061.JPG",
+        "thumb": "街/DSCF9061.webp",
         "width": 4160,
         "height": 6240,
-        "aspectRatio": 0.6666666666666666,
         "date": "2025-06-08T06:45:17.000Z",
         "exif": {
           "camera": "X-S10",
@@ -26,45 +42,19 @@
     ]
   },
   {
-    "id": "街拍",
-    "title": "街拍",
-    "cover": "街拍/DSCF9066.webp",
-    "aspectRatio": 1.5,
-    "count": 1,
-    "photos": [
-      {
-        "filename": "DSCF9066.JPG",
-        "src": "街拍/DSCF9066.JPG",
-        "thumb": "街拍/DSCF9066.webp",
-        "width": 6240,
-        "height": 4160,
-        "aspectRatio": 1.5,
-        "date": "2025-06-08T06:45:52.000Z",
-        "exif": {
-          "camera": "X-S10",
-          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
-          "iso": "ISO 640",
-          "aperture": "f/8",
-          "shutter": "1/320",
-          "focalLength": "50mm"
-        }
-      }
-    ]
-  },
-  {
-    "id": "鹿鹿騎馬",
-    "title": "鹿鹿騎馬",
-    "cover": "鹿鹿騎馬/_DSF9133.webp",
-    "aspectRatio": 0.6666666666666666,
-    "count": 1,
+    "id": "鹿鹿雜記",
+    "title": "鹿鹿雜記",
+    "cover": "鹿鹿雜記/_DSF9133.webp",
+    "width": 4160,
+    "height": 6240,
+    "count": 4,
     "photos": [
       {
         "filename": "_DSF9133.JPG",
-        "src": "鹿鹿騎馬/_DSF9133.JPG",
-        "thumb": "鹿鹿騎馬/_DSF9133.webp",
+        "src": "鹿鹿雜記/_DSF9133.JPG",
+        "thumb": "鹿鹿雜記/_DSF9133.webp",
         "width": 4160,
         "height": 6240,
-        "aspectRatio": 0.6666666666666666,
         "date": "2025-08-10T09:06:02.000Z",
         "exif": {
           "camera": "X-S10",
@@ -74,23 +64,45 @@
           "shutter": "1/1250",
           "focalLength": "36.8mm"
         }
-      }
-    ]
-  },
-  {
-    "id": "鹿鹿餵魚",
-    "title": "鹿鹿餵魚",
-    "cover": "鹿鹿餵魚/DSCF9015.webp",
-    "aspectRatio": 0.6666666666666666,
-    "count": 1,
-    "photos": [
+      },
       {
-        "filename": "DSCF9015.JPG",
-        "src": "鹿鹿餵魚/DSCF9015.JPG",
-        "thumb": "鹿鹿餵魚/DSCF9015.webp",
+        "filename": "DSCF9052.JPG",
+        "src": "鹿鹿雜記/DSCF9052.JPG",
+        "thumb": "鹿鹿雜記/DSCF9052.webp",
         "width": 4160,
         "height": 6240,
-        "aspectRatio": 0.6666666666666666,
+        "date": "2025-06-01T13:12:46.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 1000",
+          "aperture": "f/2.8",
+          "shutter": "1/25",
+          "focalLength": "20.4mm"
+        }
+      },
+      {
+        "filename": "DSCF9047.JPG",
+        "src": "鹿鹿雜記/DSCF9047.JPG",
+        "thumb": "鹿鹿雜記/DSCF9047.webp",
+        "width": 6240,
+        "height": 4160,
+        "date": "2025-06-01T13:11:40.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 1000",
+          "aperture": "f/2.8",
+          "shutter": "1/25",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "DSCF9015.JPG",
+        "src": "鹿鹿雜記/DSCF9015.JPG",
+        "thumb": "鹿鹿雜記/DSCF9015.webp",
+        "width": 4160,
+        "height": 6240,
         "date": "2025-05-18T09:49:41.000Z",
         "exif": {
           "camera": "X-S10",
@@ -104,88 +116,997 @@
     ]
   },
   {
-    "id": "鹿鹿吃薯條",
-    "title": "鹿鹿吃薯條",
-    "cover": "鹿鹿吃薯條/_DSF9103.webp",
-    "aspectRatio": 0.6666666666666666,
-    "count": 1,
+    "id": "鳥",
+    "title": "鳥",
+    "cover": "鳥/20240802-004.webp",
+    "width": 3240,
+    "height": 2160,
+    "count": 9,
     "photos": [
       {
-        "filename": "_DSF9103.JPG",
-        "src": "鹿鹿吃薯條/_DSF9103.JPG",
-        "thumb": "鹿鹿吃薯條/_DSF9103.webp",
-        "width": 4160,
-        "height": 6240,
-        "aspectRatio": 0.6666666666666666,
-        "date": "2025-07-07T06:12:03.000Z",
+        "filename": "20240802-004.jpg",
+        "src": "鳥/20240802-004.jpg",
+        "thumb": "鳥/20240802-004.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-08-02T04:25:20.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/7.1",
+          "shutter": "1/2000",
+          "focalLength": "39.5mm"
+        }
+      },
+      {
+        "filename": "20240802-003.jpg",
+        "src": "鳥/20240802-003.jpg",
+        "thumb": "鳥/20240802-003.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-08-02T04:24:45.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/7.1",
+          "shutter": "1/2000",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20240802-002.jpg",
+        "src": "鳥/20240802-002.jpg",
+        "thumb": "鳥/20240802-002.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-08-02T04:24:06.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/7.1",
+          "shutter": "1/2000",
+          "focalLength": "40.3mm"
+        }
+      },
+      {
+        "filename": "20240802-001.jpg",
+        "src": "鳥/20240802-001.jpg",
+        "thumb": "鳥/20240802-001.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-08-02T04:22:00.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/7.1",
+          "shutter": "1/2000",
+          "focalLength": "21mm"
+        }
+      },
+      {
+        "filename": "20230831-006.jpg",
+        "src": "鳥/20230831-006.jpg",
+        "thumb": "鳥/20230831-006.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2023-08-31T00:10:29.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF70-300mmF4-5.6 R LM OIS WR",
+          "iso": "ISO 320",
+          "aperture": "f/9",
+          "shutter": "1/125",
+          "focalLength": "300mm"
+        }
+      },
+      {
+        "filename": "20230831-004.jpg",
+        "src": "鳥/20230831-004.jpg",
+        "thumb": "鳥/20230831-004.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2023-08-31T00:07:30.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF70-300mmF4-5.6 R LM OIS WR",
+          "iso": "ISO 320",
+          "aperture": "f/9",
+          "shutter": "1/125",
+          "focalLength": "300mm"
+        }
+      },
+      {
+        "filename": "20230831-003.jpg",
+        "src": "鳥/20230831-003.jpg",
+        "thumb": "鳥/20230831-003.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2023-08-31T00:04:56.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF70-300mmF4-5.6 R LM OIS WR",
+          "iso": "ISO 320",
+          "aperture": "f/9",
+          "shutter": "1/125",
+          "focalLength": "300mm"
+        }
+      },
+      {
+        "filename": "20230830-001.jpg",
+        "src": "鳥/20230830-001.jpg",
+        "thumb": "鳥/20230830-001.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2023-08-30T08:43:48.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF70-300mmF4-5.6 R LM OIS WR",
+          "iso": "ISO 640",
+          "aperture": "f/5.6",
+          "shutter": "1/200",
+          "focalLength": "300mm"
+        }
+      },
+      {
+        "filename": "20230825-003.jpg",
+        "src": "鳥/20230825-003.jpg",
+        "thumb": "鳥/20230825-003.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2023-08-25T01:31:08.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF70-300mmF4-5.6 R LM OIS WR",
+          "iso": "ISO 320",
+          "aperture": "f/9",
+          "shutter": "1/320",
+          "focalLength": "300mm"
+        }
+      }
+    ]
+  },
+  {
+    "id": "風",
+    "title": "風",
+    "cover": "風/20230828-009.webp",
+    "width": 1440,
+    "height": 2160,
+    "count": 9,
+    "photos": [
+      {
+        "filename": "20230828-009.jpg",
+        "src": "風/20230828-009.jpg",
+        "thumb": "風/20230828-009.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2023-08-28T04:08:45.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 160",
+          "aperture": "f/7.1",
+          "shutter": "1/400",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20230828-008.jpg",
+        "src": "風/20230828-008.jpg",
+        "thumb": "風/20230828-008.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2023-08-28T04:08:23.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 160",
+          "aperture": "f/7.1",
+          "shutter": "1/400",
+          "focalLength": "19.2mm"
+        }
+      },
+      {
+        "filename": "20230828-007.jpg",
+        "src": "風/20230828-007.jpg",
+        "thumb": "風/20230828-007.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2023-08-28T04:07:31.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 160",
+          "aperture": "f/7.1",
+          "shutter": "1/400",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20230828-006.jpg",
+        "src": "風/20230828-006.jpg",
+        "thumb": "風/20230828-006.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2023-08-28T04:07:04.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 160",
+          "aperture": "f/7.1",
+          "shutter": "1/400",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20230828-005.jpg",
+        "src": "風/20230828-005.jpg",
+        "thumb": "風/20230828-005.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2023-08-28T04:00:11.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 160",
+          "aperture": "f/5.6",
+          "shutter": "1/400",
+          "focalLength": "27mm"
+        }
+      },
+      {
+        "filename": "20230828-010.jpg",
+        "src": "風/20230828-010.jpg",
+        "thumb": "風/20230828-010.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2023-08-28T03:59:55.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 160",
+          "aperture": "f/5.6",
+          "shutter": "1/400",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20230825-001.jpg",
+        "src": "風/20230825-001.jpg",
+        "thumb": "風/20230825-001.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2023-08-25T08:12:49.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF70-300mmF4-5.6 R LM OIS WR",
+          "iso": "ISO 320",
+          "aperture": "f/11",
+          "shutter": "1/4000",
+          "focalLength": "70mm"
+        }
+      },
+      {
+        "filename": "20230823-001.jpg",
+        "src": "風/20230823-001.jpg",
+        "thumb": "風/20230823-001.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2023-08-23T05:22:48.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 320",
+          "aperture": "f/9",
+          "shutter": "1/1000",
+          "focalLength": "27.6mm"
+        }
+      },
+      {
+        "filename": "20230822-001.jpg",
+        "src": "風/20230822-001.jpg",
+        "thumb": "風/20230822-001.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2023-08-22T07:47:09.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF70-300mmF4-5.6 R LM OIS WR",
+          "iso": "ISO 320",
+          "aperture": "f/9",
+          "shutter": "1/1000",
+          "focalLength": "70mm"
+        }
+      }
+    ]
+  },
+  {
+    "id": "花",
+    "title": "花",
+    "cover": "花/20230826-004.webp",
+    "width": 3240,
+    "height": 2160,
+    "count": 3,
+    "photos": [
+      {
+        "filename": "20230826-004.jpg",
+        "src": "花/20230826-004.jpg",
+        "thumb": "花/20230826-004.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2023-08-26T04:18:01.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 320",
+          "aperture": "f/4",
+          "shutter": "1/160",
+          "focalLength": "42mm"
+        }
+      },
+      {
+        "filename": "20230826-003.jpg",
+        "src": "花/20230826-003.jpg",
+        "thumb": "花/20230826-003.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2023-08-26T04:17:13.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 320",
+          "aperture": "f/4",
+          "shutter": "1/160",
+          "focalLength": "27mm"
+        }
+      },
+      {
+        "filename": "20230826-002.jpg",
+        "src": "花/20230826-002.jpg",
+        "thumb": "花/20230826-002.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2023-08-26T04:16:40.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 320",
+          "aperture": "f/4",
+          "shutter": "1/160",
+          "focalLength": "27mm"
+        }
+      }
+    ]
+  },
+  {
+    "id": "京坂Day2-銀閣寺",
+    "title": "京坂Day2-銀閣寺",
+    "cover": "京坂Day2-銀閣寺/20230529-18.webp",
+    "width": 3840,
+    "height": 2560,
+    "count": 23,
+    "photos": [
+      {
+        "filename": "20230529-18.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-18.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-18.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T09:29:34.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/100",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20230529-17.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-17.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-17.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T08:06:19.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/400",
+          "focalLength": "20.4mm"
+        }
+      },
+      {
+        "filename": "20230529-16.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-16.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-16.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T08:06:07.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/400",
+          "focalLength": "20.4mm"
+        }
+      },
+      {
+        "filename": "20230529-15.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-15.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-15.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T07:46:23.000Z",
         "exif": {
           "camera": "X-S10",
           "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
           "iso": "ISO 640",
           "aperture": "f/2.8",
           "shutter": "1/80",
-          "focalLength": "24.5mm"
+          "focalLength": "18mm"
         }
-      }
-    ]
-  },
-  {
-    "id": "鹿鹿包",
-    "title": "鹿鹿包",
-    "cover": "鹿鹿包/DSCF9052.webp",
-    "aspectRatio": 0.6666666666666666,
-    "count": 2,
-    "photos": [
+      },
       {
-        "filename": "DSCF9052.JPG",
-        "src": "鹿鹿包/DSCF9052.JPG",
-        "thumb": "鹿鹿包/DSCF9052.webp",
-        "width": 4160,
-        "height": 6240,
-        "aspectRatio": 0.6666666666666666,
-        "date": "2025-06-01T13:12:46.000Z",
+        "filename": "20230529-20.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-20.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-20.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T07:46:23.000Z",
         "exif": {
           "camera": "X-S10",
           "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
-          "iso": "ISO 1000",
+          "iso": "ISO 640",
           "aperture": "f/2.8",
-          "shutter": "1/25",
+          "shutter": "1/80",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20230529-14.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-14.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-14.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T07:40:37.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/500",
+          "focalLength": "34mm"
+        }
+      },
+      {
+        "filename": "20230529-13.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-13.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-13.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-29T07:19:15.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/640",
           "focalLength": "20.4mm"
         }
       },
       {
-        "filename": "DSCF9047.JPG",
-        "src": "鹿鹿包/DSCF9047.JPG",
-        "thumb": "鹿鹿包/DSCF9047.webp",
-        "width": 6240,
-        "height": 4160,
-        "aspectRatio": 1.5,
-        "date": "2025-06-01T13:11:40.000Z",
+        "filename": "20230529-12.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-12.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-12.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-29T07:06:27.000Z",
         "exif": {
           "camera": "X-S10",
           "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
-          "iso": "ISO 1000",
+          "iso": "ISO 640",
           "aperture": "f/2.8",
-          "shutter": "1/25",
+          "shutter": "1/320",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20230529-11.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-11.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-11.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T06:43:24.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/320",
+          "focalLength": "45.6mm"
+        }
+      },
+      {
+        "filename": "20230529-09.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-09.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-09.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-29T06:33:21.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/640",
           "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20230529-08.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-08.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-08.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-29T06:31:19.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/640",
+          "focalLength": "36.8mm"
+        }
+      },
+      {
+        "filename": "20230529-07.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-07.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-07.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T05:34:18.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 1250",
+          "aperture": "f/2.8",
+          "shutter": "1/160",
+          "focalLength": "37.8mm"
+        }
+      },
+      {
+        "filename": "20230529-06.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-06.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-06.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-29T04:52:46.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/400",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20230529-05.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-05.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-05.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-29T04:26:36.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/1250",
+          "focalLength": "21mm"
+        }
+      },
+      {
+        "filename": "20230529-04.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-04.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-04.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-29T04:24:56.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/1250",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20230529-03.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-03.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-03.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T04:19:26.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/640",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20230529-02.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-02.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-02.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-29T04:17:03.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/640",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20230529-25.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-25.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-25.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T04:14:57.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/640",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20230529-24.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-24.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-24.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T04:10:28.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/250",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20230529-23.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-23.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-23.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-29T04:04:43.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/60",
+          "focalLength": "33mm"
+        }
+      },
+      {
+        "filename": "20230529-22.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-22.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-22.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T04:03:51.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/180",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20230529-01.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-01.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-01.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-29T03:54:23.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/400",
+          "focalLength": "31.9mm"
+        }
+      },
+      {
+        "filename": "20230529-21.jpg",
+        "src": "京坂Day2-銀閣寺/20230529-21.jpg",
+        "thumb": "京坂Day2-銀閣寺/20230529-21.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-29T03:49:37.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/640",
+          "focalLength": "50mm"
         }
       }
     ]
   },
   {
-    "id": "夜",
-    "title": "夜",
-    "cover": "夜/DSCF9059.webp",
-    "aspectRatio": 1.5,
+    "id": "京坂Day1-伏見稻荷",
+    "title": "京坂Day1-伏見稻荷",
+    "cover": "京坂Day1-伏見稻荷/20230528-14.webp",
+    "width": 3840,
+    "height": 2560,
+    "count": 14,
+    "photos": [
+      {
+        "filename": "20230528-14.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-14.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-14.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-28T09:19:56.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2",
+          "shutter": "1/320",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-13.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-13.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-13.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-28T09:15:05.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2",
+          "shutter": "1/100",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-12.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-12.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-12.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-28T09:09:41.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2",
+          "shutter": "1/125",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-11.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-11.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-11.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-28T09:04:01.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 1250",
+          "aperture": "f/2",
+          "shutter": "1/50",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-10.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-10.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-10.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-28T09:01:25.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 1250",
+          "aperture": "f/2",
+          "shutter": "1/100",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-09.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-09.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-09.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-28T08:47:04.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2",
+          "shutter": "1/180",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-08.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-08.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-08.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-28T08:38:38.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2",
+          "shutter": "1/640",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-07.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-07.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-07.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-28T08:33:46.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2.5",
+          "shutter": "1/180",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-06.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-06.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-06.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-28T08:21:01.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2",
+          "shutter": "1/320",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-05.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-05.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-05.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-28T08:14:35.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2",
+          "shutter": "1/1000",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-04.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-04.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-04.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-28T08:03:59.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2",
+          "shutter": "1/800",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-03.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-03.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-03.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-28T08:03:13.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2",
+          "shutter": "1/2500",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-02.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-02.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-02.webp",
+        "width": 3840,
+        "height": 2560,
+        "date": "2023-05-28T07:16:58.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/3.2",
+          "shutter": "1/2000",
+          "focalLength": "90mm"
+        }
+      },
+      {
+        "filename": "20230528-01.jpg",
+        "src": "京坂Day1-伏見稻荷/20230528-01.jpg",
+        "thumb": "京坂Day1-伏見稻荷/20230528-01.webp",
+        "width": 2560,
+        "height": 3840,
+        "date": "2023-05-28T06:42:08.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "XF90mmF2 R LM WR",
+          "iso": "ISO 640",
+          "aperture": "f/2",
+          "shutter": "1/125",
+          "focalLength": "90mm"
+        }
+      }
+    ]
+  },
+  {
+    "id": "月",
+    "title": "月",
+    "cover": "月/DSCF9059.webp",
+    "width": 6240,
+    "height": 4160,
     "count": 1,
     "photos": [
       {
         "filename": "DSCF9059.JPG",
-        "src": "夜/DSCF9059.JPG",
-        "thumb": "夜/DSCF9059.webp",
+        "src": "月/DSCF9059.JPG",
+        "thumb": "月/DSCF9059.webp",
         "width": 6240,
         "height": 4160,
-        "aspectRatio": 1.5,
         "date": "2025-06-02T10:37:22.000Z",
         "exif": {
           "camera": "X-S10",
@@ -194,6 +1115,416 @@
           "aperture": "f/2.8",
           "shutter": "1/25",
           "focalLength": "19.7mm"
+        }
+      }
+    ]
+  },
+  {
+    "id": "山",
+    "title": "山",
+    "cover": "山/20240128-025.webp",
+    "width": 1440,
+    "height": 2160,
+    "count": 25,
+    "photos": [
+      {
+        "filename": "20240128-025.jpg",
+        "src": "山/20240128-025.jpg",
+        "thumb": "山/20240128-025.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T08:34:39.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/3.6",
+          "shutter": "1/180",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20240128-024.jpg",
+        "src": "山/20240128-024.jpg",
+        "thumb": "山/20240128-024.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-01-28T07:14:50.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/200",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20240128-023.jpg",
+        "src": "山/20240128-023.jpg",
+        "thumb": "山/20240128-023.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-01-28T07:12:52.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/500",
+          "focalLength": "31.9mm"
+        }
+      },
+      {
+        "filename": "20240128-022.jpg",
+        "src": "山/20240128-022.jpg",
+        "thumb": "山/20240128-022.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T07:11:21.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/320",
+          "focalLength": "44.6mm"
+        }
+      },
+      {
+        "filename": "20240128-021.jpg",
+        "src": "山/20240128-021.jpg",
+        "thumb": "山/20240128-021.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-01-28T07:10:33.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/320",
+          "focalLength": "36.8mm"
+        }
+      },
+      {
+        "filename": "20240128-020.jpg",
+        "src": "山/20240128-020.jpg",
+        "thumb": "山/20240128-020.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T05:59:26.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/4",
+          "shutter": "1/100",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20240128-019.jpg",
+        "src": "山/20240128-019.jpg",
+        "thumb": "山/20240128-019.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T05:56:07.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/4",
+          "shutter": "1/100",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20240128-018.jpg",
+        "src": "山/20240128-018.jpg",
+        "thumb": "山/20240128-018.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T05:48:40.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/60",
+          "focalLength": "26.4mm"
+        }
+      },
+      {
+        "filename": "20240128-017.jpg",
+        "src": "山/20240128-017.jpg",
+        "thumb": "山/20240128-017.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T05:47:51.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/60",
+          "focalLength": "30.9mm"
+        }
+      },
+      {
+        "filename": "20240128-016.jpg",
+        "src": "山/20240128-016.jpg",
+        "thumb": "山/20240128-016.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-01-28T05:42:22.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/100",
+          "focalLength": "29.9mm"
+        }
+      },
+      {
+        "filename": "20240128-015.jpg",
+        "src": "山/20240128-015.jpg",
+        "thumb": "山/20240128-015.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T05:39:23.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/4",
+          "shutter": "1/40",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20240128-014.jpg",
+        "src": "山/20240128-014.jpg",
+        "thumb": "山/20240128-014.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-01-28T05:29:53.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/7.1",
+          "shutter": "1/1000",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20240128-013.jpg",
+        "src": "山/20240128-013.jpg",
+        "thumb": "山/20240128-013.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-01-28T05:27:04.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/100",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20240128-012.jpg",
+        "src": "山/20240128-012.jpg",
+        "thumb": "山/20240128-012.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-01-28T04:54:47.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/400",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20240128-011.jpg",
+        "src": "山/20240128-011.jpg",
+        "thumb": "山/20240128-011.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T03:33:39.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/400",
+          "focalLength": "31.9mm"
+        }
+      },
+      {
+        "filename": "20240128-010.jpg",
+        "src": "山/20240128-010.jpg",
+        "thumb": "山/20240128-010.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-01-28T03:26:50.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/125",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20240128-009.jpg",
+        "src": "山/20240128-009.jpg",
+        "thumb": "山/20240128-009.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T03:06:04.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/160",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20240128-008.jpg",
+        "src": "山/20240128-008.jpg",
+        "thumb": "山/20240128-008.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T02:38:31.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/2.8",
+          "shutter": "1/320",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20240128-007.jpg",
+        "src": "山/20240128-007.jpg",
+        "thumb": "山/20240128-007.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T02:36:57.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/4",
+          "shutter": "1/250",
+          "focalLength": "28.3mm"
+        }
+      },
+      {
+        "filename": "20240128-006.jpg",
+        "src": "山/20240128-006.jpg",
+        "thumb": "山/20240128-006.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T02:26:54.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/3.6",
+          "shutter": "1/800",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20240128-005.jpg",
+        "src": "山/20240128-005.jpg",
+        "thumb": "山/20240128-005.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-01-28T02:01:02.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/4",
+          "shutter": "1/3200",
+          "focalLength": "18mm"
+        }
+      },
+      {
+        "filename": "20240128-004.jpg",
+        "src": "山/20240128-004.jpg",
+        "thumb": "山/20240128-004.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T01:28:39.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/4",
+          "shutter": "1/100",
+          "focalLength": "23.5mm"
+        }
+      },
+      {
+        "filename": "20240128-003.jpg",
+        "src": "山/20240128-003.jpg",
+        "thumb": "山/20240128-003.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T01:19:46.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/5.6",
+          "shutter": "1/60",
+          "focalLength": "50mm"
+        }
+      },
+      {
+        "filename": "20240128-002.jpg",
+        "src": "山/20240128-002.jpg",
+        "thumb": "山/20240128-002.webp",
+        "width": 1440,
+        "height": 2160,
+        "date": "2024-01-28T01:00:49.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/7.1",
+          "shutter": "1/250",
+          "focalLength": "21.7mm"
+        }
+      },
+      {
+        "filename": "20240127-001.jpg",
+        "src": "山/20240127-001.jpg",
+        "thumb": "山/20240127-001.webp",
+        "width": 3240,
+        "height": 2160,
+        "date": "2024-01-27T09:17:12.000Z",
+        "exif": {
+          "camera": "X-S10",
+          "lens": "SIGMA 18-50mm F2.8 DC DN | Contemporary 021",
+          "iso": "ISO 640",
+          "aperture": "f/22",
+          "shutter": "1/200",
+          "focalLength": "21mm"
         }
       }
     ]

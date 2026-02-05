@@ -4,7 +4,8 @@
             id: string;
             title: string;
             cover: string;
-            aspectRatio: number;
+            width: number;
+            height: number;
             count: number;
             photos: { date: string }[];
         };
@@ -25,7 +26,7 @@
                 :src="`${R2_THUMB}/${encodePath(album.cover)}`"
                 loading="lazy"
                 alt="cover"
-                :style="{ aspectRatio: `${album.aspectRatio || 4/3}` }"
+                :style="{ aspectRatio: `${album.width / album.height || 4/3}` }"
             />
 
             <div class="album-card__badge title">
@@ -42,23 +43,17 @@
 <style lang="scss">
     .album-card {
         position: relative;
-        background: var(--vp-c-bg);
-
-        // height: 100%;
-        border: 1px solid transparent;
-        border-radius: 1rem;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%);
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
 
         &__container {
-            // [修正 5] 確保內容是 block 且能撐開
+            // 確保內容是 block 才能撐開高度進行計算
             display: block;
+            background: var(--vp-c-bg);
             width: 100%;
-
-            // height: 100%;
-            border-radius: 1rem; // 圓角移到這裡或外層皆可
-            // 防止 margin collapse 導致計算誤差
+            border: 1px solid transparent;
+            border-radius: .5rem; // 圓角移到這裡或外層皆可
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%);
+            transition: transform 0.25s var(--cubic-FiSo), box-shadow 0.25s var(--cubic-FiSo);
             overflow: hidden;
 
             img {
@@ -100,11 +95,13 @@
         }
 
         &:hover {
-            border-color: var(--vp-c-brand);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%);
-            transform: translateY(-5px);
-
             .album-card {
+                &__container {
+                    border-color: var(--vp-c-brand);
+                    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%);
+                    transform: translateY(-5px);
+                }
+
                 &__badge {
                     opacity: 1;
                 }

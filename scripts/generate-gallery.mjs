@@ -94,7 +94,6 @@ async function generate() {
                     // 使用修正後的「視覺寬高」
                     width: visualWidth,
                     height: visualHeight,
-                    aspectRatio: visualWidth / visualHeight,
                     date: exif?.DateTimeOriginal,
                     exif: {
                         camera: exif?.Model || '',
@@ -120,7 +119,8 @@ async function generate() {
                 id: albumId,
                 title: albumId.replace(/_/g, ' '),
                 cover: coverPhoto.thumb,
-                aspectRatio: coverPhoto.width / coverPhoto.height,
+                width: coverPhoto.width,
+                height: coverPhoto.height,
                 count: photos.length,
                 photos: photos
             });
