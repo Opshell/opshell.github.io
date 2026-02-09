@@ -1,15 +1,14 @@
 ---
 title: Tags List
 author: 'Opshell'
-categories:
-  - Archive
-tags:
-  - Archive
 layout: page
+sitemap:
+  priority: 0.8
+  changefreq: weekly
 ---
 
 <script setup>
-import { TagsList } from '@features/tags-list';
+  import { GalaxyBack } from '@features/tags-list';
 </script>
 
-<TagsList />
+<GalaxyBack />
