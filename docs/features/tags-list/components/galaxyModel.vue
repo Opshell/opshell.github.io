@@ -4,9 +4,15 @@
     import { Html } from '@tresjs/cientos';
     import * as THREE from 'three';
     import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide } from 'd3-force-3d';
+    import gsap from 'gsap';
+
+    const { camera, controls } = useTresContext();
 
     const props = defineProps<{ siteData: any }>();
-    const emit = defineEmits<{ (e: 'node-click', url: string): void }>();
+    const emit = defineEmits<{
+        (e: 'node-click', url: string): void,
+        (e: 'node-hover', node: any | null): void // 新增 hover emit
+    }>();
 
     // --- 顏色設定 ---
     const COLOR_STAR = '#FDB813';
@@ -24,6 +30,33 @@
     // --- 焦點控制 ---
     const hoveredNodeId = ref<string | null>(null);
     const focusedNodeId = ref<string | null>(null);
+
+    // focus
+    const focusOnNode = (node: any) => {
+        console.log('node', node);
+        console.log('controls', controls);
+        console.log('camera', camera);
+
+        if (!controls.value) return;
+
+        // [-] 移動 OrbitControls 的中心點到星球位置
+        gsap.to(controls.value.target, {
+            x: node.x,
+            y: node.y,
+            z: node.z,
+            duration: 1.2,
+            ease: 'power3.inOut'
+        });
+
+        // [-] 讓相機也靠近一點
+        gsap.to(camera.position, {
+            x: node.x + 30,
+            y: node.y + 20,
+            z: node.z + 30,
+            duration: 1.2,
+            ease: 'power3.inOut'
+        });
+    };
 
     // --- 初始化與預熱 ---
     const initGalaxy = () => {
@@ -131,12 +164,22 @@
     }
 
     // 解決 Template 找不到 document 的問題：搬回 script 處理
-    const setFocus = (id: string | null) => {
-        console.log('hover', id);
+    const setFocus = (node: any | null) => {
+        const { id } = node || {};
+
+        // 傳回父層更新 HUD
+        emit('node-hover', node);
+
+        console.log('hover', );
 
         hoveredNodeId.value = id;
         if (typeof document !== 'undefined') {
             document.body.style.cursor = id ? 'pointer' : 'auto';
+        }
+
+        // 如果有 node 且 controls 已經準備好，就飛行
+        if (node && controls.value) {
+            focusOnNode(node);
         }
     };
 
@@ -164,7 +207,7 @@
         <template v-for="node in nodes" :key="node.id">
             <TresMesh
                 :ref="(el: any) => { if(el) nodeMeshes.set(node.id, el) }"
-                @pointerenter="setFocus(node.id)"
+                @pointerenter="setFocus(node)"
                 @pointerleave="setFocus(null)"
                 @click="(e) => { e.stopPropagation(); onNodeClick(node); }"
             >
