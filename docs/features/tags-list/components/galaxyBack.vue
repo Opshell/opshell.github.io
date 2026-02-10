@@ -15,6 +15,9 @@
         router.go(url);
     };
 
+    const galaxyModelRef = ref<any>(null);
+    const lastActiveNode = ref<any>(null); // 紀錄最後一個被點擊的 node
+
 
     // #region [P] HUD
     const isHudVisible = ref(true); // HUD 開關
@@ -28,6 +31,9 @@
     // 當 GalaxyModel 觸發 hover 或點擊時，更新資訊
     const handleNodeHover = (node: any) => {
         if (!node) return;
+
+        lastActiveNode.value = node;
+
         selectedNodeInfo.title = node.name;
         selectedNodeInfo.type = node.type === 'star' ? '恆星系統' : '文章行星';
         selectedNodeInfo.tags = node.tags || [];
@@ -37,7 +43,52 @@
     const toggleHud = () => {
         isHudVisible.value = !isHudVisible.value;
     };
+
+
+    // [-] zoom 控制
+    const resetCamera = () => {
+        galaxyModelRef.value?.resetView();
+
+        // lastActiveNode.value = null;
+        // selectedNodeInfo.title = 'SYSTEM_IDLE';
+        // selectedNodeInfo.type = 'WAITING_FOR_INPUT';
+        // selectedNodeInfo.tags = [];
+        // selectedNodeInfo.url = '';
+    };
+
+    const zoomToActive = () => {
+        if (lastActiveNode.value) {
+            galaxyModelRef.value?.focusOnNode(lastActiveNode.value);
+        }
+    };
     // #endregion
+
+    // #region [P] 滾輪控制
+    const zoomSpeed = ref(1); // 預設縮放速度
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.ctrlKey || e.metaKey) {
+            zoomSpeed.value = 4; // 按住 Ctrl 時速度變 4 倍
+        }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+        if (!e.ctrlKey && !e.metaKey) {
+            zoomSpeed.value = 1; // 放開時恢復
+        }
+    };
+
+    // #endregion
+
+    onMounted(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+    });
+
+    onUnmounted(() => {
+        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keyup', handleKeyUp);
+    });
 </script>
 
 <template>
@@ -54,6 +105,7 @@
                 <!-- 軌道控制器 -->
                 <OrbitControls
                     make-default
+                    :zoom-speed="zoomSpeed"
                     :enable-damping="true"
                     :damping-factor="0.05"
                     :min-distance="10"
@@ -124,21 +176,35 @@
             </div>
         </Transition>
 
-        <button class="hud-toggle-btn" :class="{ 'is-active': isHudVisible }" @click="toggleHud">
-            <div class="scanner-line"></div>
-            {{ isHudVisible ? 'TERMINAL ON' : 'TERMINAL OFF' }}
-        </button>
+        <div class="hud-toggle-btn-box">
+            <button class="hud-toggle-btn" :class="{ 'is-active': isHudVisible }" @click="toggleHud">
+                <div class="scanner-line"></div>
+                {{ isHudVisible ? 'TERMINAL ON' : 'TERMINAL OFF' }}
+            </button>
+
+            <button class="hud-toggle-btn" @click="resetCamera"> <div class="scanner-line"></div>[ RESET_VIEW ] </button>
+            <button class="hud-toggle-btn" :disabled="!lastActiveNode" @click="zoomToActive" ><div class="scanner-line"></div> [ RE-FOCUS ] </button>
+        </div>
     </div>
 </template>
 
 <style lang="scss">
+
+    .galaxy-wrapper {
+        position: fixed;
+        top: var(--vp-nav-height);
+        left: 0;
+        @include setSize(100vw, calc(100vh - var(--vp-nav-height)));
+        z-index: 100;
+    }
+
     /* galaxyBack.vue */
 .galaxy-canvas-wrapper {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     z-index: 0; /* 確保它在背景 */
 
     canvas {
@@ -152,68 +218,196 @@
 }
 
 /* galaxyBack.vue */
+// 變數定義
+$hud-primary: #00f0ff;
+$hud-bg: rgb(0, 10, 20, 75%);
+$hud-border: rgb(0, 240, 255, 50%);
+$font-tech: 'Courier New', monospace; // 建議換成 Rajdhani 或 Orbitron 等 Google Fonts
+
 .hud-overlay {
     position: fixed;
     inset: 0;
     display: flex;
     justify-content: space-between;
     padding: 2rem;
-    font-family: 'Courier New', Courier, monospace;
-    pointer-events: none; // 讓中間區域可以穿透點擊 3D
+    font-family: $font-tech;
+    pointer-events: none; // 穿透
     z-index: 10;
 
-    .hud-panel {
-        background: rgb(0, 20, 40, 70%);
-        backdrop-filter: blur(8px);
+    // 全局掃描線背景效果 (Optional)
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgb(18, 16, 16, 0%) 50%, rgb(0, 0, 0, 25%) 50%), linear-gradient(90deg, rgb(255, 0, 0, 6%), rgb(0, 255, 0, 2%), rgb(0, 0, 255, 6%));
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+        z-index: -1;
+    }
+}
 
-        // 削角設計
-        clip-path: polygon(
-            0 0, 100% 0,
-            100% calc(100% - 20px),
-            calc(100% - 20px) 100%,
-            0 100%
-        );
-        width: 300px;
-        height: fit-content;
-        border: 1px solid #00f0ff;
-        box-shadow: 0 0 15px rgb(0, 240, 255, 30%);
+.hud-panel {
+    display: flex;
+    flex-direction: column;
+    background: $hud-bg;
+    backdrop-filter: blur(10px); // 磨砂質感
+
+    // 科幻切角 (Clip-path)
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% calc(100% - 20px),
+        calc(100% - 20px) 100%,
+        0 100%
+    );
+    width: 320px;
+    border: 1px solid $hud-border;
+
+    // 內發光邊框效果
+    box-shadow: inset 0 0 20px rgb(0, 240, 255, 10%);
+    color: #fff;
+    pointer-events: auto;
+
+    .panel-header {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        background: rgb(0, 240, 255, 10%);
+        padding: 12px 16px;
+        border-bottom: 1px solid $hud-border;
+        color: $hud-primary;
+        font-size: 0.9rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+    }
+
+    .panel-content {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+}
+
+// 文字發光
+.text-glow {
+    margin: 0;
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1.2;
+    text-shadow: 0 0 8px $hud-primary, 0 0 15px $hud-primary;
+}
+
+// 標籤與數值
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed rgb(255,255,255,20%);
+
+    .label { color: rgb(255,255,255,60%); font-size: 0.8rem; }
+    .value { color: $hud-primary; font-weight: bold; }
+}
+
+// Tag Cloud
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 5px;
+
+    .tag-chip {
+        background: rgb(0, 240, 255, 10%);
+        padding: 2px 6px;
+        border: 1px solid rgb(0, 240, 255, 30%);
+        border-radius: 2px;
+        color: $hud-primary;
+        font-size: 0.7rem;
+    }
+}
+
+// 閃爍點
+.blinking-dot {
+    background: #f05; // 警示紅
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #f05;
+    animation: blink 1s infinite;
+}
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+// 按鈕樣式
+.hud-btn {
+    background: transparent;
+    width: 100%;
+    padding: 5px 10px;
+    border: 1px solid rgb(255,255,255,30%);
+    margin-bottom: 5px;
+    color: rgb(255,255,255,80%);
+    font-family: inherit;
+    font-size: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+        background: rgb(0, 240, 255, 20%);
+        border-color: $hud-primary;
+        box-shadow: 0 0 10px rgb(0, 240, 255, 30%);
         color: #fff;
-        pointer-events: auto; // 面板本身要能擋住滑鼠
+    }
 
-        .panel-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgb(0, 240, 255, 20%);
-            padding: 10px;
-            border-bottom: 1px solid #00f0ff;
-            font-weight: bold;
+    &:disabled {
+        border-color: transparent;
+        cursor: not-allowed;
+        opacity: 0.3;
+    }
+}
 
-            &::before {
-                content: '▶';
-                color: #00f0ff;
-                font-size: 0.8rem;
-            }
-        }
+.btn-primary {
+    @extend .hud-btn;
+    background: rgb(0, 240, 255, 10%);
+    padding: 10px;
+    border: 1px solid $hud-primary;
+    color: $hud-primary;
+    font-size: 0.9rem;
+    font-weight: bold;
 
-        .panel-content {
-            padding: 1.5rem;
+    &:hover {
+        background: $hud-primary;
+        box-shadow: 0 0 20px $hud-primary;
+        color: #000;
+    }
+}
 
-            h2 { margin: 0 0 1rem; color: #00f0ff; font-size: 1.4rem; }
-            .info-row {
-                margin-bottom: 0.8rem;
-                .label { display: block; color: #aaa; font-size: 0.7rem; }
-                .value { color: #fff; font-size: 0.9rem; }
-            }
-        }
+// 進度條容器
+.bar-container {
+    position: relative;
+    background: rgb(255,255,255,10%);
+    height: 4px;
+    margin-top: 5px;
+
+    .bar {
+        background: $hud-primary;
+        height: 100%;
+        box-shadow: 0 0 5px $hud-primary;
+        transition: width 0.5s ease;
     }
 }
 
 // HUD 開關按鈕
-.hud-toggle-btn {
+.hud-toggle-btn-box {
     position: fixed;
+    @include setFlex();
     right: 2rem;
     bottom: 2rem;
+}
+.hud-toggle-btn {
     background: transparent;
     padding: 10px 20px;
     border: 1px solid #00f0ff;

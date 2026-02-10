@@ -33,28 +33,33 @@
 
     // focus
     const focusOnNode = (node: any) => {
-        console.log('node', node);
-        console.log('controls', controls);
-        console.log('camera', camera);
+        if (!controls.value|| !camera.value) return;
 
-        if (!controls.value) return;
+        controls.value.enabled = false;
 
         // [-] 移動 OrbitControls 的中心點到星球位置
         gsap.to(controls.value.target, {
             x: node.x,
             y: node.y,
             z: node.z,
-            duration: 1.2,
-            ease: 'power3.inOut'
+            duration: 1.5,
+            ease: 'power4.inOut'
         });
 
         // [-] 讓相機也靠近一點
         gsap.to(camera.position, {
-            x: node.x + 30,
-            y: node.y + 20,
-            z: node.z + 30,
+            x: node.x + 12,
+            y: node.y + 8,
+            z: node.z + 12,
             duration: 1.2,
-            ease: 'power3.inOut'
+            ease: 'power4.inOut',
+            onUpdate: () => {
+                // 強制每一幀更新 controls，否則鏡頭移動會卡頓
+                controls.value?.update();
+            },
+            onComplete: () => {
+                if (controls.value) controls.value.enabled = true;
+            }
         });
     };
 
@@ -159,27 +164,25 @@
 
     // --- 互動控制 ---
     const onNodeClick = (node: any) => {
-        console.log('Click detected on:', node.name); // 加個 log 確認是否有觸發
-        emit('node-click', node.url);
+        // console.log('Click detected on:', node.name); // 加個 log 確認是否有觸發
+        // emit('node-click', node.url);
+
+        // 傳回父層更新 HUD
+        emit('node-hover', node);
+
+        // 如果有 node 且 controls 已經準備好，就飛行
+        if (node && controls.value) {
+            focusOnNode(node);
+        }
     }
 
     // 解決 Template 找不到 document 的問題：搬回 script 處理
     const setFocus = (node: any | null) => {
         const { id } = node || {};
 
-        // 傳回父層更新 HUD
-        emit('node-hover', node);
-
-        console.log('hover', );
-
         hoveredNodeId.value = id;
         if (typeof document !== 'undefined') {
             document.body.style.cursor = id ? 'pointer' : 'auto';
-        }
-
-        // 如果有 node 且 controls 已經準備好，就飛行
-        if (node && controls.value) {
-            focusOnNode(node);
         }
     };
 
@@ -195,6 +198,27 @@
     };
 
     onUnmounted(() => simulation?.stop());
+
+    function resetView () {
+        if (!controls.value || !camera.value) return;
+
+        controls.value.enabled = false;
+
+        gsap.to(controls.value.target, { x: 0, y: 0, z: 0, duration: 1.5, ease: 'power3.inOut' });
+        gsap.to(camera.value.position, {
+            x: 100, y: 50, z: 100, duration: 1.5, ease: 'power3.inOut',
+            onUpdate: () => controls.value.update(),
+            onComplete: () => {
+                if (controls.value) controls.value.enabled = true;
+            }
+        });
+    }
+
+    // 暴露給父層使用
+    defineExpose({
+        focusOnNode,
+        resetView
+    });
 </script>
 
 <template>
