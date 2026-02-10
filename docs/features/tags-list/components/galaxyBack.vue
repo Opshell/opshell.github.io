@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { OrbitControls, Stars } from '@tresjs/cientos';
     import GalaxyModel from './galaxyModel.vue';
+    import HudPanel from './hudPanel.vue';
     import { useSiteData } from '@shared/hooks/useSiteData';
     import { TresCanvas } from '@tresjs/core'
     import { useRouter } from 'vitepress';
@@ -143,35 +144,63 @@
 
         <Transition name="hud-fade">
             <div v-if="isHudVisible" class="hud-overlay">
-                <aside class="hud-panel left-panel">
-                    <div class="panel-header">OBJECT DATA</div>
-                    <div class="panel-content">
-                        <h2 class="text-glow">{{ selectedNodeInfo.title }}</h2>
-                        <div class="info-row">
-                            <span class="label">CLASSIFICATION:</span>
-                            <span class="value">{{ selectedNodeInfo.type }}</span>
+                <aside class="aside left">
+                    <HudPanel title="object data" icon="bookmark_stacks" side="left">
+                        <div class="panel-content">
+                            <h3 class="text-glow">{{ selectedNodeInfo.title }}</h3>
+                            <div class="info-row">
+                                <span class="label">CLASSIFICATION:</span>
+                                <span class="value">{{ selectedNodeInfo.type }}</span>
+                            </div>
+                            <div class="tag-cloud">
+                                <span v-for="tag in selectedNodeInfo.tags" :key="tag" class="tag-chip">
+                                    # {{ tag }}
+                                </span>
+                            </div>
                         </div>
-                        <div class="tag-cloud">
-                            <span v-for="tag in selectedNodeInfo.tags" :key="tag" class="tag-chip">
-                                # {{ tag }}
-                            </span>
+
+                        <p>顯示目前選取的星球資訊 (文章標題 內容摘要 日期 標籤 分類等)</p>
+                    </HudPanel>
+
+                    <HudPanel title="test hudpanel" icon="bookmark_stacks" side="left">
+                        <div class="btn-box">
+
                         </div>
-                    </div>
+                        <p>針對選許的星球做操作 Zoom 過去 或者是蟲洞跳躍過去(跳轉頁面)</p>
+                    </HudPanel>
+
+                    <HudPanel title="test hudpanel" icon="bookmark_stacks" side="left">
+                        <p>這是內嵌在 GalaxyBack.vue 裡的 HudPanel 組件</p>
+                        <p>你可以在這裡放任何內容，甚至再套一層 HudPanel！</p>
+                        <p>這邊要幹嘛還沒有想法</p>
+                    </HudPanel>
                 </aside>
 
-                <aside class="hud-panel right-panel">
-                    <div class="panel-header">SYSTEM STATUS</div>
-                    <div class="panel-content">
-                        <div class="status-item">
-                            <div class="label">SITEMAP PRIORITY</div>
-                            <div class="bar-container"><div class="bar" style="width: 80%"></div></div>
+
+
+                <aside class="aside right-panel">
+                    <HudPanel title="SYSTEM STATUS" icon="bookmark_stacks" side="right">
+                        <div class="panel-content">
+                            <div class="status-item">
+                                <div class="label">SITEMAP PRIORITY</div>
+                                <div class="bar-container"><div class="bar" style="width: 80%"></div></div>
+                            </div>
+                            <div class="action-list">
+                                <button @click="navigateHandler(selectedNodeInfo.url)" class="btn-primary">
+                                    JUMP TO ORIGIN
+                                </button>
+                            </div>
                         </div>
-                        <div class="action-list">
-                            <button @click="navigateHandler(selectedNodeInfo.url)" class="btn-primary">
-                                JUMP TO ORIGIN
-                            </button>
-                        </div>
-                    </div>
+                        <p>目前選取的星球的 全部 tag 資料(全部會不會太多? (</p>
+                    </HudPanel>
+
+                    <HudPanel title="SYSTEM STATUS" icon="bookmark_stacks" side="right">
+                        <p>最主要的星系(引力最強? 文章最多? 的其他星球列表 點選會切換過去)</p>
+                    </HudPanel>
+
+                    <HudPanel title="SYSTEM STATUS" icon="bookmark_stacks" side="right">
+                        <p>電池電量個的條狀堆疊 每個堆疊都代表一個 tag 一個能量格代表一個文章</p>
+                    </HudPanel>
                 </aside>
             </div>
         </Transition>
@@ -403,9 +432,10 @@ $font-tech: 'Courier New', monospace; // 建議換成 Rajdhani 或 Orbitron 等 
 // HUD 開關按鈕
 .hud-toggle-btn-box {
     position: fixed;
-    @include setFlex();
     right: 2rem;
     bottom: 2rem;
+    gap: 8px;
+    @include setFlex();
 }
 .hud-toggle-btn {
     background: transparent;

@@ -33,34 +33,63 @@
 
     // focus
     const focusOnNode = (node: any) => {
-        if (!controls.value|| !camera.value) return;
+        // 安全性檢查
+        if (!node || typeof node.x !== 'number') {
+            console.warn('Invalid node for focus:', node);
+            return;
+        }
 
+        // 確保 controls 和 camera 存在
+        if (!controls.value || !camera) return;
+
+        // 1. 暫時禁用控制器，避免用戶在飛行時拖曳導致錯亂
         controls.value.enabled = false;
 
-        // [-] 移動 OrbitControls 的中心點到星球位置
-        gsap.to(controls.value.target, {
-            x: node.x,
-            y: node.y,
-            z: node.z,
-            duration: 1.5,
-            ease: 'power4.inOut'
-        });
+        // 2. 計算目標位置 (保持一定距離)
+        const offsetDistance = 20; // 距離星球多遠
+        const targetPos = new THREE.Vector3(node.x, node.y, node.z);
 
-        // [-] 讓相機也靠近一點
-        gsap.to(camera.position, {
-            x: node.x + 12,
-            y: node.y + 8,
-            z: node.z + 12,
-            duration: 1.2,
-            ease: 'power4.inOut',
+        // 相機新位置：簡單起見，我們往 Z 軸方向退，或者基於目前相機向量逼近
+        // 這裡使用固定偏移，你也可以計算 normalized vector
+        const camEndPos = {
+            x: node.x + 10,
+            y: node.y + 5,
+            z: node.z + 10
+        };
+
+        // 3. GSAP Timeline 同步動畫
+        const tl = gsap.timeline({
             onUpdate: () => {
-                // 強制每一幀更新 controls，否則鏡頭移動會卡頓
+                // 重要：每一幀都要告訴 OrbitControls 更新，不然畫面會跳動
                 controls.value?.update();
             },
             onComplete: () => {
-                if (controls.value) controls.value.enabled = true;
+                // 動畫結束，交還控制權
+                if (controls.value) {
+                    controls.value.enabled = true;
+                    // 強制將 target 鎖定在星球中心
+                    controls.value.target.copy(targetPos);
+                }
             }
         });
+
+        // 動畫：移動 Controls 的旋轉中心 (Target)
+        tl.to(controls.value.target, {
+            x: targetPos.x,
+            y: targetPos.y,
+            z: targetPos.z,
+            duration: 1.5,
+            ease: 'power3.inOut'
+        }, 0); // 在時間軸 0 秒開始
+
+        // 動畫：移動相機本身
+        tl.to(camera.position, {
+            x: camEndPos.x,
+            y: camEndPos.y,
+            z: camEndPos.z,
+            duration: 1.5,
+            ease: 'power3.inOut'
+        }, 0);
     };
 
     // --- 初始化與預熱 ---
