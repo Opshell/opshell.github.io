@@ -21,6 +21,7 @@
         <TresCanvas window-size preset="realistic" alpha>
             <TresPerspectiveCamera :position="[100, 50, 100]" :look-at="[0, 0, 0]" :fov="45" />
 
+            <!-- 軌道控制器 -->
             <OrbitControls
                 :enable-damping="true"
                 :damping-factor="0.05"
@@ -28,11 +29,14 @@
                 :max-distance="500"
             />
 
+            <!-- 光源 -->
             <TresAmbientLight :intensity="1" />
             <TresPointLight :position="[50, 50, 50]" :intensity="2" color="#ffffff" />
 
+            <!-- 星星背景 -->
             <Stars :radius="150" :depth="50" :count="3000" :size="0.5" />
 
+            <!-- 主要星球 -->
             <GalaxyModel
                 v-if="siteData"
                 :siteData="siteData"
@@ -50,7 +54,6 @@
                 />
                 </EffectComposerPmndrs >
             </Suspense>
-
         </TresCanvas>
     </div>
 </template>
@@ -63,11 +66,11 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 1; /* 確保它在背景 */
+    z-index: 0; /* 確保它在背景 */
 
-    /* 🔥 修正：這裡改成 auto，或者乾脆不要寫 pointer-events */
-
-    /* pointer-events: none;  <-- 這行刪掉或註解掉 */
+    canvas {
+        pointer-events: auto !important;
+    }
 }
 
 /* 這一行可以留著，雙重保險 */
