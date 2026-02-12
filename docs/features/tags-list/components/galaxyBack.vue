@@ -1,109 +1,185 @@
 <script setup lang="ts">
-    import { OrbitControls, Stars } from '@tresjs/cientos';
-    import GalaxyModel from './galaxyModel.vue';
-    import HudPanel from './hudPanel.vue';
-    import { useSiteData } from '@shared/hooks/useSiteData';
-    import { TresCanvas } from '@tresjs/core'
-    import { useRouter } from 'vitepress';
-    import { EffectComposerPmndrs , BloomPmndrs } from '@tresjs/post-processing';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { OrbitControls, Stars } from '@tresjs/cientos';
+import { TresCanvas } from '@tresjs/core';
+import { useRouter } from 'vitepress';
+import { EffectComposerPmndrs, BloomPmndrs } from '@tresjs/post-processing';
 
-    // 在這裡獲取數據 (父層 Context 是正常的)
-    const siteData = useSiteData();
-    const router = useRouter(); // ✅ 初始化 Router
+import GalaxyModel from './galaxyModel.vue';
+import HudPanel from './hudPanel.vue';
+import HudCursor from './hudCursor.vue';
+import { useSiteData } from '@shared/hooks/useSiteData';
 
-    const navigateHandler = (url: string) => {
-        console.log('Navigating to:', url);
-        router.go(url);
+// --- 外部 Hook 與 路由 ---
+const siteData = useSiteData();
+const router = useRouter();
+
+// --- Refs ---
+const galaxyModelRef = ref<any>(null);
+const isHudVisible = ref(true);
+const zoomSpeed = ref(1);
+
+// #region [P] 狀態機管控 (State Machine)
+type SystemStatus = 'IDLE' | 'HOVERING' | 'LOCKED';
+
+const currentStatus = ref<SystemStatus>('IDLE');
+const hoverTarget = ref<any>(null);  // 暫時性的預覽目標
+const lockedTarget = ref<any>(null); // 點擊鎖定的目標
+
+/**
+ * 計算屬性：HUD 面板最終要顯示什麼
+ */
+const displayNodeInfo = computed(() => {
+    const target = lockedTarget.value || hoverTarget.value;
+
+    if (!target) {
+        return {
+            id: null,
+            title: 'SYSTEM_IDLE',
+            type: 'WAITING_FOR_INPUT',
+            tags: [],
+            url: '',
+            val: 0,
+            isLocked: false
+        };
+    }
+
+    return {
+        id: target.id,
+        title: target.name,
+        type: target.type === 'star' ? '恆星系統' : '文章行星',
+        tags: target.tags || [],
+        url: target.url || '',
+        val: target.val || 1,
+        isLocked: currentStatus.value === 'LOCKED'
     };
+});
 
-    const galaxyModelRef = ref<any>(null);
-    const lastActiveNode = ref<any>(null); // 紀錄最後一個被點擊的 node
+// Cursor 狀態
+const isCursorHovering = computed(() => !!hoverTarget.value || !!lockedTarget.value);
+const cursorScaleTarget = computed(() => displayNodeInfo.value.val);
 
+// --- [關鍵新增] 計算關聯節點 ID 集合 (用於視覺過濾) ---
+const relatedNodeIds = computed(() => {
+    const ids = new Set<string>();
+    const target = lockedTarget.value;
 
-    // #region [P] HUD
-    const isHudVisible = ref(true); // HUD 開關
-    const selectedNodeInfo = reactive({
-        title: '未選取天體',
-        type: 'N/A',
-        tags: [] as string[],
-        url: ''
+    if (!target) return ids;
+
+    // 1. 加入自己
+    ids.add(target.id);
+
+    // 2. 如果選中的是行星 (文章)，加入它的 Tags (恆星)
+    if (target.type === 'planet' && target.tags) {
+        target.tags.forEach((tagName: string) => {
+            ids.add(`tag-${tagName}`);
+        });
+    }
+
+    // 3. 如果選中的是恆星 (Tag)，加入屬於它的文章 (行星)
+    // 這邊需要遍歷 siteData.posts，這在大型數據下可能需要優化 (例如預先建立 Map)
+    if (target.type === 'star' && siteData.posts) {
+        siteData.posts.forEach((post: any) => {
+            if (post.tags && post.tags.includes(target.name)) {
+                ids.add(post.url);
+            }
+        });
+    }
+
+    return ids;
+});
+
+// --- [關鍵新增] 右側面板顯示的關聯恆星資料 ---
+const relatedTagsInfo = computed(() => {
+    if (!lockedTarget.value || lockedTarget.value.type !== 'planet') return [];
+
+    // 找出這篇文章相關的所有 Tag 詳細數據
+    return lockedTarget.value.tags.map((tagName: string) => {
+        const tagData = siteData.tags.get(tagName);
+        return {
+            name: tagName,
+            count: tagData ? tagData.count : 0
+        };
     });
+});
+// #endregion
 
-    // 當 GalaxyModel 觸發 hover 或點擊時，更新資訊
-    const handleNodeHover = (node: any) => {
-        if (!node) return;
+// #region [P] 互動事件處理 (Interaction)
+const handleNodeHover = (node: any | null) => {
+    if (currentStatus.value === 'LOCKED') return; // 鎖定時，不被 Hover 干擾
 
-        lastActiveNode.value = node;
+    if (node) {
+        currentStatus.value = 'HOVERING';
+        hoverTarget.value = node;
+    } else {
+        currentStatus.value = 'IDLE';
+        hoverTarget.value = null;
+    }
+};
 
-        selectedNodeInfo.title = node.name;
-        selectedNodeInfo.type = node.type === 'star' ? '恆星系統' : '文章行星';
-        selectedNodeInfo.tags = node.tags || [];
-        selectedNodeInfo.url = node.url || '';
-    };
+const handleNodeClick = (node: any) => {
+    if (!node) return;
 
-    const toggleHud = () => {
-        isHudVisible.value = !isHudVisible.value;
-    };
+    // 如果點擊同一個，視為解除鎖定 (Optional)
+    if (lockedTarget.value && lockedTarget.value.id === node.id) {
+        // resetSystem(); // 看你的 UX 決定要不要這行
+        return;
+    }
 
+    currentStatus.value = 'LOCKED';
+    lockedTarget.value = node;
+    hoverTarget.value = null;
 
-    // [-] zoom 控制
-    const resetCamera = () => {
-        galaxyModelRef.value?.resetView();
+    // 觸發 GalaxyModel 的相機跟隨
+    galaxyModelRef.value?.focusOnNode(node);
+};
 
-        // lastActiveNode.value = null;
-        // selectedNodeInfo.title = 'SYSTEM_IDLE';
-        // selectedNodeInfo.type = 'WAITING_FOR_INPUT';
-        // selectedNodeInfo.tags = [];
-        // selectedNodeInfo.url = '';
-    };
+const navigateHandler = (url: string) => {
+    if (!url) return;
+    console.log('Navigating to:', url);
+    router.go(url);
+};
 
-    const zoomToActive = () => {
-        if (lastActiveNode.value) {
-            galaxyModelRef.value?.focusOnNode(lastActiveNode.value);
-        }
-    };
-    // #endregion
+const resetSystem = () => {
+    currentStatus.value = 'IDLE';
+    lockedTarget.value = null;
+    hoverTarget.value = null;
+    galaxyModelRef.value?.resetView();
+};
 
-    // #region [P] 滾輪控制
-    const zoomSpeed = ref(1); // 預設縮放速度
+const zoomToActive = () => {
+    if (lockedTarget.value) {
+        galaxyModelRef.value?.focusOnNode(lockedTarget.value);
+    }
+};
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.ctrlKey || e.metaKey) {
-            zoomSpeed.value = 4; // 按住 Ctrl 時速度變 4 倍
-        }
-    };
+const toggleHud = () => isHudVisible.value = !isHudVisible.value;
+// #endregion
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-        if (!e.ctrlKey && !e.metaKey) {
-            zoomSpeed.value = 1; // 放開時恢復
-        }
-    };
+// #region [P] 鍵盤監聽
+const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.ctrlKey || e.metaKey) zoomSpeed.value = 4;
+};
+const handleKeyUp = (e: KeyboardEvent) => {
+    if (!e.ctrlKey && !e.metaKey) zoomSpeed.value = 1;
+};
 
-    // #endregion
-
-    onMounted(() => {
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
-    });
-
-    onUnmounted(() => {
-        window.removeEventListener('keydown', handleKeyDown);
-        window.removeEventListener('keyup', handleKeyUp);
-    });
+onMounted(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+});
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeyDown);
+    window.removeEventListener('keyup', handleKeyUp);
+});
+// #endregion
 </script>
 
 <template>
     <div class="galaxy-wrapper">
         <div class="galaxy-canvas-wrapper">
             <TresCanvas window-size preset="realistic" alpha>
-                <TresPerspectiveCamera
-                    make-default
-                    :position="[100, 50, 100]"
-                    :look-at="[0, 0, 0]"
-                    :fov="45"
-                />
-
-                <!-- 軌道控制器 -->
+                <TresPerspectiveCamera make-default :position="[100, 50, 100]" :look-at="[0, 0, 0]" :fov="45" />
                 <OrbitControls
                     make-default
                     :zoom-speed="zoomSpeed"
@@ -113,31 +189,24 @@
                     :max-distance="500"
                 />
 
-                <!-- 光源 -->
                 <TresAmbientLight :intensity="1" />
                 <TresPointLight :position="[50, 50, 50]" :intensity="2" color="#ffffff" />
-
-                <!-- 星星背景 -->
                 <Stars :radius="150" :depth="50" :count="3000" :size="0.5" />
 
-                <!-- 主要星球 -->
                 <GalaxyModel
+                    ref="galaxyModelRef"
                     v-if="siteData"
                     :siteData="siteData"
-                    @node-click="navigateHandler"
+                    :lockedId="lockedTarget?.id || null"
+                    :relatedNodeIds="relatedNodeIds"
+                    @node-click="handleNodeClick"
                     @node-hover="handleNodeHover"
                 />
 
                 <Suspense>
-                    <EffectComposerPmndrs >
-                    <BloomPmndrs
-                        :luminance-threshold="0.1"
-                        :luminance-smoothing="0.3"
-                        :intensity="1.5"
-                        :radius="0.6"
-                        mipmap-blur
-                    />
-                    </EffectComposerPmndrs >
+                    <EffectComposerPmndrs>
+                        <BloomPmndrs :luminance-threshold="0.1" :luminance-smoothing="0.3" :intensity="1.5" :radius="0.6" mipmap-blur />
+                    </EffectComposerPmndrs>
                 </Suspense>
             </TresCanvas>
         </div>
@@ -145,61 +214,65 @@
         <Transition name="hud-fade">
             <div v-if="isHudVisible" class="hud-overlay">
                 <aside class="aside left">
-                    <HudPanel title="object data" icon="bookmark_stacks" side="left">
-                        <div class="panel-content">
-                            <h3 class="text-glow">{{ selectedNodeInfo.title }}</h3>
+                    <HudPanel :title="`SYSTEM STATUS: ${currentStatus}`" icon="radar" side="left">
+                        <div class="panel-content" :class="{ 'status-locked': displayNodeInfo.isLocked }">
+                            <h3 class="text-glow">
+                                <span v-if="displayNodeInfo.isLocked">🔒</span>
+                                {{ displayNodeInfo.title }}
+                            </h3>
                             <div class="info-row">
                                 <span class="label">CLASSIFICATION:</span>
-                                <span class="value">{{ selectedNodeInfo.type }}</span>
+                                <span class="value">{{ displayNodeInfo.type }}</span>
                             </div>
                             <div class="tag-cloud">
-                                <span v-for="tag in selectedNodeInfo.tags" :key="tag" class="tag-chip">
+                                <span v-for="tag in displayNodeInfo.tags" :key="tag" class="tag-chip">
                                     # {{ tag }}
                                 </span>
                             </div>
                         </div>
-
-                        <p>顯示目前選取的星球資訊 (文章標題 內容摘要 日期 標籤 分類等)</p>
                     </HudPanel>
 
-                    <HudPanel title="test hudpanel" icon="bookmark_stacks" side="left">
+                    <HudPanel v-if="displayNodeInfo.isLocked" title="NAVIGATION" icon="ads_click" side="left">
                         <div class="btn-box">
-
+                             <button @click="navigateHandler(displayNodeInfo.url)" class="btn-primary">
+                                JUMP TO ORIGIN
+                            </button>
+                            <button @click="resetSystem" class="hud-btn">
+                                RELEASE TARGET
+                            </button>
                         </div>
-                        <p>針對選許的星球做操作 Zoom 過去 或者是蟲洞跳躍過去(跳轉頁面)</p>
-                    </HudPanel>
-
-                    <HudPanel title="test hudpanel" icon="bookmark_stacks" side="left">
-                        <p>這是內嵌在 GalaxyBack.vue 裡的 HudPanel 組件</p>
-                        <p>你可以在這裡放任何內容，甚至再套一層 HudPanel！</p>
-                        <p>這邊要幹嘛還沒有想法</p>
                     </HudPanel>
                 </aside>
 
-
-
                 <aside class="aside right-panel">
-                    <HudPanel title="SYSTEM STATUS" icon="bookmark_stacks" side="right">
+
+                    <HudPanel
+                        v-if="displayNodeInfo.isLocked && displayNodeInfo.type === '文章行星'"
+                        title="RELATED SYSTEMS"
+                        icon="hub"
+                        side="right"
+                    >
                         <div class="panel-content">
-                            <div class="status-item">
-                                <div class="label">SITEMAP PRIORITY</div>
-                                <div class="bar-container"><div class="bar" style="width: 80%"></div></div>
-                            </div>
-                            <div class="action-list">
-                                <button @click="navigateHandler(selectedNodeInfo.url)" class="btn-primary">
-                                    JUMP TO ORIGIN
-                                </button>
+                            <p class="text-tiny">DETECTED GRAVITATIONAL LINKS:</p>
+                            <div v-for="tag in relatedTagsInfo" :key="tag.name" class="status-item">
+                                <div class="label">{{ tag.name }}</div>
+                                <div class="value">{{ tag.count }} NODES</div>
+                                <div class="bar-container">
+                                    <div class="bar" :style="{ width: Math.min(tag.count * 10, 100) + '%' }"></div>
+                                </div>
                             </div>
                         </div>
-                        <p>目前選取的星球的 全部 tag 資料(全部會不會太多? (</p>
                     </HudPanel>
 
-                    <HudPanel title="SYSTEM STATUS" icon="bookmark_stacks" side="right">
-                        <p>最主要的星系(引力最強? 文章最多? 的其他星球列表 點選會切換過去)</p>
-                    </HudPanel>
-
-                    <HudPanel title="SYSTEM STATUS" icon="bookmark_stacks" side="right">
-                        <p>電池電量個的條狀堆疊 每個堆疊都代表一個 tag 一個能量格代表一個文章</p>
+                    <HudPanel title="SITEMAP ANALYTICS" icon="leaderboard" side="right">
+                        <div class="panel-content">
+                            <div class="status-item">
+                                <div class="label">VISIBILITY PRIORITY</div>
+                                <div class="bar-container">
+                                    <div class="bar" :style="{ width: displayNodeInfo.isLocked ? '95%' : '20%' }"></div>
+                                </div>
+                            </div>
+                        </div>
                     </HudPanel>
                 </aside>
             </div>
@@ -210,14 +283,43 @@
                 <div class="scanner-line"></div>
                 {{ isHudVisible ? 'TERMINAL ON' : 'TERMINAL OFF' }}
             </button>
-
-            <button class="hud-toggle-btn" @click="resetCamera"> <div class="scanner-line"></div>[ RESET_VIEW ] </button>
-            <button class="hud-toggle-btn" :disabled="!lastActiveNode" @click="zoomToActive" ><div class="scanner-line"></div> [ RE-FOCUS ] </button>
+            <button class="hud-toggle-btn" @click="resetSystem">
+                <div class="scanner-line"></div>[ RESET_VIEW ]
+            </button>
+            <button class="hud-toggle-btn" :disabled="!lockedTarget" @click="zoomToActive">
+                <div class="scanner-line"></div> [ RE-FOCUS ]
+            </button>
         </div>
+
+        <HudCursor :isHovering="isCursorHovering" :targetVal="cursorScaleTarget" />
     </div>
 </template>
 
 <style lang="scss">
+/* 保持你的 SCSS 設定，增加 locked 樣式 */
+.status-locked {
+    background: linear-gradient(90deg, rgb(0, 240, 255, 10%) 0%, transparent 100%);
+    padding-left: 10px;
+    border-left: 2px solid #00f0ff;
+}
+.text-tiny {
+    margin-bottom: 5px;
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+</style>
+
+<style lang="scss">
+    /* 全局隱藏滑鼠，因為我們要用自訂的 */
+    body {
+        background-color: #000; // 確保背景黑，Screen 混合模式才好看
+        cursor: none;
+    }
+
+    // /* 確保連結或其他元素 hover 時也不會跑出系統滑鼠 */
+    a, button, canvas {
+        cursor: none !important;
+    }
 
     .galaxy-wrapper {
         position: fixed;

@@ -1,298 +1,377 @@
 <script setup lang="ts">
-    import { ref, watch, onUnmounted, shallowRef } from 'vue';
-    import { useLoop, useTresContext } from '@tresjs/core';
-    import { Html } from '@tresjs/cientos';
-    import * as THREE from 'three';
-    import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide } from 'd3-force-3d';
-    import gsap from 'gsap';
+import { ref, watch, onUnmounted, shallowRef, computed } from 'vue';
+import { useLoop, useTresContext } from '@tresjs/core';
+import { Html } from '@tresjs/cientos';
+import * as THREE from 'three';
+import {
+    AdditiveBlending,
+    Vector3,
+    BufferGeometry,
+    BufferAttribute
+} from 'three';
+import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide } from 'd3-force-3d';
+import gsap from 'gsap';
 
-    const { camera, controls } = useTresContext();
+// --- 常數定義 ---
+const COLORS = {
+    STAR: '#FDB813',
+    PLANET: '#00f0ff',
+    LINK: '#ffffff',
+    HOVER: '#ffffff',
+    DIMMED: '#333333' // 被過濾掉的顏色
+};
 
-    const props = defineProps<{ siteData: any }>();
-    const emit = defineEmits<{
-        (e: 'node-click', url: string): void,
-        (e: 'node-hover', node: any | null): void // 新增 hover emit
-    }>();
+const props = defineProps<{
+    siteData: any;
+    lockedId: string | null;
+    relatedNodeIds: Set<string>; // 接收從父層算好的關聯 Set
+}>();
 
-    // --- 顏色設定 ---
-    const COLOR_STAR = '#FDB813';
-    const COLOR_PLANET = '#00f0ff';
-    const COLOR_LINK = '#ffffff';
+const emit = defineEmits<{
+    (e: 'node-click', node: any): void,
+    (e: 'node-hover', node: any | null): void
+}>();
 
-    const nodes = shallowRef<any[]>([]);
-    const links = shallowRef<any[]>([]);
-    let simulation: any = null;
+const { camera, controls } = useTresContext();
 
-    const nodeMeshes = new Map<string, THREE.Mesh>();
-    const lineGeometryRef = ref<THREE.BufferGeometry>();
-    const galaxyGroupRef = ref<THREE.Group>();
+// --- 響應式狀態 ---
+const nodes = shallowRef<any[]>([]);
+const links = shallowRef<any[]>([]);
+const hoveredNodeId = ref<string | null>(null);
 
-    // --- 焦點控制 ---
-    const hoveredNodeId = ref<string | null>(null);
-    const focusedNodeId = ref<string | null>(null);
+// --- Three.js 物件引用 ---
+const galaxyGroupRef = ref<THREE.Group>();
+const lineGeometryRef = ref<THREE.BufferGeometry>();
+const nodeMeshes = new Map<string, THREE.Mesh>();
+const starParticlesGeometry = ref<THREE.BufferGeometry>(); // [FX] 粒子幾何
 
-    // focus
-    const focusOnNode = (node: any) => {
-        // 安全性檢查
-        if (!node || typeof node.x !== 'number') {
-            console.warn('Invalid node for focus:', node);
-            return;
-        }
+let simulation: any = null;
 
-        // 確保 controls 和 camera 存在
-        if (!controls.value || !camera) return;
+// #region [P] 核心：視覺狀態計算 (Visual State Logic)
+const isSystemLocked = computed(() => !!props.lockedId);
 
-        // 1. 暫時禁用控制器，避免用戶在飛行時拖曳導致錯亂
-        controls.value.enabled = false;
+// 判斷節點是否應該「亮起來」
+const isNodeActive = (nodeId: string) => {
+    // 1. 如果系統沒鎖定，大家都是亮的
+    if (!isSystemLocked.value) return true;
+    // 2. 如果是鎖定目標，亮
+    if (nodeId === props.lockedId) return true;
+    // 3. 如果在關聯名單內，亮
+    if (props.relatedNodeIds.has(nodeId)) return true;
 
-        // 2. 計算目標位置 (保持一定距離)
-        const offsetDistance = 20; // 距離星球多遠
-        const targetPos = new THREE.Vector3(node.x, node.y, node.z);
+    return false; // 其他都暗掉
+};
 
-        // 相機新位置：簡單起見，我們往 Z 軸方向退，或者基於目前相機向量逼近
-        // 這裡使用固定偏移，你也可以計算 normalized vector
-        const camEndPos = {
-            x: node.x + 10,
-            y: node.y + 5,
-            z: node.z + 10
-        };
+const getNodeOpacity = (nodeId: string) => {
+    return isNodeActive(nodeId) ? 1.0 : 0.1;
+};
 
-        // 3. GSAP Timeline 同步動畫
-        const tl = gsap.timeline({
-            onUpdate: () => {
-                // 重要：每一幀都要告訴 OrbitControls 更新，不然畫面會跳動
-                controls.value?.update();
-            },
-            onComplete: () => {
-                // 動畫結束，交還控制權
-                if (controls.value) {
-                    controls.value.enabled = true;
-                    // 強制將 target 鎖定在星球中心
-                    controls.value.target.copy(targetPos);
-                }
+const getNodeColor = (node: any) => {
+    // 如果被 Hover，優先反白
+    if (hoveredNodeId.value === node.id) return COLORS.HOVER;
+
+    if (node.type === 'star') return COLORS.STAR;
+    return COLORS.PLANET;
+};
+
+const getNodeEmissiveIntensity = (node: any) => {
+    if (hoveredNodeId.value === node.id) return 2.0;
+    if (props.lockedId === node.id) return 1.5; // 鎖定目標特別亮
+    if (!isNodeActive(node.id)) return 0; // 暗掉的沒自發光
+    return 0.3;
+};
+// #endregion
+
+// #region [P] 互動事件處理
+const handlePointerEnter = (node: any) => {
+    hoveredNodeId.value = node.id;
+    emit('node-hover', node);
+};
+
+const handlePointerLeave = () => {
+    hoveredNodeId.value = null;
+    emit('node-hover', null);
+};
+
+const handleNodeClick = (event: any, node: any) => {
+    event.stopPropagation();
+    emit('node-click', node);
+};
+// #endregion
+
+// #region [P] 模擬與渲染
+const initGalaxy = () => {
+    if (!props.siteData) return;
+    cleanUpResources();
+
+    const _nodes: any[] = [];
+    const _links: any[] = [];
+    const tagNodeMap = new Map();
+
+    // 1. 恆星 (Tags)
+    props.siteData.tags.forEach((tagData: any, tagName: string) => {
+        const nodeId = `tag-${tagName}`;
+        _nodes.push({
+            id: nodeId, name: tagName, type: 'star',
+            val: Math.max(Math.sqrt(tagData.count) * 2, 4),
+            count: tagData.count, // 存起來做粒子特效用
+            x: Math.random() * 100 - 50, y: Math.random() * 100 - 50, z: Math.random() * 100 - 50
+        });
+        tagNodeMap.set(tagName, nodeId);
+    });
+
+    // 2. 行星 (Posts)
+    props.siteData.posts.forEach((post: any) => {
+        _nodes.push({
+            id: post.url, name: post.title, type: 'planet',
+            val: 1.2, tags: post.tags,
+            x: Math.random() * 100 - 50, y: Math.random() * 100 - 50, z: Math.random() * 100 - 50
+        });
+        post.tags.forEach(tag => {
+            if (tagNodeMap.has(tag)) {
+                _links.push({ source: post.url, target: tagNodeMap.get(tag) });
             }
         });
+    });
 
-        // 動畫：移動 Controls 的旋轉中心 (Target)
-        tl.to(controls.value.target, {
-            x: targetPos.x,
-            y: targetPos.y,
-            z: targetPos.z,
-            duration: 1.5,
-            ease: 'power3.inOut'
-        }, 0); // 在時間軸 0 秒開始
+    nodes.value = _nodes;
+    links.value = _links;
 
-        // 動畫：移動相機本身
-        tl.to(camera.position, {
-            x: camEndPos.x,
-            y: camEndPos.y,
-            z: camEndPos.z,
-            duration: 1.5,
-            ease: 'power3.inOut'
-        }, 0);
-    };
+    // 3. D3 Force
+    simulation = forceSimulation(_nodes, 3)
+        .force('charge', forceManyBody().strength(-60))
+        .force('link', forceLink(_links).id((d: any) => d.id).distance(45))
+        .force('collide', forceCollide().radius((d: any) => d.val + 8)) // 增加碰撞半徑避免重疊
+        .force('center', forceCenter());
 
-    // --- 初始化與預熱 ---
-    const initGalaxy = () => {
-        if (!props.siteData) return;
-        const _nodes: any[] = [];
-        const _links: any[] = [];
-        const tagNodeMap = new Map();
+    for (let i = 0; i < 120; i++) simulation.tick();
 
-        props.siteData.tags.forEach((tagData: any, tagName: string) => {
-            const nodeId = `tag-${tagName}`;
-            _nodes.push({
-                id: nodeId, name: tagName, type: 'star',
-                val: Math.max(Math.sqrt(tagData.count) * 2, 4),
-                color: COLOR_STAR, x: Math.random() * 100 - 50, y: Math.random() * 100 - 50, z: Math.random() * 100 - 50
-            });
-            tagNodeMap.set(tagName, nodeId);
-        });
+    // [FX] 初始化恆星粒子氛圍
+    initStarParticles(_nodes.filter(n => n.type === 'star'));
+};
 
-        props.siteData.posts.forEach((post: any) => {
-            const nodeId = post.url;
-            _nodes.push({
-                id: nodeId, name: post.title, type: 'planet',
-                val: 1.2, color: COLOR_PLANET, url: post.url,
-                x: Math.random() * 100 - 50, y: Math.random() * 100 - 50, z: Math.random() * 100 - 50
-            });
-            post.tags.forEach(tag => {
-                if (tagNodeMap.has(tag)) _links.push({ source: nodeId, target: tagNodeMap.get(tag) });
-            });
-        });
+// [FX] 簡單的粒子氛圍幾何生成
+const initStarParticles = (stars: any[]) => {
+    const particleCount = stars.length * 20; // 每個恆星配 20 個粒子
+    const positions = new Float32Array(particleCount * 3);
 
-        nodes.value = _nodes;
-        links.value = _links;
+    // 這裡只初始化 Buffer，位置會在 Render Loop 根據恆星位置更新
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    starParticlesGeometry.value = geometry;
+};
 
-        simulation = forceSimulation(_nodes, 3)
-            .force('charge', forceManyBody().strength(-60))
-            .force('link', forceLink(_links).id((d: any) => d.id).distance(45))
-            .force('center', forceCenter())
-            .force('collide', forceCollide().radius((d: any) => d.val + 4))
-            .stop();
+const cleanUpResources = () => {
+    simulation?.stop();
+    nodeMeshes.clear();
+    lineGeometryRef.value?.dispose();
+    starParticlesGeometry.value?.dispose();
+};
 
-        // 預熱運算 (消除剛載入時的劇烈晃動)
-        const preWarmTicks = 120;
-        for (let i = 0; i < preWarmTicks; i++) {
-            simulation.tick();
-        }
-        simulation.alpha(0.1).restart();
-    };
+const { onBeforeRender } = useLoop();
 
-    watch(() => props.siteData, (val) => val && initGalaxy(), { immediate: true });
+onBeforeRender(({ elapsed }) => {
+    if (!simulation) return;
+    simulation.tick();
 
-    // --- 渲染循環 ---
-    const { onBeforeRender } = useLoop();
+    // 背景自轉
+    if (galaxyGroupRef.value && !props.lockedId) {
+        galaxyGroupRef.value.rotation.y += 0.0003;
+    }
 
-    onBeforeRender(() => {
-        if (!simulation || nodes.value.length === 0) return;
+    // 更新 Mesh 位置
+    nodes.value.forEach(node => {
+        const mesh = nodeMeshes.get(node.id);
+        if (mesh) {
+            mesh.position.set(node.x, node.y, node.z);
 
-        simulation.tick();
-
-        // 自轉邏輯
-        if (galaxyGroupRef.value) {
-            if (!hoveredNodeId.value && !focusedNodeId.value) {
-                galaxyGroupRef.value.rotation.y += 0.0005;
-            }
-        }
-
-        // 更新 Mesh 位置
-        nodes.value.forEach(node => {
-            const mesh = nodeMeshes.get(node.id);
-            if (mesh && typeof node.x === 'number') {
-                mesh.position.set(node.x, node.y, node.z);
-                if (node.type === 'planet') {
-                    mesh.rotation.y += 0.01;
-                    mesh.rotation.x += 0.005;
-                }
-            }
-        });
-
-        // 更新連線 Buffer
-        if (lineGeometryRef.value && links.value.length > 0) {
-            const linePositions = new Float32Array(links.value.length * 6);
-            let hasValidData = false;
-            links.value.forEach((link, i) => {
-                if (link.source && link.target && typeof link.source.x === 'number') {
-                    linePositions[i * 6] = link.source.x;
-                    linePositions[i * 6 + 1] = link.source.y;
-                    linePositions[i * 6 + 2] = link.source.z;
-                    linePositions[i * 6 + 3] = link.target.x;
-                    linePositions[i * 6 + 4] = link.target.y;
-                    linePositions[i * 6 + 5] = link.target.z;
-                    hasValidData = true;
-                }
-            });
-            if (hasValidData) {
-                lineGeometryRef.value.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
-                lineGeometryRef.value.attributes.position.needsUpdate = true;
-                lineGeometryRef.value.computeBoundingSphere();
+            // [FX] 行星自轉
+            if (node.type === 'planet') {
+                mesh.rotation.y += 0.02;
+                mesh.rotation.x += 0.01;
+            } else {
+                // [FX] 恆星光環緩慢旋轉
+                mesh.rotation.z -= 0.005;
+                mesh.rotation.x += 0.002;
             }
         }
     });
 
-    // --- 互動控制 ---
-    const onNodeClick = (node: any) => {
-        // console.log('Click detected on:', node.name); // 加個 log 確認是否有觸發
-        // emit('node-click', node.url);
+    // [FX] 更新粒子氛圍 (跟隨恆星)
+    // 這裡做一個簡單的視覺效果：粒子在恆星周圍飄浮
+    if (starParticlesGeometry.value) {
+        const positions = starParticlesGeometry.value.attributes.position.array as Float32Array;
+        let pIndex = 0;
+        nodes.value.filter(n => n.type === 'star').forEach((star, sIndex) => {
+            const mesh = nodeMeshes.get(star.id);
+            if (!mesh) return;
 
-        // 傳回父層更新 HUD
-        emit('node-hover', node);
+            // 每個恆星分配 20 顆粒子
+            for(let i=0; i<20; i++) {
+                const time = elapsed + sIndex + i;
+                const radius = star.val * 1.5 + Math.sin(time * 2) * 2;
+                const angle = i * 0.5 + time * 0.5;
 
-        // 如果有 node 且 controls 已經準備好，就飛行
-        if (node && controls.value) {
-            focusOnNode(node);
-        }
-    }
-
-    // 解決 Template 找不到 document 的問題：搬回 script 處理
-    const setFocus = (node: any | null) => {
-        const { id } = node || {};
-
-        hoveredNodeId.value = id;
-        if (typeof document !== 'undefined') {
-            document.body.style.cursor = id ? 'pointer' : 'auto';
-        }
-    };
-
-    const onKeyFocus = (id: string) => {
-        focusedNodeId.value = id;
-
-        setFocus(id);
-    };
-
-    const onKeyBlur = () => {
-        focusedNodeId.value = null;
-        setFocus(null);
-    };
-
-    onUnmounted(() => simulation?.stop());
-
-    function resetView () {
-        if (!controls.value || !camera.value) return;
-
-        controls.value.enabled = false;
-
-        gsap.to(controls.value.target, { x: 0, y: 0, z: 0, duration: 1.5, ease: 'power3.inOut' });
-        gsap.to(camera.value.position, {
-            x: 100, y: 50, z: 100, duration: 1.5, ease: 'power3.inOut',
-            onUpdate: () => controls.value.update(),
-            onComplete: () => {
-                if (controls.value) controls.value.enabled = true;
+                positions[pIndex++] = mesh.position.x + Math.cos(angle) * radius;
+                positions[pIndex++] = mesh.position.y + Math.sin(angle * Math.cos(time)) * radius; // 增加一些 3D 擾動
+                positions[pIndex++] = mesh.position.z + Math.sin(angle) * radius;
             }
         });
+        starParticlesGeometry.value.attributes.position.needsUpdate = true;
     }
 
-    // 暴露給父層使用
-    defineExpose({
-        focusOnNode,
-        resetView
+    // 更新連線 Buffer
+    if (lineGeometryRef.value && simulation.alpha() > 0.01) {
+        const linePositions = new Float32Array(links.value.length * 6);
+        let idx = 0;
+        links.value.forEach((link) => {
+            linePositions[idx++] = link.source.x;
+            linePositions[idx++] = link.source.y;
+            linePositions[idx++] = link.source.z;
+            linePositions[idx++] = link.target.x;
+            linePositions[idx++] = link.target.y;
+            linePositions[idx++] = link.target.z;
+        });
+        lineGeometryRef.value.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+        lineGeometryRef.value.attributes.position.needsUpdate = true;
+    }
+});
+// #endregion
+
+// #region [P] 二階貝茲曲線相機飛行 (Quadratic Bezier Camera)
+const focusOnNode = (node: any) => {
+    if (!controls.value || !camera) return;
+
+    // 1. 計算起點、終點
+    const startPos = camera.position.clone();
+    const endPos = new THREE.Vector3(node.x + 15, node.y + 10, node.z + 15);
+    const targetLookAt = new THREE.Vector3(node.x, node.y, node.z);
+
+    // 2. 計算貝茲控制點 (Control Point)：取中點並往上(Y軸)拉高，形成弧度
+    // 使用 lerp 取得中點
+    const midPoint = new THREE.Vector3().lerpVectors(startPos, endPos, 0.5);
+    // 根據距離決定拉高多少，距離越遠飛越高
+    const dist = startPos.distanceTo(endPos);
+    const controlPoint = midPoint.add(new THREE.Vector3(0, dist * 0.5, 0));
+
+    controls.value.enabled = false;
+
+    // 3. GSAP 自定義 Tween
+    const tweenObj = { t: 0 };
+
+    gsap.to(tweenObj, {
+        t: 1,
+        duration: 2.0, // 飛慢一點比較有感
+        ease: "power2.inOut",
+        onUpdate: () => {
+            const t = tweenObj.t;
+            const oneMinusT = 1 - t;
+
+            // Quadratic Bezier Formula: (1-t)^2 * P0 + 2(1-t)t * P1 + t^2 * P2
+            camera.position.x = (oneMinusT * oneMinusT * startPos.x) + (2 * oneMinusT * t * controlPoint.x) + (t * t * endPos.x);
+            camera.position.y = (oneMinusT * oneMinusT * startPos.y) + (2 * oneMinusT * t * controlPoint.y) + (t * t * endPos.y);
+            camera.position.z = (oneMinusT * oneMinusT * startPos.z) + (2 * oneMinusT * t * controlPoint.z) + (t * t * endPos.z);
+
+            // 讓視角中心 (Target) 平滑移動到目標星球
+            controls.value.target.lerp(targetLookAt, 0.1);
+            controls.value.update();
+        },
+        onComplete: () => {
+            if (controls.value) {
+                controls.value.enabled = true;
+                // 確保最後精準對齊
+                controls.value.target.copy(targetLookAt);
+            }
+        }
     });
+};
+
+const resetView = () => {
+    if (!controls.value || !camera) return;
+    gsap.to(controls.value.target, { x: 0, y: 0, z: 0, duration: 1.5, ease: "power2.inOut" });
+    gsap.to(camera.position, {
+        x: 100, y: 50, z: 100,
+        duration: 1.5,
+        ease: "power2.inOut",
+        onUpdate: () => controls.value.update()
+    });
+};
+// #endregion
+
+watch(() => props.siteData, initGalaxy, { immediate: true });
+onUnmounted(cleanUpResources);
+defineExpose({ focusOnNode, resetView });
 </script>
 
 <template>
     <TresGroup ref="galaxyGroupRef">
         <TresLineSegments v-if="links.length > 0">
             <TresBufferGeometry ref="lineGeometryRef" />
-            <TresLineBasicMaterial :color="COLOR_LINK" :transparent="true" :opacity="0.08" />
+            <TresLineBasicMaterial
+                :color="COLORS.LINK"
+                :transparent="true"
+                :opacity="isSystemLocked ? 0.05 : 0.15"
+                :depth-write="false"
+            />
         </TresLineSegments>
+
+        <TresPoints
+            v-if="starParticlesGeometry"
+            :geometry="starParticlesGeometry"
+        >
+            <TresPointsMaterial
+                :size="0.5"
+                :color="COLORS.STAR"
+                :transparent="true"
+                :opacity="isSystemLocked ? 0.2 : 0.6"
+                :size-attenuation="true"
+                :depth-write="false"
+                :blending="AdditiveBlending"
+            />
+        </TresPoints>
 
         <template v-for="node in nodes" :key="node.id">
             <TresMesh
                 :ref="(el: any) => { if(el) nodeMeshes.set(node.id, el) }"
-                @pointerenter="setFocus(node)"
-                @pointerleave="setFocus(null)"
-                @click="(e) => { e.stopPropagation(); onNodeClick(node); }"
+                @pointer-enter="handlePointerEnter(node)"
+                @pointer-leave="handlePointerLeave"
+                @click="(e) => handleNodeClick(e, node)"
             >
-                <TresSphereGeometry :args="[node.val, 20, 20]" />
+                <TresSphereGeometry :args="[node.val, 32, 32]" />
 
-                <!-- 球體 -->
-                <TresMeshBasicMaterial v-if="node.type === 'star'" :color="COLOR_STAR" :tone-mapped="false" />
                 <TresMeshStandardMaterial
-                    v-else
-                    :color="hoveredNodeId === node.id ? '#ffffff' : COLOR_PLANET"
+                    :color="getNodeColor(node)"
+                    :transparent="true"
+                    :opacity="getNodeOpacity(node.id)"
+                    :emissive="getNodeColor(node)"
+                    :emissive-intensity="getNodeEmissiveIntensity(node)"
+                    :roughness="0.4"
                     :metalness="0.8"
-                    :emissive="COLOR_PLANET"
-                    :emissive-intensity="hoveredNodeId === node.id ? 2 : 0.2"
                 />
 
-                <!-- HUD -->
+                <TresMesh v-if="node.type === 'star' || (node.type === 'planet' && isNodeActive(node.id))">
+                    <TresRingGeometry :args="[node.val * 1.4, node.val * 1.5, 32]" />
+                    <TresMeshBasicMaterial
+                        :color="node.type === 'star' ? COLORS.STAR : COLORS.PLANET"
+                        side="DoubleSide"
+                        :transparent="true"
+                        :opacity="isNodeActive(node.id) ? 0.5 : 0.05"
+                        :blending="AdditiveBlending"
+                    />
+                </TresMesh>
+
                 <Html
-                    :position="[0, 0, 0]"
+                    v-if="getNodeOpacity(node.id) > 0.5"
                     center
                     transform
                     sprite
                     :distance-factor="15"
-                    :occlude="false"
-                    :raycast="() => null"
                     wrapper-class="no-pointer-events"
                 >
                     <div
                         class="hud-container"
-                        :style="{ '--size': `${node.val * 25}px` }"
-                        style="pointer-events: none;"
                         :class="{
-                            'is-hovered': hoveredNodeId === node.id || focusedNodeId === node.id,
+                            'is-hovered': hoveredNodeId === node.id || props.lockedId === node.id,
                             'is-star': node.type === 'star'
                         }"
                     >
@@ -302,32 +381,11 @@
                             <div class="corner bottom-left"></div>
                             <div class="corner bottom-right"></div>
                         </div>
-
-                        <div class="label-text">
-                            {{ node.name }}
-                        </div>
+                        <div class="label-text">{{ node.name }}</div>
                     </div>
                 </Html>
             </TresMesh>
         </template>
-
-        <Html
-            :position="[0,0,0]"
-            :style="{ opacity: 0, pointerEvents: 'none', width: '0px', height: '0px', overflow: 'hidden' }"
-        >
-            <ul class="a11y-list">
-                <li v-for="node in nodes" :key="'a11y-'+node.id">
-                    <button
-                        @focus="onKeyFocus(node.id)"
-                        @blur="onKeyBlur()"
-                        @click="onNodeClick(node)"
-                        @keydown.enter="onNodeClick(node)"
-                    >
-                        {{ node.name }}
-                    </button>
-                </li>
-            </ul>
-        </Html>
     </TresGroup>
 </template>
 
