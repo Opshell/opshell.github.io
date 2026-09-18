@@ -1,5 +1,5 @@
-// [-] 報名封閉測試的信箱。上線前換成專用信箱（example.com 是保留網域，寄不出去）
-export const CONTACT_EMAIL = 'your-email@example.com';
+// [-] App 專用的聯絡信箱，和 App 的隱私權政策、問題回報頁是同一個（DinDon_Android 的 strings.xml report_email）
+export const CONTACT_EMAIL = 'dindon.ledger@gmail.com';
 
 // 報名信的範本：Play Console 加測試者要的是對方 Play 商店登入的那個 Gmail
 const SIGNUP_SUBJECT = '報名叮咚記帳封閉測試';
