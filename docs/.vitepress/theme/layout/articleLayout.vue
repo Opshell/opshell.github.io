@@ -3,7 +3,7 @@
     import { useData } from 'vitepress';
     import { useSiteData } from '@hooks/useSiteData';
 
-    import { useScroll } from '@vueuse/core';
+    import { defaultWindow, useScroll } from '@vueuse/core';
 
     // 深度引入 VitePress 原生導航與頁尾 (這是合法的黑魔法)
     import VPNav from 'vitepress/dist/client/theme-default/components/VPNav.vue';
@@ -41,7 +41,9 @@
     // #region [P] 捲動監測 左右欄 模糊判斷
 
     // --- Scroll & Focus Logic ---
-    const { y } = useScroll(window); // 監聽視窗捲動 Y 軸
+    // 監聽視窗捲動 Y 軸。不能直接寫 window：SSR 沒有 window，setup 一丟錯整篇文章的 HTML 就是空的
+    // defaultWindow 在瀏覽器是 window、在 SSR 是 undefined（useScroll 會安靜地不監聽）
+    const { y } = useScroll(defaultWindow);
 
     // 定義「閱讀模式」觸發條件
     // 例如：捲動超過 200px (大概是 Banner 離開視線後)
