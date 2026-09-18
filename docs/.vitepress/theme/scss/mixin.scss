@@ -1,3 +1,5 @@
+@use 'sass:map'; // useBreakPoint 的 map.get 要用
+
 // 預設文字樣式
 %baseFont {
     fill: var(--color-primary-1);

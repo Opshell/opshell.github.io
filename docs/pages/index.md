@@ -21,7 +21,7 @@ hero:
       link: /timeline
     - theme: alt
       text: ✨️ Vitepress Thirty Days
-      link: /vitepress-thirty-days
+      link: /article/code-sea/vitepress/2024鐵人賽/day01-preface
     - theme: alt
       text: Design system
       link: /design-system

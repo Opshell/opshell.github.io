@@ -12,8 +12,6 @@
     const { Layout } = DefaultTheme;
 
     // Data Hooks
-    const aa = useData();
-    console.log(aa);
     const { frontmatter, page, isDark } = useData();
     const siteData = useSiteData();
 

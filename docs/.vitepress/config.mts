@@ -78,6 +78,8 @@ export default defineConfig({
     rewrites: { // 我们在nav設定的連結應該要是重寫後的路徑
         'pages/(.*)': '(.*)'
     },
+    // features/ 裡的 md 是元件的開發說明，不是頁面；不排除的話 sitemap 會照 pages/ 的路徑去找它而 ENOENT
+    srcExclude: ['features/**/*.md'],
     themeConfig: {
         siteData,
         // siteTitle: 'Opshell\'s Blog',
