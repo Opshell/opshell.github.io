@@ -20,6 +20,9 @@ hero:
       text: Timeline
       link: /timeline
     - theme: alt
+      text: ✨️ DinDon 記帳 ✨️
+      link: /dindon/
+    - theme: alt
       text: ✨️ Vitepress Thirty Days
       link: /article/code-sea/vitepress/2024鐵人賽/day01-preface
     - theme: alt

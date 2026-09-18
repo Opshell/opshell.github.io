@@ -60,8 +60,25 @@ export default [
                 link: '/article/portfolio/competition/'
             },
             {
-                text: 'Side Project',
-                link: '/article/portfolio/side-project/'
+                text: 'Side Projects',
+                items: [
+                    {
+                        text: 'Blog Design System',
+                        link: '/design-system'
+                    },
+                    {
+                        text: '3D Galaxy Posts',
+                        link: '/galaxy-posts'
+                    },
+                    {
+                        text: 'Flosker',
+                        link: '/flosker'
+                    },
+                    {
+                        text: 'DinDon 記帳',
+                        link: '/dindon/' // 頁面是 dindon/index.md，沒開 cleanUrls，少了結尾斜線會 404
+                    }
+                ]
             },
             {
                 text: 'photography',
