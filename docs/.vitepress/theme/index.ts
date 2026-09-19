@@ -19,7 +19,11 @@ import './scss/style.scss';
 // [-]Svg Icon引用
 import 'virtual:svg-icons-register';
 
-function reloadBusuanzi() {
+// 這些頁面不載入第三方的計數腳本：後台拿著管理員的登入憑證，不讓外部腳本跑在同一頁。
+// 直接打開後台網址時完全不會載入；從別頁點進來的話，前一頁已經執行過的腳本卸不掉，只能不再重新載入。
+const NO_THIRD_PARTY_PATHS = ['/dindon/dashboard/'];
+
+function reloadBusuanzi(path: string) {
     const busuanziScriptId = 'busuanzi-script';
 
     // Remove the existing script if it exists
@@ -27,6 +31,8 @@ function reloadBusuanzi() {
     if (existingScript) {
         existingScript.remove();
     }
+
+    if (NO_THIRD_PARTY_PATHS.some(prefix => path.startsWith(prefix))) return;
 
     // Create a new script element
     const script = document.createElement('script');
@@ -50,12 +56,12 @@ export default {
 
         onMounted(async () => {
             initZoom();
-            reloadBusuanzi();
+            reloadBusuanzi(route.path);
         });
         watch(() => route.path, () => {
             void nextTick(() => {
                 initZoom();
-                reloadBusuanzi();
+                reloadBusuanzi(route.path);
             });
         });
     },
