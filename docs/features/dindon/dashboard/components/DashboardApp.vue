@@ -2,13 +2,20 @@
     import { nextTick, onMounted, ref, watch } from 'vue';
     import { useGoogleAuth } from '../useGoogleAuth';
     import DeviceManager from './DeviceManager.vue';
+    import OverviewPanel from './OverviewPanel.vue';
     import UsageReport from './UsageReport.vue';
 
     const auth = useGoogleAuth();
     const { isSignedIn, profile, expired, loadError } = auth;
 
-    type Tab = 'devices' | 'usage';
-    const tab = ref<Tab>('devices');
+    // 分頁記在網址的 # 後面，重新整理會停在同一頁；總覽是預設，不帶 #
+    const TABS = [
+        { key: 'overview', label: '總覽' },
+        { key: 'devices', label: '裝置' },
+        { key: 'usage', label: '用量報表' }
+    ] as const;
+    type Tab = typeof TABS[number]['key'];
+    const tab = ref<Tab>('overview');
     const buttonEl = ref<HTMLElement>();
 
     // 被別的頁面用 iframe 嵌進來時什麼都不做。後台跟部落格同一個來源，別頁的第三方腳本
@@ -17,7 +24,7 @@
 
     function selectTab(next: Tab) {
         tab.value = next;
-        history.replaceState(null, '', next === 'devices' ? location.pathname + location.search : '#usage');
+        history.replaceState(null, '', next === 'overview' ? location.pathname + location.search : `#${next}`);
     }
 
     // 登出或過期時，登入按鈕要重新畫出來
@@ -32,7 +39,8 @@
             framed.value = true;
             return;
         }
-        if (location.hash === '#usage') tab.value = 'usage';
+        const fromHash = TABS.find(t => `#${t.key}` === location.hash);
+        if (fromHash) tab.value = fromHash.key;
         if (buttonEl.value) auth.renderButton(buttonEl.value);
     });
 </script>
@@ -71,32 +79,29 @@
         <template v-else>
             <nav class="dd-admin__tabs" role="tablist" aria-label="後台分頁">
                 <button
+                    v-for="t in TABS"
+                    :key="t.key"
                     type="button"
                     role="tab"
-                    :aria-selected="tab === 'devices'"
-                    :class="{ 'is-active': tab === 'devices' }"
-                    @click="selectTab('devices')"
+                    :aria-selected="tab === t.key"
+                    :class="{ 'is-active': tab === t.key }"
+                    @click="selectTab(t.key)"
                 >
-                    裝置
-                </button>
-                <button
-                    type="button"
-                    role="tab"
-                    :aria-selected="tab === 'usage'"
-                    :class="{ 'is-active': tab === 'usage' }"
-                    @click="selectTab('usage')"
-                >
-                    用量報表
+                    {{ t.label }}
                 </button>
             </nav>
 
-            <DeviceManager v-if="tab === 'devices'" />
+            <OverviewPanel v-if="tab === 'overview'" />
+            <DeviceManager v-else-if="tab === 'devices'" />
             <UsageReport v-else />
         </template>
     </div>
 </template>
 
 <style lang="scss">
+    // 這個網站的 body 是黑底，只有文章版型自己鋪了背景；page 版型要自己補，不然淺色模式是黑底深字
+    .Layout.dindon-dashboard { background: var(--vp-c-bg); }
+
     // 後台沿用網站的 VitePress 色彩變數，跟著網站的淺色／深色切換
     .dd-admin {
         max-width: 1280px;
