@@ -1,6 +1,17 @@
 <script setup lang="ts">
     import { ref } from 'vue';
-    import { betaSteps, CONTACT_EMAIL, features, privacyPoints, SIGNUP_HREF } from '../constants';
+    import {
+        BETA_SEATS,
+        betaRewards,
+        betaSteps,
+        CONTACT_EMAIL,
+        invoicePains,
+        lazyPoints,
+        photoSources,
+        PRIVACY_PATH,
+        SIGNUP_HREF,
+        withoutNotice
+    } from '../constants';
     import { useLandingMotion } from '../hooks/useLandingMotion';
     import DinDonBell from './DinDonBell.vue';
 
@@ -12,7 +23,7 @@
 
 <template>
     <div ref="rootRef" class="dindon-landing">
-        <!-- #region [P] hero -->
+        <!-- #region [P] hero：付完錢，就等於記完帳 -->
         <section class="dindon-landing__hero">
             <!-- 背景的平面圓塊，速度不同做出景深 -->
             <span class="dindon-landing__deco is-a" data-parallax=".35" data-parallax-scroll aria-hidden="true"></span>
@@ -29,16 +40,16 @@
                         </div>
                     </div>
 
-                    <h1 class="dindon-landing__headline">付款的那一刻，<br />帳就記好了。</h1>
+                    <h1 class="dindon-landing__headline">付完錢，<br />就等於記完帳。</h1>
                     <p class="dindon-landing__lead">
-                        叮咚記帳會讀銀行與行動支付的付款通知，自動記下金額和店家。沒有通知的消費，拍一張收據、或說一句話就好。
+                        挑戰無腦記帳的極限。付款通知一跳出來，通知小精靈就幫你記好、分好類——你連 App 都不用打開。
                     </p>
 
                     <div class="dindon-landing__actions">
                         <a class="dindon-landing__btn is-primary" :href="SIGNUP_HREF">加入封閉測試<span class="arrow" aria-hidden="true">→</span></a>
-                        <a class="dindon-landing__btn" href="#features">看看能做什麼<span class="arrow is-down" aria-hidden="true">↓</span></a>
+                        <a class="dindon-landing__btn" href="#why">看看怎麼做到<span class="arrow is-down" aria-hidden="true">↓</span></a>
                     </div>
-                    <p class="dindon-landing__note">Android 7.0 以上 · 封閉測試招募中 · 即將在 Google Play 上架</p>
+                    <p class="dindon-landing__note">僅限 Android 7.0 以上 · 封測限額 {{ BETA_SEATS }} 名 · 即將在 Google Play 上架</p>
                 </div>
 
                 <div class="dindon-landing__hero-shot">
@@ -53,7 +64,7 @@
                         <div class="dindon-landing__chip is-notify" data-parallax="-.08" data-parallax-scroll aria-hidden="true">
                             <span class="chip-icon">💳</span>
                             <span>
-                                <span class="chip-title">刷卡消費 NT$85</span>
+                                <span class="chip-title">刷卡消費 NT$120</span>
                                 <span class="chip-text">全家便利商店 · 剛剛</span>
                             </span>
                         </div>
@@ -61,7 +72,7 @@
                             <span class="chip-icon">✓</span>
                             <span>
                                 <span class="chip-title">已自動記帳</span>
-                                <span class="chip-text">飲食 · 全家便利商店</span>
+                                <span class="chip-text">餐飲 · 全家便利商店</span>
                             </span>
                         </div>
                     </div>
@@ -70,92 +81,178 @@
         </section>
         <!-- #endregion -->
 
-        <!-- #region [P] features -->
-        <section id="features" class="dindon-landing__section">
+        <!-- #region [P] 電子發票的痛點 -->
+        <section id="why" class="dindon-landing__section">
             <div class="dindon-landing__container">
-                <h2 class="dindon-landing__title" data-reveal>記帳最難的是記得記</h2>
-                <p class="dindon-landing__subtitle" data-reveal :style="delay(1)">所以大部分的帳，叮咚記帳幫你記。</p>
+                <p class="dindon-landing__eyebrow" data-reveal>電子支付越來越普及，付完錢，本來就該等於記完帳</p>
+                <h2 class="dindon-landing__title" data-reveal :style="delay(1)">那不是有電子發票 App 了嗎？</h2>
+                <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">用過就知道，拿電子發票來記帳，卡在這幾個地方：</p>
 
-                <ul class="dindon-landing__features">
-                    <li
-                        v-for="(feature, index) in features"
-                        :key="feature.title"
-                        class="dindon-landing__card"
-                        data-reveal
-                        :style="delay(index, 70)"
-                    >
-                        <span class="feature-icon" aria-hidden="true">{{ feature.icon }}</span>
-                        <h3>{{ feature.title }}</h3>
-                        <p>{{ feature.text }}</p>
+                <ul class="dindon-landing__pains">
+                    <li v-for="(pain, index) in invoicePains" :key="pain.title" data-reveal :style="delay(index, 70)">
+                        <span class="pain-icon" aria-hidden="true">{{ pain.icon }}</span>
+                        <h3>{{ pain.title }}</h3>
+                        <p>{{ pain.text }}</p>
                     </li>
                 </ul>
 
-                <!-- 兩支手機一慢一快，捲動時錯開 -->
-                <div class="dindon-landing__gallery">
-                    <figure data-reveal data-parallax=".07">
-                        <div class="dindon-landing__phone">
-                            <img src="/images/dindon/stats.webp" alt="花費統計：本月各分類的圓餅圖與金額" loading="lazy" />
-                        </div>
-                        <figcaption>花費統計</figcaption>
-                    </figure>
-                    <figure data-reveal data-parallax="-.07" :style="delay(2)">
-                        <div class="dindon-landing__phone">
-                            <img src="/images/dindon/badges.webp" alt="徽章牆：封測紀念徽章與各種成就徽章" loading="lazy" />
-                        </div>
-                        <figcaption>徽章牆</figcaption>
-                    </figure>
+                <p class="dindon-landing__answer" data-reveal>
+                    <DinDonBell :size="44" class="bell" />
+                    <span>叮咚記帳看的是<strong>付款通知</strong>：通知跳出來的那一秒，帳就記好了。</span>
+                </p>
+            </div>
+        </section>
+        <!-- #endregion -->
+
+        <!-- #region [P] 就算沒有通知 -->
+        <section class="dindon-landing__section is-sunken">
+            <div class="dindon-landing__container">
+                <h2 class="dindon-landing__title" data-reveal>就算沒有通知</h2>
+                <p class="dindon-landing__subtitle" data-reveal :style="delay(1)">付現、沒發通知的消費，一樣不用打字。</p>
+
+                <ul class="dindon-landing__features">
+                    <li v-for="(item, index) in withoutNotice" :key="item.title" class="dindon-landing__card" data-reveal :style="delay(index, 70)">
+                        <span class="feature-icon" aria-hidden="true">{{ item.icon }}</span>
+                        <h3>{{ item.title }}</h3>
+                        <p>{{ item.text }}</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <!-- #endregion -->
+
+        <!-- #region [P] 拍照：挑戰隨手記帳的速度極限 -->
+        <section class="dindon-landing__section">
+            <div class="dindon-landing__container dindon-landing__split">
+                <div class="dindon-landing__split-copy">
+                    <p class="dindon-landing__eyebrow" data-reveal>挑戰隨手記帳的速度極限</p>
+                    <h2 class="dindon-landing__title" data-reveal :style="delay(1)">拍照記帳只能拍電子發票？</h2>
+                    <p class="dindon-landing__no" data-reveal :style="delay(2)">不。</p>
+
+                    <ul class="dindon-landing__sources" aria-label="拍照記帳能拍的東西">
+                        <li v-for="(source, index) in photoSources" :key="source" data-reveal :style="delay(index + 3, 70)">{{ source }}</li>
+                    </ul>
+
+                    <p class="dindon-landing__shutter" data-reveal>
+                        只要上面有資料，大約 5 秒，<strong>喀嚓</strong>，記完帳了。
+                    </p>
+                </div>
+
+                <div class="dindon-landing__phones">
+                    <div class="dindon-landing__phone is-back" data-parallax=".06">
+                        <img src="/images/dindon/photo.webp" alt="拍照記帳：AI 正在讀取收據" loading="lazy" />
+                    </div>
+                    <div class="dindon-landing__phone is-front" data-parallax="-.08">
+                        <img src="/images/dindon/items.webp" alt="拍照記帳的結果：店家、分類與每個品項的金額" loading="lazy" />
+                    </div>
                 </div>
             </div>
         </section>
         <!-- #endregion -->
 
-        <!-- #region [P] privacy -->
+        <!-- #region [P] 最懶人的記帳體驗（每一點都要和隱私權政策對得上） -->
         <section class="dindon-landing__section is-sunken">
-            <div class="dindon-landing__container">
-                <h2 class="dindon-landing__title" data-reveal>你的帳，留在你的手機</h2>
-                <ul class="dindon-landing__privacy">
-                    <li v-for="(point, index) in privacyPoints" :key="point" data-reveal :style="delay(index, 90)">{{ point }}</li>
-                </ul>
+            <div class="dindon-landing__container dindon-landing__split">
+                <div class="dindon-landing__split-copy">
+                    <h2 class="dindon-landing__title" data-reveal>最懶人的記帳體驗</h2>
+                    <p class="dindon-landing__subtitle" data-reveal :style="delay(1)">最舒適的用法，也是最放心的用法。</p>
+
+                    <ul class="dindon-landing__points">
+                        <li v-for="(point, index) in lazyPoints" :key="point.title" data-reveal :style="delay(index + 2, 80)">
+                            <h3><span aria-hidden="true">{{ point.icon }}</span>{{ point.title }}</h3>
+                            <p>{{ point.text }}</p>
+                        </li>
+                    </ul>
+
+                    <a class="dindon-landing__link" :href="PRIVACY_PATH" data-reveal>看完整的隱私權政策<span class="arrow" aria-hidden="true">→</span></a>
+                </div>
+
+                <figure class="dindon-landing__figure" data-reveal="right">
+                    <div class="dindon-landing__phone" data-parallax=".06">
+                        <img src="/images/dindon/stats.webp" alt="花費統計：本月各分類的圓餅圖與金額" loading="lazy" />
+                    </div>
+                    <figcaption>打開統計，直觀知道錢去哪了</figcaption>
+                </figure>
             </div>
         </section>
         <!-- #endregion -->
 
-        <!-- #region [P] beta -->
-        <section id="beta" class="dindon-landing__section">
+        <!-- #region [P] 有成就感的記帳 -->
+        <section class="dindon-landing__section">
+            <div class="dindon-landing__container dindon-landing__split is-reverse">
+                <div class="dindon-landing__split-copy">
+                    <h2 class="dindon-landing__title" data-reveal>有成就感的記帳</h2>
+                    <p class="dindon-landing__big" data-reveal :style="delay(1)">
+                        養成記帳習慣最好的方式，<br />就是<strong>幾乎沒有啟動門檻</strong>。
+                    </p>
+                    <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">
+                        付款自動記、拍一張、說一句——低到不用下決心。再加上 8 種成就徽章，每種都能從銅一路升到七彩，記帳也可以有點收集的樂趣。
+                    </p>
+                </div>
+
+                <figure class="dindon-landing__figure" data-reveal>
+                    <div class="dindon-landing__phone" data-parallax="-.06">
+                        <img src="/images/dindon/badges.webp" alt="徽章牆：勤勞記帳、天天打開等成就徽章" loading="lazy" />
+                    </div>
+                    <figcaption>徽章牆</figcaption>
+                </figure>
+            </div>
+        </section>
+        <!-- #endregion -->
+
+        <!-- #region [P] 封測招募 -->
+        <section id="beta" class="dindon-landing__section is-sunken">
             <div class="dindon-landing__container">
                 <div class="dindon-landing__beta">
                     <div class="beta-copy">
-                        <h2 class="dindon-landing__title" data-reveal>徵求 20 位封測夥伴</h2>
-                        <p class="dindon-landing__subtitle" data-reveal :style="delay(1)">
-                            Google Play 規定新 App 上架前，要先有 20 位測試者連續測試 14 天。你平常照樣花錢、照樣收通知，就是在幫叮咚記帳上架。
+                        <p class="dindon-landing__seats" data-reveal>
+                            <strong>限額 {{ BETA_SEATS }} 名</strong>
+                            <span>僅限 Android · 額滿為止</span>
+                        </p>
+                        <h2 class="dindon-landing__title" data-reveal :style="delay(1)">加入封閉測試</h2>
+                        <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">
+                            Google Play 規定新 App 上架前，要先經過一段封閉測試。你平常照樣花錢、照樣收通知，就是在幫叮咚記帳上架。
                         </p>
 
                         <ol class="dindon-landing__steps">
-                            <li v-for="(step, index) in betaSteps" :key="step" data-reveal :style="delay(index + 2, 90)">{{ step }}</li>
+                            <li v-for="(step, index) in betaSteps" :key="step" data-reveal :style="delay(index + 3, 90)">{{ step }}</li>
                         </ol>
 
-                        <a class="dindon-landing__btn is-primary" :href="SIGNUP_HREF" data-reveal :style="delay(5, 90)">寄信報名<span class="arrow" aria-hidden="true">→</span></a>
+                        <a class="dindon-landing__btn is-primary" :href="SIGNUP_HREF" data-reveal :style="delay(6, 90)">寄信報名<span class="arrow" aria-hidden="true">→</span></a>
                         <p class="dindon-landing__note">
                             需要：Android 7.0 以上的手機、一個 Google 帳號。報名信箱：<span class="email">{{ CONTACT_EMAIL }}</span>
                         </p>
                     </div>
 
-                    <ul class="dindon-landing__rewards">
-                        <li data-reveal="right" :style="delay(1, 120)">
-                            <span class="tag">封測紀念徽章</span>
-                            <h3>勇敢白老鼠</h3>
-                            <p>陪叮咚記帳一起踩雷、一起長大。封測期間所有功能免費用。</p>
-                        </li>
-                        <li data-reveal="right" :style="delay(2, 120)">
-                            <span class="tag">封測紀念徽章</span>
-                            <h3>全勤小鐵人</h3>
-                            <p>封測期間打開滿 14 天（不必連續），正式上架後所有功能再免費用一個月。</p>
-                        </li>
-                    </ul>
+                    <div>
+                        <p class="dindon-landing__rewards-title" data-reveal>參加封測可以拿到的未來優惠</p>
+                        <ul class="dindon-landing__rewards">
+                            <li v-for="(reward, index) in betaRewards" :key="reward.title" data-reveal="right" :style="delay(index + 1, 120)">
+                                <span class="tag">{{ reward.tag }}</span>
+                                <h3>{{ reward.title }}</h3>
+                                <p class="condition">{{ reward.condition }}</p>
+                                <p class="reward">→ {{ reward.reward }}</p>
+                            </li>
+                        </ul>
+                        <p class="dindon-landing__note is-fine" data-reveal>
+                            鐵人與貢獻分開算，合計最多 4 個月，從正式版上線那天開始算。
+                            換手機也拿得回來：記得在 App 裡綁定 Google 帳號。
+                        </p>
+                    </div>
                 </div>
             </div>
         </section>
         <!-- #endregion -->
+
+        <footer class="dindon-landing__footer">
+            <div class="dindon-landing__container">
+                <a :href="PRIVACY_PATH">隱私權政策</a>
+                <span aria-hidden="true">·</span>
+                <a :href="`mailto:${CONTACT_EMAIL}`">{{ CONTACT_EMAIL }}</a>
+                <span aria-hidden="true">·</span>
+                <span>叮咚記帳 DinDon Ledger</span>
+            </div>
+        </footer>
     </div>
 </template>
 
@@ -341,6 +438,7 @@
             font-size: var(--font-size-s);
 
             .email { white-space: nowrap; }
+            &.is-fine { margin-top: 12px !important; }
         }
         &__hero &__note { color: color-mix(in srgb, var(--dd-text) 72%, transparent); }
 
@@ -426,7 +524,7 @@
         &__phone {
             background: var(--dd-frame);
             width: 100%;
-            max-width: 320px;
+            max-width: 300px;
             border: 10px solid var(--dd-frame);
             border-radius: 36px;
             overflow: hidden;
@@ -436,6 +534,12 @@
                 width: 100%;
                 height: auto;
                 border-radius: 26px;
+            }
+            @include setRWD(500px) {
+                border-width: 6px;
+                border-radius: 24px;
+
+                img { border-radius: 18px; }
             }
 
             // 首頁截圖只取上半，手機從底邊「長出來」
@@ -450,12 +554,19 @@
 
         // #endregion
 
-        // #region [P] section
+        // #region [P] section 共用
         &__section {
-            padding: 88px 0;
+            padding: 96px 0;
             @include setRWD(768px) { padding: 64px 0; }
 
             &.is-sunken { background: var(--dd-sunken); }
+        }
+        &__eyebrow {
+            margin-bottom: 8px !important;
+            color: var(--dd-accent-border);
+            font-size: var(--font-size-s);
+            font-weight: 700;
+            letter-spacing: .04em;
         }
         &__title {
             font-size: var(--font-size-xxl);
@@ -470,18 +581,111 @@
             font-size: var(--font-size-l);
             @include setRWD(500px) { font-size: var(--font-size-m); }
         }
+        &__big {
+            margin-top: 20px !important;
+            font-size: clamp(1.4rem, 3vw, 1.9rem);
+            font-weight: 700;
+            line-height: 1.5;
+
+            strong { color: var(--dd-primary); }
+        }
+
+        // 左文右圖；is-reverse 左圖右文。窄螢幕都變成上文下圖
+        &__split {
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+            gap: 56px;
+            align-items: center;
+            @include setRWD(768px) {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            &.is-reverse {
+                grid-template-columns: .9fr 1.1fr;
+                @include setRWD(768px) { grid-template-columns: 1fr; }
+
+                .dindon-landing__split-copy {
+                    order: 2;
+                    @include setRWD(768px) { order: 0; }
+                }
+            }
+        }
+        &__figure {
+            @include setFlex(flex-start, center, 16px, column);
+            margin: 0;
+
+            figcaption {
+                color: var(--dd-muted);
+                font-weight: 700;
+            }
+        }
+        &__link {
+            display: inline-block;
+            margin-top: 24px;
+            color: var(--dd-primary);
+            font-weight: 700;
+            text-decoration: none;
+
+            .arrow {
+                display: inline-block;
+                margin-left: 6px;
+                transition: transform .25s var(--cubic-FiSo);
+            }
+            @media (hover: hover) {
+                &:hover .arrow { transform: translateX(4px); }
+            }
+        }
 
         // #endregion
 
-        // #region [P] features
+        // #region [P] 電子發票的痛點
+        &__pains {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 16px;
+            margin-top: 36px !important;
+            list-style: none;
+
+            li {
+                @include setFlex(flex-start, flex-start, 6px, column);
+                background: var(--dd-surface);
+                padding: 20px;
+                border: 1px solid var(--dd-border);
+                border-radius: var(--dd-radius);
+            }
+            .pain-icon { font-size: 1.6rem; }
+            h3 { font-size: var(--font-size-m); }
+            p {
+                color: var(--dd-muted);
+                font-size: var(--font-size-s);
+            }
+        }
+        &__answer {
+            @include setFlex(flex-start, center, 16px);
+            background: var(--dd-accent-tint);
+            padding: 20px 24px;
+            border: 1px solid var(--dd-accent-border);
+            border-radius: var(--dd-radius);
+            margin-top: 32px !important;
+            color: #1B1815; // 淡黃底上一律深字，深色模式也一樣
+            font-size: var(--font-size-l);
+            font-weight: 700;
+
+            .bell { flex: none; }
+            strong { color: #1D59BB; }
+        }
+
+        // #endregion
+
+        // #region [P] 功能卡（就算沒有通知）
         &__features {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             margin-top: 40px !important;
             list-style: none;
-            @include setRWD(1024px) { grid-template-columns: repeat(2, 1fr); }
-            @include setRWD(500px) { grid-template-columns: 1fr; }
+            @include setRWD(768px) { grid-template-columns: 1fr; }
         }
         &__card {
             @include setFlex(flex-start, flex-start, 10px, column);
@@ -519,59 +723,96 @@
                 translate .25s var(--cubic-FiSo),
                 box-shadow .25s var(--cubic-FiSo);
         }
-        &__gallery {
-            @include setFlex(center, flex-start, 48px);
-            margin-top: 64px;
-            @include setRWD(500px) { gap: 16px; }
 
-            figure {
-                @include setFlex(flex-start, center, 16px, column);
-                flex: 0 1 300px;
-                margin: 0;
+        // #endregion
+
+        // #region [P] 拍照：能拍的東西一個個跳出來
+        &__no {
+            margin-top: 8px !important;
+            color: var(--dd-primary);
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            line-height: 1.1;
+        }
+        &__sources {
+            @include setFlex(flex-start, center, 10px);
+            flex-wrap: wrap;
+            margin-top: 24px !important;
+            list-style: none;
+
+            li {
+                background: var(--dd-surface);
+                padding: 6px 16px;
+                border: 1px solid var(--dd-border);
+                border-radius: 999px;
+                font-weight: 600;
             }
-            figcaption {
-                color: var(--dd-muted);
-                font-weight: 700;
+        }
+
+        // 標籤用回彈蹦出來，跟一般的浮上來區分
+        &.is-motion &__sources li[data-reveal] {
+            transform: scale(.6);
+            transition:
+                opacity .4s ease var(--reveal-delay, 0ms),
+                transform .5s var(--cubic-SiRo) var(--reveal-delay, 0ms);
+        }
+        &.is-motion &__sources li[data-reveal].is-visible { transform: none; }
+        &__shutter {
+            margin-top: 28px !important;
+            font-size: clamp(1.3rem, 2.6vw, 1.7rem);
+            font-weight: 700;
+
+            strong {
+                color: var(--dd-primary);
+                font-size: 1.2em;
             }
+        }
+
+        // 兩支手機前後疊：後面那支拍照中、前面那支是讀出來的結果
+        &__phones {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr;
+            justify-items: center;
+            padding: 0 0 40px;
+
             .dindon-landing__phone {
-                @include setRWD(500px) {
-                    border-width: 6px;
-                    border-radius: 24px;
+                grid-area: 1 / 1;
+                max-width: 250px;
 
-                    img { border-radius: 18px; }
+                &.is-back {
+                    margin-right: 120px;
+                    opacity: .9;
+                    @include setRWD(500px) { margin-right: 90px; }
                 }
+                &.is-front {
+                    margin-top: 60px;
+                    margin-left: 120px;
+                    box-shadow: -8px 10px 30px rgb(27, 24, 21, 12%);
+                    @include setRWD(500px) { margin-left: 90px; }
+                }
+                @include setRWD(500px) { max-width: 190px; }
             }
         }
 
         // #endregion
 
-        // #region [P] privacy
-        &__privacy {
+        // #region [P] 最懶人的記帳體驗
+        &__points {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px 40px;
+            gap: 20px 28px;
             margin-top: 32px !important;
             list-style: none;
-            @include setRWD(768px) { grid-template-columns: 1fr; }
+            @include setRWD(500px) { grid-template-columns: 1fr; }
 
-            li {
-                position: relative;
-                padding-left: 32px;
-
-                &::before {
-                    content: '✓';
-                    position: absolute;
-                    top: 1px;
-                    left: 0;
-                    background: var(--dd-primary);
-                    width: 22px;
-                    height: 22px;
-                    border-radius: 50%;
-                    color: var(--dd-on-primary);
-                    font-size: .8rem;
-                    font-weight: 700;
-                    @include setFlex();
-                }
+            h3 {
+                @include setFlex(flex-start, center, 8px);
+                font-size: var(--font-size-l);
+            }
+            p {
+                margin-top: 4px !important;
+                color: var(--dd-muted);
             }
         }
 
@@ -580,13 +821,28 @@
         // #region [P] beta
         &__beta {
             display: grid;
-            grid-template-columns: 1.2fr .8fr;
+            grid-template-columns: 1.1fr .9fr;
             gap: 48px;
             align-items: start;
             @include setRWD(1024px) { grid-template-columns: 1fr; }
 
             .beta-copy {
-                @include setFlex(flex-start, flex-start, 24px, column);
+                @include setFlex(flex-start, flex-start, 22px, column);
+            }
+        }
+        &__seats {
+            @include setFlex(flex-start, center, 12px);
+            flex-wrap: wrap;
+
+            strong {
+                background: var(--dd-primary);
+                padding: 4px 14px;
+                border-radius: 999px;
+                color: var(--dd-on-primary);
+            }
+            span {
+                color: var(--dd-muted);
+                font-weight: 600;
             }
         }
         &__steps {
@@ -608,32 +864,35 @@
                     width: 30px;
                     height: 30px;
                     border-radius: 50%;
-                    color: var(--dd-text);
+                    color: #1B1815;
                     font-weight: 800;
                     @include setFlex();
                 }
             }
         }
 
-        // 勾勾與步驟數字：整列浮上來之後，圓點再帶一點回彈地「蹦」出來
-        &.is-motion &__privacy li::before,
+        // 步驟數字：整列浮上來之後，圓點再帶一點回彈地「蹦」出來
         &.is-motion &__steps li::before {
             transform: scale(0);
             transition: transform .5s var(--cubic-SiRo) calc(var(--reveal-delay, 0ms) + 250ms);
         }
-        &.is-motion &__privacy li.is-visible::before,
         &.is-motion &__steps li.is-visible::before { transform: scale(1); }
 
+        &__rewards-title {
+            margin-bottom: 14px !important;
+            font-size: var(--font-size-l);
+            font-weight: 800;
+        }
         &__rewards {
-            @include setFlex(flex-start, stretch, 16px, column);
+            @include setFlex(flex-start, stretch, 14px, column);
             list-style: none;
 
             li {
-                @include setFlex(flex-start, flex-start, 8px, column);
+                @include setFlex(flex-start, flex-start, 6px, column);
 
                 // 和 App 徽章牆的紀念徽章卡同色（BadgeWallScreen.kt 的 LEGEND_*）
                 background: #2A1752;
-                padding: 24px;
+                padding: 20px 22px;
                 border-radius: var(--dd-radius);
                 color: #F4EFE3;
             }
@@ -649,10 +908,31 @@
                 color: #FFD98A;
                 font-size: var(--font-size-l);
             }
-            p { color: #D9D1E8; }
+            .condition { color: #D9D1E8; }
+            .reward {
+                color: #F4EFE3;
+                font-weight: 700;
+            }
         }
 
         // #endregion
+
+        &__footer {
+            padding: 28px 0;
+            border-top: 1px solid var(--dd-border);
+            color: var(--dd-muted);
+            font-size: var(--font-size-s);
+
+            .dindon-landing__container {
+                @include setFlex(center, center, 10px);
+                flex-wrap: wrap;
+            }
+            a {
+                color: var(--dd-muted);
+                text-decoration: underline;
+                text-underline-offset: 3px;
+            }
+        }
 
         // #region [P] 減少動態效果：全部停下，通知卡片直接顯示
         @media (prefers-reduced-motion: reduce) {
@@ -662,7 +942,7 @@
                 animation: none;
                 opacity: 1;
             }
-            &__btn, &__btn .arrow, &__card { transition: none; }
+            &__btn, &__btn .arrow, &__card, &__link .arrow { transition: none; }
         }
 
         // #endregion
@@ -678,7 +958,8 @@
         --dd-muted: #B3A997;
         --dd-primary: #76B9FF;
         --dd-on-primary: #14120E;
-        --dd-accent-tint: #332912;
+        --dd-accent-tint: #FEF3B3; // 回答列的淡黃底兩個模式一樣，裡面固定深字
+        --dd-accent-border: #D8A72B;
 
         // 黃底上的字不跟著反白，否則在濃黃上看不見
         .dindon-landing__hero {
@@ -686,6 +967,7 @@
             --dd-primary: #1D59BB;
             --dd-on-primary: #FFFDF8;
         }
+        .dindon-landing__card .feature-icon { background: #332912; }
     }
     @keyframes dd-rise {
         from {
