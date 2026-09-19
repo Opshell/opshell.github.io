@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import type { AdminDevice, AuditEntry, DevicePatch, PlanTier } from '../api';
     import { computed, onMounted, ref } from 'vue';
-    import { adminApi } from '../api';
+    import { adminApi, MAX_TOKENS } from '../api';
     import { formatDateTime, formatInt, formatRelative, PLAN_LABELS } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
@@ -53,8 +53,10 @@
         const current = device.value;
         if (!current || tokensMode.value === 'keep') return '';
         if (!Number.isInteger(tokensValue.value)) return '額度要是整數';
-        if (tokensMode.value === 'set' && tokensValue.value < 0) return '額度不能小於 0';
-        if (tokensMode.value === 'delta' && current.tokens + tokensValue.value < 0) return `目前只有 ${current.tokens} 點，扣完會變負數`;
+        const next = tokensMode.value === 'set' ? tokensValue.value : current.tokens + tokensValue.value;
+        if (tokensMode.value === 'set' && next < 0) return '額度不能小於 0';
+        if (tokensMode.value === 'delta' && next < 0) return `目前只有 ${current.tokens} 點，扣完會變負數`;
+        if (next > MAX_TOKENS) return `額度最多 ${formatInt(MAX_TOKENS)} 點`; // 後端的上限，多半是打錯了
         return hasBeta.value && !betaDate.value ? '請選 beta 資格的日期' : '';
     });
 

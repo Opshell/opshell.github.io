@@ -1,14 +1,14 @@
 import { computed, ref } from 'vue';
 
 // 跟 App 共用的「網頁」OAuth client ID（api.md 第 8 節）。client ID 本來就是公開的，不是祕密。
-// 主控台要在這個 client 的「已授權的 JavaScript 來源」加上 https://opshell.github.io 才能登入。
+// 主控台要在這個 client 的「已授權的 JavaScript 來源」加上網站實際的網址才能登入：
+// 網站設了自訂網域，opshell.github.io 一律轉到 https://opshell.me，所以要登記的是 https://opshell.me。
 const GOOGLE_CLIENT_ID = '851099261403-t654nu5furtr264jcsp3s4pvm54nntlo.apps.googleusercontent.com';
 const GIS_SRC = 'https://accounts.google.com/gsi/client';
 
 interface GoogleIdApi {
     initialize: (config: Record<string, unknown>) => void
     renderButton: (el: HTMLElement, options: Record<string, unknown>) => void
-    prompt: () => void
     disableAutoSelect: () => void
 }
 declare global {
@@ -29,7 +29,7 @@ const credential = ref<string | null>(null);
 const profile = ref<AdminProfile | null>(null);
 const expired = ref(false);
 const loadError = ref('');
-let scriptPromise: Promise<GoogleIdApi> | null = null;
+let readyPromise: Promise<GoogleIdApi> | null = null;
 let expiryTimer: ReturnType<typeof setTimeout> | undefined;
 
 /** 解開 JWT 的 payload 拿 email 與過期時間，只是顯示用；真正的驗證在後端 */
@@ -43,20 +43,11 @@ function decodeProfile(token: string): AdminProfile {
     }
 }
 
-function loadGoogle(): Promise<GoogleIdApi> {
-    if (window.google?.accounts?.id) return Promise.resolve(window.google.accounts.id);
-    scriptPromise ??= new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = GIS_SRC;
-        script.async = true;
-        script.onload = () => window.google?.accounts?.id ? resolve(window.google.accounts.id) : reject(new Error('Google 登入元件載入失敗'));
-        script.onerror = () => {
-            scriptPromise = null;
-            reject(new Error('Google 登入元件載入失敗，請檢查網路或擋廣告的外掛'));
-        };
-        document.head.append(script);
-    });
-    return scriptPromise;
+/** 丟掉憑證、回到登入畫面 */
+function dropCredential() {
+    clearTimeout(expiryTimer);
+    credential.value = null;
+    profile.value = null;
 }
 
 function handleCredential(response: { credential?: string }) {
@@ -65,41 +56,56 @@ function handleCredential(response: { credential?: string }) {
     profile.value = decodeProfile(response.credential);
     expired.value = false;
 
-    // 過期前一分鐘先試著靜默換一張新的；換不到就顯示「重新登入」
+    // ID token 一小時過期。到期前一分鐘就回登入畫面，不要等 API 回 401
     clearTimeout(expiryTimer);
     const expiresAt = profile.value.expiresAt;
     if (expiresAt) {
         expiryTimer = setTimeout(() => {
             expired.value = true;
-            window.google?.accounts.id.prompt();
+            dropCredential();
         }, Math.max(expiresAt - Date.now() - 60_000, 0));
     }
+}
+
+/**
+ * 載入 Google 的登入元件並初始化（只做一次）。
+ *
+ * 刻意**不開自動登入、不用 One Tap（prompt）**，只留 renderButton 的按鈕（溝通板 #20）：
+ * 後台跟部落格其他頁面是同一個來源，別頁載入的第三方腳本可以開一個看不見的 iframe 載入後台；
+ * 有自動登入的話，Google 會不經點擊就把 ID token 發給那個 iframe。
+ * 按鈕畫在 Google 自己來源的 iframe 裡，第三方腳本點不到，一定要本人按。
+ */
+function ready(): Promise<GoogleIdApi> {
+    readyPromise ??= new Promise<GoogleIdApi>((resolve, reject) => {
+        const initialize = () => {
+            const google = window.google?.accounts?.id;
+            if (!google) return reject(new Error('Google 登入元件載入失敗'));
+            google.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredential, auto_select: false });
+            resolve(google);
+        };
+        if (window.google?.accounts?.id) return initialize();
+
+        const script = document.createElement('script');
+        script.src = GIS_SRC;
+        script.async = true;
+        script.onload = initialize;
+        script.onerror = () => reject(new Error('Google 登入元件載入失敗，請檢查網路或擋廣告的外掛'));
+        document.head.append(script);
+    }).catch(error => {
+        readyPromise = null; // 下次再試
+        throw error;
+    });
+    return readyPromise;
 }
 
 export function useGoogleAuth() {
     const isSignedIn = computed(() => !!credential.value);
 
-    /** 初始化並嘗試自動登入（之前登入過就不用再按） */
-    async function init() {
-        try {
-            const google = await loadGoogle();
-            google.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: handleCredential,
-                auto_select: true,
-                cancel_on_tap_outside: true,
-                use_fedcm_for_prompt: true
-            });
-            if (!credential.value) google.prompt();
-        } catch (error) {
-            loadError.value = (error as Error).message;
-        }
-    }
-
-    /** 把 Google 的登入按鈕畫進指定的元素 */
+    /** 把 Google 的登入按鈕畫進指定的元素；一定先初始化完才畫 */
     async function renderButton(el: HTMLElement) {
         try {
-            const google = await loadGoogle();
+            const google = await ready();
+            loadError.value = '';
             google.renderButton(el, { theme: 'outline', size: 'large', shape: 'pill', text: 'signin_with', locale: 'zh-TW' });
         } catch (error) {
             loadError.value = (error as Error).message;
@@ -109,17 +115,14 @@ export function useGoogleAuth() {
     /** API 回 401 時呼叫：憑證不能用了，丟掉並請使用者重新登入 */
     function markExpired() {
         expired.value = true;
-        credential.value = null;
-        window.google?.accounts.id.prompt();
+        dropCredential();
     }
 
     function signOut() {
-        clearTimeout(expiryTimer);
-        credential.value = null;
-        profile.value = null;
         expired.value = false;
-        window.google?.accounts.id.disableAutoSelect(); // 不然下次一打開又自動登入
+        dropCredential();
+        window.google?.accounts.id.disableAutoSelect();
     }
 
-    return { credential, profile, expired, loadError, isSignedIn, init, renderButton, markExpired, signOut };
+    return { credential, profile, expired, loadError, isSignedIn, renderButton, markExpired, signOut };
 }

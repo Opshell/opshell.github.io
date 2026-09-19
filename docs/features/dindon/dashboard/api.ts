@@ -149,13 +149,30 @@ async function request<T>(token: string, path: string, init: { method?: string, 
     return data as T;
 }
 
+/** 後端能設定的額度上限（api.md 第 8 節）：tokens 與加減之後的結果都要在 0～這個數 */
+export const MAX_TOKENS = 1_000_000;
+
 export const adminApi = {
     listDevices: (token: string, params: { q?: string, status?: DeviceStatus, page?: number, perPage?: number }) => {
+        const q = params.q?.trim() ?? '';
+        const status = params.status ?? 'all';
+        const page = params.page ?? 1;
+        const perPage = params.perPage ?? 50;
+
+        // email 不能放在網址上：Cloud Run 的連線紀錄會記下完整網址、保存 30 天，
+        // 處理刪除請求時，要清除的 email 反而會留在日誌裡。改放 body（api.md 第 8 節）
+        if (q.includes('@')) {
+            return request<DeviceListResponse>(token, '/v1/admin/devices/search', {
+                method: 'POST',
+                body: { q, status, page, per_page: perPage }
+            });
+        }
+
         const query = new URLSearchParams();
-        if (params.q) query.set('q', params.q);
-        if (params.status && params.status !== 'all') query.set('status', params.status);
-        query.set('page', String(params.page ?? 1));
-        query.set('per_page', String(params.perPage ?? 50));
+        if (q) query.set('q', q);
+        if (status !== 'all') query.set('status', status);
+        query.set('page', String(page));
+        query.set('per_page', String(perPage));
         return request<DeviceListResponse>(token, `/v1/admin/devices?${query}`);
     },
     getDevice: (token: string, id: number) =>
