@@ -5,6 +5,7 @@
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { adminApi } from '../api';
     import ColumnChart from '../charts/ColumnChart.vue';
+    import FeedbackTriage from './FeedbackTriage.vue';
     import { formatDateTime, formatInt, formatRelative, KIND_LABELS } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
@@ -35,6 +36,13 @@
     const busy = ref(false);
     const error = ref('');
     const notice = ref('');
+
+    /** 快速審核：一次一則、用鍵盤判，判完自動跳下一則 */
+    const triage = ref(false);
+    function closeTriage(changed: boolean) {
+        triage.value = false;
+        if (changed) load(1); // 審過的狀態變了，列表與統計要重抓
+    }
 
     const PER_PAGE = 50;
     const page = ref(1);
@@ -197,7 +205,7 @@
 
 <template>
     <section class="dd-feedback">
-        <ul v-if="stats" class="dd-overview__tiles">
+        <ul v-if="stats && !triage" class="dd-overview__tiles">
             <li v-for="tile in statTiles" :key="tile.label">
                 <p class="label">{{ tile.label }}</p>
                 <p class="value">{{ tile.value }}</p>
@@ -205,14 +213,14 @@
             </li>
         </ul>
 
-        <article v-if="stats" class="dd-overview__card">
+        <article v-if="stats && !triage" class="dd-overview__card">
             <h3>每天的回報件數</h3>
             <p class="sub">近 14 天</p>
             <ColumnChart :points="perDayPoints" :series="perDaySeries" unit=" 則" :height="120" />
         </article>
 
         <div class="dd-feedback__toolbar">
-            <label>
+            <label v-if="!triage">
                 狀態
                 <select v-model="status" @change="load(1)">
                     <option value="all">全部</option>
@@ -226,13 +234,24 @@
                     <option v-for="(label, value) in KIND_LABELS" :key="value" :value="value">{{ label }}</option>
                 </select>
             </label>
-            <button type="button" class="dd-admin__btn is-ghost" :disabled="loading" @click="load()">重新整理</button>
-            <span class="dd-overview__muted">共 {{ formatInt(total) }} 則</span>
+            <button v-if="!triage" type="button" class="dd-admin__btn is-ghost" :disabled="loading" @click="load()">重新整理</button>
+            <span v-if="!triage" class="dd-overview__muted">共 {{ formatInt(total) }} 則</span>
+            <button
+                v-if="!triage"
+                type="button"
+                class="dd-admin__btn"
+                :disabled="loading || !(stats?.by_status.pending ?? 0)"
+                @click="triage = true"
+            >
+                快速審核{{ stats?.by_status.pending ? `（${formatInt(stats.by_status.pending)} 則待審）` : '' }}
+            </button>
         </div>
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
         <p v-if="notice" class="dd-detail__notice" role="status">✓ {{ notice }}</p>
 
-        <div class="dd-devices__layout" :class="{ 'has-detail': selectedId !== null }">
+        <FeedbackTriage v-if="triage" :issues="issues" :kind="kind" @close="closeTriage" />
+
+        <div v-else class="dd-devices__layout" :class="{ 'has-detail': selectedId !== null }">
             <div class="dd-devices__table-wrap">
                 <table class="dd-table">
                     <thead>
@@ -338,7 +357,7 @@
                         </p>
 
                         <template v-if="detail.issue_id">
-                            <p>目前掛在：<strong>{{ issues.find(i => i.id === detail.issue_id)?.Title ?? `#${detail.issue_id}` }}</strong></p>
+                            <p>目前掛在：<strong>{{ issues.find(i => i.id === detail.issue_id)?.title ?? `#${detail.issue_id}` }}</strong></p>
                             <div class="dd-detail__actions">
                                 <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="detachIssue">從問題上拿下來</button>
                             </div>
