@@ -115,13 +115,28 @@
         const frozen = !device.value?.frozen;
         return mutate(token => adminApi.updateDevice(token, deviceId, { frozen }), frozen ? '已凍結這台裝置' : '已解凍這台裝置');
     };
-    async function eraseIdentity() {
-        await mutate(token => adminApi.eraseIdentity(token, deviceId), '已清除身分，這台裝置也已凍結');
+    /**
+     * 清除身分。兩個強度（api.md 第 8 節，溝通板 #35）：
+     * 停用 = 連這台裝置都不要了；保留 = 只是不想讓伺服器留著 email，App 要繼續用
+     */
+    async function eraseIdentity(freeze: boolean) {
+        await mutate(
+            token => adminApi.eraseIdentity(token, deviceId, freeze),
+            freeze ? '已清除身分，這台裝置也已停用' : '已清除身分，這台裝置可以繼續使用'
+        );
         eraseConfirmText.value = '';
     }
 
     // #region [P] 操作紀錄的顯示
-    const ACTION_LABELS: Record<string, string> = { 'update': '調整', 'erase_identity': '清除身分', 'erase-identity': '清除身分' };
+    const ACTION_LABELS: Record<string, string> = {
+        'update': '調整',
+        'erase_identity': '清除身分',
+        'erase-identity': '清除身分（並停用）',
+        'erase-identity-keep-active': '清除身分（不停用）',
+        // 使用者自己在 /dindon/account/ 做的（api.md 第 16 節）；操作者記成 self-delete
+        'account-delete-link': '本人解除綁定（網頁）',
+        'account-delete-account': '本人刪除帳戶資料（網頁）'
+    };
     const FIELD_LABELS: Record<string, string> = {
         tokens: '額度',
         plan_tier: '方案',
@@ -242,15 +257,23 @@
             <section v-if="device.linked || device.email" class="dd-detail__card is-danger">
                 <h3>清除身分</h3>
                 <p class="dd-detail__muted">
-                    處理隱私權政策的刪除請求：清空這台裝置的 email、Google 綁定與購買憑證，並凍結它。
+                    處理寫信來的刪除請求：清空這台裝置的 email、Google 綁定、購買憑證、暱稱、大頭貼、
+                    打卡紀錄與所有回報的內容（採計的件數不變）。
                     <strong>做不回來</strong>——清掉的資料沒有備份，清完之後用這個 email 也搜尋不到。
+                </p>
+                <p class="dd-detail__muted">
+                    <strong>強度看對方要什麼</strong>：只是不想讓伺服器留著 email、App 還要繼續用的，
+                    選「保留使用」；連這台裝置都不要了的，選「並停用」（停用之後不能再用 AI 功能）。
+                    對方自己在 <a href="/dindon/account/" target="_blank" rel="noopener">刪除頁</a>
+                    也做得到這兩件事，不一定要經過這裡。
                 </p>
                 <label class="dd-detail__field">
                     <span>輸入裝置 id「{{ deviceId }}」確認</span>
                     <input v-model="eraseConfirmText" type="text" inputmode="numeric" autocomplete="off" />
                 </label>
                 <div class="dd-detail__actions">
-                    <button type="button" class="dd-admin__btn is-danger" :disabled="!canErase || busy" @click="eraseIdentity">清除身分</button>
+                    <button type="button" class="dd-admin__btn" :disabled="!canErase || busy" @click="eraseIdentity(false)">清除身分，保留使用</button>
+                    <button type="button" class="dd-admin__btn is-danger" :disabled="!canErase || busy" @click="eraseIdentity(true)">清除身分並停用</button>
                 </div>
             </section>
             <!-- #endregion -->
