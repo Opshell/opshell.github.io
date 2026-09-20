@@ -1,8 +1,18 @@
 <script setup lang="ts">
-    import type { AdminDevice, AuditEntry, DevicePatch, PlanTier } from '../api';
+    import type { AdminDevice, AuditEntry, DevicePatch, Perk, PlanTier } from '../api';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi, MAX_TOKENS } from '../api';
-    import { formatDateTime, formatInt, formatRelative, PLAN_LABELS } from '../format';
+    import {
+        AVATAR_KIND_LABELS,
+        formatDateTime,
+        formatInt,
+        formatRelative,
+        PERK_SOURCE_LABELS,
+        PERK_STATUS_LABELS,
+        perkLength,
+        PLAN_LABELS,
+        PLAN_SOURCE_LABELS
+    } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
     const { deviceId } = defineProps<{ deviceId: number }>();
@@ -11,6 +21,11 @@
 
     const device = ref<AdminDevice | null>(null);
     const audit = ref<AuditEntry[]>([]);
+    // beta 貢獻活動的東西（api.md 第 8 節「裝置頁多的東西」）
+    const perks = ref<Perk[]>([]);
+    const realPlan = ref<{ plan_tier: string, plan_source: string } | null>(null);
+    const referrals = ref<{ pending: number, qualified: number } | null>(null);
+    const referralCode = ref('');
     const loading = ref(false);
     const busy = ref(false);
     const error = ref('');
@@ -84,7 +99,12 @@
             const result = await call(token => adminApi.getDevice(token, deviceId));
             device.value = result.device;
             audit.value = result.audit;
+            perks.value = result.perks ?? [];
+            realPlan.value = result.plan ?? null;
+            referrals.value = result.referrals ?? null;
+            referralCode.value = result.referral_code ?? '';
             resetForm();
+            resetEventForm();
         } catch (e) {
             error.value = errorMessage(e);
         } finally {
@@ -119,6 +139,41 @@
      * 清除身分。兩個強度（api.md 第 8 節，溝通板 #35）：
      * 停用 = 連這台裝置都不要了；保留 = 只是不想讓伺服器留著 email，App 要繼續用
      */
+    // #region [P] beta 活動的個別操作
+    // 每一個都是單獨一顆按鈕、按了就送：件數與鐵人日期是「修正資料」，
+    // 清暱稱與清頭像是「處理不當內容」，都不該跟上面那張調整表單綁在一起送
+    const bonusBugs = ref(0);
+    const bonusSuggestions = ref(0);
+    const ironDate = ref('');
+
+    function resetEventForm() {
+        if (!device.value) return;
+        bonusBugs.value = device.value.bonus_bugs ?? 0;
+        bonusSuggestions.value = device.value.bonus_suggestions ?? 0;
+        ironDate.value = device.value.iron_achieved_on ?? '';
+    }
+
+    const bonusChanged = computed(() =>
+        !!device.value && (bonusBugs.value !== (device.value.bonus_bugs ?? 0) || bonusSuggestions.value !== (device.value.bonus_suggestions ?? 0)));
+    const bonusError = computed(() => {
+        const bad = (n: number) => !Number.isInteger(n) || n < 0 || n > 1000;
+        return bad(bonusBugs.value) || bad(bonusSuggestions.value) ? '手動加的件數要是 0～1000 的整數' : '';
+    });
+
+    const saveBonus = () => mutate(
+        token => adminApi.updateDevice(token, deviceId, { bonus_bugs: bonusBugs.value, bonus_suggestions: bonusSuggestions.value }),
+        '已更新手動加的件數，分數與名次會跟著變');
+    const saveIron = () => mutate(
+        token => adminApi.updateDevice(token, deviceId, { iron_achieved_on: ironDate.value || null }),
+        ironDate.value ? `已把鐵人達成日設成 ${ironDate.value}` : '已取消鐵人');
+    const clearNickname = () => mutate(
+        token => adminApi.updateDevice(token, deviceId, { nickname: null }),
+        '已清掉暱稱，排行榜上會顯示「白老鼠 #編號」（原本的暱稱留在操作紀錄裡）');
+    const clearAvatar = () => mutate(
+        token => adminApi.updateDevice(token, deviceId, { avatar: null }),
+        '已清掉大頭貼，退回 App 內建圖案');
+    // #endregion
+
     async function eraseIdentity(freeze: boolean) {
         await mutate(
             token => adminApi.eraseIdentity(token, deviceId, freeze),
@@ -253,6 +308,95 @@
             </section>
             <!-- #endregion -->
 
+            <!-- #region [P] beta 貢獻活動 -->
+            <section class="dd-detail__card">
+                <h3>Beta 貢獻活動</h3>
+                <dl class="dd-detail__info">
+                    <div><dt>排行榜名字</dt><dd>{{ device.display_name || '—' }}</dd></div>
+                    <div><dt>採計件數</dt><dd>bug {{ formatInt(device.bugs ?? 0) }} · 建議 {{ formatInt(device.suggestions ?? 0) }}</dd></div>
+                    <div><dt>鐵人</dt><dd>{{ device.iron_achieved_on ?? '還沒達成' }}</dd></div>
+                    <div v-if="realPlan">
+                        <dt>現在實際方案</dt>
+                        <dd>{{ PLAN_LABELS[realPlan.plan_tier] ?? realPlan.plan_tier }}（{{ PLAN_SOURCE_LABELS[realPlan.plan_source] ?? realPlan.plan_source }}）</dd>
+                    </div>
+                    <div v-if="device.avatar">
+                        <dt>大頭貼</dt>
+                        <dd>
+                            {{ AVATAR_KIND_LABELS[device.avatar.kind] ?? device.avatar.kind }}
+                            <template v-if="device.avatar.preset">（{{ device.avatar.preset }}）</template>
+                        </dd>
+                    </div>
+                </dl>
+                <p class="dd-detail__muted">
+                    採計件數已經含手動加的。改件數或鐵人都會影響<strong>所有人的名次</strong>。
+                    <template v-if="device.avatar?.kind === 'upload'">使用者上傳的照片後台看不到（那支要裝置的 API key），只能清掉。</template>
+                </p>
+
+                <fieldset class="dd-detail__field">
+                    <legend>手動加的件數</legend>
+                    <span>bug</span>
+                    <input v-model.number="bonusBugs" type="number" min="0" max="1000" aria-label="手動加的 bug 件數" />
+                    <span>建議</span>
+                    <input v-model.number="bonusSuggestions" type="number" min="0" max="1000" aria-label="手動加的建議件數" />
+                    <button type="button" class="dd-admin__btn" :disabled="!bonusChanged || !!bonusError || busy" @click="saveBonus">儲存件數</button>
+                </fieldset>
+                <p v-if="bonusError" class="dd-admin__error">{{ bonusError }}</p>
+
+                <fieldset class="dd-detail__field">
+                    <legend>鐵人達成日</legend>
+                    <input v-model="ironDate" type="date" aria-label="鐵人達成日" />
+                    <button type="button" class="dd-admin__btn" :disabled="busy || ironDate === (device.iron_achieved_on ?? '')" @click="saveIron">
+                        {{ ironDate ? '儲存' : '取消鐵人' }}
+                    </button>
+                </fieldset>
+
+                <div class="dd-detail__actions">
+                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy || !device.nickname" @click="clearNickname">清掉暱稱</button>
+                    <button
+                        type="button"
+                        class="dd-admin__btn is-ghost"
+                        :disabled="busy || !device.avatar || device.avatar.kind === 'preset'"
+                        @click="clearAvatar"
+                    >
+                        清掉大頭貼
+                    </button>
+                </div>
+            </section>
+            <!-- #endregion -->
+
+            <!-- #region [P] 權益與邀請 -->
+            <section v-if="perks.length" class="dd-detail__card">
+                <h3>權益</h3>
+                <p class="dd-detail__muted">時間不重疊，一筆接一筆排；「等上線日」是還沒定正式版上線日的。</p>
+                <!-- 詳情欄只有 300px 寬，表格會被切掉，一筆一列比較讀得完 -->
+                <ul class="dd-detail__perks">
+                    <li v-for="perk in perks" :key="perk.id">
+                        <p class="title">
+                            {{ perk.title }}
+                            <span class="dd-status" :class="perk.status === 'active' ? 'is-active' : perk.status === 'revoked' ? 'is-frozen' : 'is-pending'">
+                                {{ PERK_STATUS_LABELS[perk.status] ?? perk.status }}
+                            </span>
+                        </p>
+                        <p class="dd-detail__muted">
+                            {{ PLAN_LABELS[perk.plan_tier] ?? perk.plan_tier }} ·
+                            {{ perkLength(perk.months, perk.days) }} ·
+                            {{ PERK_SOURCE_LABELS[perk.source] ?? perk.source }}
+                        </p>
+                        <p class="dd-detail__muted">{{ perk.starts_on ? `${perk.starts_on} → ${perk.ends_on ?? '?'}` : '等正式版上線日定下來' }}</p>
+                    </li>
+                </ul>
+            </section>
+
+            <section v-if="referrals || referralCode" class="dd-detail__card">
+                <h3>邀請好友</h3>
+                <dl class="dd-detail__info">
+                    <div v-if="referralCode"><dt>邀請碼</dt><dd>{{ referralCode }}</dd></div>
+                    <div v-if="referrals"><dt>已達標</dt><dd>{{ formatInt(referrals.qualified) }} 人</dd></div>
+                    <div v-if="referrals"><dt>還沒達標</dt><dd>{{ formatInt(referrals.pending) }} 人</dd></div>
+                </dl>
+            </section>
+            <!-- #endregion -->
+
             <!-- #region [P] 清除身分（隱私權的刪除請求） -->
             <section v-if="device.linked || device.email" class="dd-detail__card is-danger">
                 <h3>清除身分</h3>
@@ -371,6 +515,27 @@
         &__actions {
             @include setFlex(flex-start, center, 8px);
             flex-wrap: wrap;
+        }
+        &__scroll { overflow-x: auto; }
+        &__perks {
+            @include setFlex(flex-start, stretch, 10px, column);
+            padding: 0;
+            margin: 0;
+            list-style: none;
+
+            li {
+                background: var(--vp-c-bg-soft);
+                padding: 10px 12px;
+                border-radius: 10px;
+                font-size: var(--font-size-s);
+            }
+            .title {
+                @include setFlex(space-between, center, 8px);
+                flex-wrap: wrap;
+                margin: 0 0 2px;
+                font-weight: 600;
+            }
+            p { margin: 0; }
         }
         &__confirm {
             @include setFlex(flex-start, stretch, 8px, column);
