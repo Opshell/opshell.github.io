@@ -7,6 +7,13 @@ import { apiBase } from '../apiBase';
 export type PlanTier = 'free' | 'pro';
 export type DeviceStatus = 'all' | 'active' | 'frozen';
 
+/** 大頭貼（api.md 第 13 節）。upload 的 url 是相對路徑，而且要帶**裝置的** API key 才拿得到 */
+export interface Avatar {
+    kind: 'preset' | 'upload' | 'google'
+    preset: string | null
+    url: string | null
+}
+
 export interface AdminDevice {
     id: number
     plan_tier: PlanTier
@@ -21,6 +28,40 @@ export interface AdminDevice {
     updated_at: string
     last_ai_at: string | null
     ai_calls_30d: number
+    // 以下是 beta 貢獻活動加的（api.md 第 8 節「裝置物件」）
+    nickname: string | null
+    /** 排行榜上顯示的名字：暱稱，或「白老鼠 #編號」 */
+    display_name: string
+    /** 採計的件數，**已經含** bonus_*（後台手動加的） */
+    bugs: number
+    suggestions: number
+    bonus_bugs: number
+    bonus_suggestions: number
+    iron_achieved_on: string | null
+    avatar?: Avatar
+}
+
+/** 「免費用某個方案多久」的一筆權益（api.md 第 14 節） */
+export interface Perk {
+    id: number
+    title: string
+    source: 'beta-rank' | 'beta-iron' | 'promo' | 'referral' | 'admin'
+    plan_tier: string
+    months: number
+    days: number
+    status: 'waiting_launch' | 'scheduled' | 'active' | 'ended' | 'revoked'
+    starts_on: string | null
+    ends_on: string | null
+}
+
+export interface DeviceDetailResponse {
+    device: AdminDevice
+    audit: AuditEntry[]
+    perks?: Perk[]
+    /** 現在實際的方案：訂閱與使用中的權益取高的 */
+    plan?: { plan_tier: string, plan_source: 'subscription' | 'perk' | 'free' }
+    referrals?: { pending: number, qualified: number }
+    referral_code?: string
 }
 
 export interface DeviceListResponse {
@@ -44,6 +85,15 @@ export interface DevicePatch {
     plan_tier?: PlanTier
     beta_tester_since?: string | null
     frozen?: boolean
+    /** 後台手動加的件數（寄信來的回報），0～1,000 */
+    bonus_bugs?: number
+    bonus_suggestions?: number
+    /** **只能給 null**：清掉不當的暱稱。清掉的暱稱會留在操作紀錄裡 */
+    nickname?: null
+    /** 手動修正鐵人（打卡沒記到），或 null 取消 */
+    iron_achieved_on?: string | null
+    /** **只能給 null**：清掉不當的大頭貼，不能替使用者換 */
+    avatar?: null
 }
 
 export interface Dist { avg: number, p50: number, p90: number, p95: number, max: number }
@@ -338,7 +388,7 @@ export const adminApi = {
         return request<DeviceListResponse>(token, `/v1/admin/devices?${query}`);
     },
     getDevice: (token: string, id: number) =>
-        request<{ device: AdminDevice, audit: AuditEntry[] }>(token, `/v1/admin/devices/${id}`),
+        request<DeviceDetailResponse>(token, `/v1/admin/devices/${id}`),
     updateDevice: (token: string, id: number, patch: DevicePatch) =>
         request<{ device: AdminDevice }>(token, `/v1/admin/devices/${id}`, { method: 'PATCH', body: patch }),
     /**

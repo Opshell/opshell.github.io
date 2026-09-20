@@ -57,3 +57,37 @@ export function formatUsd(value: number): string {
 
 export const formatPercent = (value: number) => `${(value * 100).toFixed(value > 0 && value < 0.1 ? 1 : 0)}%`;
 export const formatMs = (value: number) => (value >= 1000 ? `${(value / 1000).toFixed(1)} 秒` : `${Math.round(value)} ms`);
+
+/** 權益的狀態（api.md 第 14 節）。時間不重疊，一筆接一筆排 */
+export const PERK_STATUS_LABELS: Record<string, string> = {
+    waiting_launch: '等上線日',
+    scheduled: '排隊中',
+    active: '使用中',
+    ended: '已結束',
+    revoked: '已撤銷'
+};
+
+export const PERK_SOURCE_LABELS: Record<string, string> = {
+    'beta-rank': 'Beta 名次',
+    'beta-iron': 'Beta 鐵人',
+    'promo': '優惠碼',
+    'referral': '邀請好友',
+    'admin': '後台手動'
+};
+
+export const PLAN_SOURCE_LABELS: Record<string, string> = {
+    subscription: '訂閱',
+    perk: '權益',
+    free: '免費'
+};
+
+/** 大頭貼的來源。upload 的圖後台目前拿不到（那支要裝置的 API key，溝通板 #46） */
+export const AVATAR_KIND_LABELS: Record<string, string> = {
+    preset: 'App 內建圖案',
+    upload: '使用者上傳的照片',
+    google: 'Google 帳號的大頭貼'
+};
+
+/** 權益的長度：3 個月 / 14 天 / 1 個月 14 天 */
+export const perkLength = (months: number, days: number) =>
+    [months ? `${months} 個月` : '', days ? `${days} 天` : ''].filter(Boolean).join(' ') || '—';

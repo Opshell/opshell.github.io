@@ -87,6 +87,7 @@
                     <thead>
                         <tr>
                             <th scope="col">ID</th>
+                            <th scope="col">名字</th>
                             <th scope="col">狀態</th>
                             <th scope="col">方案</th>
                             <th scope="col" class="is-num">額度</th>
@@ -106,6 +107,7 @@
                             @keydown.enter="selectedId = device.id"
                         >
                             <td>#{{ device.id }}</td>
+                            <td class="is-summary">{{ device.display_name || '—' }}</td>
                             <td>
                                 <span class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
                                     {{ device.frozen ? '❄ 已凍結' : '● 啟用' }}
@@ -119,7 +121,7 @@
                             <td>{{ formatRelative(device.last_ai_at) }}</td>
                         </tr>
                         <tr v-if="!loading && devices.length === 0">
-                            <td colspan="8" class="dd-table__empty">沒有符合的裝置</td>
+                            <td colspan="9" class="dd-table__empty">沒有符合的裝置</td>
                         </tr>
                     </tbody>
                 </table>
