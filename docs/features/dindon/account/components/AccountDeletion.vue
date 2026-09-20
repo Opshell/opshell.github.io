@@ -31,7 +31,7 @@
         {
             value: 'link' as const,
             title: '只解除 Google 綁定',
-            text: '清除伺服器上的 email 與帳號識別碼。方案、額度、徽章與活動紀錄都留著，App 照常使用。',
+            text: '清除伺服器上的 email、帳號識別碼與 Google 大頭貼。方案、額度、暱稱、徽章與活動紀錄都留著，App 照常使用。',
             note: '換手機時不能再用 Google 拿回權益。之後想綁回來隨時可以。'
         },
         {
@@ -141,7 +141,7 @@
                         伺服器上沒有跟這個帳號有關的資料。
                     </p>
                     <p v-else-if="done.scope === 'link'">
-                        已經清除伺服器上的 Google 帳號 email 與帳號識別碼（{{ done.devices }} 台裝置）。
+                        已經清除伺服器上的 Google 帳號 email、帳號識別碼與大頭貼（{{ done.devices }} 台裝置）。
                         方案、額度與活動紀錄都留著，App 照常使用。
                     </p>
                     <p v-else>

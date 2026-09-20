@@ -1,4 +1,4 @@
-// 帳號刪除的 API。規格見 DinDon_BackEnd/docs/api.md 第 11 節（需求寫在 clauder-talker.md #33）。
+// 帳號刪除的 API。規格見 DinDon_BackEnd/docs/api.md 第 16 節（需求寫在 clauder-talker.md #33、#35）。
 //
 // 這一頁是公開的靜態網頁，沒有、也不能有祕密：身分完全由使用者當場登入 Google 拿到的 ID token 證明，
 // 後端自己驗簽章與 aud，再用 token 裡的帳號識別碼去找出那台裝置。網頁不知道、也不需要知道裝置 id。
@@ -31,9 +31,11 @@ export async function requestDeletion(idToken: string, scope: DeleteScope): Prom
         throw new DeleteUnavailableError('線上刪除暫時連不上');
     }
 
-    if (response.status === 404 || response.status === 405) throw new DeleteUnavailableError('線上刪除還沒開通');
+    // 404／405 = 這支還沒上線；503 = 上線了但伺服器沒設定 Google 驗證（api.md 第 16 節）。兩種都改走寄信
+    if ([404, 405, 503].includes(response.status)) throw new DeleteUnavailableError('線上刪除還沒開通');
     if (response.status === 401) throw new Error('登入已過期，請重新登入再試一次。');
-    if (response.status === 429) throw new Error('太多次了，請過幾分鐘再試。');
+    if (response.status === 429) throw new Error('太多次了，請過一小時再試（每個帳號每小時 5 次）。');
+    if (response.status === 502) throw new Error('伺服器一時連不上 Google 驗證，請過幾分鐘再試一次。');
 
     const data = await response.json().catch(() => ({})) as Partial<DeleteResult> & { error?: string };
     if (!response.ok) throw new Error(data.error || `刪除失敗（${response.status}）`);

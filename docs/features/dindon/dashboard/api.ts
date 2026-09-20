@@ -251,8 +251,12 @@ export const adminApi = {
         request<{ device: AdminDevice, audit: AuditEntry[] }>(token, `/v1/admin/devices/${id}`),
     updateDevice: (token: string, id: number, patch: DevicePatch) =>
         request<{ device: AdminDevice }>(token, `/v1/admin/devices/${id}`, { method: 'PATCH', body: patch }),
-    eraseIdentity: (token: string, id: number) =>
-        request<{ device: AdminDevice }>(token, `/v1/admin/devices/${id}/erase-identity`, { method: 'POST' }),
+    /**
+     * 清除身分。`freeze` 決定強度（api.md 第 8 節，溝通板 #35）：
+     * true = 連這台裝置都不要了，清資料並停用；false = 只是不想留著 email，App 繼續用
+     */
+    eraseIdentity: (token: string, id: number, freeze: boolean) =>
+        request<{ device: AdminDevice }>(token, `/v1/admin/devices/${id}/erase-identity`, { method: 'POST', body: { freeze } }),
     usage: (token: string, days: number) =>
         request<UsageReport>(token, `/v1/admin/usage?days=${days}`),
 
