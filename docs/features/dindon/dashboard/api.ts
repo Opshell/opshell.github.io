@@ -78,10 +78,25 @@ export interface FeatureStats {
     cost_usd_per_quota_point: number
 }
 
+/** 逐日（台灣時間）。沒有請求的日子不會出現，畫圖的那側自己補 0（usage-analytics.md 最後一節） */
+export interface UsageDay {
+    date: string
+    requests: number
+    ok: number
+    rejected: number
+    /** 含額度不足與撞到每日上限 */
+    failed: number
+    unique_devices: number
+    cost_usd: number
+    features: Record<string, { requests: number, ok: number, rejected: number, failed: number, cost_usd: number }>
+}
+
 export interface UsageReport {
     from: string
     to: string
     features: FeatureStats[]
+    /** 2026-09-20 起才有；舊的回應沒有這個欄位 */
+    daily?: UsageDay[]
     devices: {
         active_devices: number
         requests_per_device: Dist

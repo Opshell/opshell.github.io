@@ -6,14 +6,23 @@ export const BETA_SEATS = 100;
 
 export const PRIVACY_PATH = '/dindon/privacy/';
 
+/** 封測的 Google 群組。加入群組才拿得到 Play 的測試版（見外層 google-group-setup.md） */
+export const GROUP_URL = 'https://groups.google.com/g/dindon-beta';
+
+/**
+ * Play 的「加入測試」連結。等封閉測試軌道建好、上傳 AAB 之後才會有，
+ * 填進來之後宣傳頁會自動多一顆按鈕；空的時候文案是「核准後把連結寄給你」。
+ */
+export const PLAY_OPTIN_URL = '';
+
 // 報名信的範本：Play Console 加測試者要的是對方 Play 商店登入的那個 Gmail
-const SIGNUP_SUBJECT = '報名叮咚記帳封閉測試';
+const SIGNUP_SUBJECT = '叮咚記帳封閉測試';
 const SIGNUP_BODY = [
-    '我想加入叮咚記帳的封閉測試。',
+    '（申請加入 Google 群組之後，有問題再用這封信問；報名本身不用寄信。）',
     '',
     'Play 商店登入的 Gmail：',
     '手機型號（限 Android）：',
-    '平常用哪些銀行或支付 App（選填）：'
+    '想問的問題：'
 ].join('\n');
 
 export const SIGNUP_HREF = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(SIGNUP_SUBJECT)}&body=${encodeURIComponent(SIGNUP_BODY)}`;
@@ -60,8 +69,8 @@ export const lazyPoints: iPoint[] = [
 ];
 
 export const betaSteps: string[] = [
-    '寄信報名，附上你在 Play 商店登入的 Gmail（限 Android 手機）。',
-    '收到邀請後，從 Play 商店安裝測試版。',
+    '用你在 Play 商店登入的那個 Google 帳號，申請加入封測群組（限 Android 手機）。',
+    '我核准之後，會把 Google Play 的測試版連結寄給你，照一般 App 安裝。',
     '每天打開一次，連續 14 天。遇到問題或有想法，直接在 App 裡回報。'
 ];
 

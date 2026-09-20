@@ -74,6 +74,22 @@
     });
     // #endregion
 
+    /** 期間內的每一天（台灣時間，舊到新），交給 build 決定那天的數值 */
+    function eachDay(build: (key: string) => Record<string, number>): ColumnPoint[] {
+        const points: ColumnPoint[] = [];
+        for (let i = days.value - 1; i >= 0; i--) {
+            const date = new Date(Date.now() - i * DAY_MS);
+            const key = dayKey(date);
+            const [, month, day] = key.split('-');
+            points.push({
+                label: `${Number(month)}/${Number(day)}`,
+                full: `${key.replace(/-/g, '/')}（${weekday.format(date)}）`,
+                values: build(key)
+            });
+        }
+        return points;
+    }
+
     // #region [P] 每日新裝置（直條，時間序列）
     const newDevicePoints = computed<ColumnPoint[]>(() => {
         const counts = new Map<string, number>();
@@ -81,14 +97,20 @@
             const key = dayKey(new Date(d.created_at));
             counts.set(key, (counts.get(key) ?? 0) + 1);
         }
-        const points: ColumnPoint[] = [];
-        for (let i = days.value - 1; i >= 0; i--) {
-            const date = new Date(Date.now() - i * DAY_MS);
-            const key = dayKey(date);
-            const [, month, day] = key.split('-');
-            points.push({ label: `${Number(month)}/${Number(day)}`, full: `${key.replace(/-/g, '/')}（${weekday.format(date)}）`, value: counts.get(key) ?? 0 });
-        }
-        return points;
+        return eachDay(key => ({ count: counts.get(key) ?? 0 }));
+    });
+    const newDeviceSeries: BarSeries[] = [{ key: 'count', label: '新裝置', color: 'var(--dd-series-1)' }];
+    // #endregion
+
+    // #region [P] 每日 AI 請求（堆疊直條）。後端 2026-09-20 起才有 daily，舊的回應就不畫這張
+    const hasDaily = computed(() => Array.isArray(report.value?.daily));
+    const dailyPoints = computed<ColumnPoint[]>(() => {
+        const byDate = new Map((report.value?.daily ?? []).map(d => [d.date, d]));
+        // 沒有請求的日子後端不會回，這裡補 0，趨勢才看得出空檔
+        return eachDay(key => {
+            const day = byDate.get(key);
+            return { ok: day?.ok ?? 0, rejected: day?.rejected ?? 0, failed: day?.failed ?? 0 };
+        });
     });
     // #endregion
 
@@ -169,16 +191,48 @@
             </ul>
 
             <div class="dd-overview__grid">
-                <article class="dd-overview__card is-wide">
+                <article v-if="hasDaily" class="dd-overview__card is-wide">
+                    <h3>每日 AI 請求</h3>
+                    <p class="sub">近 {{ days }} 天。橙色是沒做成的（Gemini 出錯、額度不足、撞到每日上限）</p>
+                    <ColumnChart :points="dailyPoints" :series="outcomeSeries" unit=" 次" />
+                    <details>
+                        <summary>看數字</summary>
+                        <table class="dd-table is-static">
+                            <thead>
+                                <tr>
+                                    <th scope="col">日期</th>
+                                    <th v-for="s in outcomeSeries" :key="s.key" scope="col" class="is-num">{{ s.label }}</th>
+                                    <th scope="col" class="is-num">用過的裝置</th>
+                                    <th scope="col" class="is-num">成本</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="day in (report.daily ?? [])" :key="day.date">
+                                    <td>{{ day.date }}</td>
+                                    <td class="is-num">{{ formatInt(day.ok) }}</td>
+                                    <td class="is-num">{{ formatInt(day.rejected) }}</td>
+                                    <td class="is-num">{{ formatInt(day.failed) }}</td>
+                                    <td class="is-num">{{ formatInt(day.unique_devices) }}</td>
+                                    <td class="is-num">{{ formatUsd(day.cost_usd) }}</td>
+                                </tr>
+                                <tr v-if="!(report.daily ?? []).length">
+                                    <td colspan="6" class="dd-table__empty">這段期間沒有 AI 請求</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </details>
+                </article>
+
+                <article class="dd-overview__card">
                     <h3>每日新裝置</h3>
                     <p class="sub">第一次用到 AI 功能時才會建立裝置，所以這是「開始用 AI 的新裝置」</p>
-                    <ColumnChart :points="newDevicePoints" unit=" 台" />
+                    <ColumnChart :points="newDevicePoints" :series="newDeviceSeries" unit=" 台" />
                     <details>
                         <summary>看數字</summary>
                         <table class="dd-table is-static">
                             <thead><tr><th scope="col">日期</th><th scope="col" class="is-num">新裝置</th></tr></thead>
                             <tbody>
-                                <tr v-for="p in newDevicePoints" :key="p.full"><td>{{ p.full }}</td><td class="is-num">{{ formatInt(p.value) }}</td></tr>
+                                <tr v-for="p in newDevicePoints" :key="p.full"><td>{{ p.full }}</td><td class="is-num">{{ formatInt(p.values.count) }}</td></tr>
                             </tbody>
                         </table>
                     </details>
@@ -364,6 +418,18 @@
         strong {
             color: var(--vp-c-text-1);
             font-size: var(--font-size-s);
+        }
+
+        // 一次列出那一天每個系列：日期在最上面，接著每列是「數值 + 系列名稱」
+        .when {
+            padding-bottom: 2px;
+            border-bottom: 1px solid var(--vp-c-divider);
+            margin-bottom: 2px;
+        }
+        .row {
+            @include setFlex(flex-start, baseline, 8px);
+
+            strong { min-width: 3em; }
         }
         .key {
             @include setFlex(flex-start, center, 6px);
