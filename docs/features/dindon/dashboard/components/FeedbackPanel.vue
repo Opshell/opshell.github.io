@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { FeedbackFilter, FeedbackIssue, FeedbackReport, FeedbackStats, FeedbackStatus } from '../api';
+    import type { FeedbackFilter, FeedbackIssue, FeedbackKind, FeedbackReport, FeedbackStats, FeedbackStatus } from '../api';
     import type { BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
@@ -22,6 +22,8 @@
     const STATUSES = Object.keys(STATUS_LABELS) as FeedbackStatus[];
 
     const status = ref<FeedbackFilter>('pending');
+    // 類型篩選（溝通板 #41）。crash 是 App 當掉後自動產生的，跟手寫的回報意義差很多
+    const kind = ref<FeedbackKind>('all');
     const reports = ref<FeedbackReport[]>([]);
     const total = ref(0);
     const stats = ref<FeedbackStats | null>(null);
@@ -43,7 +45,7 @@
         error.value = '';
         try {
             const [list, statsResult, issueList] = await call(token => Promise.all([
-                adminApi.listFeedback(token, { status: status.value, page: nextPage, perPage: PER_PAGE }),
+                adminApi.listFeedback(token, { status: status.value, kind: kind.value, page: nextPage, perPage: PER_PAGE }),
                 adminApi.feedbackStats(token),
                 adminApi.listIssues(token)
             ]));
@@ -51,7 +53,7 @@
             total.value = list.total;
             page.value = list.page;
             stats.value = statsResult;
-            issues.value = issueList.issues ?? [];
+            issues.value = issueList;
         } catch (e) {
             error.value = errorMessage(e);
         } finally {
@@ -103,7 +105,7 @@
             // 統計與問題的件數會跟著變
             const [statsResult, issueList] = await call(token => Promise.all([adminApi.feedbackStats(token), adminApi.listIssues(token)]));
             stats.value = statsResult;
-            issues.value = issueList.issues ?? [];
+            issues.value = issueList;
         } catch (e) {
             error.value = errorMessage(e);
         } finally {
@@ -145,14 +147,14 @@
 
     /** 改權重會立刻影響所有人的分數與名次，所以改完提示一下 */
     async function saveWeight(issue: FeedbackIssue, weight: number) {
-        if (!Number.isInteger(weight) || weight < 1 || weight > 100 || weight === issue.Weight) return;
+        if (!Number.isInteger(weight) || weight < 1 || weight > 100 || weight === issue.weight) return;
         busy.value = true;
         error.value = '';
         try {
-            await call(token => adminApi.updateIssue(token, issue.ID, { weight }));
+            await call(token => adminApi.updateIssue(token, issue.id, { weight }));
             const issueList = await call(token => adminApi.listIssues(token));
-            issues.value = issueList.issues ?? [];
-            notice.value = `「${issue.Title}」的權重改成 ${weight}，所有人的分數與名次都會跟著變`;
+            issues.value = issueList;
+            notice.value = `「${issue.title}」的權重改成 ${weight}，所有人的分數與名次都會跟著變`;
         } catch (e) {
             error.value = errorMessage(e);
         } finally {
@@ -215,6 +217,13 @@
                 <select v-model="status" @change="load(1)">
                     <option value="all">全部</option>
                     <option v-for="s in STATUSES" :key="s" :value="s">{{ STATUS_LABELS[s] }}</option>
+                </select>
+            </label>
+            <label>
+                類型
+                <select v-model="kind" @change="load(1)">
+                    <option value="all">全部</option>
+                    <option v-for="(label, value) in KIND_LABELS" :key="value" :value="value">{{ label }}</option>
                 </select>
             </label>
             <button type="button" class="dd-admin__btn is-ghost" :disabled="loading" @click="load()">重新整理</button>
@@ -329,7 +338,7 @@
                         </p>
 
                         <template v-if="detail.issue_id">
-                            <p>目前掛在：<strong>{{ issues.find(i => i.ID === detail.issue_id)?.Title ?? `#${detail.issue_id}` }}</strong></p>
+                            <p>目前掛在：<strong>{{ issues.find(i => i.id === detail.issue_id)?.Title ?? `#${detail.issue_id}` }}</strong></p>
                             <div class="dd-detail__actions">
                                 <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="detachIssue">從問題上拿下來</button>
                             </div>
@@ -340,7 +349,7 @@
                                 <span>掛到既有問題</span>
                                 <select v-model="issuePick">
                                     <option value="">選一個…</option>
-                                    <option v-for="issue in issues" :key="issue.ID" :value="issue.ID">{{ issue.Title }}（權重 {{ issue.Weight }}）</option>
+                                    <option v-for="issue in issues" :key="issue.id" :value="issue.id">{{ issue.title }}（權重 {{ issue.weight }}）</option>
                                 </select>
                                 <button type="button" class="dd-admin__btn" :disabled="!issuePick || busy" @click="attachIssue">掛上去</button>
                             </div>
@@ -375,8 +384,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="issue in issues" :key="issue.ID">
-                            <th scope="row">{{ issue.Title }}</th>
+                        <tr v-for="issue in issues" :key="issue.id">
+                            <th scope="row">{{ issue.title }}</th>
                             <td class="is-num">{{ formatInt(issue.reports) }}</td>
                             <td class="is-num">{{ formatInt(issue.accepted) }}</td>
                             <td class="is-num">
@@ -384,13 +393,13 @@
                                     type="number"
                                     min="1"
                                     max="100"
-                                    :value="issue.Weight"
+                                    :value="issue.weight"
                                     :disabled="busy"
-                                    :aria-label="`${issue.Title} 的權重`"
+                                    :aria-label="`${issue.title} 的權重`"
                                     @change="saveWeight(issue, Number(($event.target as HTMLInputElement).value))"
                                 />
                             </td>
-                            <td>{{ formatDateTime(issue.CreatedAt) }}</td>
+                            <td>{{ formatDateTime(issue.created_at) }}</td>
                         </tr>
                         <tr v-if="!issues.length">
                             <td colspan="5" class="dd-table__empty">還沒有合併過的問題</td>

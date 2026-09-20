@@ -58,18 +58,18 @@
     }
 
     const rewardText = (promo: PromoCode) => [
-        promo.PlanTier ? `${PLAN_LABELS[promo.PlanTier] ?? promo.PlanTier} ${[promo.Months ? `${promo.Months} 個月` : '', promo.Days ? `${promo.Days} 天` : ''].filter(Boolean).join(' ')}` : '',
-        promo.Tokens ? `${formatInt(promo.Tokens)} 點` : ''
+        promo.plan_tier ? `${PLAN_LABELS[promo.plan_tier] ?? promo.plan_tier} ${[promo.months ? `${promo.months} 個月` : '', promo.days ? `${promo.days} 天` : ''].filter(Boolean).join(' ')}` : '',
+        promo.tokens ? `${formatInt(promo.tokens)} 點` : ''
     ].filter(Boolean).join('＋');
 
     const seatsText = (promo: PromoCode) =>
-        promo.MaxRedemptions === null ? `${formatInt(promo.Redeemed)} / 不限` : `${formatInt(promo.Redeemed)} / ${formatInt(promo.MaxRedemptions)}`;
+        promo.max_redemptions === null ? `${formatInt(promo.redeemed)} / 不限` : `${formatInt(promo.redeemed)} / ${formatInt(promo.max_redemptions)}`;
 
     /** 用完了、過期了，即使 active 還是 true 也兌換不到 */
     function stateOf(promo: PromoCode): { label: string, kind: string } {
-        if (!promo.Active) return { label: '已停用', kind: 'is-frozen' };
-        if (promo.ExpiresAt && new Date(promo.ExpiresAt).getTime() < Date.now()) return { label: '已過期', kind: 'is-frozen' };
-        if (promo.MaxRedemptions !== null && promo.Redeemed >= promo.MaxRedemptions) return { label: '名額用完', kind: 'is-frozen' };
+        if (!promo.active) return { label: '已停用', kind: 'is-frozen' };
+        if (promo.expires_at && new Date(promo.expires_at).getTime() < Date.now()) return { label: '已過期', kind: 'is-frozen' };
+        if (promo.max_redemptions !== null && promo.redeemed >= promo.max_redemptions) return { label: '名額用完', kind: 'is-frozen' };
         return { label: '● 可兌換', kind: 'is-active' };
     }
 
@@ -107,7 +107,7 @@
         loading.value = true;
         error.value = '';
         try {
-            codes.value = (await call(token => adminApi.listPromoCodes(token))).promo_codes;
+            codes.value = await call(token => adminApi.listPromoCodes(token));
         } catch (e) {
             error.value = errorMessage(e);
         } finally {
@@ -127,25 +127,25 @@
     async function open(promo: PromoCode) {
         notice.value = '';
         error.value = '';
-        editing.value = promo.Code;
+        editing.value = promo.code;
         Object.assign(form, {
-            code: promo.Code,
-            givesPlan: !!promo.PlanTier,
-            planTier: promo.PlanTier || 'pro',
-            months: promo.Months,
-            days: promo.Days,
-            givesTokens: promo.Tokens > 0,
-            tokens: promo.Tokens || 100,
-            unlimitedSeats: promo.MaxRedemptions === null,
-            seats: promo.MaxRedemptions ?? 50,
-            unlimitedExpiry: !promo.ExpiresAt,
-            expiresAt: promo.ExpiresAt ? toLocalInput(promo.ExpiresAt) : '',
-            note: promo.Note,
-            active: promo.Active
+            code: promo.code,
+            givesPlan: !!promo.plan_tier,
+            planTier: promo.plan_tier || 'pro',
+            months: promo.months,
+            days: promo.days,
+            givesTokens: promo.tokens > 0,
+            tokens: promo.tokens || 100,
+            unlimitedSeats: promo.max_redemptions === null,
+            seats: promo.max_redemptions ?? 50,
+            unlimitedExpiry: !promo.expires_at,
+            expiresAt: promo.expires_at ? toLocalInput(promo.expires_at) : '',
+            note: promo.note,
+            active: promo.active
         });
         redemptions.value = [];
         try {
-            redemptions.value = (await call(token => adminApi.getPromoCode(token, promo.Code))).redemptions;
+            redemptions.value = (await call(token => adminApi.getPromoCode(token, promo.code))).redemptions;
         } catch (e) {
             error.value = errorMessage(e);
         }
@@ -158,14 +158,14 @@
         notice.value = '';
         try {
             if (isNew.value) {
-                const created = (await call(token => adminApi.createPromoCode(token, payload()))).promo_code;
+                const created = await call(token => adminApi.createPromoCode(token, payload()));
                 await load();
                 await open(created);
-                notice.value = `已建立 ${created.Code}`;
+                notice.value = `已建立 ${created.code}`;
             } else {
-                const saved = (await call(token => adminApi.updatePromoCode(token, editing.value!, payload()))).promo_code;
+                const saved = await call(token => adminApi.updatePromoCode(token, editing.value!, payload()));
                 await load();
-                notice.value = `已儲存 ${saved.Code}（已經兌換過的人不受影響）`;
+                notice.value = `已儲存 ${saved.code}（已經兌換過的人不受影響）`;
             }
         } catch (e) {
             error.value = errorMessage(e);
@@ -182,8 +182,8 @@
         notice.value = '';
         try {
             const next = !form.active;
-            const saved = (await call(token => adminApi.updatePromoCode(token, editing.value!, { active: next }))).promo_code;
-            form.active = saved.Active;
+            const saved = await call(token => adminApi.updatePromoCode(token, editing.value!, { active: next }));
+            form.active = saved.active;
             await load();
             notice.value = next ? '已停用，之後不能再兌換（已經兌換過的人不受影響）' : '已啟用';
         } catch (e) {
@@ -341,18 +341,18 @@
                 <tbody>
                     <tr
                         v-for="promo in codes"
-                        :key="promo.Code"
-                        :class="{ 'is-selected': promo.Code === editing }"
+                        :key="promo.code"
+                        :class="{ 'is-selected': promo.code === editing }"
                         tabindex="0"
                         @click="open(promo)"
                         @keydown.enter="open(promo)"
                     >
-                        <td><strong class="dd-promo__code">{{ promo.Code }}</strong></td>
+                        <td><strong class="dd-promo__code">{{ promo.code }}</strong></td>
                         <td>{{ rewardText(promo) }}</td>
                         <td>{{ seatsText(promo) }}</td>
-                        <td>{{ promo.ExpiresAt ? formatDateTime(promo.ExpiresAt) : '不限' }}</td>
+                        <td>{{ promo.expires_at ? formatDateTime(promo.expires_at) : '不限' }}</td>
                         <td><span class="dd-status" :class="stateOf(promo).kind">{{ stateOf(promo).label }}</span></td>
-                        <td>{{ promo.Note || '—' }}</td>
+                        <td>{{ promo.note || '—' }}</td>
                     </tr>
                     <tr v-if="!loading && !codes.length">
                         <td colspan="6" class="dd-table__empty">還沒有任何優惠碼</td>
