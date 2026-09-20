@@ -121,6 +121,55 @@ export interface UsageReport {
 }
 // #endregion
 
+// #region [P] beta 貢獻活動的回報（api.md 第 8 節「審回報」）
+export type FeedbackStatus = 'pending' | 'accepted_bug' | 'accepted_suggestion' | 'rejected';
+export type FeedbackFilter = 'all' | FeedbackStatus;
+
+export interface FeedbackReport {
+    id: number
+    device_id: number
+    device_name: string
+    kind: 'bug' | 'suggestion'
+    status: FeedbackStatus
+    description: string
+    app_version: string
+    device_model: string
+    android_version: string
+    /** 截圖的 position，拿去組截圖網址 */
+    screenshots: number[]
+    reviewed_by: string | null
+    reviewed_at: string | null
+    /** 有值 = 內容已清除（描述是空的、沒有截圖） */
+    content_purged_at: string | null
+    created_at: string
+    issue_id?: number | null
+    /** 只有單則才有，可能 32 KB */
+    log?: string
+}
+
+export interface FeedbackStats {
+    total: number
+    by_status: Record<string, number>
+    by_kind: Record<string, number>
+    per_day: { date: string, count: number }[]
+    participants: number
+    /** 採計了、還沒歸到任何問題的件數，也就是合併的待辦數量 */
+    accepted_without_issue: number
+}
+
+/** 後端這支回的是 Go 的欄位名（大寫開頭），照抄 */
+export interface FeedbackIssue {
+    ID: number
+    Title: string
+    Weight: number
+    Note: string
+    CreatedBy: string
+    CreatedAt: string
+    reports: number
+    accepted: number
+}
+// #endregion
+
 export class AdminApiError extends Error {
     constructor(public status: number, message: string) {
         super(message);
@@ -142,11 +191,28 @@ function fallbackMessage(status: number): string {
     }
 }
 
+/** 回傳圖片本身的端點（截圖）。錯誤處理跟 request 一樣，只是不解析 JSON */
+async function blob(token: string, path: string): Promise<Blob> {
+    let response: Response;
+    try {
+        response = await fetch(`${apiBase()}${path}`, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
+    } catch {
+        throw new AdminApiError(0, '連不上後端，請檢查網路');
+    }
+    if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new AdminApiError(response.status, (data && typeof data.error === 'string') ? data.error : fallbackMessage(response.status));
+    }
+    return response.blob();
+}
+
 async function request<T>(token: string, path: string, init: { method?: string, body?: unknown } = {}): Promise<T> {
     let response: Response;
     try {
         response = await fetch(`${apiBase()}${path}`, {
             method: init.method ?? 'GET',
+            // 後台看到的必須是當下的狀態：不要讓瀏覽器拿快取回應（審完回來還看到舊的就會判錯）
+            cache: 'no-store',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {})
@@ -197,5 +263,31 @@ export const adminApi = {
     eraseIdentity: (token: string, id: number) =>
         request<{ device: AdminDevice }>(token, `/v1/admin/devices/${id}/erase-identity`, { method: 'POST' }),
     usage: (token: string, days: number) =>
-        request<UsageReport>(token, `/v1/admin/usage?days=${days}`)
+        request<UsageReport>(token, `/v1/admin/usage?days=${days}`),
+
+    // #region [P] 審回報
+    feedbackStats: (token: string) => request<FeedbackStats>(token, '/v1/admin/feedback/stats'),
+    listFeedback: (token: string, params: { status?: FeedbackFilter, deviceId?: number, page?: number, perPage?: number }) => {
+        const query = new URLSearchParams();
+        if (params.status && params.status !== 'all') query.set('status', params.status);
+        if (params.deviceId) query.set('device_id', String(params.deviceId));
+        query.set('page', String(params.page ?? 1));
+        query.set('per_page', String(params.perPage ?? 50));
+        return request<{ reports: FeedbackReport[], total: number, page: number, per_page: number }>(token, `/v1/admin/feedback?${query}`);
+    },
+    getFeedback: (token: string, id: number) => request<{ report: FeedbackReport }>(token, `/v1/admin/feedback/${id}`),
+    /** 截圖要帶 Authorization，不能直接 <img src>；呼叫端自己轉 blob URL、用完 revoke */
+    feedbackScreenshot: (token: string, id: number, position: number) =>
+        blob(token, `/v1/admin/feedback/${id}/screenshots/${position}`),
+    reviewFeedback: (token: string, id: number, patch: { status?: FeedbackStatus, issue_id?: number | null }) =>
+        request<{ report: FeedbackReport }>(token, `/v1/admin/feedback/${id}`, { method: 'PATCH', body: patch }),
+
+    listIssues: (token: string) => request<{ issues: FeedbackIssue[] }>(token, '/v1/admin/feedback/issues'),
+    createIssue: (token: string, body: { title: string, weight: number, note?: string, report_ids?: number[] }) =>
+        request<unknown>(token, '/v1/admin/feedback/issues', { method: 'POST', body }),
+    updateIssue: (token: string, id: number, body: { title?: string, weight?: number, note?: string }) =>
+        request<unknown>(token, `/v1/admin/feedback/issues/${id}`, { method: 'PATCH', body }),
+    addReportsToIssue: (token: string, id: number, reportIds: number[]) =>
+        request<unknown>(token, `/v1/admin/feedback/issues/${id}/reports`, { method: 'POST', body: { report_ids: reportIds } })
+    // #endregion
 };

@@ -296,18 +296,8 @@
 </template>
 
 <style lang="scss">
-    // 圖表的顏色：參考色票（dataviz palette.md）的前三格，深色模式用同色相、為深底調過的那一階。
-    // 已用 validate_palette.js 驗證：淺色對 #ffffff、深色對 #1b1b1f，CVD 與正常視覺的色差都過門檻。
-    // 淺色的湖水綠對白底只有 2.82:1，所以每張圖都有圖例或數字標籤，加上「看數字」表格。
+    // 圖表的顏色定義在 .dd-admin（DashboardApp.vue），兩個分頁共用
     .dd-overview {
-        --dd-series-1: #2a78d6;
-        --dd-series-2: #1baf7a;
-        --dd-series-3: #eb6834;
-        --dd-chart-ink: var(--vp-c-text-1);
-        --dd-chart-ink-2: var(--vp-c-text-2);
-        --dd-chart-muted: #898781;
-        --dd-chart-grid: #e1e0d9;
-        --dd-chart-axis: #c3c2b7;
         transition: opacity .2s;
 
         // 重新載入時保留上一次的畫面、淡一點，不閃、不跳版
@@ -449,11 +439,4 @@
         }
     }
 
-    .dark .dd-overview {
-        --dd-series-1: #3987e5;
-        --dd-series-2: #199e70;
-        --dd-series-3: #d95926;
-        --dd-chart-grid: #2c2c2a;
-        --dd-chart-axis: #383835;
-    }
 </style>
