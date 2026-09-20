@@ -115,6 +115,8 @@ export interface UsageReport {
 // #region [P] beta 貢獻活動的回報（api.md 第 8 節「審回報」）
 export type FeedbackStatus = 'pending' | 'accepted_bug' | 'accepted_suggestion' | 'rejected';
 export type FeedbackFilter = 'all' | FeedbackStatus;
+/** 回報的類型篩選（溝通板 #41）。crash 是 App 當掉後自動產生、使用者按了才送的 */
+export type FeedbackKind = 'all' | 'bug' | 'suggestion' | 'crash';
 
 export interface FeedbackReport {
     id: number
@@ -140,26 +142,23 @@ export interface FeedbackReport {
 }
 
 // #region [P] 優惠碼（api.md 第 8 節「優惠碼」，溝通板 #38）
-/**
- * 一組優惠碼。欄位是大寫開頭的——後端直接把 GORM 的 struct 丟出來，沒有加 json 標籤，
- * 所以線上回的就是 `Code`、`PlanTier` 這些名字。這裡照抄，不自己改名。
- */
+/** 一組優惠碼。欄位名稱見下面的 normalize：後端換版期間新舊兩種命名都認 */
 export interface PromoCode {
-    Code: string
+    code: string
     /** 空字串 = 這組碼不送方案時間，只送點數 */
-    PlanTier: '' | 'lite' | 'pro'
-    Tokens: number
-    Months: number
-    Days: number
+    plan_tier: '' | 'lite' | 'pro'
+    tokens: number
+    months: number
+    days: number
     /** null = 不限人數 */
-    MaxRedemptions: number | null
-    Redeemed: number
+    max_redemptions: number | null
+    redeemed: number
     /** null = 沒有期限 */
-    ExpiresAt: string | null
-    Active: boolean
-    Note: string
-    CreatedBy: string
-    CreatedAt: string
+    expires_at: string | null
+    active: boolean
+    note: string
+    created_by: string
+    created_at: string
 }
 
 export interface PromoRedemption {
@@ -197,14 +196,58 @@ export interface FeedbackStats {
 
 /** 後端這支回的是 Go 的欄位名（大寫開頭），照抄 */
 export interface FeedbackIssue {
-    ID: number
-    Title: string
-    Weight: number
-    Note: string
-    CreatedBy: string
-    CreatedAt: string
+    id: number
+    title: string
+    weight: number
+    note: string
+    created_by: string
+    created_at: string
     reports: number
     accepted: number
+}
+// #endregion
+
+// #region [P] 欄位命名的換版（溝通板 #41）
+// 後端原本把三個 model 直接丟進 c.JSON，欄位就是 Go 的 `Code`、`PlanTier`；
+// 已經補上 json 標籤改成小寫底線，但那一版還沒部署。這裡兩種都認，換版就沒有空窗期。
+// 線上換完之後，可以把 legacy 的那半刪掉，元件不用動。
+type Raw = Record<string, unknown>;
+
+/** 不能用 ??：`max_redemptions: null`（不限）會被當成沒有這個欄位 */
+function field<T>(raw: Raw, lower: string, legacy: string, fallback: T): T {
+    if (lower in raw) return raw[lower] as T;
+    if (legacy in raw) return raw[legacy] as T;
+    return fallback;
+}
+
+function normalizePromo(raw: Raw): PromoCode {
+    return {
+        code: field(raw, 'code', 'Code', ''),
+        plan_tier: field(raw, 'plan_tier', 'PlanTier', '' as PromoCode['plan_tier']),
+        tokens: field(raw, 'tokens', 'Tokens', 0),
+        months: field(raw, 'months', 'Months', 0),
+        days: field(raw, 'days', 'Days', 0),
+        max_redemptions: field(raw, 'max_redemptions', 'MaxRedemptions', null),
+        redeemed: field(raw, 'redeemed', 'Redeemed', 0),
+        expires_at: field(raw, 'expires_at', 'ExpiresAt', null),
+        active: field(raw, 'active', 'Active', true),
+        note: field(raw, 'note', 'Note', ''),
+        created_by: field(raw, 'created_by', 'CreatedBy', ''),
+        created_at: field(raw, 'created_at', 'CreatedAt', '')
+    };
+}
+
+function normalizeIssue(raw: Raw): FeedbackIssue {
+    return {
+        id: field(raw, 'id', 'ID', 0),
+        title: field(raw, 'title', 'Title', ''),
+        weight: field(raw, 'weight', 'Weight', 1),
+        note: field(raw, 'note', 'Note', ''),
+        created_by: field(raw, 'created_by', 'CreatedBy', ''),
+        created_at: field(raw, 'created_at', 'CreatedAt', ''),
+        reports: field(raw, 'reports', 'Reports', 0),
+        accepted: field(raw, 'accepted', 'Accepted', 0)
+    };
 }
 // #endregion
 
@@ -309,9 +352,10 @@ export const adminApi = {
 
     // #region [P] 審回報
     feedbackStats: (token: string) => request<FeedbackStats>(token, '/v1/admin/feedback/stats'),
-    listFeedback: (token: string, params: { status?: FeedbackFilter, deviceId?: number, page?: number, perPage?: number }) => {
+    listFeedback: (token: string, params: { status?: FeedbackFilter, kind?: FeedbackKind, deviceId?: number, page?: number, perPage?: number }) => {
         const query = new URLSearchParams();
         if (params.status && params.status !== 'all') query.set('status', params.status);
+        if (params.kind && params.kind !== 'all') query.set('kind', params.kind);
         if (params.deviceId) query.set('device_id', String(params.deviceId));
         query.set('page', String(params.page ?? 1));
         query.set('per_page', String(params.perPage ?? 50));
@@ -324,7 +368,8 @@ export const adminApi = {
     reviewFeedback: (token: string, id: number, patch: { status?: FeedbackStatus, issue_id?: number | null }) =>
         request<{ report: FeedbackReport }>(token, `/v1/admin/feedback/${id}`, { method: 'PATCH', body: patch }),
 
-    listIssues: (token: string) => request<{ issues: FeedbackIssue[] }>(token, '/v1/admin/feedback/issues'),
+    listIssues: async (token: string) =>
+        ((await request<{ issues: Raw[] | null }>(token, '/v1/admin/feedback/issues')).issues ?? []).map(normalizeIssue),
     createIssue: (token: string, body: { title: string, weight: number, note?: string, report_ids?: number[] }) =>
         request<unknown>(token, '/v1/admin/feedback/issues', { method: 'POST', body }),
     updateIssue: (token: string, id: number, body: { title?: string, weight?: number, note?: string }) =>
@@ -334,14 +379,17 @@ export const adminApi = {
     // #endregion
 
     // #region [P] 優惠碼
-    listPromoCodes: (token: string) => request<{ promo_codes: PromoCode[] }>(token, '/v1/admin/promo-codes'),
+    listPromoCodes: async (token: string) =>
+        (await request<{ promo_codes: Raw[] }>(token, '/v1/admin/promo-codes')).promo_codes.map(normalizePromo),
     /** 單一組，附誰兌換過（最多 200 筆，新的在前） */
-    getPromoCode: (token: string, code: string) =>
-        request<{ promo_code: PromoCode, redemptions: PromoRedemption[] }>(token, `/v1/admin/promo-codes/${encodeURIComponent(code)}`),
-    createPromoCode: (token: string, body: PromoPayload) =>
-        request<{ promo_code: PromoCode }>(token, '/v1/admin/promo-codes', { method: 'POST', body }),
+    getPromoCode: async (token: string, code: string) => {
+        const result = await request<{ promo_code: Raw, redemptions: PromoRedemption[] }>(token, `/v1/admin/promo-codes/${encodeURIComponent(code)}`);
+        return { promo_code: normalizePromo(result.promo_code), redemptions: result.redemptions };
+    },
+    createPromoCode: async (token: string, body: PromoPayload) =>
+        normalizePromo((await request<{ promo_code: Raw }>(token, '/v1/admin/promo-codes', { method: 'POST', body })).promo_code),
     /** code 不能改，所以 body 裡不要帶 */
-    updatePromoCode: (token: string, code: string, body: PromoPayload) =>
-        request<{ promo_code: PromoCode }>(token, `/v1/admin/promo-codes/${encodeURIComponent(code)}`, { method: 'PATCH', body })
+    updatePromoCode: async (token: string, code: string, body: PromoPayload) =>
+        normalizePromo((await request<{ promo_code: Raw }>(token, `/v1/admin/promo-codes/${encodeURIComponent(code)}`, { method: 'PATCH', body })).promo_code)
     // #endregion
 };
