@@ -2,12 +2,14 @@
     import { ref } from 'vue';
     import {
         BETA_SEATS,
+        GROUP_URL,
         betaRewards,
         betaSteps,
         CONTACT_EMAIL,
         invoicePains,
         lazyPoints,
         photoSources,
+        PLAY_OPTIN_URL,
         PRIVACY_PATH,
         SIGNUP_HREF,
         withoutNotice
@@ -46,7 +48,7 @@
                     </p>
 
                     <div class="dindon-landing__actions">
-                        <a class="dindon-landing__btn is-primary" :href="SIGNUP_HREF">加入封閉測試<span class="arrow" aria-hidden="true">→</span></a>
+                        <a class="dindon-landing__btn is-primary" :href="GROUP_URL" target="_blank" rel="noopener">加入封閉測試<span class="arrow" aria-hidden="true">→</span></a>
                         <a class="dindon-landing__btn" href="#why">看看怎麼做到<span class="arrow is-down" aria-hidden="true">↓</span></a>
                     </div>
                     <p class="dindon-landing__note">僅限 Android 7.0 以上 · 封測限額 {{ BETA_SEATS }} 名 · 即將在 Google Play 上架</p>
@@ -218,9 +220,13 @@
                             <li v-for="(step, index) in betaSteps" :key="step" data-reveal :style="delay(index + 3, 90)">{{ step }}</li>
                         </ol>
 
-                        <a class="dindon-landing__btn is-primary" :href="SIGNUP_HREF" data-reveal :style="delay(6, 90)">寄信報名<span class="arrow" aria-hidden="true">→</span></a>
+                        <div class="dindon-landing__actions" data-reveal :style="delay(6, 90)">
+                            <a class="dindon-landing__btn is-primary" :href="GROUP_URL" target="_blank" rel="noopener">申請加入封測群組<span class="arrow" aria-hidden="true">→</span></a>
+                            <a v-if="PLAY_OPTIN_URL" class="dindon-landing__btn" :href="PLAY_OPTIN_URL" target="_blank" rel="noopener">已核准？前往安裝<span class="arrow" aria-hidden="true">→</span></a>
+                        </div>
                         <p class="dindon-landing__note">
-                            需要：Android 7.0 以上的手機、一個 Google 帳號。報名信箱：<span class="email">{{ CONTACT_EMAIL }}</span>
+                            需要：Android 7.0 以上的手機、一個 Google 帳號（要和 Play 商店登入的是同一個）。
+                            有問題寫信到 <a :href="SIGNUP_HREF" class="email">{{ CONTACT_EMAIL }}</a>。
                         </p>
                     </div>
 
