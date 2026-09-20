@@ -92,8 +92,8 @@
                 <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">用過就知道，拿電子發票來記帳，卡在這幾個地方：</p>
 
                 <ul class="dindon-landing__pains">
-                    <li v-for="(pain, index) in invoicePains" :key="pain.title" data-reveal :style="delay(index, 70)">
-                        <span class="pain-icon" aria-hidden="true">{{ pain.icon }}</span>
+                    <li v-for="(pain, index) in invoicePains" :key="pain.title" class="dindon-landing__card" data-reveal :style="delay(index, 70)">
+                        <span class="feature-icon" aria-hidden="true">{{ pain.icon }}</span>
                         <h3>{{ pain.title }}</h3>
                         <p>{{ pain.text }}</p>
                     </li>
@@ -161,8 +161,9 @@
                     <p class="dindon-landing__subtitle" data-reveal :style="delay(1)">最舒適的用法，也是最放心的用法。</p>
 
                     <ul class="dindon-landing__points">
-                        <li v-for="(point, index) in lazyPoints" :key="point.title" data-reveal :style="delay(index + 2, 80)">
-                            <h3><span aria-hidden="true">{{ point.icon }}</span>{{ point.title }}</h3>
+                        <li v-for="(point, index) in lazyPoints" :key="point.title" class="dindon-landing__card" data-reveal :style="delay(index + 2, 80)">
+                            <span class="feature-icon" aria-hidden="true">{{ point.icon }}</span>
+                            <h3>{{ point.title }}</h3>
                             <p>{{ point.text }}</p>
                         </li>
                     </ul>
@@ -666,20 +667,6 @@
             gap: 16px;
             margin-top: 36px !important;
             list-style: none;
-
-            li {
-                @include setFlex(flex-start, flex-start, 6px, column);
-                background: var(--dd-surface);
-                padding: 20px;
-                border: 1px solid var(--dd-border);
-                border-radius: var(--dd-radius);
-            }
-            .pain-icon { font-size: 1.6rem; }
-            h3 { font-size: var(--font-size-m); }
-            p {
-                color: var(--dd-muted);
-                font-size: var(--font-size-s);
-            }
         }
         &__answer {
             @include setFlex(flex-start, center, 16px);
@@ -707,6 +694,9 @@
             list-style: none;
             @include setRWD(768px) { grid-template-columns: 1fr; }
         }
+
+        // 三個區塊（電子發票的痛點、就算沒有通知、最懶人的記帳體驗）共用這一張卡：
+        // 色塊裡的圖示 → 標題 → 說明。欄位越窄的區塊字級跟著小一號，排法不變
         &__card {
             @include setFlex(flex-start, flex-start, 10px, column);
             background: var(--dd-surface);
@@ -725,6 +715,21 @@
             }
             h3 { font-size: var(--font-size-l); }
             p { color: var(--dd-muted); }
+
+            // 痛點一排五張，欄位只有 190px，整張縮一號才不會每句話都斷成四行
+            .dindon-landing__pains & {
+                gap: 8px;
+                padding: 20px;
+
+                .feature-icon {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 12px;
+                    font-size: 1.25rem;
+                }
+                h3 { font-size: var(--font-size-m); }
+                p { font-size: var(--font-size-s); }
+            }
             @media (hover: hover) {
                 &:hover {
                     translate: 0 -4px;
@@ -821,19 +826,10 @@
         &__points {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px 28px;
+            gap: 20px;
             margin-top: 32px !important;
             list-style: none;
             @include setRWD(500px) { grid-template-columns: 1fr; }
-
-            h3 {
-                @include setFlex(flex-start, center, 8px);
-                font-size: var(--font-size-l);
-            }
-            p {
-                margin-top: 4px !important;
-                color: var(--dd-muted);
-            }
         }
 
         // #endregion
