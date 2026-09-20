@@ -1,5 +1,5 @@
 import { AdminApiError } from './api';
-import { useGoogleAuth } from './useGoogleAuth';
+import { useGoogleAuth } from '../useGoogleAuth';
 
 /**
  * 帶著目前的登入憑證呼叫管理 API。

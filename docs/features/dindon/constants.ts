@@ -6,6 +6,9 @@ export const BETA_SEATS = 100;
 
 export const PRIVACY_PATH = '/dindon/privacy/';
 
+/** 刪除資料與帳號。Google Play 要求「帳號刪除」有一個不用裝 App 也打得開的網址 */
+export const ACCOUNT_PATH = '/dindon/account/';
+
 /** 封測的 Google 群組。加入群組才拿得到 Play 的測試版（見外層 google-group-setup.md） */
 export const GROUP_URL = 'https://groups.google.com/g/dindon-beta';
 

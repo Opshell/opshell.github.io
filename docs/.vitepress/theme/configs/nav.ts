@@ -87,6 +87,25 @@ export default [
         ]
     },
     {
+        // 叮咚記帳自己一個大項：Google Play 會把隱私權與刪除帳號的網址交出去給使用者，
+        // 從導覽列也要找得到（頁面都沒開 cleanUrls，連結一定要留結尾斜線，少了會 404）
+        text: 'DinDon 記帳',
+        items: [
+            {
+                text: '關於叮咚記帳',
+                link: '/dindon/'
+            },
+            {
+                text: '隱私權政策',
+                link: '/dindon/privacy/'
+            },
+            {
+                text: '刪除資料與帳號',
+                link: '/dindon/account/'
+            }
+        ]
+    },
+    {
         text: 'Archive',
         items: [
             {

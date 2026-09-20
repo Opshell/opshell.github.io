@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { ref } from 'vue';
     import {
+        ACCOUNT_PATH,
         BETA_SEATS,
         GROUP_URL,
         betaRewards,
@@ -166,7 +167,10 @@
                         </li>
                     </ul>
 
-                    <a class="dindon-landing__link" :href="PRIVACY_PATH" data-reveal>看完整的隱私權政策<span class="arrow" aria-hidden="true">→</span></a>
+                    <p class="dindon-landing__links">
+                        <a class="dindon-landing__link" :href="PRIVACY_PATH" data-reveal>看完整的隱私權政策<span class="arrow" aria-hidden="true">→</span></a>
+                        <a class="dindon-landing__link" :href="ACCOUNT_PATH" data-reveal :style="delay(1)">要刪除資料或帳號<span class="arrow" aria-hidden="true">→</span></a>
+                    </p>
                 </div>
 
                 <figure class="dindon-landing__figure" data-reveal="right">
@@ -253,6 +257,8 @@
         <footer class="dindon-landing__footer">
             <div class="dindon-landing__container">
                 <a :href="PRIVACY_PATH">隱私權政策</a>
+                <span aria-hidden="true">·</span>
+                <a :href="ACCOUNT_PATH">刪除資料與帳號</a>
                 <span aria-hidden="true">·</span>
                 <a :href="`mailto:${CONTACT_EMAIL}`">{{ CONTACT_EMAIL }}</a>
                 <span aria-hidden="true">·</span>
@@ -625,6 +631,14 @@
                 color: var(--dd-muted);
                 font-weight: 700;
             }
+        }
+        &__links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 28px;
+            margin-top: 24px;
+
+            .dindon-landing__link { margin-top: 0; }
         }
         &__link {
             display: inline-block;

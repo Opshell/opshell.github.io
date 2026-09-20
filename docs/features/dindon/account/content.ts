@@ -1,0 +1,69 @@
+// 刪除頁的文案。每一條都要跟 App 的隱私權政策（DinDon_Android 的 privacy_policy.md 第 6、7 節）對得上；
+// 政策改了，這裡也要跟著改。
+
+import { CONTACT_EMAIL } from '../constants';
+
+export interface iPartialItem {
+    title: string
+    /** 在 App 裡的路徑；要寫信處理的留 null */
+    inApp: string | null
+    what: string
+    /** 做完之後留下什麼 */
+    keeps: string
+}
+
+/** 只想刪一部分：每一項都能單獨處理，帳戶、方案與額度都保留 */
+export const partialItems: iPartialItem[] = [
+    {
+        title: '上傳的大頭貼',
+        inApp: '選單 → 個人資料 → 刪掉上傳的照片',
+        what: '伺服器上那張照片立刻刪除，頭像退回內建圖案。',
+        keeps: '暱稱、件數與排行榜上的名次不變。'
+    },
+    {
+        title: '暱稱',
+        inApp: '選單 → 個人資料 → 清空暱稱',
+        what: '排行榜上就不會再顯示你設的名字。',
+        keeps: '你的件數與名次還在，只是沒有名字。'
+    },
+    {
+        title: 'Google 帳號綁定（email 與帳號識別碼）',
+        inApp: '選單 → 個人資料 → 解除綁定',
+        what: '伺服器上這兩項立刻清除。手機不在手邊、或已經移除 App 的話，用下面的線上表單也可以。',
+        keeps: '方案、額度、徽章與活動紀錄都留著，App 照常使用——代價是換手機時不能再用 Google 拿回權益。'
+    },
+    {
+        title: '送出過的問題回報內容與截圖',
+        inApp: null,
+        what: `寫信到 ${CONTACT_EMAIL} 要求刪除，會在活動結束前提前清除。`,
+        keeps: '「是問題還是建議、有沒有被採計」的件數不受影響。'
+    },
+    {
+        title: '每日打卡紀錄',
+        inApp: null,
+        what: '寫信要求把這台裝置從 Beta 活動中排除。',
+        keeps: '方案與額度不變（排除之後就不會拿到全勤獎勵）。'
+    },
+    {
+        title: '手機上的帳務資料',
+        inApp: '選單 → 資料與備份 → 刪除所有資料',
+        what: '帳、分類、設定、連續天數與徽章全部刪除，App 回到剛安裝的樣子。',
+        keeps: '這一項不需要動到伺服器上的帳戶。直接移除 App 也會一起刪掉。'
+    }
+];
+
+/** 刪除整個帳戶時，伺服器上會清掉的東西 */
+export const accountErased: string[] = [
+    '綁定的 Google 帳號 email 與帳號識別碼',
+    '暱稱與上傳的大頭貼',
+    '送出過的問題回報內容、截圖與除錯紀錄',
+    '每日打卡的紀錄'
+];
+
+/** 刪除整個帳戶之後還會留下的東西（跟隱私權政策第 6 節一致） */
+export const accountKept: string[] = [
+    '一筆對應不回你的裝置流水號，上面只剩方案與額度，用來計算額度與定價',
+    '「是問題還是建議、有沒有被採計」的件數（不含內容）',
+    '使用量的統計數字，同樣已經對應不回你',
+    '連線紀錄：依 Google Cloud 的預設，約 30 天後自動刪除'
+];
