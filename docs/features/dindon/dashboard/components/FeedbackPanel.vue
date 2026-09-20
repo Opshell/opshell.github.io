@@ -5,7 +5,7 @@
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { adminApi } from '../api';
     import ColumnChart from '../charts/ColumnChart.vue';
-    import { formatDateTime, formatInt, formatRelative } from '../format';
+    import { formatDateTime, formatInt, formatRelative, KIND_LABELS } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
     // beta 貢獻活動的回報審核（api.md 第 8 節）。
@@ -247,7 +247,7 @@
                         >
                             <td>#{{ report.id }}</td>
                             <td>{{ report.device_name || `#${report.device_id}` }}</td>
-                            <td>{{ report.kind === 'bug' ? 'bug' : '建議' }}</td>
+                            <td>{{ KIND_LABELS[report.kind] ?? report.kind }}</td>
                             <td>
                                 <span class="dd-status" :class="report.status === 'pending' ? 'is-pending' : report.status === 'rejected' ? 'is-frozen' : 'is-active'">
                                     {{ STATUS_LABELS[report.status] }}
@@ -280,7 +280,7 @@
                 <template v-else>
                     <dl class="dd-detail__info">
                         <div><dt>裝置</dt><dd>{{ detail.device_name || '未命名' }}（#{{ detail.device_id }}）</dd></div>
-                        <div><dt>類型</dt><dd>{{ detail.kind === 'bug' ? 'bug' : '建議' }}</dd></div>
+                        <div><dt>類型</dt><dd>{{ KIND_LABELS[detail.kind] ?? detail.kind }}</dd></div>
                         <div><dt>App 版本</dt><dd>{{ detail.app_version || '—' }}</dd></div>
                         <div><dt>手機</dt><dd>{{ detail.device_model || '—' }}（Android {{ detail.android_version || '?' }}）</dd></div>
                         <div><dt>送出</dt><dd>{{ formatDateTime(detail.created_at) }}</dd></div>

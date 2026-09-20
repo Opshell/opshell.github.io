@@ -40,7 +40,10 @@ export const FEATURE_LABELS: Record<string, string> = {
 };
 export const FEATURE_ORDER = ['classify', 'recognize', 'recognize-speech'];
 
-export const PLAN_LABELS: Record<string, string> = { free: '免費', pro: 'Pro' };
+export const PLAN_LABELS: Record<string, string> = { free: '免費', lite: 'Lite', pro: 'Pro' };
+
+/** 回報的類型。crash 是 App 當掉之後自己產生的，使用者按了才送（溝通板 #39） */
+export const KIND_LABELS: Record<string, string> = { bug: 'bug', suggestion: '建議', crash: '閃退' };
 
 const integer = new Intl.NumberFormat('zh-TW');
 export const formatInt = (value: number) => integer.format(Math.round(value));
