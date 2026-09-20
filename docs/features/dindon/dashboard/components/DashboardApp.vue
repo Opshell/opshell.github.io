@@ -2,6 +2,7 @@
     import { nextTick, onMounted, ref, watch } from 'vue';
     import { useGoogleAuth } from '../useGoogleAuth';
     import DeviceManager from './DeviceManager.vue';
+    import FeedbackPanel from './FeedbackPanel.vue';
     import OverviewPanel from './OverviewPanel.vue';
     import UsageReport from './UsageReport.vue';
 
@@ -12,6 +13,7 @@
     const TABS = [
         { key: 'overview', label: '總覽' },
         { key: 'devices', label: '裝置' },
+        { key: 'feedback', label: '回報' },
         { key: 'usage', label: '用量報表' }
     ] as const;
     type Tab = typeof TABS[number]['key'];
@@ -93,6 +95,7 @@
 
             <OverviewPanel v-if="tab === 'overview'" />
             <DeviceManager v-else-if="tab === 'devices'" />
+            <FeedbackPanel v-else-if="tab === 'feedback'" />
             <UsageReport v-else />
         </template>
     </div>
@@ -102,8 +105,20 @@
     // 這個網站的 body 是黑底，只有文章版型自己鋪了背景；page 版型要自己補，不然淺色模式是黑底深字
     .Layout.dindon-dashboard { background: var(--vp-c-bg); }
 
-    // 後台沿用網站的 VitePress 色彩變數，跟著網站的淺色／深色切換
+    // 後台沿用網站的 VitePress 色彩變數，跟著網站的淺色／深色切換。
+    // 圖表的顏色是參考色票（dataviz palette.md）的前三格，深色模式用同色相、為深底調過的那一階；
+    // 已用 validate_palette.js 驗證：淺色對 #ffffff、深色對 #1b1b1f，CVD 與正常視覺的色差都過門檻。
+    // 淺色的湖水綠對白底只有 2.82:1，所以每張圖都有圖例或數字標籤，加上「看數字」表格。
+    // 定義在這裡而不是各分頁：總覽與回報都要用同一組。
     .dd-admin {
+        --dd-series-1: #2a78d6;
+        --dd-series-2: #1baf7a;
+        --dd-series-3: #eb6834;
+        --dd-chart-ink: var(--vp-c-text-1);
+        --dd-chart-ink-2: var(--vp-c-text-2);
+        --dd-chart-muted: #898781;
+        --dd-chart-grid: #e1e0d9;
+        --dd-chart-axis: #c3c2b7;
         max-width: 1280px;
         padding: 32px 24px 80px;
         margin: 0 auto;
@@ -207,5 +222,13 @@
                 }
             }
         }
+    }
+
+    .dark .dd-admin {
+        --dd-series-1: #3987e5;
+        --dd-series-2: #199e70;
+        --dd-series-3: #d95926;
+        --dd-chart-grid: #2c2c2a;
+        --dd-chart-axis: #383835;
     }
 </style>
