@@ -120,7 +120,8 @@ export interface FeedbackReport {
     id: number
     device_id: number
     device_name: string
-    kind: 'bug' | 'suggestion'
+    /** crash = App 自動產生的閃退紀錄（溝通板 #39），使用者按了才送 */
+    kind: 'bug' | 'suggestion' | 'crash'
     status: FeedbackStatus
     description: string
     app_version: string
@@ -137,6 +138,52 @@ export interface FeedbackReport {
     /** 只有單則才有，可能 32 KB */
     log?: string
 }
+
+// #region [P] 優惠碼（api.md 第 8 節「優惠碼」，溝通板 #38）
+/**
+ * 一組優惠碼。欄位是大寫開頭的——後端直接把 GORM 的 struct 丟出來，沒有加 json 標籤，
+ * 所以線上回的就是 `Code`、`PlanTier` 這些名字。這裡照抄，不自己改名。
+ */
+export interface PromoCode {
+    Code: string
+    /** 空字串 = 這組碼不送方案時間，只送點數 */
+    PlanTier: '' | 'lite' | 'pro'
+    Tokens: number
+    Months: number
+    Days: number
+    /** null = 不限人數 */
+    MaxRedemptions: number | null
+    Redeemed: number
+    /** null = 沒有期限 */
+    ExpiresAt: string | null
+    Active: boolean
+    Note: string
+    CreatedBy: string
+    CreatedAt: string
+}
+
+export interface PromoRedemption {
+    device_id: number
+    device_name: string
+    tokens: number
+    perk_id: number | null
+    created_at: string
+}
+
+/** 建立與修改共用。`max_redemptions`／`expires_at` 給 null 就是改回「不限」 */
+export interface PromoPayload {
+    /** 只有建立時能給；不給就由後端產生 10 碼 */
+    code?: string
+    plan_tier?: '' | 'lite' | 'pro'
+    months?: number
+    days?: number
+    tokens?: number
+    max_redemptions?: number | null
+    expires_at?: string | null
+    active?: boolean
+    note?: string
+}
+// #endregion
 
 export interface FeedbackStats {
     total: number
@@ -283,6 +330,18 @@ export const adminApi = {
     updateIssue: (token: string, id: number, body: { title?: string, weight?: number, note?: string }) =>
         request<unknown>(token, `/v1/admin/feedback/issues/${id}`, { method: 'PATCH', body }),
     addReportsToIssue: (token: string, id: number, reportIds: number[]) =>
-        request<unknown>(token, `/v1/admin/feedback/issues/${id}/reports`, { method: 'POST', body: { report_ids: reportIds } })
+        request<unknown>(token, `/v1/admin/feedback/issues/${id}/reports`, { method: 'POST', body: { report_ids: reportIds } }),
+    // #endregion
+
+    // #region [P] 優惠碼
+    listPromoCodes: (token: string) => request<{ promo_codes: PromoCode[] }>(token, '/v1/admin/promo-codes'),
+    /** 單一組，附誰兌換過（最多 200 筆，新的在前） */
+    getPromoCode: (token: string, code: string) =>
+        request<{ promo_code: PromoCode, redemptions: PromoRedemption[] }>(token, `/v1/admin/promo-codes/${encodeURIComponent(code)}`),
+    createPromoCode: (token: string, body: PromoPayload) =>
+        request<{ promo_code: PromoCode }>(token, '/v1/admin/promo-codes', { method: 'POST', body }),
+    /** code 不能改，所以 body 裡不要帶 */
+    updatePromoCode: (token: string, code: string, body: PromoPayload) =>
+        request<{ promo_code: PromoCode }>(token, `/v1/admin/promo-codes/${encodeURIComponent(code)}`, { method: 'PATCH', body })
     // #endregion
 };
