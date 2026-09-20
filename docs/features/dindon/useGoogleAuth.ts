@@ -1,5 +1,8 @@
 import { computed, ref } from 'vue';
 
+// 網站上需要 Google 登入的兩個地方共用：後台（/dindon/dashboard/）與帳號刪除頁（/dindon/account/）。
+// 兩邊拿到的是同一把 ID token，後端各自驗自己要的東西（後台驗管理員名單，刪除頁驗帳號本人）。
+//
 // 跟 App 共用的「網頁」OAuth client ID（api.md 第 8 節）。client ID 本來就是公開的，不是祕密。
 // 主控台要在這個 client 的「已授權的 JavaScript 來源」加上網站實際的網址才能登入：
 // 網站設了自訂網域，opshell.github.io 一律轉到 https://opshell.me，所以要登記的是 https://opshell.me。
@@ -15,7 +18,7 @@ declare global {
     interface Window { google?: { accounts: { id: GoogleIdApi } } }
 }
 
-export interface AdminProfile {
+export interface GoogleProfile {
     email: string | null
     name: string | null
     picture: string | null
@@ -23,17 +26,17 @@ export interface AdminProfile {
     expiresAt: number | null
 }
 
-// 模組層級的狀態：整個後台共用一份。
+// 模組層級的狀態：同一個分頁裡共用一份。
 // ID token 只放在記憶體裡，不存 localStorage——這個網站每一頁都會載入第三方腳本，存起來就多一個被讀走的地方。
 const credential = ref<string | null>(null);
-const profile = ref<AdminProfile | null>(null);
+const profile = ref<GoogleProfile | null>(null);
 const expired = ref(false);
 const loadError = ref('');
 let readyPromise: Promise<GoogleIdApi> | null = null;
 let expiryTimer: ReturnType<typeof setTimeout> | undefined;
 
 /** 解開 JWT 的 payload 拿 email 與過期時間，只是顯示用；真正的驗證在後端 */
-function decodeProfile(token: string): AdminProfile {
+function decodeProfile(token: string): GoogleProfile {
     try {
         const binary = atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'));
         const json = JSON.parse(new TextDecoder().decode(Uint8Array.from(binary, char => char.charCodeAt(0))));
@@ -71,7 +74,7 @@ function handleCredential(response: { credential?: string }) {
  * 載入 Google 的登入元件並初始化（只做一次）。
  *
  * 刻意**不開自動登入、不用 One Tap（prompt）**，只留 renderButton 的按鈕（溝通板 #20）：
- * 後台跟部落格其他頁面是同一個來源，別頁載入的第三方腳本可以開一個看不見的 iframe 載入後台；
+ * 這些頁面跟部落格其他頁面是同一個來源，別頁載入的第三方腳本可以開一個看不見的 iframe 把它們載進來；
  * 有自動登入的話，Google 會不經點擊就把 ID token 發給那個 iframe。
  * 按鈕畫在 Google 自己來源的 iframe 裡，第三方腳本點不到，一定要本人按。
  */

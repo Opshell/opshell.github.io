@@ -1,16 +1,7 @@
 // 後台的管理 API（/v1/admin/*）。規格以 DinDon_BackEnd/docs/api.md 第 8 節為準，這裡只是照著接。
 // 權限全部由後端把關：這個頁面是公開的靜態網頁，這裡沒有、也不能有任何祕密。
 
-const PRODUCTION_API = 'https://dindon-backend-851099261403.asia-southeast1.run.app';
-
-/** 本機開發時可以用 ?api=http://localhost:8090 改接本機後端；正式網站一律打正式後端 */
-function apiBase(): string {
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        const override = new URLSearchParams(window.location.search).get('api');
-        if (override) return override.replace(/\/$/, '');
-    }
-    return PRODUCTION_API;
-}
+import { apiBase } from '../apiBase';
 
 // #region [P] 型別（對應 api.md 第 8 節的「裝置物件」與用量報表）
 export type PlanTier = 'free' | 'pro';

@@ -42,6 +42,13 @@ sidebar: false
 
 [← 回到叮咚記帳](/dindon/)
 
+<div class="dindon-privacy__callout">
+
+**要刪除資料或帳號？** 每一種資料怎麼刪、哪些可以只刪一部分，以及用 Google 帳號線上刪除，
+都整理在 [刪除資料與帳號](/dindon/account/) 這一頁。
+
+</div>
+
 ${policy}
 
 ---
@@ -61,6 +68,14 @@ ${policy}
 .Layout.dindon-privacy { background: var(--vp-c-bg); }
 /* 部落格文章的作者、日期資訊列，政策頁用不到 */
 .dindon-privacy .article-meta-header { display: none; }
+/* 刪除資料的入口：政策很長，找刪除辦法的人要在第一眼就看到 */
+.dindon-privacy .dindon-privacy__callout {
+    background: var(--vp-c-default-soft);
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin: 24px 0;
+}
+.dindon-privacy .dindon-privacy__callout p:last-child { margin-bottom: 0; }
 </style>
 `;
 

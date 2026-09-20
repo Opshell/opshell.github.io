@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { nextTick, onMounted, ref, watch } from 'vue';
-    import { useGoogleAuth } from '../useGoogleAuth';
+    import { useGoogleAuth } from '../../useGoogleAuth';
     import DeviceManager from './DeviceManager.vue';
     import FeedbackPanel from './FeedbackPanel.vue';
     import OverviewPanel from './OverviewPanel.vue';

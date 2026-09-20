@@ -19,9 +19,10 @@ import './scss/style.scss';
 // [-]Svg Icon引用
 import 'virtual:svg-icons-register';
 
-// 這些頁面不載入第三方的計數腳本：後台拿著管理員的登入憑證，不讓外部腳本跑在同一頁。
+// 這些頁面不載入第三方的計數腳本：它們手上有 Google 的登入憑證（後台是管理員、帳號頁是使用者本人），
+// 不讓外部腳本跑在同一頁。
 // 直接打開後台網址時完全不會載入；從別頁點進來的話，前一頁已經執行過的腳本卸不掉，只能不再重新載入。
-const NO_THIRD_PARTY_PATHS = ['/dindon/dashboard/'];
+const NO_THIRD_PARTY_PATHS = ['/dindon/dashboard/', '/dindon/account/'];
 
 function reloadBusuanzi(path: string) {
     const busuanziScriptId = 'busuanzi-script';
