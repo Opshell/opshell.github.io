@@ -62,7 +62,7 @@
     const plan = ref<PlanTier>('free');
     const hasBeta = ref(false);
     const betaDate = ref('');
-    const confirming = ref<'patch' | 'freeze' | null>(null);
+    const confirming = ref<'patch' | 'freeze' | 'reject-pending' | null>(null);
 
     const todayInTaipei = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(new Date());
 
@@ -157,6 +157,25 @@
     }
 
     const submitPatch = () => mutate(token => adminApi.updateDevice(token, deviceId, patch.value), '已儲存變更');
+    /**
+     * 這台還在待審的回報一次不採計（api.md 第 8 節 batch，溝通板 #0053）。
+     * 不走 mutate：批次端點回的是件數不是裝置。後端刻意沒把凍結包進批次，這裡也分成兩顆按鈕。
+     */
+    async function rejectPending() {
+        busy.value = true;
+        error.value = '';
+        notice.value = '';
+        try {
+            const { updated } = await call(token => adminApi.batchReviewFeedback(token, { device_id: deviceId, status: 'rejected' }));
+            await load(); // 操作紀錄多了幾筆
+            notice.value = updated ? `已把 ${formatInt(updated)} 則待審改成「不採計」` : '這台沒有待審的回報';
+        } catch (e) {
+            error.value = errorMessage(e);
+        } finally {
+            busy.value = false;
+            confirming.value = null;
+        }
+    }
     const toggleFreeze = () => {
         const frozen = !device.value?.frozen;
         return mutate(token => adminApi.updateDevice(token, deviceId, { frozen }), frozen ? '已凍結這台裝置' : '已解凍這台裝置');
@@ -313,6 +332,23 @@
                 <div v-else class="dd-detail__actions">
                     <button type="button" class="dd-admin__btn" :disabled="!changeSummary.length || !!formError || busy" @click="confirming = 'patch'">送出變更…</button>
                     <button v-if="changeSummary.length" type="button" class="dd-admin__btn is-ghost" @click="resetForm">還原</button>
+                </div>
+            </section>
+            <!-- #endregion -->
+
+            <!-- #region [P] 垃圾回報：這台的待審全部不採計（溝通板 #0053） -->
+            <section class="dd-detail__card">
+                <h3>回報</h3>
+                <p class="dd-detail__muted">
+                    一直送垃圾回報的話，這裡一次把這台還在「待審」的全部改成不採計；已經採計的不會翻掉，一次最多 200 則。
+                    要停掉這台裝置是下面另一顆按鈕，分開按。
+                </p>
+                <div v-if="confirming === 'reject-pending'" class="dd-detail__actions">
+                    <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click="rejectPending">確定：#{{ deviceId }} 的待審全部不採計</button>
+                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = null">取消</button>
+                </div>
+                <div v-else class="dd-detail__actions">
+                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = 'reject-pending'">這台的待審全部不採計…</button>
                 </div>
             </section>
             <!-- #endregion -->

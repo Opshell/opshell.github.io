@@ -79,7 +79,8 @@ export default defineConfig({
         'pages/(.*)': '(.*)'
     },
     // features/ 裡的 md 是元件的開發說明，不是頁面；不排除的話 sitemap 會照 pages/ 的路徑去找它而 ENOENT
-    srcExclude: ['features/**/*.md'],
+    // devlog/ 是跟 Claude 的開發記錄，有後台的細節，不建成頁面
+    srcExclude: ['features/**/*.md', 'devlog/**'],
     themeConfig: {
         siteData,
         // siteTitle: 'Opshell\'s Blog',
