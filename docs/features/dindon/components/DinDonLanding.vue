@@ -143,7 +143,7 @@
 
                 <div class="dindon-landing__phones">
                     <div class="dindon-landing__phone is-back" data-parallax=".06">
-                        <img src="/images/dindon/photo.webp" alt="拍照記帳：AI 正在讀取收據" loading="lazy" />
+                        <img src="/images/dindon/statement.webp" alt="帳單截圖記帳：信用卡帳單的每一列都讀出來，勾選後一次記好" loading="lazy" />
                     </div>
                     <div class="dindon-landing__phone is-front" data-parallax="-.08">
                         <img src="/images/dindon/items.webp" alt="拍照記帳的結果：店家、分類與每個品項的金額" loading="lazy" />
@@ -200,7 +200,7 @@
 
                 <figure class="dindon-landing__figure" data-reveal>
                     <div class="dindon-landing__phone" data-parallax="-.06">
-                        <img src="/images/dindon/badges.webp" alt="徽章牆：勤勞記帳、天天打開等成就徽章" loading="lazy" />
+                        <img src="/images/dindon/badges.webp" alt="徽章牆：勤勞記帳、自動駕駛等成就徽章，從銅級升到七彩級" loading="lazy" />
                     </div>
                     <figcaption>徽章牆</figcaption>
                 </figure>
@@ -233,6 +233,13 @@
                         <p class="dindon-landing__note">
                             需要：Android 7.0 以上的手機、一個 Google 帳號（要和 Play 商店登入的是同一個）。有問題寫信到 <a :href="SIGNUP_HREF" class="email">{{ CONTACT_EMAIL }}</a>。
                         </p>
+
+                        <figure class="dindon-landing__figure is-event" data-reveal>
+                            <div class="dindon-landing__phone" data-parallax="-.05">
+                                <img src="/images/dindon/event.webp" alt="Beta 貢獻活動的排行榜：前三名、自己的名次與每個人的回報件數" loading="lazy" />
+                            </div>
+                            <figcaption>App 裡的排行榜（畫面中的名字是示範資料）</figcaption>
+                        </figure>
                     </div>
 
                     <div>
@@ -252,7 +259,7 @@
                             </li>
                         </ul>
                         <p class="dindon-landing__note is-fine" data-reveal>
-                            名次獎與全勤另外算，一筆接一筆排，從正式版上線那天開始算；實際發放以活動結束時公布為準。換手機也拿得回來：記得在 App 裡綁定 Google 帳號。
+                            名次不並列：同分時先達到這個分數的人排前面。名次獎與全勤另外算，一筆接一筆排，從正式版上線那天開始算；實際發放以活動結束時公布為準。活動結束後，打卡、名次和紀念徽章的紀錄都會留著。換手機也拿得回來：記得在 App 裡綁定 Google 帳號。
                         </p>
                     </div>
                 </div>
@@ -636,6 +643,17 @@
             figcaption {
                 color: var(--dd-muted);
                 font-weight: 700;
+            }
+
+            // 封測區左欄的排行榜：比其他手機小一點，是佐證不是主角
+            &.is-event {
+                margin-top: 36px;
+
+                .dindon-landing__phone { max-width: 250px; }
+                figcaption {
+                    font-size: var(--font-size-s);
+                    font-weight: 400;
+                }
             }
         }
         &__links {
