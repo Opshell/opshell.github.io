@@ -81,7 +81,21 @@ export const PLAN_SOURCE_LABELS: Record<string, string> = {
     free: '免費'
 };
 
-/** 大頭貼的來源。upload 的圖後台目前拿不到（那支要裝置的 API key，溝通板 #46） */
+/** App 內建頭像的代號（新板溝通板 #1：beta 版多了 mouse 與 bunny，沒選過的預設畫老鼠） */
+export const AVATAR_PRESET_LABELS: Record<string, string> = {
+    mouse: '老鼠',
+    bunny: '兔子',
+    bell: '鈴鐺',
+    piggy: '小豬',
+    paw: '腳印',
+    cookie: '餅乾',
+    game: '遊戲機',
+    leaf: '葉子'
+};
+export const presetLabel = (preset: string | null | undefined) =>
+    preset ? AVATAR_PRESET_LABELS[preset] ?? preset : '沒選過（beta 版畫老鼠）';
+
+/** 大頭貼的來源 */
 export const AVATAR_KIND_LABELS: Record<string, string> = {
     preset: 'App 內建圖案',
     upload: '使用者上傳的照片',

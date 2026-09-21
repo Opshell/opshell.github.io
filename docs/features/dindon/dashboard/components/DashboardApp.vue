@@ -6,6 +6,7 @@
     import OverviewPanel from './OverviewPanel.vue';
     import PromoPanel from './PromoPanel.vue';
     import UsageReport from './UsageReport.vue';
+    import UsageWatch from './UsageWatch.vue';
 
     const auth = useGoogleAuth();
     const { isSignedIn, profile, expired, loadError } = auth;
@@ -16,6 +17,7 @@
         { key: 'devices', label: '裝置' },
         { key: 'feedback', label: '回報' },
         { key: 'usage', label: '用量報表' },
+        { key: 'watch', label: '用量監看' },
         { key: 'promo', label: '優惠碼' }
     ] as const;
     type Tab = typeof TABS[number]['key'];
@@ -99,6 +101,7 @@
             <DeviceManager v-else-if="tab === 'devices'" />
             <FeedbackPanel v-else-if="tab === 'feedback'" />
             <UsageReport v-else-if="tab === 'usage'" />
+            <UsageWatch v-else-if="tab === 'watch'" />
             <PromoPanel v-else />
         </template>
     </div>
