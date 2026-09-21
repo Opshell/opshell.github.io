@@ -1,5 +1,5 @@
 ---
-title: Tags List
+title: 3D Galaxy Posts
 author: 'Opshell'
 layout: page
 sitemap:
@@ -8,7 +8,7 @@ sitemap:
 ---
 
 <script setup>
-  import { TagsList } from '@features/tags-list';
+  import { GalaxyBack } from '@features/tags-list';
 </script>
 
-<TagsList />
+<GalaxyBack />

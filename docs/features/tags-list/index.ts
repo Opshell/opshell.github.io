@@ -14,6 +14,14 @@ const TagsList = defineClientComponent(() => {
   return import('./components/TagsList.vue')
 });
 
+const SvgHudPanelBackup = defineClientComponent(() => {
+  return import('./components/svgHudPanel_back.vue')
+});
+
+const SvgHudPanelBackup2 = defineClientComponent(() => {
+  return import('./components/svgHudPanel_back2.vue')
+});
+
 const SvgHudPanel = defineClientComponent(() => {
   return import('./components/svgHudPanel.vue')
 });
@@ -21,5 +29,7 @@ const SvgHudPanel = defineClientComponent(() => {
 export {
     TagsList,
     GalaxyBack,
-    SvgHudPanel
+    SvgHudPanelBackup,
+    SvgHudPanelBackup2,
+    SvgHudPanel,
 };

@@ -1,156 +1,282 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useElementSize } from '@vueuse/core';
+    import { ref, computed } from 'vue';
+    import { useElementSize } from '@vueuse/core';
 
-const props = defineProps<{
-  title?: string;
-  side?: 'left' | 'right';
-  color?: string;
-}>();
+    const props = withDefaults(defineProps<{
+        title?: string;
+        icon?: string;
+        side?: 'left' | 'right';
+        color?: string;
+    }>(), {
+        title: 'SYSTEM PANEL',
+        icon: 'bookmark_stacks',
+        side: 'left',
+        color: '#00f0ff'
+    });
 
-const container = ref(null);
-const { width: realW, height: realH } = useElementSize(container);
+    const isCollapsed = ref(false);
+    const toggleCollapse = () => {
+        isCollapsed.value = !isCollapsed.value;
+    };
 
-// 1. 定義幾何規格 (幾何常數)
-const w = computed(() => Math.max(realW.value, 120));
-const h = computed(() => Math.max(realH.value, 200));
-const themeColor = computed(() => props.color || '#d4ff00');
+    const headerRef = ref<HTMLElement | null>(null);
+    const mainRef = ref<HTMLElement | null>(null);
 
-const SLOPE = 10; // 統一的倒角位移 (45度核心)
-const TAB_GAP = 4; // 裝飾塊離邊框的距離
+    const { width: headerW, height: headerH } = useElementSize(headerRef);
+    const { width: mainW, height: mainH } = useElementSize(mainRef);
 
-// 鏡像座標轉換
-const fx = (x: number) => props.side === 'right' ? w.value - x : x;
+    const SLOPE = 12;
+    const themeColor = computed(() => props.color);
 
-// 2. 精密計算主邊框路徑
-const mainPath = computed(() => {
-  const _w = w.value; const _h = h.value;
-  const midY = _h / 2;
+    // --- 幾何計算 ---
+    const hw = computed(() => Math.max(headerW.value, 150));
+    const hh = computed(() => Math.max(headerH.value, 40));
+    const fhx = (x: number) => props.side === 'right' ? hw.value - x : x;
 
-  // 確保每一組轉折點的 dx 與 dy 絕對相等
-  const points = [
-    [fx(SLOPE), 0], [fx(_w - 5), 0], [fx(_w), 5],             // 頂部
-    [fx(_w), midY - 30], [fx(_w - SLOPE), midY - 20],        // 內折開始 (dx=10, dy=10)
-    [fx(_w - SLOPE), midY + 30], [fx(_w - 20), midY + 40],   // 內折延伸
-    [fx(_w - 20), _h - SLOPE], [fx(_w - 20 - SLOPE), _h],    // 右下切角 (dx=10, dy=10)
-    [fx(10), _h], [fx(0), _h - 10],                          // 左下
-    [fx(0), SLOPE]                                           // 左上
-  ];
+    const mw = computed(() => Math.max(mainW.value, 150));
+    const mh = computed(() => Math.max(mainH.value, 50));
+    const fmx = (x: number) => props.side === 'right' ? mw.value - x : x;
 
-  return `M ${points.map(p => p.join(',')).join(' L ')} Z`;
-});
+    // 1. Header Path (只有上左切角)
+    const headerPath = computed(() => {
+        const _w = hw.value;
+        const _h = hh.value;
+        const points = [
+            [fhx(_w - 5), 0], [fhx(_w), 5],             // 頂部 [fhx(SLOPE / 2), 0],
 
-// 3. 計算契合的 Side Tab (1px 細線 + 色塊)
-const sideTabDecor = computed(() => {
-  const _w = w.value;
-  const midY = h.value / 2;
-  const startY = midY - 25;
-  const endY = midY + 25;
+            [fhx(_w), _h - 10], [fhx(_w - 5), _h - 5],                   // 底部 (平整對接)
+            [fhx(_w - 5), _h], [fhx(0), _h],                   // 底部 (平整對接)
+            [fhx(0), 0]                        // 左側接上左
+        ];
+        return `M ${points.map(p => p.join(',')).join(' L ')} Z`;
+    });
 
-  // 與邊框斜邊平行的座標計算
-  return {
-    line: { x1: fx(_w + 2), y1: startY, x2: fx(_w + 2), y2: endY },
-    block: `M ${fx(_w - TAB_GAP)} ${startY}
-            L ${fx(_w - TAB_GAP - 8)} ${startY + 8}
-            V ${endY - 8}
-            L ${fx(_w - TAB_GAP)} ${endY} Z`
-  };
-});
+    // 2. Main Path (包含下右與下左切角)
+    const mainPath = computed(() => {
+        const _w = mw.value;
+        const _h = mh.value;
+        const points = [
+            [fmx(0), 0], [fmx(_w - 5), 0],                              // 頂部 (平整對接 Header)
+            [fmx(_w - 5), 5], [fmx(_w), 10],   // 右側接上右切角
+            [fmx(_w), _h / 3 - SLOPE], [fmx(_w - SLOPE), _h / 3],   // 右側接上右切角
+            [fmx(_w - SLOPE), _h - 0.5 * SLOPE],                      // 右下切角
+            [fmx(_w - SLOPE - 0.5 * SLOPE), _h],
+            [fmx(SLOPE + 5), _h], [fmx(0), _h - SLOPE - 5]          // 左下切角
+        ];
+        return `M ${points.map(p => p.join(',')).join(' L ')} Z`;
+    });
+
+    // 3. Side Tab 裝飾塊 (綁定在 Main)
+    const sideTabDecor = computed(() => {
+        const _w = mw.value;
+        const _h = mh.value;
+        const midY = mh.value / 2;
+
+        const startY = _h / 3 - SLOPE + 4;
+        const endY = Math.min(midY + 20, mh.value - 20);
+
+        return `M ${fmx(_w) - 1} ${startY + 1}
+                L ${fmx(_w - 9)} ${startY + 9}
+                V ${endY}
+                L ${fmx(_w - 1)} ${endY - 8} Z`;
+    });
+
+    // 4. buttom 裝飾塊 (綁定在 Main)
+    const buttomDecor = computed(() => {
+        const _w = mw.value;
+        const midY = mh.value / 2;
+        const startY = Math.max(midY - 20, 10);
+        const endY = mh.value;
+
+        return `M ${fmx(_w * 0.4 + 4)} ${endY - 10}
+                L ${fmx(_w * 0.6 - 4)} ${endY - 10}
+                L ${fmx(_w * 0.6)} ${endY - 6}
+                V ${endY + 4}
+                L ${fmx(_w * 0.4)} ${endY + 4}
+                L ${fmx(_w * 0.4)} ${endY - 6} Z`;
+    });
+
+    // const sideTabDecor = computed(() => {
+    //     const _w = mw.value; const midY = mh.value / 2;
+    //     const startY = Math.max(midY - 20, 10);
+    //     const endY = Math.min(midY + 20, mh.value - 20);
+    //     return `M ${fmx(_w)} ${startY} L ${fmx(_w - 6)} ${startY + 6} V ${endY - 6} L ${fmx(_w)} ${endY} Z`;
+    // });
 </script>
 
 <template>
-  <div ref="container" class="industrial-hud" :style="{ '--hud-color': themeColor }">
-    <svg class="hud-svg" :width="w" :height="h" :viewBox="`0 0 ${w} ${h}`">
-      <defs>
-        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5" stroke-dasharray="2,2" opacity="0.1" />
-        </pattern>
-      </defs>
+    <section class="cyber-hud-wrapper" :class="[`side-${side}`, { 'is-collapsed': isCollapsed }]" :style="{ '--hud-color': themeColor }">
+        <header ref="headerRef" class="hud-header" @click="toggleCollapse">
+            <svg class="bg-svg" :width="hw" :height="hh">
+                <path :d="headerPath" class="hud-bg shape-border" />
+                <polygon
+                    v-if="isCollapsed"
+                    :points="`${fhx(39)}, 32 ${fhx(39)}, 38 ${fhx(34)}, 38`"
+                    class="corner-tri"
+                />
+            </svg>
 
-      <path :d="mainPath" class="hud-bg" />
-      <path :d="mainPath" fill="url(#grid)" />
+            <div class="header-content">
+                <div class="icon-box"><ElSvgIcon :name="icon" /></div>
+                <h2 class="title">{{ title }}</h2>
+                <div class="minimize-btn" :class="{ active: isCollapsed }"></div>
+            </div>
+        </header>
 
-      <g class="side-tab-group">
-        <!-- <line
-          :x1="sideTabDecor.line.x1" :y1="sideTabDecor.line.y1"
-          :x2="sideTabDecor.line.x2" :y2="sideTabDecor.line.y2"
-          stroke="currentColor" stroke-width="1"
-        /> -->
-        <path :d="sideTabDecor.block" class="side-tab-block" />
-      </g>
+        <div class="hud-main-transition" :class="{ 'is-collapsed': isCollapsed }">
+            <main ref="mainRef" class="hud-main">
+                <svg class="bg-svg" :width="mw" :height="mh">
+                    <defs>
+                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.1" />
+                        </pattern>
+                    </defs>
+                    <path :d="mainPath" class="hud-bg shape-border" />
+                    <path :d="mainPath" fill="url(#grid)" />
 
-      <polygon :points="`${fx(w-15)},5 ${fx(w-5)},5 ${fx(w-5)},15`" class="corner-tri" />
+                    <path :d="sideTabDecor" class="side-tab-block interactive-element" />
+                    <path :d="buttomDecor" class="buttom-block" />
 
-      <g class="bottom-dots">
-        <circle v-for="i in 8" :key="i" :cx="fx(35 + i*15)" :cy="h - 15" r="2" fill="currentColor" />
-      </g>
-    </svg>
+                    <polygon :points="`${fhx(5)}, 5 ${fhx(15)}, 5 ${fhx(5)},15`" class="corner-tri" />
+                </svg>
 
-    <div class="hud-content">
-      <header v-if="title" class="hud-header">
-        <div class="title-line"></div>
-        <span class="title-text">{{ title }}</span>
-      </header>
-      <main class="hud-main">
-        <slot />
-      </main>
-    </div>
-  </div>
+                <div class="main-content">
+                    <div class="scan-line" />
+                    <slot />
+                </div>
+            </main>
+        </div>
+
+    </section>
 </template>
 
 <style lang="scss" scoped>
-.industrial-hud {
-  position: relative;
-  min-width: 150px;
-  min-height: 200px;
-  color: var(--hud-color);
+    $bg-color: rgb(0, 10, 20, 85%);
 
-  .hud-svg {
-    position: absolute;
-    top: 0; left: 0;
-    pointer-events: none;
-    overflow: visible; // 確保 1px 外掛線條不被裁切
+    .cyber-hud-wrapper {
+        position: relative;
+        max-width: 350px;
+        margin-bottom: 1rem;
+        color: var(--hud-color);
+        pointer-events: auto;
+        transition: .25s var(--cubic-FiSo);
+        filter: drop-shadow(0 0 4px rgb(0, 240, 255, 30%));
+        &.side-right { margin-left: auto; }
+        &.is-collapsed {
+            max-width: 42px;
+            .hud-header {
+                border-right: 1px solid var(--hud-color);
+                box-shadow: inset -4px 0 8px -4px var(--hud-color),
+                            inset -8px 0 16px -4px var(--hud-color);
+                .header-content { padding: 4px; }
+            }
+        }
 
-    .hud-bg {
-      fill: rgb(20, 25, 0, 85%);
-      stroke: var(--hud-color);
-      stroke-width: 1.5;
+        .bg-svg {
+            position: absolute; top: 0; left: 0;
+            z-index: -1; // 修改點 3：強制把 SVG 壓到最底層
+            .hud-bg {
+                fill: $bg-color;
+                backdrop-filter: blur(8px);
+                pointer-events: none;
+            }
+            .shape-border { stroke: var(--hud-color); stroke-width: 1px; opacity: 0.7; }
+            .corner-tri,
+            .side-tab-block,
+            .buttom-block { fill: var(--hud-color); }
+
+            // 💡 針對互動元素的專屬設定
+            .interactive-element {
+                fill: var(--hud-color);
+                pointer-events: auto; // 開啟滑鼠事件
+                cursor: pointer;      // 加上手指游標
+                transition: fill 0.2s var(--cubic-FiSo); // 確保動畫平滑
+
+                &:hover {
+                    fill: #f05;
+
+                    // 如果想要加點科技感，可以讓 hover 時發光
+                    filter: drop-shadow(0 0 6px #f05);
+                }
+            }
+        }
+
+        .hud-header {
+            position: relative;
+            min-height: 40px;
+            cursor: pointer;
+            transition: .35s var(--cubic-FiSo);
+            overflow: hidden;
+            z-index: 2;
+            user-select: none;
+
+            .header-content {
+                position: relative; display: flex; gap: 12px; align-items: center; height: 40px;
+                padding: 0 12px; z-index: 1;
+                .icon-box { display: flex; align-items: center; color: var(--hud-color); }
+                .title {
+                    flex: 1; margin: 0; font-family: Orbitron, sans-serif;
+                    font-size: 0.9rem; font-weight: 700; letter-spacing: 1.5px;
+                    white-space: nowrap;
+                    text-transform: uppercase; text-shadow: 0 0 4px rgb(0, 240, 255, 50%);;
+                }
+                .minimize-btn { background: var(--hud-color);
+                    width: 12px; height: 2px;
+                    transition: transform 0.3s, background-color 0.3s;
+                    &.active { background: #f05; transform: rotate(180deg); }
+                }
+            }
+
+            &:hover {
+                .corner-tri { fill: #f05}
+            }
+
+        }
+
+        /* 修改點 4：優雅的 CSS Grid 高度動畫 */
+        .hud-main-transition {
+            display: grid;
+            grid-template-rows: 1fr;
+            margin-top: -1px;
+            transition: grid-template-rows 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
+            z-index: 1;
+
+            &.is-collapsed {
+                grid-template-rows: 0fr;
+                pointer-events: none; // 縮合時禁止內部點擊
+                opacity: 0;
+            }
+        }
+
+        .hud-main {
+            position: relative;
+            min-height: 0; // 關鍵：允許 Grid 容器將此元素壓縮至 0 高度
+            overflow: hidden;
+
+            .main-content {
+                position: relative;
+                min-height: 120px; // 將原本的 min-height 移入這裡撐開容器
+                padding: 15px 30px 20px 13px;
+                color: #fff;
+                z-index: 10;
+
+                .scan-line {
+                    position: absolute; top: 0; left: 0;
+                    background: var(--hud-color); width: 100%; height: 2px; pointer-events: none;
+                    animation: scan 3s linear infinite; opacity: 0.3;
+                }
+            }
+        }
     }
-
-    .side-tab-block {
-      fill: var(--hud-color);
-      opacity: 0.8;
+    @keyframes scan {
+        0% {
+            top: 0;
+            opacity: 0;
+        }
+        50% { opacity: 0.5; }
+        100% {
+            top: 100%;
+            opacity: 0;
+        }
     }
-
-    .corner-tri {
-      fill: var(--hud-color);
-      animation: tri-pulse 2s infinite;
-    }
-  }
-
-  .hud-content {
-    position: relative;
-    padding: 30px;
-    z-index: 1;
-
-    .hud-header {
-      margin-bottom: 20px;
-      .title-text {
-        font-family: Orbitron, sans-serif;
-        font-weight: 900;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-      }
-      .title-line {
-        background: var(--hud-color);
-        width: 30px; height: 4px;
-        margin-bottom: 8px;
-      }
-    }
-  }
-}
-@keyframes tri-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(0.9); opacity: 0.5; }
-}
 </style>
