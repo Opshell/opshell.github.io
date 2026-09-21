@@ -461,6 +461,14 @@ export const adminApi = {
         blob(token, `/v1/admin/feedback/${id}/screenshots/${position}`),
     reviewFeedback: (token: string, id: number, patch: { status?: FeedbackStatus, issue_id?: number | null }) =>
         request<{ report: FeedbackReport }>(token, `/v1/admin/feedback/${id}`, { method: 'PATCH', body: patch }),
+    /**
+     * 一次審很多則（垃圾回報用，溝通板 #0053）。`report_ids` 與 `device_id` 擇一：
+     * 依裝置的只動那台**還在待審**的、最多 200 則，已經採計的不會翻掉。
+     * `report_ids` 有任何一個不存在就 404、整批不動。回實際改了幾則（狀態本來就一樣的不算）。
+     * 凍結刻意不包在裡面，要另外用 updateDevice。
+     */
+    batchReviewFeedback: (token: string, body: ({ report_ids: number[] } | { device_id: number }) & { status: FeedbackStatus }) =>
+        request<{ updated: number }>(token, '/v1/admin/feedback/batch', { method: 'POST', body }),
 
     listIssues: async (token: string) =>
         ((await request<{ issues: Raw[] | null }>(token, '/v1/admin/feedback/issues')).issues ?? []).map(normalizeIssue),

@@ -11,8 +11,10 @@
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
     // beta 貢獻活動的回報審核（api.md 第 8 節）。
-    // 計分規則在後端：同一個問題裡最早的那則採計回報拿全額權重、之後的拿一半；沒掛問題的採計回報算 1 分。
-    // 所以這裡兩件事都要做得順：判採不採計，以及把講同一件事的回報合併成一個「問題」。
+    // 計分規則在後端：同一個問題裡最早的那則採計回報拿全額權重、之後不同的人拿一半；
+    // 同一台裝置在同一個問題裡只有最早那則算（之後的 0 分、也不算件數，但還是可以採計掛上去）；沒掛問題的採計回報算 1 分。
+    // 所以這裡三件事都要做得順：判採不採計、把講同一件事的回報合併成一個「問題」，
+    // 以及垃圾回報多的時候一次審很多則（溝通板 #0053）。
     const call = useAdminCall();
 
     const STATUS_LABELS: Record<FeedbackStatus, string> = {
@@ -49,6 +51,97 @@
     const page = ref(1);
     const pageCount = computed(() => Math.max(Math.ceil(total.value / PER_PAGE), 1));
 
+    // #region [P] 批次審核（api.md 第 8 節 batch，溝通板 #0053）：垃圾回報一則一則審太慢
+    /** 勾選的回報 id。整個 Set 換掉而不是就地改，讓 computed 一定會重算；重抓列表就清掉，免得勾到看不見的 */
+    const checked = ref<Set<number>>(new Set());
+    const batchStatus = ref<FeedbackStatus>('rejected');
+    const allOnPageChecked = computed(() => reports.value.length > 0 && reports.value.every(r => checked.value.has(r.id)));
+    function setChecked(ids: number[], on: boolean) {
+        const next = new Set(checked.value);
+        for (const id of ids) {
+            if (on) next.add(id);
+            else next.delete(id);
+        }
+        checked.value = next;
+    }
+    /** 正在確認的動作。凍結刻意跟批次分開按：後端也沒把它包進 batch，因為那是更重的動作 */
+    const confirming = ref<'checked' | 'freeze' | null>(null);
+    /** 正在確認「這台的待審全部不採計」的裝置 id（列表的群組列與單則側欄都會用） */
+    const confirmingDevice = ref<number | null>(null);
+
+    async function batch(body: { report_ids: number[] } | { device_id: number }, status: FeedbackStatus, label: string) {
+        busy.value = true;
+        error.value = '';
+        notice.value = '';
+        try {
+            const { updated } = await call(token => adminApi.batchReviewFeedback(token, { ...body, status }));
+            notice.value = updated ? `${label}：${formatInt(updated)} 則改成「${STATUS_LABELS[status]}」` : `${label}：沒有要改的`;
+            await load(); // 狀態變了，列表、統計、問題的件數都要重抓
+            if (selectedId.value !== null && detail.value) { // 正在看的那一則可能也在裡面；截圖不會變，不用重抓
+                detail.value = (await call(token => adminApi.getFeedback(token, selectedId.value!))).report;
+            }
+        } catch (e) {
+            error.value = errorMessage(e);
+        } finally {
+            busy.value = false;
+            confirming.value = null;
+            confirmingDevice.value = null;
+        }
+    }
+    const reviewChecked = () => batch({ report_ids: [...checked.value] }, batchStatus.value, '勾選的回報');
+    const rejectDevice = (deviceId: number, name: string) => batch({ device_id: deviceId }, 'rejected', `${name} 的待審`);
+
+    /** 凍結是另一件事：這裡只是讓「看到垃圾回報」到「停掉那台」不用換分頁。解凍到裝置頁 */
+    async function freezeDevice(deviceId: number) {
+        busy.value = true;
+        error.value = '';
+        notice.value = '';
+        try {
+            await call(token => adminApi.updateDevice(token, deviceId, { frozen: true }));
+            notice.value = `已凍結裝置 #${deviceId}，要解凍到「裝置」分頁`;
+        } catch (e) {
+            error.value = errorMessage(e);
+        } finally {
+            busy.value = false;
+            confirming.value = null;
+        }
+    }
+    // #endregion
+
+    // #region [P] 同一台裝置的回報摺起來（純前端，只看這一頁的 50 則；相似度後端沒提供，只依 device_id）
+    interface iGroup {
+        deviceId: number
+        name: string
+        reports: FeedbackReport[]
+        pending: number
+    }
+    const grouped = ref(true);
+    /** 展開的裝置 id；重抓列表就收起來 */
+    const expanded = ref<Set<number>>(new Set());
+    const groups = computed<iGroup[]>(() => {
+        const map = new Map<number, iGroup>();
+        for (const report of reports.value) {
+            let group = map.get(report.device_id);
+            if (!group) {
+                group = { deviceId: report.device_id, name: report.device_name || `#${report.device_id}`, reports: [], pending: 0 };
+                map.set(report.device_id, group);
+            }
+            group.reports.push(report);
+            if (report.status === 'pending') group.pending++;
+        }
+        return [...map.values()]; // Map 保留插入順序：第一次出現的裝置在前，跟後端「新的在前」一致
+    });
+    /** 只有一則的不摺：摺了反而多一次點擊 */
+    const isFolded = (group: iGroup) => group.reports.length > 1 && !expanded.value.has(group.deviceId);
+    function toggleExpanded(deviceId: number) {
+        const next = new Set(expanded.value);
+        if (next.has(deviceId)) next.delete(deviceId);
+        else next.add(deviceId);
+        expanded.value = next;
+    }
+    const groupAllChecked = (group: iGroup) => group.reports.every(r => checked.value.has(r.id));
+    // #endregion
+
     async function load(nextPage = page.value) {
         loading.value = true;
         error.value = '';
@@ -63,6 +156,8 @@
             page.value = list.page;
             stats.value = statsResult;
             issues.value = issueList;
+            checked.value = new Set();
+            expanded.value = new Set();
         } catch (e) {
             error.value = errorMessage(e);
         } finally {
@@ -96,7 +191,12 @@
         }
     }
 
-    watch(selectedId, (next, prev) => { if (next !== prev) releaseShots(); });
+    watch(selectedId, (next, prev) => {
+        if (next === prev) return;
+        releaseShots();
+        confirming.value = null;
+        confirmingDevice.value = null;
+    });
     onBeforeUnmount(releaseShots);
     // #endregion
 
@@ -225,6 +325,10 @@
                     <option v-for="(label, value) in KIND_LABELS" :key="value" :value="value">{{ label }}</option>
                 </select>
             </label>
+            <label v-if="!triage" class="dd-feedback__check">
+                <input v-model="grouped" type="checkbox" />
+                同一台的摺起來
+            </label>
             <button v-if="!triage" type="button" class="dd-admin__btn is-ghost" :disabled="loading" @click="load()">重新整理</button>
             <span v-if="!triage" class="dd-overview__muted">共 {{ formatInt(total) }} 則</span>
             <button
@@ -237,6 +341,26 @@
                 快速審核{{ stats?.by_status.pending ? `（${formatInt(stats.by_status.pending)} 則待審）` : '' }}
             </button>
         </div>
+        <!-- #region [P] 批次：勾了才出現 -->
+        <div v-if="!triage && checked.size" class="dd-feedback__batch" role="region" aria-label="批次審核">
+            <strong>已勾 {{ formatInt(checked.size) }} 則</strong>
+            <label>
+                改成
+                <select v-model="batchStatus" :disabled="busy">
+                    <option v-for="s in STATUSES" :key="s" :value="s">{{ STATUS_LABELS[s] }}</option>
+                </select>
+            </label>
+            <template v-if="confirming === 'checked'">
+                <button type="button" class="dd-admin__btn" :class="{ 'is-danger': batchStatus === 'rejected' }" :disabled="busy" @click="reviewChecked">
+                    確定把 {{ formatInt(checked.size) }} 則改成「{{ STATUS_LABELS[batchStatus] }}」
+                </button>
+                <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = null">取消</button>
+            </template>
+            <button v-else type="button" class="dd-admin__btn" :disabled="busy" @click="confirming = 'checked'">套用…</button>
+            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="checked = new Set()">清除勾選</button>
+            <span class="dd-overview__muted">每則各記一筆操作紀錄；一次最多 200 則</span>
+        </div>
+        <!-- #endregion -->
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
         <p v-if="notice" class="dd-detail__notice" role="status">✓ {{ notice }}</p>
 
@@ -244,9 +368,18 @@
 
         <div v-else class="dd-devices__layout" :class="{ 'has-detail': selectedId !== null }">
             <div class="dd-devices__table-wrap">
-                <table class="dd-table">
+                <table class="dd-table dd-feedback__table">
                     <thead>
                         <tr>
+                            <th scope="col" class="is-check">
+                                <input
+                                    type="checkbox"
+                                    :checked="allOnPageChecked"
+                                    :disabled="!reports.length"
+                                    aria-label="勾選本頁全部"
+                                    @change="setChecked(reports.map(r => r.id), ($event.target as HTMLInputElement).checked)"
+                                />
+                            </th>
                             <th scope="col">ID</th>
                             <th scope="col">裝置</th>
                             <th scope="col">類型</th>
@@ -256,14 +389,78 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- 摺疊時一台一組：群組列可以整組勾、整組展開、整台的待審一鍵不採計 -->
+                        <template v-for="group in (grouped ? groups : [])" :key="`g-${group.deviceId}`">
+                            <tr
+                                v-if="group.reports.length > 1"
+                                class="is-group"
+                                tabindex="0"
+                                :aria-expanded="!isFolded(group)"
+                                @click="toggleExpanded(group.deviceId)"
+                                @keydown.enter="toggleExpanded(group.deviceId)"
+                            >
+                                <td class="is-check" @click.stop>
+                                    <input
+                                        type="checkbox"
+                                        :checked="groupAllChecked(group)"
+                                        :aria-label="`勾選 ${group.name} 的全部`"
+                                        @change="setChecked(group.reports.map(r => r.id), ($event.target as HTMLInputElement).checked)"
+                                    />
+                                </td>
+                                <td colspan="6">
+                                    <span class="caret" :class="{ 'is-open': !isFolded(group) }" aria-hidden="true">▸</span>
+                                    {{ group.name }}
+                                    <span class="dd-overview__muted">
+                                        · 本頁 {{ formatInt(group.reports.length) }} 則{{ group.pending ? `，${formatInt(group.pending)} 則待審` : '' }}
+                                    </span>
+                                    <template v-if="group.pending">
+                                        <template v-if="confirmingDevice === group.deviceId">
+                                            <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click.stop="rejectDevice(group.deviceId, group.name)">
+                                                確定：{{ group.name }} 的待審全部不採計
+                                            </button>
+                                            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click.stop="confirmingDevice = null">取消</button>
+                                        </template>
+                                        <button v-else type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click.stop="confirmingDevice = group.deviceId">
+                                            這台的待審全部不採計…
+                                        </button>
+                                    </template>
+                                </td>
+                            </tr>
+                            <tr
+                                v-for="report in (isFolded(group) ? [] : group.reports)"
+                                :key="report.id"
+                                :class="{ 'is-selected': report.id === selectedId, 'is-child': group.reports.length > 1 }"
+                                tabindex="0"
+                                @click="openReport(report.id)"
+                                @keydown.enter="openReport(report.id)"
+                            >
+                                <td class="is-check" @click.stop>
+                                    <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
+                                </td>
+                                <td>#{{ report.id }}</td>
+                                <td>{{ report.device_name || `#${report.device_id}` }}</td>
+                                <td>{{ KIND_LABELS[report.kind] ?? report.kind }}</td>
+                                <td>
+                                    <span class="dd-status" :class="report.status === 'pending' ? 'is-pending' : report.status === 'rejected' ? 'is-frozen' : 'is-active'">
+                                        {{ STATUS_LABELS[report.status] }}
+                                    </span>
+                                </td>
+                                <td class="is-summary">{{ report.content_purged_at ? '（內容已清除）' : report.description }}</td>
+                                <td>{{ formatRelative(report.created_at) }}</td>
+                            </tr>
+                        </template>
+                        <!-- 不摺疊：照後端的順序一則一列 -->
                         <tr
-                            v-for="report in reports"
+                            v-for="report in (grouped ? [] : reports)"
                             :key="report.id"
                             :class="{ 'is-selected': report.id === selectedId }"
                             tabindex="0"
                             @click="openReport(report.id)"
                             @keydown.enter="openReport(report.id)"
                         >
+                            <td class="is-check" @click.stop>
+                                <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
+                            </td>
                             <td>#{{ report.id }}</td>
                             <td>{{ report.device_name || `#${report.device_id}` }}</td>
                             <td>{{ KIND_LABELS[report.kind] ?? report.kind }}</td>
@@ -276,7 +473,7 @@
                             <td>{{ formatRelative(report.created_at) }}</td>
                         </tr>
                         <tr v-if="!loading && reports.length === 0">
-                            <td colspan="6" class="dd-table__empty">沒有符合的回報</td>
+                            <td colspan="7" class="dd-table__empty">沒有符合的回報</td>
                         </tr>
                     </tbody>
                 </table>
@@ -342,9 +539,33 @@
                     </section>
 
                     <section class="dd-detail__card">
+                        <h3>這台裝置</h3>
+                        <p class="dd-detail__muted">
+                            同一台一直送垃圾回報的話，這裡一次處理：只動還在「待審」的，已經採計的不會翻掉，一次最多 200 則。
+                            凍結是另一件事、分開按。
+                        </p>
+                        <div v-if="confirmingDevice === detail.device_id" class="dd-detail__actions">
+                            <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click="rejectDevice(detail.device_id, detail.device_name || `#${detail.device_id}`)">
+                                確定：{{ detail.device_name || `#${detail.device_id}` }} 的待審全部不採計
+                            </button>
+                            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirmingDevice = null">取消</button>
+                        </div>
+                        <div v-else-if="confirming === 'freeze'" class="dd-detail__actions">
+                            <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click="freezeDevice(detail.device_id)">確定凍結 #{{ detail.device_id }}</button>
+                            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = null">取消</button>
+                        </div>
+                        <div v-else class="dd-detail__actions">
+                            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirmingDevice = detail.device_id">這台的待審全部不採計…</button>
+                            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = 'freeze'">凍結這台裝置…</button>
+                        </div>
+                    </section>
+
+                    <section class="dd-detail__card">
                         <h3>跟哪一則是同一件事？</h3>
                         <p class="dd-detail__muted">
-                            講同一件事的回報合併在一起：最早的那則採計回報拿全額權重、之後的拿一半。沒合併的採計回報算 1 分。
+                            講同一件事的回報合併在一起：最早的那則採計回報拿全額權重、之後不同的人拿一半；
+                            同一個人在同一個問題裡只算最早那一則，之後的 0 分、也不算件數（還是可以採計掛上來，看得出多少人反映）。
+                            沒合併的採計回報算 1 分。
                         </p>
 
                         <template v-if="detail.issue_id">
@@ -411,6 +632,61 @@
 
         // 問題清單的欄位多，窄螢幕讓它自己左右捲，不要撐破版面
         &__scroll { overflow-x: auto; }
+        &__check {
+            @include setFlex(flex-start, center, 6px);
+            cursor: pointer;
+        }
+
+        // 勾了才出現的批次列：用品牌淡色跟一般工具列分開，讓人知道現在有東西被勾著
+        &__batch {
+            @include setFlex(flex-start, center, 12px);
+            flex-wrap: wrap;
+            background: var(--vp-c-brand-soft);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: var(--font-size-s);
+
+            select {
+                background: var(--vp-c-bg-soft);
+                padding: 4px 10px;
+                border: 1px solid var(--vp-c-divider);
+                border-radius: 8px;
+                margin-left: 6px;
+                color: var(--vp-c-text-1);
+            }
+        }
+        &__table {
+            input[type=checkbox] {
+                accent-color: var(--vp-c-brand-1);
+                cursor: pointer;
+            }
+            .is-check {
+                width: 32px;
+                padding-right: 0;
+            }
+
+            // 同一台的群組列：底色稍深、粗體，按鈕放在同一列的右邊
+            tr.is-group {
+                background: var(--vp-c-bg-soft) !important;
+                font-weight: 600;
+
+                &:hover { background: var(--vp-c-default-soft) !important; }
+                .caret {
+                    display: inline-block;
+                    width: 1em;
+                    transition: transform .2s var(--cubic-FiSo);
+
+                    &.is-open { transform: rotate(90deg); }
+                }
+                .dd-admin__btn {
+                    margin-left: 12px;
+                    font-weight: 400;
+                }
+            }
+
+            // 群組底下的回報縮一點，看得出是同一台的
+            tr.is-child td:nth-child(2) { padding-left: 28px; }
+        }
         &__toolbar {
             @include setFlex(flex-start, center, 12px);
             flex-wrap: wrap;
