@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import type { AdminDevice, AuditEntry, DevicePatch, Perk, PlanTier } from '../api';
-    import { computed, onMounted, ref } from 'vue';
+    import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
     import { adminApi, MAX_TOKENS } from '../api';
     import {
         AVATAR_KIND_LABELS,
@@ -11,7 +11,8 @@
         PERK_STATUS_LABELS,
         perkLength,
         PLAN_LABELS,
-        PLAN_SOURCE_LABELS
+        PLAN_SOURCE_LABELS,
+        presetLabel
     } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
@@ -26,6 +27,30 @@
     const realPlan = ref<{ plan_tier: string, plan_source: string } | null>(null);
     const referrals = ref<{ pending: number, qualified: number } | null>(null);
     const referralCode = ref('');
+
+    // 使用者上傳的大頭貼：要帶登入憑證取回、轉成 blob URL（新板溝通板 #48 的 /admin/devices/:id/avatar）。
+    // 清掉之後沒有備份，所以清之前一定要看得到
+    const avatarUrl = ref('');
+    const avatarError = ref('');
+    function releaseAvatar() {
+        if (avatarUrl.value.startsWith('blob:')) URL.revokeObjectURL(avatarUrl.value);
+        avatarUrl.value = '';
+    }
+    async function loadAvatar(target: AdminDevice) {
+        releaseAvatar();
+        avatarError.value = '';
+        if (target.avatar?.kind === 'google') {
+            avatarUrl.value = target.avatar.url ?? ''; // Google 的公開網址，直接載入
+        } else if (target.avatar?.kind === 'upload') {
+            try {
+                const image = await call(token => adminApi.deviceAvatar(token, deviceId));
+                avatarUrl.value = URL.createObjectURL(image);
+            } catch (e) {
+                avatarError.value = errorMessage(e);
+            }
+        }
+    }
+    onBeforeUnmount(releaseAvatar);
     const loading = ref(false);
     const busy = ref(false);
     const error = ref('');
@@ -105,6 +130,7 @@
             referralCode.value = result.referral_code ?? '';
             resetForm();
             resetEventForm();
+            loadAvatar(result.device);
         } catch (e) {
             error.value = errorMessage(e);
         } finally {
@@ -169,6 +195,9 @@
     const clearNickname = () => mutate(
         token => adminApi.updateDevice(token, deviceId, { nickname: null }),
         '已清掉暱稱，排行榜上會顯示「白老鼠 #編號」（原本的暱稱留在操作紀錄裡）');
+    const clearTitle = () => mutate(
+        token => adminApi.updateDevice(token, deviceId, { title: null }),
+        '已清掉稱號（原本的字留在操作紀錄裡）');
     const clearAvatar = () => mutate(
         token => adminApi.updateDevice(token, deviceId, { avatar: null }),
         '已清掉大頭貼，退回 App 內建圖案');
@@ -319,17 +348,24 @@
                         <dt>現在實際方案</dt>
                         <dd>{{ PLAN_LABELS[realPlan.plan_tier] ?? realPlan.plan_tier }}（{{ PLAN_SOURCE_LABELS[realPlan.plan_source] ?? realPlan.plan_source }}）</dd>
                     </div>
+                    <div>
+                        <dt>稱號</dt>
+                        <dd>{{ device.title || '沒設' }}</dd>
+                    </div>
                     <div v-if="device.avatar">
                         <dt>大頭貼</dt>
-                        <dd>
-                            {{ AVATAR_KIND_LABELS[device.avatar.kind] ?? device.avatar.kind }}
-                            <template v-if="device.avatar.preset">（{{ device.avatar.preset }}）</template>
-                        </dd>
+                        <!-- 寫在同一行：換行會在「圖案」與「（」之間多出一個空格 -->
+                        <dd>{{ AVATAR_KIND_LABELS[device.avatar.kind] ?? device.avatar.kind }}{{ device.avatar.kind === 'preset' ? `（${presetLabel(device.avatar.preset)}）` : '' }}</dd>
                     </div>
                 </dl>
+                <div v-if="avatarUrl" class="dd-detail__avatar">
+                    <img :src="avatarUrl" alt="這台裝置的大頭貼" referrerpolicy="no-referrer" />
+                    <span class="dd-detail__muted">{{ device.avatar?.kind === 'google' ? 'Google 帳號的大頭貼' : '使用者上傳的照片' }}：排行榜上別人看得到的就是這張</span>
+                </div>
+                <p v-else-if="avatarError" class="dd-admin__error">大頭貼載不出來：{{ avatarError }}</p>
                 <p class="dd-detail__muted">
                     採計件數已經含手動加的。改件數或鐵人都會影響<strong>所有人的名次</strong>。
-                    <template v-if="device.avatar?.kind === 'upload'">使用者上傳的照片後台看不到（那支要裝置的 API key），只能清掉。</template>
+                    暱稱、稱號、大頭貼都會出現在別人的排行榜上，不當的可以清掉（只能清、不能改）。
                 </p>
 
                 <fieldset class="dd-detail__field">
@@ -352,6 +388,7 @@
 
                 <div class="dd-detail__actions">
                     <button type="button" class="dd-admin__btn is-ghost" :disabled="busy || !device.nickname" @click="clearNickname">清掉暱稱</button>
+                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy || !device.title" @click="clearTitle">清掉稱號</button>
                     <button
                         type="button"
                         class="dd-admin__btn is-ghost"
@@ -517,6 +554,18 @@
             flex-wrap: wrap;
         }
         &__scroll { overflow-x: auto; }
+        &__avatar {
+            @include setFlex(flex-start, center, 12px);
+
+            img {
+                flex: none;
+                width: 64px;
+                height: 64px;
+                border: 1px solid var(--vp-c-divider);
+                border-radius: 50%;
+                object-fit: cover;
+            }
+        }
         &__perks {
             @include setFlex(flex-start, stretch, 10px, column);
             padding: 0;

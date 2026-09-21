@@ -6,6 +6,7 @@
     import { adminApi } from '../api';
     import ColumnChart from '../charts/ColumnChart.vue';
     import FeedbackTriage from './FeedbackTriage.vue';
+    import MergePicker from './MergePicker.vue';
     import { formatDateTime, formatInt, formatRelative, KIND_LABELS } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
@@ -126,31 +127,21 @@
     const detachIssue = () =>
         mutate(token => adminApi.reviewFeedback(token, selectedId.value!, { issue_id: null }), '已從問題上拿下來');
 
-    const issuePick = ref<number | ''>('');
-    async function attachIssue() {
-        if (!issuePick.value) return;
-        const id = Number(issuePick.value);
-        await mutate(async token => {
-            await adminApi.addReportsToIssue(token, id, [selectedId.value!]);
-            return adminApi.getFeedback(token, selectedId.value!);
-        }, '已掛到問題上');
-        issuePick.value = '';
+    /** 快速審核裡合併過：只重抓問題清單（一次 API），列表與統計等離開時再一起抓 */
+    async function reloadIssues() {
+        try {
+            issues.value = await call(token => adminApi.listIssues(token));
+        } catch (e) {
+            error.value = errorMessage(e);
+        }
     }
 
-    const newIssue = ref({ title: '', weight: 1 });
-    const newIssueError = computed(() => {
-        const { title, weight } = newIssue.value;
-        if (!title.trim()) return '';
-        if (!Number.isInteger(weight) || weight < 1 || weight > 100) return '權重要是 1～100 的整數';
-        return '';
-    });
-    async function createIssue() {
-        if (!newIssue.value.title.trim() || newIssueError.value) return;
-        await mutate(async token => {
-            await adminApi.createIssue(token, { title: newIssue.value.title.trim(), weight: newIssue.value.weight, report_ids: [selectedId.value!] });
-            return adminApi.getFeedback(token, selectedId.value!);
-        }, '已建立問題並掛上這則');
-        newIssue.value = { title: '', weight: 1 };
+    /** MergePicker 合併完：這一則已經掛上去了，重抓這一則、統計與問題清單 */
+    async function onMerged(issueId: number) {
+        await mutate(token => adminApi.getFeedback(token, selectedId.value!), '已經合併');
+        // 新開的問題要等清單重抓完才叫得出名字
+        const title = issues.value.find(i => i.id === issueId)?.title;
+        if (title && notice.value) notice.value = `已經跟「${title}」合併`;
     }
 
     /** 改權重會立刻影響所有人的分數與名次，所以改完提示一下 */
@@ -249,7 +240,7 @@
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
         <p v-if="notice" class="dd-detail__notice" role="status">✓ {{ notice }}</p>
 
-        <FeedbackTriage v-if="triage" :issues="issues" :kind="kind" @close="closeTriage" />
+        <FeedbackTriage v-if="triage" :issues="issues" :kind="kind" @close="closeTriage" @issues-changed="reloadIssues" />
 
         <div v-else class="dd-devices__layout" :class="{ 'has-detail': selectedId !== null }">
             <div class="dd-devices__table-wrap">
@@ -351,36 +342,19 @@
                     </section>
 
                     <section class="dd-detail__card">
-                        <h3>合併成問題</h3>
+                        <h3>跟哪一則是同一件事？</h3>
                         <p class="dd-detail__muted">
-                            同一個問題裡，最早的那則採計回報拿全額權重、之後的拿一半。沒掛問題的採計回報算 1 分。
+                            講同一件事的回報合併在一起：最早的那則採計回報拿全額權重、之後的拿一半。沒合併的採計回報算 1 分。
                         </p>
 
                         <template v-if="detail.issue_id">
-                            <p>目前掛在：<strong>{{ issues.find(i => i.id === detail.issue_id)?.title ?? `#${detail.issue_id}` }}</strong></p>
+                            <p>已經合併到：<strong>{{ issues.find(i => i.id === detail.issue_id)?.title ?? `#${detail.issue_id}` }}</strong></p>
                             <div class="dd-detail__actions">
-                                <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="detachIssue">從問題上拿下來</button>
+                                <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="detachIssue">拆開（不算同一件）</button>
                             </div>
                         </template>
 
-                        <template v-else>
-                            <div class="dd-detail__field">
-                                <span>掛到既有問題</span>
-                                <select v-model="issuePick">
-                                    <option value="">選一個…</option>
-                                    <option v-for="issue in issues" :key="issue.id" :value="issue.id">{{ issue.title }}（權重 {{ issue.weight }}）</option>
-                                </select>
-                                <button type="button" class="dd-admin__btn" :disabled="!issuePick || busy" @click="attachIssue">掛上去</button>
-                            </div>
-
-                            <div class="dd-detail__field">
-                                <span>或建立新問題</span>
-                                <input v-model="newIssue.title" type="text" placeholder="問題標題" />
-                                <input v-model.number="newIssue.weight" type="number" min="1" max="100" aria-label="權重 1～100" />
-                                <button type="button" class="dd-admin__btn" :disabled="!newIssue.title.trim() || !!newIssueError || busy" @click="createIssue">建立並掛上</button>
-                            </div>
-                            <p v-if="newIssueError" class="dd-admin__error">{{ newIssueError }}</p>
-                        </template>
+                        <MergePicker v-else :report="detail" :issues="issues" @merged="onMerged" />
                     </section>
                 </template>
             </aside>

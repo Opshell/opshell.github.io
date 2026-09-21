@@ -4,6 +4,7 @@
     import { adminApi, AdminApiError } from '../api';
     import { formatDateTime, KIND_LABELS } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import MergePicker from './MergePicker.vue';
 
     // 快速審核：一次只看一則待審的，用鍵盤判完就自動跳下一則。
     //
@@ -16,7 +17,7 @@
     // `GET /v1/admin/feedback/:id`——只有截圖（一張一次）與展開除錯紀錄時才多打。
     // 沒有截圖的一則＝只花一次 PATCH，一分鐘判 30 則不會被擋。
     const { issues, kind } = defineProps<{ issues: FeedbackIssue[], kind: FeedbackKind }>();
-    const emit = defineEmits<{ close: [changed: boolean] }>();
+    const emit = defineEmits<{ 'close': [changed: boolean], 'issues-changed': [] }>();
 
     const call = useAdminCall();
 
@@ -35,8 +36,6 @@
     const done = ref(0);
     /** 剛剛做了什麼，可以按 U 復原 */
     const lastAction = ref<{ id: number, from: FeedbackStatus, to: FeedbackStatus } | null>(null);
-    const issuePick = ref<number | ''>('');
-    const newIssueTitle = ref('');
 
     const current = computed(() => queue.value[index.value] ?? null);
     /** 還沒判的則數。跳過不會讓它變少——跳過的還在佇列裡，只是先往後看 */
@@ -135,8 +134,6 @@
         const next = index.value + delta;
         if (next < 0 || next >= queue.value.length) return;
         index.value = next;
-        issuePick.value = '';
-        newIssueTitle.value = '';
         show(queue.value[next]);
     }
 
@@ -151,8 +148,6 @@
             done.value += 1;
             // 判完就從佇列拿掉：留著只會讓「剩幾則」對不上，也容易重複判
             queue.value.splice(index.value, 1);
-            issuePick.value = '';
-            newIssueTitle.value = '';
             if (index.value >= queue.value.length) index.value = Math.max(queue.value.length - 1, 0);
             if (queue.value.length) await show(queue.value[index.value]);
             else releaseShots();
@@ -188,29 +183,14 @@
         }
     }
 
-    /** 合併之後不自動判定：合併與採不採計是兩件事，有時候要先看完同一個問題的其他則 */
-    async function attach() {
+    /**
+     * 合併完（MergePicker）：只更新這一列的 issue_id，**不自動判定**——
+     * 合併與採不採計是兩件事，有時候要先看完同一件事的其他則。問題清單由上一層重抓
+     */
+    function onMerged(issueId: number) {
         const report = current.value;
-        if (!report || busy.value) return;
-        busy.value = true;
-        error.value = '';
-        try {
-            if (newIssueTitle.value.trim()) {
-                await call(token => adminApi.createIssue(token, { title: newIssueTitle.value.trim(), weight: 1, report_ids: [report.id] }));
-            } else if (issuePick.value) {
-                await call(token => adminApi.addReportsToIssue(token, Number(issuePick.value), [report.id]));
-            } else {
-                return;
-            }
-            // 不再多打一次單則：掛上去就是掛上去了，直接更新這一列
-            queue.value[index.value] = { ...report, issue_id: issuePick.value ? Number(issuePick.value) : -1 };
-            issuePick.value = '';
-            newIssueTitle.value = '';
-        } catch (e) {
-            error.value = errorMessage(e);
-        } finally {
-            busy.value = false;
-        }
+        if (report) queue.value[index.value] = { ...report, issue_id: issueId };
+        emit('issues-changed');
     }
     // #endregion
 
@@ -336,18 +316,10 @@
                 </div>
 
                 <div class="dd-triage__merge">
-                    <template v-if="current.issue_id">
-                        <span class="dd-triage__muted">已掛在「{{ issues.find(i => i.id === current.issue_id)?.title ?? '剛剛開的那個問題' }}」</span>
-                    </template>
-                    <template v-else>
-                        <span class="dd-triage__muted">同一件事？</span>
-                        <select v-model="issuePick" aria-label="掛到既有問題" :disabled="busy || !!newIssueTitle.trim()">
-                            <option value="">選一個問題…</option>
-                            <option v-for="issue in issues" :key="issue.id" :value="issue.id">{{ issue.title }}（權重 {{ issue.weight }}）</option>
-                        </select>
-                        <input v-model="newIssueTitle" type="text" placeholder="或開一個新問題" aria-label="新問題的標題" />
-                        <button type="button" class="dd-admin__btn is-ghost" :disabled="busy || (!issuePick && !newIssueTitle.trim())" @click="attach">掛上去</button>
-                    </template>
+                    <p v-if="current.issue_id" class="dd-triage__muted">
+                        已經合併到「{{ issues.find(i => i.id === current!.issue_id)?.title ?? `#${current.issue_id}` }}」
+                    </p>
+                    <MergePicker v-else :key="current.id" :report="current" :issues="issues" @merged="onMerged" />
                 </div>
             </footer>
         </article>
@@ -440,21 +412,7 @@
                 @include setFlex(center, center, 6px);
             }
         }
-        &__merge {
-            @include setFlex(flex-start, center, 8px);
-            flex-wrap: wrap;
-            font-size: var(--font-size-s);
-
-            select, input {
-                background: var(--vp-c-bg-soft);
-                width: 200px;
-                padding: 4px 10px;
-                border: 1px solid var(--vp-c-divider);
-                border-radius: 8px;
-                color: var(--vp-c-text-1);
-                font-size: var(--font-size-s);
-            }
-        }
+        &__merge { font-size: var(--font-size-s); }
 
         kbd {
             display: inline-block;

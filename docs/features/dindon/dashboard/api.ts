@@ -39,6 +39,8 @@ export interface AdminDevice {
     bonus_suggestions: number
     iron_achieved_on: string | null
     avatar?: Avatar
+    /** 使用者用徽章組出來的稱號，會顯示在**別人的**排行榜上（新板溝通板 #48） */
+    title?: string | null
 }
 
 /** 「免費用某個方案多久」的一筆權益（api.md 第 14 節） */
@@ -53,6 +55,40 @@ export interface Perk {
     starts_on: string | null
     ends_on: string | null
 }
+
+// #region [P] 誰在大量使用（api.md 第 8 節，舊板溝通板 #47）
+/** 提示，不是判決；也不會擋任何請求。每一種都有正當的解釋 */
+export type UsageFlag = 'heavy_today' | 'burst' | 'new_and_heavy' | 'many_rejected';
+
+export interface DeviceUsage {
+    device_id: number
+    name: string
+    plan_tier: string
+    tokens: number
+    linked: boolean
+    frozen: boolean
+    frozen_at: string | null
+    device_created_at: string
+    /** 真的打了 Gemini 的次數；被額度或每日上限擋下來的算在 failed */
+    requests: number
+    today: number
+    /** 模型判定「這不是可以記帳的東西」 */
+    rejected: number
+    failed: number
+    peak_hour: number
+    /** 台灣時間的那一個小時，例如 2026-09-20 14:00 */
+    peak_hour_at: string | null
+    active_days: number
+    /** beta 期間是「原本會扣的」，實際沒扣 */
+    quota_points: number
+    /** 用價目表估的，不是 Google 的實際帳單 */
+    cost_usd: number
+    by_feature: Record<string, number>
+    first_at: string | null
+    last_at: string | null
+    flags: UsageFlag[] | null
+}
+// #endregion
 
 export interface DeviceDetailResponse {
     device: AdminDevice
@@ -94,6 +130,8 @@ export interface DevicePatch {
     iron_achieved_on?: string | null
     /** **只能給 null**：清掉不當的大頭貼，不能替使用者換 */
     avatar?: null
+    /** **只能給 null**：清掉不當的稱號。操作紀錄會留下被清掉的字 */
+    title?: null
 }
 
 export interface Dist { avg: number, p50: number, p90: number, p95: number, max: number }
@@ -399,6 +437,12 @@ export const adminApi = {
         request<{ device: AdminDevice }>(token, `/v1/admin/devices/${id}/erase-identity`, { method: 'POST', body: { freeze } }),
     usage: (token: string, days: number) =>
         request<UsageReport>(token, `/v1/admin/usage?days=${days}`),
+    /** 逐台的用量，次數多的在前 */
+    usageByDevice: (token: string, days: number) =>
+        request<{ from: string, to: string, days: number, devices: DeviceUsage[] | null }>(token, `/v1/admin/usage/devices?days=${days}`),
+    /** 後台看使用者上傳的大頭貼（使用者那支要裝置的 API key，後台拿不到）。沒上傳過回 404 */
+    deviceAvatar: (token: string, id: number) =>
+        blob(token, `/v1/admin/devices/${id}/avatar`),
 
     // #region [P] 審回報
     feedbackStats: (token: string) => request<FeedbackStats>(token, '/v1/admin/feedback/stats'),
@@ -420,8 +464,9 @@ export const adminApi = {
 
     listIssues: async (token: string) =>
         ((await request<{ issues: Raw[] | null }>(token, '/v1/admin/feedback/issues')).issues ?? []).map(normalizeIssue),
-    createIssue: (token: string, body: { title: string, weight: number, note?: string, report_ids?: number[] }) =>
-        request<unknown>(token, '/v1/admin/feedback/issues', { method: 'POST', body }),
+    /** 建立問題，可以同時把幾則回報掛上去——這就是「合併」。回傳新問題（含 id） */
+    createIssue: async (token: string, body: { title: string, weight: number, note?: string, report_ids?: number[] }) =>
+        normalizeIssue((await request<{ issue: Raw }>(token, '/v1/admin/feedback/issues', { method: 'POST', body })).issue),
     updateIssue: (token: string, id: number, body: { title?: string, weight?: number, note?: string }) =>
         request<unknown>(token, `/v1/admin/feedback/issues/${id}`, { method: 'PATCH', body }),
     addReportsToIssue: (token: string, id: number, reportIds: number[]) =>
