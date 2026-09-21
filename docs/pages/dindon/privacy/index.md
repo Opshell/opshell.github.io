@@ -8,7 +8,7 @@ sidebar: false
 # 不設 isPublished：設了會被當成文章，出現在時間軸與標籤列表。
 ---
 
-<!-- 由 scripts/sync-dindon-privacy.mjs 產生（原稿最後更新：2026 年 9 月 20 日（適用 v0.6.1 起的版本））。要改內容請改 App 的 privacy_policy.md 再重跑。 -->
+<!-- 由 scripts/sync-dindon-privacy.mjs 產生（原稿最後更新：2026 年 9 月 21 日（適用 v0.6.4 起的版本））。要改內容請改 App 的 privacy_policy.md 再重跑。 -->
 
 [← 回到叮咚記帳](/dindon/)
 
@@ -21,7 +21,7 @@ sidebar: false
 
 # **叮咚** 隱私權政策
 
-最後更新：2026 年 9 月 20 日（適用 v0.6.1 起的版本）
+最後更新：2026 年 9 月 21 日（適用 v0.6.4 起的版本）
 
 > **懶人包**
 >
