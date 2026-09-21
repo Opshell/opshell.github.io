@@ -116,7 +116,7 @@
                 <ul class="dindon-landing__features">
                     <li v-for="(item, index) in withoutNotice" :key="item.title" class="dindon-landing__card" data-reveal :style="delay(index, 70)">
                         <span class="feature-icon" aria-hidden="true">{{ item.icon }}</span>
-                        <h3>{{ item.title }}</h3>
+                        <h3>{{ item.title }}<span v-if="item.tag" class="dindon-landing__new">{{ item.tag }}</span></h3>
                         <p>{{ item.text }}</p>
                     </li>
                 </ul>
@@ -193,7 +193,8 @@
                         養成記帳習慣最好的方式，<br />就是<strong>幾乎沒有啟動門檻</strong>。
                     </p>
                     <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">
-                        付款自動記、拍一張、說一句——低到不用下決心。再加上 8 種成就徽章，每種都能從銅一路升到七彩，記帳也可以有點收集的樂趣。
+                        <!-- 中文寫在同一行：換行會在「；」後面多出一個空格 -->
+                        付款自動記、拍一張、說一句——低到不用下決心。再加上 8 種成就徽章，每種都能從銅一路升到七彩；升級還會解鎖稱號的詞，組出屬於你的一行稱號，記帳也可以有點收集的樂趣。
                     </p>
                 </div>
 
@@ -230,8 +231,7 @@
                             <a v-if="PLAY_OPTIN_URL" class="dindon-landing__btn" :href="PLAY_OPTIN_URL" target="_blank" rel="noopener">已核准？前往安裝<span class="arrow" aria-hidden="true">→</span></a>
                         </div>
                         <p class="dindon-landing__note">
-                            需要：Android 7.0 以上的手機、一個 Google 帳號（要和 Play 商店登入的是同一個）。
-                            有問題寫信到 <a :href="SIGNUP_HREF" class="email">{{ CONTACT_EMAIL }}</a>。
+                            需要：Android 7.0 以上的手機、一個 Google 帳號（要和 Play 商店登入的是同一個）。有問題寫信到 <a :href="SIGNUP_HREF" class="email">{{ CONTACT_EMAIL }}</a>。
                         </p>
                     </div>
 
@@ -243,11 +243,16 @@
                                 <h3>{{ reward.title }}</h3>
                                 <p class="condition">{{ reward.condition }}</p>
                                 <p class="reward">→ {{ reward.reward }}</p>
+                                <dl v-if="reward.tiers" class="tiers">
+                                    <div v-for="tier in reward.tiers" :key="tier.rank">
+                                        <dt>{{ tier.rank }}</dt>
+                                        <dd>{{ tier.reward }}</dd>
+                                    </div>
+                                </dl>
                             </li>
                         </ul>
                         <p class="dindon-landing__note is-fine" data-reveal>
-                            鐵人與貢獻分開算，合計最多 4 個月，從正式版上線那天開始算。
-                            換手機也拿得回來：記得在 App 裡綁定 Google 帳號。
+                            名次獎與全勤另外算，一筆接一筆排，從正式版上線那天開始算；實際發放以活動結束時公布為準。換手機也拿得回來：記得在 App 裡綁定 Google 帳號。
                         </p>
                     </div>
                 </div>
@@ -686,13 +691,26 @@
         // #endregion
 
         // #region [P] 功能卡（就算沒有通知）
+        // 4 張卡：寬螢幕一排 4 張、平板 2×2，不要排成 3＋1 留一張孤兒
         &__features {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             margin-top: 40px !important;
             list-style: none;
-            @include setRWD(768px) { grid-template-columns: 1fr; }
+            @include setRWD(1024px) { grid-template-columns: repeat(2, 1fr); }
+            @include setRWD(640px) { grid-template-columns: 1fr; }
+        }
+        &__new {
+            display: inline-block;
+            background: var(--dd-accent);
+            padding: 1px 8px;
+            border-radius: 999px;
+            margin-left: 8px;
+            color: #1B1815;
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            vertical-align: middle;
         }
 
         // 三個區塊（電子發票的痛點、就算沒有通知、最懶人的記帳體驗）共用這一張卡：
@@ -928,6 +946,29 @@
             .reward {
                 color: #F4EFE3;
                 font-weight: 700;
+            }
+
+            // 名次級距：兩欄對齊，第 1 名那一列最亮
+            .tiers {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 4px 20px;
+                width: 100%;
+                margin: 6px 0 0;
+
+                div {
+                    @include setFlex(space-between, baseline, 8px);
+                    padding: 3px 0;
+                    border-bottom: 1px solid rgb(244 239 227 / 12%);
+                }
+                dt { color: #D9D1E8; }
+                dd {
+                    margin: 0;
+                    color: #FFD98A;
+                    font-weight: 700;
+                }
+                div:first-child dd { color: #F6C443; }
+                @include setRWD(420px) { grid-template-columns: 1fr; }
             }
         }
 
