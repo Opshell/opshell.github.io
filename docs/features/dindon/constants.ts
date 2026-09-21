@@ -41,7 +41,6 @@ export interface iPoint {
 /** 電子發票的痛點。叮咚記帳要回答的就是「那不是已經有電子發票 App 了嗎？」 */
 export const invoicePains: iPoint[] = [
     { icon: '⏳', title: '最久要等兩天', text: '消費資料從店家上傳、再同步到載具，常常隔天甚至兩天後才看得到。' },
-    { icon: '🔄', title: '要等同步', text: '想看今天花了多少？還沒同步的那幾筆，就是看不到。' },
     { icon: '🧩', title: '總覽不直覺', text: '一張張發票排在一起，看不出這個月的錢都花去哪了。' },
     { icon: '💵', title: '付現的帳記不到', text: '夜市、早餐店、傳統市場，沒有電子發票的消費，全部不見。' },
     { icon: '😮‍💨', title: '養不成習慣', text: '等看得到的時候，早就忘了那筆是什麼。記帳的動力就這樣斷掉了。' }
@@ -75,9 +74,9 @@ export const lazyPoints: iPoint[] = [
 ];
 
 export const betaSteps: string[] = [
-    '用你在 Play 商店登入的那個 Google 帳號，申請加入封測群組（限 Android 手機）。',
-    '我核准之後，會把 Google Play 的測試版連結寄給你，照一般 App 安裝。',
-    '每天打開一次，連續 14 天。遇到問題或有想法，直接在 App 裡回報。'
+    '用你在 Play 商店登入的那個 Google 帳號，申請加入封測群組。',
+    '核准之後，會收到 Google Play 的測試版連結，正常下載安裝。',
+    '每天打開一次，連續 14 天。遇到問題或有想法，在 App 裡回報。'
 ];
 
 export interface iReward {
@@ -98,7 +97,7 @@ export const betaRewards: iReward[] = [
     {
         tag: '依名次',
         title: '抓蟲排行榜',
-        condition: '在 App 裡回報 bug 或建議，被採計的越多，名次越前。可以用自己的暱稱、稱號和頭像上榜',
+        condition: '在 App 裡回報 bug 或建議，被採計的越多，名次越前。',
         reward: '正式版上線後，免費用「進階」方案',
         tiers: [
             { rank: '第 1 名', reward: '3 個月' },
@@ -109,5 +108,5 @@ export const betaRewards: iReward[] = [
             { rank: '之後有回報過的', reward: '1 週' }
         ]
     },
-    { tag: '+1 個月', title: '全勤小鐵人', condition: '封測期間連續 14 天打開叮咚記帳（每天打開會自動打卡，沒有網路的那天不會補打）', reward: '名次獎之外，再加「進階」方案 1 個月' }
+    { tag: '+1 個月', title: '全勤小鐵人', condition: '封測期間連續 14 天打開叮咚記帳自動打卡（沒有網路的那天不會補打）', reward: '名次獎之外，再加「進階」方案 1 個月' }
 ];
