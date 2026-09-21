@@ -109,5 +109,5 @@ export const betaRewards: iReward[] = [
             { rank: '之後有回報過的', reward: '1 週' }
         ]
     },
-    { tag: '+1 個月', title: '全勤小鐵人', condition: '封測期間連續 14 天打開叮咚記帳（每天打開會自動打卡）', reward: '名次獎之外，再加「進階」方案 1 個月' }
+    { tag: '+1 個月', title: '全勤小鐵人', condition: '封測期間連續 14 天打開叮咚記帳（每天打開會自動打卡，沒有網路的那天不會補打）', reward: '名次獎之外，再加「進階」方案 1 個月' }
 ];
