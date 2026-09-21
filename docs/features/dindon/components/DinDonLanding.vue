@@ -137,7 +137,7 @@
                     </ul>
 
                     <p class="dindon-landing__shutter" data-reveal>
-                        只要上面有資料，大約 5 秒，<strong>喀嚓</strong>，記完帳了。
+                        只要上面有資料，<strong>喀嚓</strong>，5 秒，記完帳了。
                     </p>
                 </div>
 
@@ -219,7 +219,7 @@
                         </p>
                         <h2 class="dindon-landing__title" data-reveal :style="delay(1)">加入封閉測試</h2>
                         <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">
-                            Google Play 規定新 App 上架前，要先經過一段封閉測試。你平常照樣花錢、照樣收通知，就是在幫叮咚記帳上架。
+                            Google Play 規定新 App 上架前，要先經過一段封閉測試。體驗最無腦的記帳，順手幫幫叮咚記帳上架。
                         </p>
 
                         <ol class="dindon-landing__steps">
@@ -238,7 +238,7 @@
                             <div class="dindon-landing__phone" data-parallax="-.05">
                                 <img src="/images/dindon/event.webp" alt="Beta 貢獻活動的排行榜：前三名、自己的名次與每個人的回報件數" loading="lazy" />
                             </div>
-                            <figcaption>App 裡的排行榜（畫面中的名字是示範資料）</figcaption>
+                            <figcaption>App 裡的排行榜（畫面中的名字為示範資料）</figcaption>
                         </figure>
                     </div>
 
@@ -515,14 +515,16 @@
                 font-size: var(--font-size-xs);
             }
 
-            // 貼著手機上緣，像系統跳出的通知橫幅，也不會蓋住截圖裡的金額
+            // 貼著手機上緣，像系統跳出的通知橫幅。放右上：只蓋到搜尋、日曆那排圖示，
+            // 左上的頭像與稱號（截圖裡最新的東西）要露出來。兩張卡都在右邊，由上往下就是
+            // 「通知跳出來 → 旁邊那一筆記好了」
             &.is-notify {
                 top: 18px;
-                left: -84px;
-                @include setRWD(1024px) { left: -24px; }
+                right: -56px;
+                @include setRWD(1024px) { right: -16px; }
                 @include setRWD(768px) {
                     top: 12px;
-                    left: -8px;
+                    right: -8px;
                 }
             }
             &.is-recorded {
@@ -589,7 +591,7 @@
         &__eyebrow {
             margin-bottom: 8px !important;
             color: var(--dd-accent-border);
-            font-size: var(--font-size-s);
+            font-size: var(--font-size-m);
             font-weight: 700;
             letter-spacing: .04em;
         }
@@ -662,7 +664,7 @@
             gap: 4px 28px;
             margin-top: 24px;
 
-            .dindon-landing__link { margin-top: 0; }
+            .dindon-landing__link { margin-top: 18px; }
         }
         &__link {
             display: inline-block;
@@ -684,12 +686,15 @@
         // #endregion
 
         // #region [P] 電子發票的痛點
+        // 四張卡：寫死 4 → 2 → 1 欄。auto-fit 在 770～860px 會排成 3＋1 留一張孤兒
         &__pains {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
             margin-top: 36px !important;
             list-style: none;
+            @include setRWD(900px) { grid-template-columns: repeat(2, 1fr); }
+            @include setRWD(480px) { grid-template-columns: 1fr; }
         }
         &__answer {
             @include setFlex(flex-start, center, 16px);
@@ -749,23 +754,11 @@
                 border-radius: 14px;
                 font-size: 1.5rem;
             }
-            h3 { font-size: var(--font-size-l); }
-            p { color: var(--dd-muted); }
-
-            // 痛點一排五張，欄位只有 190px，整張縮一號才不會每句話都斷成四行
-            .dindon-landing__pains & {
-                gap: 8px;
-                padding: 20px;
-
-                .feature-icon {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 12px;
-                    font-size: 1.25rem;
-                }
-                h3 { font-size: var(--font-size-m); }
-                p { font-size: var(--font-size-s); }
+            h3 {
+                margin: .5rem 0 0;
+                font-size: var(--font-size-l);
             }
+            p { color: var(--dd-muted); }
             @media (hover: hover) {
                 &:hover {
                     translate: 0 -4px;
