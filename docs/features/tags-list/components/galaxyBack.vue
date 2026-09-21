@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { ref, computed, onMounted, onUnmounted } from 'vue';
+    import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
     import { OrbitControls, Stars } from '@tresjs/cientos';
     import { TresCanvas } from '@tresjs/core';
     import { useRouter } from 'vitepress';
@@ -58,7 +58,8 @@
                 type: 'WAITING_FOR_INPUT',
                 tags: [], url: '', val: 0,
                 image: null, excerpt: null, date: null, category: null, coords: null,
-                isLocked: false
+                isLocked: false,
+                isPlanet: false
             };
         }
 
@@ -80,7 +81,8 @@
             date: target.date || 'UNKNOWN_ERA',
             category: target.category ? target.category.join(' / ') : 'UNCLASSIFIED',
             coords: coords,
-            isLocked: currentStatus.value === 'LOCKED'
+            isLocked: currentStatus.value === 'LOCKED',
+            isPlanet: target.type === 'planet'
         };
     });
 
@@ -94,7 +96,7 @@
         const target = lockedTarget.value;
 
         // 如果沒鎖定，回傳空集合 (代表全部都亮，或者由 Model 決定預設行為)
-        if (!target || !siteData) return ids;
+        if (!target || !siteData.value) return ids; // useSiteData 回傳的是 computed ref，之前少了 .value，這裡永遠是空的
 
         // 1. 自己一定相關
         ids.add(target.id);
@@ -105,8 +107,8 @@
         }
 
         // 3. 如果鎖定的是「恆星 (Tag)」，找出繞著它轉的「行星 (文章)」
-        if (target.type === 'star' && siteData.posts) {
-            siteData.posts.forEach((post: any) => {
+        if (target.type === 'star' && siteData.value.posts) {
+            siteData.value.posts.forEach((post: any) => {
                 if (post.tags && post.tags.includes(target.name)) ids.add(post.url);
             });
         }
@@ -118,10 +120,10 @@
      * 如果鎖定的是「恆星 (Tag)」，顯示該 Tag 下有多少文章的統計數據。
      */
     const relatedTagsInfo = computed(() => {
-        if (!lockedTarget.value || lockedTarget.value.type !== 'planet' || !siteData || !siteData.tags) return [];
+        if (!lockedTarget.value || lockedTarget.value.type !== 'planet' || !siteData.value?.tags) return [];
 
         return lockedTarget.value.tags.map((tagName: string) => {
-            const tagData = siteData.tags.get(tagName);
+            const tagData = siteData.value!.tags.get(tagName);
             return { name: tagName, count: tagData ? tagData.count : 0 };
         });
     });
@@ -169,7 +171,10 @@
      * 處理來自 GalaxyModel 的點擊事件
      * 這是觸發運鏡與鎖定的核心入口
      */
-    const handleNodeClick = (node: any) => {
+    const handleNodeClick = (picked: any) => {
+        if (!picked) return;
+        // 右側「LATEST ORBITING NODES」點過來的只有 { id }：跟 3D 場景要完整的節點（名稱、標籤、座標）
+        const node = picked.type ? picked : (galaxyModelRef.value?.findNode(picked.id) ?? null);
         if (!node) return;
 
         // [Optional Logic] 如果點擊的是當前已經鎖定的目標，是否要解除鎖定？
@@ -219,11 +224,16 @@
         // router.go(url);
     };
 
+    /** 複製完按鈕字樣變 1.5 秒，不然按了沒感覺 */
+    const copied = ref(false);
+    let copiedTimer: ReturnType<typeof setTimeout> | undefined;
     const copyUrlHandler = async (path: string) => {
         try {
             const fullUrl = `${window.location.origin}${path}`;
             await navigator.clipboard.writeText(fullUrl);
-            // 這裡可以觸發一個 Toast 或改變按鈕文字提示「COPIED!」
+            copied.value = true;
+            clearTimeout(copiedTimer);
+            copiedTimer = setTimeout(() => copied.value = false, 1500);
         } catch (err) {
             console.error('Copy failed', err);
         }
@@ -270,14 +280,14 @@
 
     // 3. 計算當前 Tab 下的最新 5 篇文章 (Orbiting Planets)
     const activeTabPosts = computed(() => {
-        if (!activeRightTab.value || !siteData || !siteData.tags || !siteData.posts) return [];
+        if (!activeRightTab.value || !siteData.value?.tags || !siteData.value.posts) return [];
 
-        const tagData = siteData.tags.get(activeRightTab.value);
+        const tagData = siteData.value.tags.get(activeRightTab.value);
         if (!tagData) return [];
 
         // 從 postUrls 抓取真實的文章資料
         const posts = tagData.postUrls
-            .map(url => siteData.posts.get(url))
+            .map(url => siteData.value!.posts.get(url))
             .filter(Boolean) as any[]; // 過濾掉 undefined
 
         // 按照日期排序 (最新到最舊)
@@ -289,10 +299,10 @@
 
     // 4. 計算全宇宙能量矩陣 (Top 6 標籤)
     const energyMatrixData = computed(() => {
-        if (!siteData || !siteData.tags) return [];
+        if (!siteData.value?.tags) return [];
 
         // 將 Map 轉為 Array，並依照文章數量 (count) 降冪排序
-        const tagsArray = Array.from(siteData.tags.entries()).map(([name, data]) => ({
+        const tagsArray = Array.from(siteData.value.tags.entries()).map(([name, data]) => ({
             name,
             count: data.count
         }));
@@ -318,10 +328,61 @@
     };
     // #endregion
 
-    // #region [P] 鍵盤監聽 Keyboard Events
-    // 按住 Ctrl/Meta 鍵時，加快 OrbitControls 的縮放速度
+    // #region [P] 鍵盤操作 Keyboard Control
+    // 鎖定之後要挑下一篇文章，只靠滑鼠不方便（自訂游標又小），所以右側清單可以用鍵盤走：
+    // ↑↓ 選文章、↵ 飛過去、←→ 換標籤、O 開啟、C 複製、H 面板、R 對準／重置、Esc 解除。提示列在 COMMAND TERMINAL 下面。
+
+    /** 右側清單目前選中的那一篇；鎖定新目標或換標籤時回到第一篇，這樣鎖定完直接按 ↵ 就能往下飛 */
+    const activePostIndex = ref(0);
+    watch(activeTabPosts, () => { activePostIndex.value = 0; });
+
+    function moveActivePost(delta: number) {
+        const count = activeTabPosts.value.length;
+        if (!count) return;
+        activePostIndex.value = (activePostIndex.value + delta + count) % count;
+        void nextTick(() => document.querySelector('.post-item.is-active')?.scrollIntoView({ block: 'nearest' }));
+    }
+    function moveActiveTab(delta: number) {
+        const tags: string[] = lockedTarget.value?.type === 'planet' ? (lockedTarget.value.tags ?? []) : [];
+        if (tags.length < 2 || !activeRightTab.value) return;
+        const index = tags.indexOf(activeRightTab.value);
+        activeRightTab.value = tags[(index + delta + tags.length) % tags.length];
+    }
+    function flyToActivePost() {
+        const post = activeTabPosts.value[activePostIndex.value];
+        if (post) handleNodeClick({ id: post.url });
+    }
+
+    /** 只在鎖定時才有意義的鍵：沒鎖定就交還給瀏覽器（方向鍵捲頁之類） */
+    const LOCKED_ONLY_KEYS = new Set(['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft', 'Enter']);
+    const KEY_ACTIONS: Record<string, () => void> = {
+        Escape: () => { if (currentStatus.value === 'LOCKED') resetSystem(); },
+        ArrowDown: () => moveActivePost(1),
+        ArrowUp: () => moveActivePost(-1),
+        ArrowRight: () => moveActiveTab(1),
+        ArrowLeft: () => moveActiveTab(-1),
+        Enter: flyToActivePost,
+        o: () => navigateHandler(displayNodeInfo.value.url),
+        c: () => { if (displayNodeInfo.value.url) void copyUrlHandler(displayNodeInfo.value.url); },
+        h: toggleHud,
+        r: () => (lockedTarget.value ? zoomToActive() : resetSystem())
+    };
+
+    // 按住 Ctrl/Meta 是縮放加速（OrbitControls），不當快捷鍵
     const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.ctrlKey || e.metaKey) zoomSpeed.value = 4;
+        if (e.ctrlKey || e.metaKey) {
+            zoomSpeed.value = 4;
+            return;
+        }
+        if (e.altKey) return;
+        const target = e.target as HTMLElement | null;
+        if (target && /^(?:INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+
+        const action = KEY_ACTIONS[e.key.length === 1 ? e.key.toLowerCase() : e.key];
+        if (!action) return;
+        if (LOCKED_ONLY_KEYS.has(e.key) && currentStatus.value !== 'LOCKED') return;
+        e.preventDefault();
+        action();
     };
     const handleKeyUp = (e: KeyboardEvent) => {
         if (!e.ctrlKey && !e.metaKey) zoomSpeed.value = 1;
@@ -336,6 +397,7 @@
         window.addEventListener('keyup', handleKeyUp);
     });
     onUnmounted(() => {
+        clearTimeout(copiedTimer);
         document.body.classList.remove(HIDE_CURSOR_CLASS);
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
@@ -431,12 +493,22 @@
                                 @click="copyUrlHandler(displayNodeInfo.url)"
                                 class="hud-btn"
                             >
-                                COPY COORDINATES
+                                {{ copied ? 'COORDINATES COPIED ✓' : 'COPY COORDINATES' }}
                             </button>
                             <button @click="resetSystem" class="hud-btn alert-btn">
                                 ABORT / RELEASE TARGET
                             </button>
                         </div>
+                        <ul class="key-hints" aria-label="鍵盤操作">
+                            <li v-if="displayNodeInfo.isLocked"><kbd>↑</kbd><kbd>↓</kbd><span>選文章</span></li>
+                            <li v-if="displayNodeInfo.isLocked"><kbd>↵</kbd><span>飛過去</span></li>
+                            <li v-if="displayNodeInfo.isLocked && displayNodeInfo.isPlanet"><kbd>←</kbd><kbd>→</kbd><span>換標籤</span></li>
+                            <li v-if="displayNodeInfo.url"><kbd>O</kbd><span>開啟</span></li>
+                            <li v-if="displayNodeInfo.url"><kbd>C</kbd><span>複製</span></li>
+                            <li><kbd>H</kbd><span>面板</span></li>
+                            <li><kbd>R</kbd><span>{{ lockedTarget ? '對準' : '重置' }}</span></li>
+                            <li v-if="displayNodeInfo.isLocked"><kbd>Esc</kbd><span>解除</span></li>
+                        </ul>
                     </HudPanel>
 
                     <HudPanel title="TELEMETRY METADATA" icon="memory" side="left">
@@ -465,7 +537,7 @@
                         side="right"
                     >
                         <div class="panel-content orbital-network">
-                            <div v-if="displayNodeInfo.type === '文章行星'" class="hud-tabs">
+                            <div v-if="displayNodeInfo.isPlanet" class="hud-tabs">
                                 <button
                                     v-for="tag in displayNodeInfo.tags"
                                     :key="tag"
@@ -481,9 +553,12 @@
 
                             <ul class="post-list">
                                 <li
-                                    v-for="post in activeTabPosts"
+                                    v-for="(post, index) in activeTabPosts"
                                     :key="post.url"
                                     class="post-item"
+                                    :class="{ 'is-active': index === activePostIndex }"
+                                    :aria-current="index === activePostIndex ? 'true' : undefined"
+                                    @mouseenter="activePostIndex = index"
                                     @click="handleNodeClick({ id: post.url })"
                                 >
                                     <div class="post-date">{{ post.date.slice(0, 10) }}</div>
@@ -511,25 +586,6 @@
                             </div>
                         </div>
                     </SvgHudPanel>
-
-                    <HudPanel title="GALAXY ENERGY MATRIX" icon="bar_chart" side="right">
-                        <div class="panel-content energy-matrix">
-                            <div v-for="tag in energyMatrixData" :key="tag.name" class="energy-row">
-                                <div class="energy-label">
-                                    <span>{{ tag.name }}</span>
-                                    <span class="energy-count">{{ tag.count }}</span>
-                                </div>
-                                <div class="energy-blocks" :class="getEnergyColorClass(tag.count)">
-                                    <div
-                                        v-for="i in 10"
-                                        :key="i"
-                                        class="block"
-                                        :class="{ 'is-active': i <= getEnergyBlocks(tag.count) }"
-                                    ></div>
-                                </div>
-                            </div>
-                        </div>
-                    </HudPanel>
                 </aside>
             </div>
         </Transition>
@@ -547,6 +603,36 @@
 </template>
 
 <style lang="scss">
+    // COMMAND TERMINAL 下面的按鍵提示：小字、低亮度，不搶按鈕的戲
+    .key-hints {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+        padding: 8px 0 0;
+        border-top: 1px dashed rgb(0, 240, 255, 25%);
+        margin: 8px 0 0;
+        list-style: none;
+        font-family: 'Courier New', monospace;
+        font-size: 0.65rem;
+        opacity: 0.75;
+
+        li {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+        }
+        kbd {
+            background: rgb(0, 240, 255, 12%);
+            min-width: 1.4em;
+            padding: 1px 4px;
+            border: 1px solid rgb(0, 240, 255, 40%);
+            border-radius: 2px;
+            color: #00f0ff;
+            font-family: inherit;
+            font-size: inherit;
+            text-align: center;
+        }
+    }
     .status-locked {
         background: linear-gradient(90deg, rgb(0, 240, 255, 10%) 0%, transparent 100%);
         padding-left: 10px;
@@ -966,7 +1052,9 @@
                 overflow: hidden;
             }
 
-            &:hover {
+            // 鍵盤選到的（is-active）跟滑鼠 hover 長一樣
+            &:hover,
+            &.is-active {
                 background: rgb(0, 240, 255, 15%);
                 border-left-color: #00f0ff;
                 transform: translateX(5px); // Hover 時往右推，有選單感

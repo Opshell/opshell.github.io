@@ -108,6 +108,15 @@
     // D3 物理模擬實例 (不需要響應式，故用普通變數)
     let simulation: any = null;
 
+    // 正在跑的運鏡動畫。飛到一半又點別顆或按 Esc 重置時，先把它殺掉，不然兩個 tween 會搶同一台相機
+    let cameraTween: gsap.core.Tween | null = null;
+    const killCameraTween = () => {
+        cameraTween?.kill();
+        cameraTween = null;
+        if (activeCamera.value) gsap.killTweensOf(activeCamera.value.position);
+        if (activeControls.value?.target) gsap.killTweensOf(activeControls.value.target);
+    };
+
     // #region [P] 視覺邏輯計算 Computed Logic
 
     // 系統是否處於「鎖定模式」 (是否有選中特定的星球)
@@ -281,6 +290,7 @@
         }
 
         // 2. [鎖定互動]
+        killCameraTween();
         controlsInstance.enabled = false;
         isCameraMoving.value = true;
         currentHoverId.value = null;
@@ -314,7 +324,7 @@
         // ------------------------------------------------------------
         const tweenObj = { t: 0 };
 
-        gsap.to(tweenObj, {
+        cameraTween = gsap.to(tweenObj, {
             t: 1,
             duration: 1.5,
             ease: "power2.inOut",
@@ -340,6 +350,7 @@
                     (targetMesh.material as THREE.MeshStandardMaterial).emissiveIntensity = INTENSITY.LOCKED;
                 }
 
+                cameraTween = null;
                 setTimeout(() => {
                     isCameraMoving.value = false;
                 }, 100);
@@ -385,6 +396,10 @@
             return;
         }
 
+        // 飛到一半被叫回來：殺掉 focus 的 tween，並把它關掉的控制器打開（它的 onComplete 不會再跑到）
+        killCameraTween();
+        if (controlsInstance) controlsInstance.enabled = true;
+
         // ------------------------------------------------------------
         // 3. [相機歸位] Camera Reset Animation
         // ------------------------------------------------------------
@@ -396,7 +411,7 @@
 
         // 將相機移動回預設的鳥瞰位置 (100, 50, 100)
         // 這裡我們直接對 position 屬性做 Tween，因為這次不需要精確同步 LookAt (Controls 會幫忙處理)
-        gsap.to(cameraInstance.position, {
+        cameraTween = gsap.to(cameraInstance.position, {
             x: 100, y: 50, z: 100,
             duration: 1.5,
             ease: "power2.inOut",
@@ -407,6 +422,7 @@
             },
 
             onComplete: () => {
+                cameraTween = null;
                 // [關鍵修復: 非同步解鎖]
                 // 同樣使用 setTimeout 避免遞迴更新錯誤
                 setTimeout(() => {
@@ -621,7 +637,10 @@
     });
 
     // 暴露方法給父層使用
-    defineExpose({ focusOnNode, resetView });
+    /** 給父層用：右側清單只有文章的 url（= 節點 id），要拿完整節點才能顯示 HUD 與運鏡 */
+    const findNode = (id: string) => nodes.value.find(n => n.id === id) ?? null;
+
+    defineExpose({ focusOnNode, resetView, findNode });
 </script>
 
 <template>

@@ -115,5 +115,8 @@ VitePress 用 `html.dark`。元件裡用 `.dark .頂層class { … }` 覆蓋變�
 
 1. `pnpm docs:build` 要過（唯一的 CI 檢查）。
 2. `pnpm docs:preview` 開建置結果看實際網址（dev 模式在無頭瀏覽器裡是空白的，別用它截圖）。
+   **重建之後要重啟 preview**：它的靜態伺服器啟動時掃一次檔案清單，新 hash 的 CSS／JS 會 404、頁面就不會水合，看起來像整站壞掉（2026-09-22 踩過）。
+   無頭瀏覽器用 Edge／Brave 的 `--headless=new --use-angle=swiftshader --enable-unsafe-swiftshader`（WebGL 頁要軟體算圖）；
+   `--screenshot` 模式對 WebGL 頁有時不會退出，用 `--remote-debugging-port` 加一支 Node 腳本（內建 WebSocket）走 CDP 比較穩，一次只開一個實例。
 3. 桌面 1440px 與手機 390px、淺色與深色各看一次；手機寬度量 `document.documentElement.scrollWidth` 不能超過視窗。
 4. `ignoreDeadLinks: true`，壞連結建置不會擋，nav 與頁面裡的連結要自己點。
