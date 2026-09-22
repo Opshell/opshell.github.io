@@ -3,10 +3,10 @@
     import {
         ACCOUNT_PATH,
         BETA_SEATS,
-        GROUP_URL,
         betaRewards,
         betaSteps,
         CONTACT_EMAIL,
+        GROUP_URL,
         invoicePains,
         lazyPoints,
         photoSources,
@@ -29,9 +29,9 @@
         <!-- #region [P] hero：付完錢，就等於記完帳 -->
         <section class="dindon-landing__hero">
             <!-- 背景的平面圓塊，速度不同做出景深 -->
-            <span class="dindon-landing__deco is-a" data-parallax=".35" data-parallax-scroll aria-hidden="true"></span>
-            <span class="dindon-landing__deco is-b" data-parallax=".2" data-parallax-scroll aria-hidden="true"></span>
-            <span class="dindon-landing__deco is-c" data-parallax="-.15" data-parallax-scroll aria-hidden="true"></span>
+            <span class="dindon-landing__deco is-a" data-parallax=".35" data-parallax-scroll aria-hidden="true" />
+            <span class="dindon-landing__deco is-b" data-parallax=".2" data-parallax-scroll aria-hidden="true" />
+            <span class="dindon-landing__deco is-c" data-parallax="-.15" data-parallax-scroll aria-hidden="true" />
 
             <div class="dindon-landing__container dindon-landing__hero-inner">
                 <div class="dindon-landing__hero-copy">
