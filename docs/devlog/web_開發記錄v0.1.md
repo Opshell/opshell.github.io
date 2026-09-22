@@ -309,3 +309,42 @@ lint、stylelint、typecheck 全綠；CDP 操作各元件，狀態都正確，�
 
 - `WidgetPagination` 的連結寫死 `?page=N` 會丟掉其他參數，標籤頁自己做了分頁沒用它；要嘛改成 emit，要嘛刪。
 - 站上各處自己畫的按鈕（叮咚後台的 `dd-admin__btn`、星系頁的 `.hud-btn`、標籤頁分頁鈕、相簿返回鈕）可以逐步換成 `ElBtn`。
+
+---
+
+# 2026-09-22 晚上：非 side project 頁面統一用 El 元件、刪死碼；履歷改版
+
+## 起因
+
+**使用者**：1. 先統一風格封裝元件，然後把除了像是 galaxy、dindon、gallery、履歷這種 side project 以外的地方先用統一的元件，統一視覺與排版；
+side project 外沒用到或壞的元件刪掉也沒關係。 2. 履歷的部分可以和 cake（https://www.cake.me/senior-front-end）偏比較新版的履歷做比較，更新我們部落格上面的履歷。
+你覺得要直接顯示公司名稱嗎？如果好你就直接更換，然後讓排版優雅一點，現在整個滿版很大有點醜。
+
+## 做了什麼
+
+| 項 | commit | 內容 |
+|---|---|---|
+| 2 履歷 | `e966789` | 公司用真名；內容照 cake 更新（Senior Front-End、有數字的條列、技能四組）；兩欄 1080px、左欄 sticky、字級收到 token；WorkExperience 重做；手機順序頭像 → 內容 → 技能 |
+| 1 統一與清理 | `ad5c398` | TagsList 的搜尋、篩選、分頁與 TypeScale 的切換鈕換成 ElInput／ElBtn；刪 13 個沒人用的共用檔；文件的分支說明更新 |
+
+## 公司名稱的決定
+
+改成真名。理由：cake 與 LinkedIn 本來就公開，招募方會交叉比對；履歷頁掛「不正常人類研究中心」這種玩笑名稱，看的人第一眼會懷疑是不是假的。
+留 `companyAlt` 放英文簡稱（NCKU AI4DT、iWare）。
+
+## 一個藏很久的 bug
+
+markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到：resume.md 的按鈕在 DOM 裡是 `<elbtn>`（未知標籤），
+舊履歷 md 裡的 `ElSvgIcon` 也一直沒圖示。`.vue` 裡正常，只有 md 不行。沒去追外掛在 VitePress 裡的執行順序，直接在 `theme/index.ts` 的
+`enhanceApp` 用 `import.meta.glob` 把 `el/` 全域註冊，SSR 與瀏覽器都驗過。
+
+## 驗證
+
+`pnpm check` 全綠。CDP：履歷桌面與 390px 都沒有橫向溢出、四家公司名稱正確、總年資 9y 9m、「全部收合」按下去四段都收、單段可以再展開；
+標籤頁的 ElInput 與 9 顆分頁 ElBtn 都在；Typography 分頁的 ElBtn 在。
+
+## 留給之後的
+
+- 履歷左欄的技能顏色是我猜的品牌色（Pinia 黃、Zod 藍、TanStack 紅…），沒有圖示的用純文字 chip；要圖示的話補到 `public/icons/colorful/`。
+- side project 頁（星系、叮咚後台、相簿）自己畫的按鈕沒動，之後要換 ElBtn 是各自一次。
+- `useKeyBoardControl` 的 removeEventListener 移不掉（每次傳新函式）、策略表是全域的，ExpandLayout 還在用；要修的話另開一輪。
