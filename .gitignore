@@ -17,3 +17,6 @@ photos/thumbs/*
 # 強制保留 data.json VitePress 編譯網站需要這份資料
 !photos/data.json
 
+
+# macOS
+.DS_Store

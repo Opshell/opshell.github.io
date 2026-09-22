@@ -1,10 +1,6 @@
 <script setup lang="ts">
-    // 三個版本並排比較：最新版 → 第二版（svgHudPanel_back2）→ 第一版（svgHudPanel_back）
-    import {
-        SvgHudPanel,
-        SvgHudPanelBackup,
-        SvgHudPanelBackup2
-    } from '@features/tags-list';
+    // 設計系統頁的元件展示。目前只有星系頁的 HUD 面板；shared/components/el 那批之後再補進來
+    import { SvgHudPanel } from '@features/tags-list';
 </script>
 
 <template>
@@ -13,23 +9,13 @@
         <a href="./components" class="cta-button">View Components Library &rarr;</a>
     </div>
 
-    <SvgHudPanel>
-        <template #default>
-            <p>sergjknglkjselgnesgnjj</p>
-            <ul>
-                <li>123</li>
-                <li>456</li>
-            </ul>
-        </template>
-    </SvgHudPanel>
-    <SvgHudPanelBackup2 side="right">
-        sergjknglkjselgnesgnjj
+    <SvgHudPanel title="HUD PANEL" icon="radar" side="left">
+        <p>星系頁用的 SVG 面板：切角外框、格線底、可收合。</p>
         <ul>
-            <li>123</li>
-            <li>456</li>
+            <li>title、icon、side 三個 props</li>
+            <li>內容放 slot</li>
         </ul>
-    </SvgHudPanelBackup2>
-    <SvgHudPanelBackup side="right">123</SvgHudPanelBackup>
+    </SvgHudPanel>
 </template>
 
 <style lang="scss">

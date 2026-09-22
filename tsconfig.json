@@ -44,11 +44,7 @@
         "docs/types/*.d.ts",
 
         "docs/features/**/*.ts",
-        "docs/features/**/*.vue",
-        "docs/widgets/**/*.ts",
-        "docs/widgets/**/*.vue",
-        "docs/entities/**/*.ts",
-        "docs/entities/**/*.vue"
+        "docs/features/**/*.vue"
     ],
     "exclude": [
         "node_modules",

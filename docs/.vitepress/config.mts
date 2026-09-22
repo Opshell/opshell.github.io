@@ -375,9 +375,7 @@ export default defineConfig({
             }),
             Components({
                 dirs: [
-                    './shared/components',
-                    './widgets',
-                    './entities'
+                    './shared/components'
                 ], // 指定components位置
                 dts: './types/components.d.ts', // .d.ts生成位置
                 extensions: ['vue', 'md'], // allow auto load markdown components under dirs
