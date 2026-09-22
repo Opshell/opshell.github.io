@@ -348,3 +348,20 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 - 履歷左欄的技能顏色是我猜的品牌色（Pinia 黃、Zod 藍、TanStack 紅…），沒有圖示的用純文字 chip；要圖示的話補到 `public/icons/colorful/`。
 - side project 頁（星系、叮咚後台、相簿）自己畫的按鈕沒動，之後要換 ElBtn 是各自一次。
 - `useKeyBoardControl` 的 removeEventListener 移不掉（每次傳新函式）、策略表是全域的，ExpandLayout 還在用；要修的話另開一輪。
+
+---
+
+# 2026-09-22 晚上：/dindon/ 分享預覽圖是 Opshell 的 logo
+
+## 起因
+
+**使用者**：現在 https://opshell.me/dindon 的預覽圖是 Opshell 的 logo，但是應該要是叮咚記帳的 logo 才對，修正一下。
+
+## 原因與做法（`2f729b3` 與後一筆）
+
+整站原本連一個 `og:` 標籤都沒有，分享時預覽服務撿頁面第一張圖，就是導覽列的 Opshell logo。
+`config.mts` 加 `transformPageData`，每一頁產 `og:title／description／url／image` 與 `twitter:card`；圖用 frontmatter 的 `ogImage`，沒有就站台預設
+（首頁那張裁成 1200×630 的 `og-default.jpg`）。叮咚四頁指定 `/images/dindon/og.png`（Sicily 黃底、圓角 App 圖示、淡陰影，1200×630）；
+隱私權政策頁由同步腳本產生，範本一起改。
+
+**注意**：LINE、Facebook、Threads 會快取舊的預覽，部署後要用各家的分享除錯工具重抓一次（Facebook Sharing Debugger、LINE 的 Page Poker）。
