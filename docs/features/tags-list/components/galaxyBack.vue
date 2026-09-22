@@ -3,6 +3,7 @@
     import { OrbitControls, Stars } from '@tresjs/cientos';
     import { TresCanvas } from '@tresjs/core';
     import { BloomPmndrs, EffectComposerPmndrs } from '@tresjs/post-processing';
+    import { Vector3 } from 'three';
     import { useRouter } from 'vitepress';
 
     import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
@@ -19,6 +20,10 @@
     // Template Ref: 用來取得 <GalaxyModel /> 元件的實例
     // 這樣我們才能呼叫它裡面 defineExpose 出來的 focusOnNode() 和 resetView() 方法
     const galaxyModelRef = ref<any>(null);
+
+    // TresJS 5.9 的型別只收 Vector3（執行期其實也收陣列）。相機的預設位置要跟 galaxyModel 的 resetView 一致
+    const CAMERA_POSITION = new Vector3(100, 50, 100);
+    const LIGHT_POSITION = new Vector3(50, 50, 50);
 
     // UI 控制狀態
     const isHudVisible = ref(true); // 控制 HUD 面板是否顯示
@@ -417,13 +422,13 @@
             <TresCanvas window-size preset="realistic" alpha>
                 <TresPerspectiveCamera
                     make-default
-                    :position="[100, 50, 100]"
+                    :position="CAMERA_POSITION"
                     :look-at="[0, 0, 0]"
                     :fov="45"
                 />
                 <OrbitControls make-default :zoom-speed="zoomSpeed" :enable-damping="true" :damping-factor="0.05" :min-distance="10" :max-distance="500" />
                 <TresAmbientLight :intensity="1" />
-                <TresPointLight :position="[50, 50, 50]" :intensity="2" color="#ffffff" />
+                <TresPointLight :position="LIGHT_POSITION" :intensity="2" color="#ffffff" />
                 <Stars :radius="250" :depth="50" :count="3000" :size="0.5" />
 
                 <GalaxyModel

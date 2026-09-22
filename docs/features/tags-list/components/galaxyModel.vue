@@ -105,6 +105,9 @@
     }, { immediate: true });
     // #endregion
 
+    /** 背景那顆包住整個場景的大球（點它 = 點背景）。TresJS 5.9 的型別只收 Vector3 */
+    const BACKGROUND_SCALE = new Vector3(500, 500, 500);
+
     // D3 物理模擬實例 (不需要響應式，故用普通變數)
     let simulation: any = null;
 
@@ -651,7 +654,7 @@
 
 <template>
     <TresGroup ref="galaxyGroupRef">
-        <TresMesh :scale="500" @click="bgClickHandler">
+        <TresMesh :scale="BACKGROUND_SCALE" @click="bgClickHandler">
             <TresSphereGeometry :args="[1, 10, 10]" />
             <TresMeshBasicMaterial
                 color="#000000"
