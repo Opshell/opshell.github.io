@@ -284,3 +284,28 @@ VitePress 1.6 之後建置從約 30 秒降到 14 秒。
 - `tagSummaries` 只有四個標籤有介紹（TypeScript、vue、vitepress、developer），其他標籤的介紹卡只顯示篇數；要補的話改 `docs/shared/data/tagSummeries.ts`。
 - Front-End Basic 的 HTML／CSS／JavaScript 索引頁、活動&賽事、Flosker 做好後把 nav 的註解放回來。
 - `docs/public/icons/` 沒有 `search.svg`，搜尋框用 `pageview`；要一致的話補一個。
+
+---
+
+# 2026-09-22 傍晚：Design System 的 Components 分頁展示基本元件
+
+## 起因
+
+**使用者**：可以在 design system 裡面 components 裡面展示基本元件的設計嗎？
+
+## 做了什麼（`168a76f`）
+
+要展示得先讓元件能用：`shared/components/el/` 那批大多是 Quasar 專案的殘留（`q-checkbox`、`q-input`、`router-link`、綁後端的 `Img`），
+只有 SvgIcon、Tag、Card、SectionBlock、InputBox、Divider 真的能畫出來。全部改成原生實作、照設計系統的 token，
+新增 `Select`，新增 `DemoBlock` 展示框（示範區、props 表、可收合的程式碼），`Components.vue` 排了九塊：Button、Tag、Input／Select、
+Checkbox／Radio／Toggle、Card、Divider、Image、SvgIcon、HUD Panel。示範區可以直接操作。
+`ElCheckbox` 有一篇文章在用（陣列 v-model 加 val），原生版相容這種用法。
+
+## 驗證
+
+lint、stylelint、typecheck 全綠；CDP 操作各元件，狀態都正確，頁面沒有未解析的 `q-*`。
+
+## 留給之後的
+
+- `WidgetPagination` 的連結寫死 `?page=N` 會丟掉其他參數，標籤頁自己做了分頁沒用它；要嘛改成 emit，要嘛刪。
+- 站上各處自己畫的按鈕（叮咚後台的 `dd-admin__btn`、星系頁的 `.hud-btn`、標籤頁分頁鈕、相簿返回鈕）可以逐步換成 `ElBtn`。
