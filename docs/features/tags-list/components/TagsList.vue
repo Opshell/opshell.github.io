@@ -3,476 +3,522 @@
     import type { Post } from '@shared/hooks/useBuildSiteData';
     import { tagSummaries } from '@shared/data/tagSummeries';
     import { useSiteData } from '@shared/hooks/useSiteData';
-    import { useRouter } from 'vitepress';
     import { computed, onMounted, ref, watch } from 'vue';
-
-    // 引入新組件
     import Heatmap from './Heatmap.vue';
     import PostCard from './PostCard.vue';
 
-    // --- Data Fetching ---
+    // 標籤頁：左邊標籤雲、右邊該標籤的介紹、活動熱圖、文章清單（分頁）。
+    // 狀態以網址為準（?tag=&page=），換標籤、換頁都用 replaceState 寫回網址，不重新載入。
     const siteData = useSiteData();
-    const router = useRouter();
 
-    // --- State ---
-    const currentTag = ref('TypeScript');
-    const searchTerm = ref('');
-    const selectedDate = ref<string | null>(null); // 新增：日期篩選
+    const PAGE_SIZE = 10;
+    const currentTag = ref('');
     const currentPage = ref(1);
-    const pageSize = 10;
+    const searchTerm = ref('');
+    const selectedDate = ref<string | null>(null);
+    const listRef = ref<HTMLElement>();
 
-    // --- 初始化與路由 ---
-    const updateStateFromUrl = () => {
-        if (typeof window === 'undefined') return;
-        const url = new URL(window.location.href);
-        const tag = url.searchParams.get('tag');
-        if (tag) currentTag.value = tag;
-        // 切換標籤時，通常重置日期篩選
-        selectedDate.value = null;
-    };
-
-    onMounted(() => updateStateFromUrl());
-    watch(() => router.route.path, updateStateFromUrl);
-
-    // 換標籤時清空日期篩選
-    watch(currentTag, () => {
-        selectedDate.value = null;
-        currentPage.value = 1;
-    });
-
-    // --- Computed Logic ---
-    // 分頁列表
-    const postsOfCurrentTag = computed<Post[]>(() => {
-        if (!siteData.value || !currentTag.value) return [];
-        const tagIndex = siteData.value.tags.get(currentTag.value);
-        if (!tagIndex) return [];
-
-        // 排序：最新的在前面
-        const sorted = tagIndex.postUrls
-            .map(url => siteData.value?.posts.get(url))
-            .filter(Boolean) as Post[];
-
-        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    });
-
-    const totalCount = computed(() => postsOfCurrentTag.value.length);
-
-    const currentTagSummary = computed<TagSummary | undefined>(() => {
-        return tagSummaries[currentTag.value as string];
-    });
-
-    // 左側標籤雲邏輯
-    const filteredTags = computed(() => {
+    // #region [P] 標籤雲
+    const allTags = computed(() => {
         if (!siteData.value) return [];
-        const tagsAsArray = Array.from(siteData.value.tags.entries())
+        return Array.from(siteData.value.tags.entries())
             .map(([name, data]) => ({ name, count: data.count }))
-            .sort((a, b) => b.count - a.count);
+            .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    });
+    const filteredTags = computed(() => {
+        const term = searchTerm.value.trim().toLowerCase();
+        return term ? allTags.value.filter(tag => tag.name.toLowerCase().includes(term)) : allTags.value;
+    });
+    // #endregion
 
-        if (!searchTerm.value) return tagsAsArray;
-        return tagsAsArray.filter(tag => tag.name.toLowerCase().includes(searchTerm.value.toLowerCase()));
+    // #region [P] 目前的標籤
+    /** tagSummaries 的 key 跟實際標籤大小寫不一定一樣（vitepress vs VitePress），不分大小寫找 */
+    const summary = computed<TagSummary | undefined>(() => {
+        const key = Object.keys(tagSummaries).find(k => k.toLowerCase() === currentTag.value.toLowerCase());
+        return key ? tagSummaries[key] : undefined;
     });
 
-    // 2. 熱圖數據 (全域或當前標籤下)
+    const postsOfTag = computed<Post[]>(() => {
+        const index = siteData.value?.tags.get(currentTag.value);
+        if (!siteData.value || !index) return [];
+        return index.postUrls
+            .map(url => siteData.value!.posts.get(url))
+            .filter((post): post is Post => !!post)
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    });
+
+    const toDay = (date: string) => new Date(date).toISOString().split('T')[0];
+
+    /** 熱圖：這個標籤每天幾篇 */
     const heatmapData = computed(() => {
         const data: Record<string, number> = {};
-        if (!siteData.value) return data;
-
-        // 這裡可以決定：熱圖顯示「全站數據」還是「當前標籤數據」？
-        // 通常顯示全站數據讓使用者知道哪裡有點擊比較好，或者只顯示當前 Tag
-        // 這裡示範：顯示「當前選中 Tag」的文章分佈，如果想看全站，可以拿掉 filter
-
-        // 取得當前 Tag 的文章 URL
-        const tagData = siteData.value.tags.get(currentTag.value);
-        const targetPosts = tagData
-            ? tagData.postUrls.map(url => siteData.value!.posts.get(url)).filter(Boolean) as Post[]
-            : [];
-
-        targetPosts.forEach((post) => {
-            if (!post.date) return;
-            const dateStr = new Date(post.date).toISOString().split('T')[0];
-            data[dateStr] = (data[dateStr] || 0) + 1;
-        });
-
+        for (const post of postsOfTag.value) {
+            if (!post.date) continue;
+            const day = toDay(post.date);
+            data[day] = (data[day] || 0) + 1;
+        }
         return data;
     });
 
-    // 3. 文章列表篩選 (加入日期邏輯)
-    const filteredPosts = computed<Post[]>(() => {
-        if (!siteData.value) return [];
+    const filteredPosts = computed(() => (selectedDate.value
+        ? postsOfTag.value.filter(post => post.date && toDay(post.date) === selectedDate.value)
+        : postsOfTag.value));
 
-        // A. 先找出屬於當前 Tag 的文章
-        const tagIndex = siteData.value.tags.get(currentTag.value);
-        if (!tagIndex) return [];
-
-        let posts = tagIndex.postUrls
-            .map(url => siteData.value!.posts.get(url))
-            .filter(Boolean) as Post[];
-
-        // B. 如果有選擇日期，進行二次篩選
-        if (selectedDate.value) {
-            posts = posts.filter((p) => {
-                const pDate = new Date(p.date).toISOString().split('T')[0];
-                return pDate === selectedDate.value;
-            });
-        }
-
-        // C. 排序
-        return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const totalPage = computed(() => Math.max(1, Math.ceil(filteredPosts.value.length / PAGE_SIZE)));
+    const pagePosts = computed(() => filteredPosts.value.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE));
+    /** 頁碼：最多顯示 7 個，目前頁在中間 */
+    const pageNumbers = computed(() => {
+        const total = totalPage.value;
+        const start = Math.max(1, Math.min(currentPage.value - 3, total - 6));
+        return Array.from({ length: Math.min(7, total) }, (_, i) => start + i);
     });
+    // #endregion
 
-    // 4. 分頁
-    const totalPage = computed(() => Math.ceil(filteredPosts.value.length / pageSize));
-    const currentPageData = computed(() => {
-        const start = (currentPage.value - 1) * pageSize;
-        return filteredPosts.value.slice(start, start + pageSize);
-    });
+    // #region [P] 網址同步
+    function readUrl() {
+        if (typeof window === 'undefined') return;
+        const params = new URLSearchParams(window.location.search);
+        currentTag.value = params.get('tag') || allTags.value[0]?.name || '';
+        currentPage.value = Math.max(1, Number(params.get('page')) || 1);
+    }
+    function writeUrl() {
+        if (typeof window === 'undefined') return;
+        const params = new URLSearchParams({ tag: currentTag.value });
+        if (currentPage.value > 1) params.set('page', String(currentPage.value));
+        history.replaceState(null, '', `?${params}`);
+    }
 
-    // --- Actions ---
-    const onDateSelect = (date: string | null) => {
+    function selectTag(name: string, event: MouseEvent) {
+        if (event.metaKey || event.ctrlKey) return; // 新分頁開，交給瀏覽器
+        event.preventDefault();
+        currentTag.value = name;
+        selectedDate.value = null;
+        currentPage.value = 1;
+        writeUrl();
+    }
+    function goPage(page: number) {
+        currentPage.value = Math.min(Math.max(1, page), totalPage.value);
+        writeUrl();
+        listRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    function onDateSelect(date: string | null) {
         selectedDate.value = date;
-        currentPage.value = 1; // 篩選後回到第一頁
-    };
+        currentPage.value = 1;
+    }
+
+    // 頁數超過範圍（篩日期之後）就拉回最後一頁
+    watch(totalPage, (total) => { if (currentPage.value > total) currentPage.value = total; });
+    onMounted(() => {
+        readUrl();
+        window.addEventListener('popstate', readUrl);
+    });
+    // #endregion
 </script>
 
 <template>
-    <div class="tags-list-layout">
-        <aside class="sidebar">
-            <div class="search-wrapper">
-                <ElSvgIcon name="search" class="icon" />
-                <input v-model="searchTerm" type="text" placeholder="Filter tags..." />
-            </div>
+    <div class="tags-page">
+        <header class="tags-page__hero">
+            <h1 class="title">Tags</h1>
+            <p class="subtitle">共 {{ allTags.length }} 個標籤。挑一個，看它底下的文章與活動。</p>
+        </header>
 
-            <nav class="tags-nav">
-                <a
-                    v-for="tag in filteredTags"
-                    :key="tag.name"
-                    class="tag-link"
-                    :class="{ active: currentTag === tag.name }"
-                    :href="`?tag=${tag.name}&page=1`"
-                >
-                    <span class="name"># {{ tag.name }}</span>
-                    <span class="count">{{ tag.count }}</span>
-                </a>
-            </nav>
-        </aside>
+        <div class="tags-page__layout">
+            <!-- #region [P] 標籤雲 -->
+            <aside class="tags-page__sidebar">
+                <label class="tags-page__search">
+                    <ElSvgIcon name="pageview" class="icon" />
+                    <input v-model="searchTerm" type="search" placeholder="篩選標籤…" aria-label="篩選標籤" />
+                </label>
 
-        <main class="main-content">
-            <section class="analysis-card">
-                <div class="card-header">
-                    <h3 class="title">Activity Insight</h3>
-                    <div class="badge" :class="{ 'is-filtering': selectedDate }">
-                        {{ selectedDate ? `Filtered: ${selectedDate}` : `#${currentTag}` }}
+                <nav class="tags-page__cloud" aria-label="標籤">
+                    <a
+                        v-for="tag in filteredTags"
+                        :key="tag.name"
+                        class="tags-page__chip"
+                        :class="{ 'is-active': currentTag === tag.name }"
+                        :href="`?tag=${encodeURIComponent(tag.name)}`"
+                        :aria-current="currentTag === tag.name ? 'page' : undefined"
+                        @click="selectTag(tag.name, $event)"
+                    >
+                        <span class="name"><span class="hash">#</span>{{ tag.name }}</span>
+                        <span class="count">{{ tag.count }}</span>
+                    </a>
+                    <p v-if="!filteredTags.length" class="tags-page__muted">沒有符合的標籤</p>
+                </nav>
+            </aside>
+            <!-- #endregion -->
+
+            <main class="tags-page__main">
+                <!-- #region [P] 標籤介紹 -->
+                <section class="tags-page__card tags-page__intro">
+                    <h2 class="tag-name"><span class="hash">#</span>{{ currentTag }}</h2>
+                    <p class="tag-meta">{{ postsOfTag.length }} 篇文章</p>
+                    <template v-if="summary">
+                        <h3 class="tag-title">{{ summary.title }}</h3>
+                        <p class="tag-desc">{{ summary.description }}</p>
+                    </template>
+                </section>
+                <!-- #endregion -->
+
+                <!-- #region [P] 活動熱圖 -->
+                <section class="tags-page__card tags-page__activity">
+                    <div class="card-header">
+                        <h3 class="card-title">Activity</h3>
+                        <button
+                            v-if="selectedDate"
+                            type="button"
+                            class="badge is-filtering"
+                            title="清除日期篩選"
+                            @click="onDateSelect(null)"
+                        >
+                            {{ selectedDate }} ✕
+                        </button>
+                        <span v-else class="badge">點日期可以篩選</span>
                     </div>
-                </div>
+                    <Heatmap :data="heatmapData" @select-date="onDateSelect" />
+                </section>
+                <!-- #endregion -->
 
-                <Heatmap
-                    :data="heatmapData"
-                    @select-date="onDateSelect"
-                />
-            </section>
+                <!-- #region [P] 文章清單 -->
+                <section ref="listRef" class="tags-page__list">
+                    <header class="list-header">
+                        <h3 class="list-title">
+                            文章
+                            <span class="list-count">{{ filteredPosts.length }}</span>
+                        </h3>
+                        <span v-if="totalPage > 1" class="tags-page__muted">第 {{ currentPage }} / {{ totalPage }} 頁</span>
+                    </header>
 
-            <header class="list-header">
-                <h1 class="tag-title">
-                    <span class="hash">#</span> {{ currentTag }}
-                </h1>
-                <span class="post-count">
-                    {{ filteredPosts.length }} posts
-                    <span v-if="selectedDate" class="date-filter-hint">(on {{ selectedDate }})</span>
-                </span>
-            </header>
+                    <TransitionGroup name="list" tag="div" class="list-body">
+                        <PostCard v-for="post in pagePosts" :key="post.url" :post />
+                    </TransitionGroup>
 
-            <div class="cards-grid">
-                <TransitionGroup name="list">
-                    <PostCard
-                        v-for="post in currentPageData"
-                        :key="post.url"
-                        :post="post"
-                    />
-                </TransitionGroup>
+                    <p v-if="!pagePosts.length" class="tags-page__empty">
+                        {{ selectedDate ? '這一天沒有這個標籤的文章' : '這個標籤底下還沒有文章' }}
+                    </p>
 
-                <div v-if="currentPageData.length === 0" class="empty-state">
-                    No posts found for this date.
-                </div>
-            </div>
-        </main>
+                    <nav v-if="totalPage > 1" class="tags-page__pager" aria-label="分頁">
+                        <button type="button" class="page" :disabled="currentPage === 1" @click="goPage(currentPage - 1)">‹</button>
+                        <button
+                            v-for="page in pageNumbers"
+                            :key="page"
+                            type="button"
+                            class="page"
+                            :class="{ 'is-current': page === currentPage }"
+                            :aria-current="page === currentPage ? 'page' : undefined"
+                            @click="goPage(page)"
+                        >
+                            {{ page }}
+                        </button>
+                        <button type="button" class="page" :disabled="currentPage === totalPage" @click="goPage(currentPage + 1)">›</button>
+                    </nav>
+                </section>
+                <!-- #endregion -->
+            </main>
+        </div>
     </div>
 </template>
 
-<style lang="scss" scoped>
-    $radius-card: 16px;
-    $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    .tags-list-layout {
-        display: flex;
-        gap: 3rem;
-        max-width: 1150px;
-        padding: 3rem 1.5rem;
+<style lang="scss">
+    .tags-page {
+        max-width: var(--view-width);
+        padding: 2rem 1.5rem 4rem;
         margin: 0 auto;
-        @media (width <= 960px) { flex-direction: column; }
-    }
 
-    .cards-grid {
-        display: flex;
-        flex-direction: column; // 改回 column 因為 PostCard 是長條型的
-        gap: 0; // PostCard 自己有 margin-bottom
-    }
+        &__hero {
+            margin-bottom: 2rem;
 
-    .empty-state {
-        background: var(--vp-c-bg-alt);
-        padding: 3rem;
-        border-radius: 12px;
-        color: var(--vp-c-text-3);
-        text-align: center;
-    }
+            .title {
+                display: inline-block;
+                background: var(--vp-home-hero-name-background);
+                -webkit-background-clip: text;
+                background-clip: text;
+                margin: 0;
+                font-size: 2.5rem;
+                font-weight: 800;
+                line-height: 1.4;
+                -webkit-text-fill-color: transparent;
+            }
+            .subtitle {
+                margin: .25rem 0 0;
+                color: var(--vp-c-text-2);
+            }
+        }
 
-    // --- Sidebar & Tag Cloud ---
-    .sidebar {
-        position: sticky;
-        top: 100px;
-        width: 280px;
-        @media (width <= 960px) { position: static; width: 100%; }
-    }
+        &__layout {
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 2.5rem;
+            align-items: start;
+        }
 
-    .tags-nav {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        .tag-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
+        &__muted {
+            margin: 0;
+            color: var(--vp-c-text-3);
+            font-size: var(--font-size-s);
+        }
+
+        // #region [P] 左欄
+        &__sidebar {
+            position: sticky;
+            top: calc(var(--vp-nav-height) + 1.5rem);
+            @include setFlex(flex-start, stretch, 1rem, column);
+        }
+
+        &__search {
+            @include setFlex(flex-start, center, 8px);
+            background: var(--vp-c-bg-soft);
+            padding: 0 12px;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 10px;
+            transition: border-color .2s var(--cubic-FiSo);
+
+            &:focus-within { border-color: var(--vp-c-brand); }
+            .icon {
+                flex-shrink: 0;
+                @include setSize(16px, 16px);
+                fill: var(--vp-c-text-3);
+            }
+            input {
+                background: transparent;
+                width: 100%;
+                padding: 10px 0;
+                border: 0;
+                outline: none;
+                color: var(--vp-c-text-1);
+                font-size: var(--font-size-s);
+
+                &::placeholder { color: var(--vp-c-text-3); }
+            }
+        }
+
+        &__cloud {
+            @include setFlex(flex-start, stretch, 4px, column);
+            max-height: calc(100vh - var(--vp-nav-height) - 8rem);
+            padding-right: 4px;
+            overflow-y: auto;
+        }
+
+        &__chip {
+            @include setFlex(space-between, center, 8px);
+            padding: 8px 12px;
             border-radius: 10px;
             color: var(--vp-c-text-2);
+            font-size: var(--font-size-s);
+            text-decoration: none;
+            transition: .2s var(--cubic-FiSo);
 
-            /* **動態字重**{.brand} */
-            font-weight: calc(400 + (var(--weight) * 300));
-            transition: $transition-base;
-
-            &:hover {
-                background: var(--vp-c-bg-alt);
-                color: var(--vp-c-brand);
-                transform: translateX(5px);
-            }
-            &.active {
-                background: color-mix(in srgb, var(--vp-c-brand) 15%, transparent);
-                box-shadow: inset 4px 0 0 var(--vp-c-brand);
-                color: var(--vp-c-brand);
+            .hash {
+                margin-right: 2px;
+                color: var(--vp-c-brand-1);
+                opacity: .7;
             }
             .count {
                 background: var(--vp-c-bg-soft);
+                min-width: 1.75em;
                 padding: 2px 8px;
-                border-radius: 20px;
-                font-size: 0.75rem;
-                opacity: 0.7;
+                border-radius: 999px;
+                color: var(--vp-c-text-3);
+                font-family: var(--vp-font-family-mono);
+                font-size: var(--font-size-xs);
+                text-align: center;
             }
-        }
-    }
 
-    // --- Analysis Card (Heatmap Wrapper) ---
-    .analysis-card {
-        background: var(--vp-c-bg-alt);
-        padding: 1.5rem;
-        border: 1px solid var(--vp-c-divider);
-        border-radius: $radius-card;
-        margin-bottom: 2.5rem;
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.2rem;
-            .title { display: flex; gap: 8px; align-items: center;
-                margin: 0;
-                color: var(--vp-c-text-1); font-size: 1.1rem;
+            &:hover {
+                background: var(--vp-c-bg-soft);
+                color: var(--vp-c-brand);
+                transform: translateX(4px);
             }
-            .badge {
-                background: var(--vp-c-bg-soft); padding: 4px 10px; border-radius: 50px; color: var(--vp-c-text-3);
-                font-size: 0.7rem;
-                &.is-filtering {
+            &.is-active {
+                background: color-mix(in srgb, var(--vp-c-brand) 15%, transparent);
+                box-shadow: inset 3px 0 0 var(--vp-c-brand);
+                color: var(--vp-c-brand);
+                font-weight: 600;
+
+                .count {
                     background: var(--vp-c-brand);
-                    color: white;
+                    color: var(--color-gray-000);
                 }
             }
         }
-    }
 
-    // --- Cards & Transitions ---
-    .modern-card {
-        position: relative;
-        background: var(--vp-c-bg);
-        border: 1px solid var(--vp-c-bg-alt); // Start with subtle border
-        border-radius: $radius-card;
-        box-shadow: 0 1px 3px rgb(0,0,0,5%); // Shadow-sm
-        transition: $transition-base;
-        overflow: hidden;
+        // #endregion
 
-        &:hover {
-            border-color: color-mix(in srgb, var(--vp-c-brand) 30%, transparent);
-            box-shadow: 0 10px 25px -5px rgb(0, 0, 0, 10%), 0 8px 10px -6px rgb(0, 0, 0, 10%); // Shadow-lgish
-            transform: translateY(-4px); // Lift effect
-
-            .card-title { color: var(--vp-c-brand); }
-            .read-more { color: var(--vp-c-brand-dark); }
-            .arrow { transform: translateX(4px); }
+        // #region [P] 右欄
+        &__main {
+            @include setFlex(flex-start, stretch, 1.5rem, column);
+            min-width: 0;
         }
-    }
 
-    .card-link-wrapper {
-        display: flex;
-        min-height: 180px; // Maintain some height
-        color: inherit;
-        text-decoration: none !important;
-        @media (width <= 640px) {
-            flex-direction: column-reverse;
-            min-height: auto;
-        }
-    }
-
-    .card-body {
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-        padding: 1.5rem;
-    }
-
-    // 1. Header Meta
-    .card-meta-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-        font-size: 0.8rem;
-
-        .category-pill {
-            display: inline-flex;
-            gap: 4px;
-            align-items: center;
-
-            // **Dynamic Brand Color Pill**{.brand}
-            background-color: color-mix(in srgb, var(--vp-c-brand) 10%, transparent);
-            padding: 4px 10px;
+        &__card {
+            background: var(--vp-c-bg-soft);
+            padding: 1.5rem;
+            border: 1px solid var(--vp-c-divider);
             border-radius: 1rem;
-            color: var(--vp-c-brand-dark);
-            font-weight: 600;
+        }
 
-            .icon {
-                width: 14px;
-                height: 14px;
+        &__intro {
+            .tag-name {
+                display: inline-block;
+                background: var(--vp-home-hero-name-background);
+                -webkit-background-clip: text;
+                background-clip: text;
+                padding: 0;
+                border: 0;
+                margin: 0;
+                font-size: var(--font-size-xxl);
+                font-weight: 800;
+                line-height: 1.3;
+                -webkit-text-fill-color: transparent;
+
+                .hash { margin-right: 4px; }
+            }
+            .tag-meta {
+                margin: 0;
+                color: var(--vp-c-text-3);
+                font-family: var(--vp-font-family-mono);
+                font-size: var(--font-size-s);
+            }
+            .tag-title {
+                padding: 0;
+                border: 0;
+                margin: 1rem 0 .25rem;
+                color: var(--vp-c-text-1);
+                font-size: var(--font-size-l);
+                font-weight: 600;
+            }
+            .tag-desc {
+                margin: 0;
+                color: var(--vp-c-text-2);
+                line-height: 1.7;
             }
         }
 
-        .date-info {
-            display: flex;
-            gap: 6px;
-            align-items: center;
+        &__activity {
+            .card-header {
+                @include setFlex(space-between, center, 8px);
+                margin-bottom: 1rem;
+            }
+            .card-title {
+                padding: 0;
+                border: 0;
+                margin: 0;
+                font-size: var(--font-size-m);
+                font-weight: 600;
+            }
+            .badge {
+                background: var(--vp-c-bg);
+                padding: 4px 10px;
+                border: 0;
+                border-radius: 999px;
+                color: var(--vp-c-text-3);
+                font-size: var(--font-size-xs);
+
+                &.is-filtering {
+                    background: var(--vp-c-brand);
+                    color: var(--color-gray-000);
+                    cursor: pointer;
+                }
+            }
+        }
+
+        &__list {
+            scroll-margin-top: calc(var(--vp-nav-height) + 1rem);
+
+            .list-header {
+                @include setFlex(space-between, baseline, 8px);
+                margin-bottom: 1rem;
+            }
+            .list-title {
+                @include setFlex(flex-start, baseline, 8px);
+                padding: 0;
+                border: 0;
+                margin: 0;
+                font-size: var(--font-size-l);
+                font-weight: 700;
+            }
+            .list-count {
+                color: var(--vp-c-text-3);
+                font-family: var(--vp-font-family-mono);
+                font-size: var(--font-size-s);
+                font-weight: 400;
+            }
+            .list-body { @include setFlex(flex-start, stretch, 1rem, column); }
+        }
+
+        &__empty {
+            background: var(--vp-c-bg-soft);
+            padding: 3rem 1rem;
+            border-radius: 1rem;
+            margin: 0;
             color: var(--vp-c-text-3);
-            font-family: var(--vp-font-family-mono);
+            text-align: center;
+        }
 
-            .icon {
-                width: 14px;
-                height: 14px;
+        &__pager {
+            @include setFlex(center, center, 6px);
+            margin-top: 1.5rem;
+
+            .page {
+                @include setFlex();
+                background: var(--vp-c-bg-soft);
+                min-width: 36px;
+                height: 36px;
+                padding: 0 10px;
+                border: 1px solid var(--vp-c-divider);
+                border-radius: 10px;
+                color: var(--vp-c-text-2);
+                font-family: var(--vp-font-family-mono);
+                font-size: var(--font-size-s);
+                cursor: pointer;
+                transition: .2s var(--cubic-FiSo);
+
+                &:hover:not(:disabled) {
+                    border-color: var(--vp-c-brand);
+                    color: var(--vp-c-brand);
+                }
+                &.is-current {
+                    background: var(--vp-c-brand);
+                    border-color: var(--vp-c-brand);
+                    color: var(--color-gray-000);
+                }
+                &:disabled {
+                    cursor: default;
+                    opacity: .4;
+                }
             }
         }
-    }
 
-    // 2. Title & Excerpt
-    .card-title {
-        margin-bottom: 0.75rem;
-        color: var(--vp-c-text-1);
-        font-size: 1.4rem;
-        font-weight: 700;
-        line-height: 1.4;
-        transition: color 0.2s;
-    }
+        // #endregion
 
-    .card-excerpt {
-        flex-grow: 1; // Push footer down
-        display: -webkit-box;
-        margin-bottom: 1.5rem;
-        color: var(--vp-c-text-2);
-        font-size: 1rem;
-        line-height: 1.6;
-        overflow: hidden;
-        line-clamp: 2;
-        -webkit-box-orient: vertical;
-    }
-
-    // 3. Footer
-    .card-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-top: 1rem;
-        border-top: 1px solid var(--vp-c-divider);
-
-        .tags-list {
-            display: flex;
-            gap: 8px;
+        // 清單切換
+        .list-enter-active,
+        .list-leave-active { transition: .3s var(--cubic-FiSo); }
+        .list-enter-from,
+        .list-leave-to {
+            transform: translateY(12px);
+            opacity: 0;
         }
 
-        .tag-pill {
-            background: var(--vp-c-bg-alt);
-            padding: 2px 8px;
-            border-radius: 4px;
-            color: var(--vp-c-text-3);
-            font-size: 0.75rem;
-        }
+        // #region [P] RWD：平板以下左欄變成橫向的標籤列
+        @include setRWD(960px) {
+            &__layout {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            &__sidebar { position: static; }
+            &__cloud {
+                flex-flow: row wrap;
+                max-height: none;
+                overflow: visible;
+            }
+            &__chip {
+                padding: 6px 10px;
 
-        .read-more {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            color: var(--vp-c-brand);
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: color 0.2s;
-
-            .arrow {
-                width: 16px;
-                height: 16px;
-                transition: transform 0.2s;
+                &:hover { transform: none; }
             }
         }
+
+        // #endregion
     }
-
-    // 4. Thumbnail (Right side)
-    .card-thumbnail {
-        background: var(--vp-c-bg-alt);
-        width: 200px;
-        border-left: 1px solid var(--vp-c-divider);
-        @media (width <= 640px) {
-            width: 100%;
-            height: 160px;
-            border-bottom: 1px solid var(--vp-c-divider);
-            border-left: none;
-        }
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-
-            // Image subtle zoom on card hover
-            transition: transform 0.5s ease;
-        }
-    }
-
-    // Zoom effect from parent hover
-    .modern-card:hover .card-thumbnail img {
-        transform: scale(1.05);
-    }
-
-    // 文章列表切換動畫
-    .list-enter-active,
-    .list-leave-active {
-        transition: all 0.5s ease;
-    }
-    .list-enter-from,
-    .list-leave-to {
-        transform: translateX(30px);
-        opacity: 0;
-    }
-
-    /* 其他樣式繼承您之前的設定並稍作間距微調... */
 </style>

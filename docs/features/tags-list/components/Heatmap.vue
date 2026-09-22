@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { computed, ref } from 'vue';
+    import { computed, ref, watch } from 'vue';
 
     const props = defineProps<{
         data: Record<string, number>; // { '2023-01-01': 5 }
@@ -12,6 +12,16 @@
     // --- 狀態 ---
     const currentYear = ref(new Date().getFullYear());
     const selectedDate = ref<string | null>(null);
+
+    // 預設跳到這個標籤最近有文章的那一年：很多標籤的文章在前幾年，開在「今年」會是一片空白
+    const latestYear = computed(() => {
+        const years = Object.keys(props.data).map(d => Number(d.slice(0, 4))).filter(y => !Number.isNaN(y));
+        return years.length ? Math.max(...years) : new Date().getFullYear();
+    });
+    watch(latestYear, (year) => {
+        currentYear.value = year;
+        selectedDate.value = null;
+    }, { immediate: true });
 
     // --- 年份切換邏輯 ---
     const switchYear = (delta: number) => {
