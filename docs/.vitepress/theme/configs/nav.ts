@@ -67,7 +67,7 @@ export default [
                         link: '/design-system'
                     },
                     {
-                        text: '3D Galaxy Posts',
+                        text: '3D Galaxy Posts（beta）',
                         link: '/galaxy-posts'
                     },
                     {
