@@ -239,3 +239,12 @@ VitePress 1.6 之後建置從約 30 秒降到 14 秒。
 - 待辦第 6 步（規範文章）需要使用者參與；第 7 步（叮咚後台 Zod）先討論。
 - `resource/flowscker/`、`docs/features/design-system/README.md`、`zod-schema-型別使用規範拷貝.md`、`DinDonLanding.vue` 那一行都是使用者未提交的東西，沒動。
 - `develop_galaxy_tags` 分支還在，內容已全部在 `main`，可以刪。
+
+## 補記：CI 在第 3、4、5 步都紅、第 6 筆才綠
+
+新加的 Lint 步驟在雲端失敗，本機卻乾淨（連 `CI=true` 也乾淨）。抓 log 才看到只有 `DinDonLanding.vue` 四條：
+那個檔工作樹裡有使用者未提交的一行文案，全倉庫 `--fix` 時它在工作副本被修了，但我刻意沒把使用者的檔納進 commit，
+所以 `main` 上的版本還留著沒修的四條。處理：把使用者的副本放一邊、對 HEAD 版本單獨 `--fix` 提交（`df21727`），再把副本放回，
+工作樹的差異只剩那一行文案。**教訓**：全倉庫 `--fix` 之後，凡是刻意不納進 commit 的檔，要另外對 HEAD 版本跑一次 lint。
+
+順帶：GitHub Actions 提醒 `actions/checkout@v4`、`setup-node@v4`、`configure-pages@v4`、`pnpm/action-setup@v4` 還在用 Node 20，之後升 v5／v6。
