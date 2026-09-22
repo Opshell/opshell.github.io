@@ -125,10 +125,9 @@
         <div class="tags-page__layout">
             <!-- #region [P] 標籤雲 -->
             <aside class="tags-page__sidebar">
-                <label class="tags-page__search">
-                    <ElSvgIcon name="pageview" class="icon" />
-                    <input v-model="searchTerm" type="search" placeholder="篩選標籤…" aria-label="篩選標籤" />
-                </label>
+                <ElInput v-model="searchTerm" type="search" placeholder="篩選標籤…" aria-label="篩選標籤">
+                    <template #icon><ElSvgIcon name="pageview" /></template>
+                </ElInput>
 
                 <nav class="tags-page__cloud" aria-label="標籤">
                     <a
@@ -164,15 +163,9 @@
                 <section class="tags-page__card tags-page__activity">
                     <div class="card-header">
                         <h3 class="card-title">Activity</h3>
-                        <button
-                            v-if="selectedDate"
-                            type="button"
-                            class="badge is-filtering"
-                            title="清除日期篩選"
-                            @click="onDateSelect(null)"
-                        >
+                        <ElBtn v-if="selectedDate" size="sm" variant="primary" title="清除日期篩選" @click="onDateSelect(null)">
                             {{ selectedDate }} ✕
-                        </button>
+                        </ElBtn>
                         <span v-else class="badge">點日期可以篩選</span>
                     </div>
                     <Heatmap :data="heatmapData" @select-date="onDateSelect" />
@@ -198,19 +191,18 @@
                     </p>
 
                     <nav v-if="totalPage > 1" class="tags-page__pager" aria-label="分頁">
-                        <button type="button" class="page" :disabled="currentPage === 1" @click="goPage(currentPage - 1)">‹</button>
-                        <button
+                        <ElBtn size="sm" :disabled="currentPage === 1" aria-label="上一頁" @click="goPage(currentPage - 1)">‹</ElBtn>
+                        <ElBtn
                             v-for="page in pageNumbers"
                             :key="page"
-                            type="button"
-                            class="page"
-                            :class="{ 'is-current': page === currentPage }"
+                            size="sm"
+                            :variant="page === currentPage ? 'primary' : 'ghost'"
                             :aria-current="page === currentPage ? 'page' : undefined"
                             @click="goPage(page)"
                         >
                             {{ page }}
-                        </button>
-                        <button type="button" class="page" :disabled="currentPage === totalPage" @click="goPage(currentPage + 1)">›</button>
+                        </ElBtn>
+                        <ElBtn size="sm" :disabled="currentPage === totalPage" aria-label="下一頁" @click="goPage(currentPage + 1)">›</ElBtn>
                     </nav>
                 </section>
                 <!-- #endregion -->
@@ -263,33 +255,6 @@
             position: sticky;
             top: calc(var(--vp-nav-height) + 1.5rem);
             @include setFlex(flex-start, stretch, 1rem, column);
-        }
-
-        &__search {
-            @include setFlex(flex-start, center, 8px);
-            background: var(--vp-c-bg-soft);
-            padding: 0 12px;
-            border: 1px solid var(--vp-c-divider);
-            border-radius: 10px;
-            transition: border-color .2s var(--cubic-FiSo);
-
-            &:focus-within { border-color: var(--vp-c-brand); }
-            .icon {
-                flex-shrink: 0;
-                @include setSize(16px, 16px);
-                fill: var(--vp-c-text-3);
-            }
-            input {
-                background: transparent;
-                width: 100%;
-                padding: 10px 0;
-                border: 0;
-                outline: none;
-                color: var(--vp-c-text-1);
-                font-size: var(--font-size-s);
-
-                &::placeholder { color: var(--vp-c-text-3); }
-            }
         }
 
         &__cloud {
@@ -414,11 +379,6 @@
                 color: var(--vp-c-text-3);
                 font-size: var(--font-size-xs);
 
-                &.is-filtering {
-                    background: var(--vp-c-brand);
-                    color: var(--color-gray-000);
-                    cursor: pointer;
-                }
             }
         }
 
@@ -459,33 +419,9 @@
             @include setFlex(center, center, 6px);
             margin-top: 1.5rem;
 
-            .page {
-                @include setFlex();
-                background: var(--vp-c-bg-soft);
-                min-width: 36px;
-                height: 36px;
-                padding: 0 10px;
-                border: 1px solid var(--vp-c-divider);
-                border-radius: 10px;
-                color: var(--vp-c-text-2);
+            .el-btn {
+                min-width: 32px;
                 font-family: var(--vp-font-family-mono);
-                font-size: var(--font-size-s);
-                cursor: pointer;
-                transition: .2s var(--cubic-FiSo);
-
-                &:hover:not(:disabled) {
-                    border-color: var(--vp-c-brand);
-                    color: var(--vp-c-brand);
-                }
-                &.is-current {
-                    background: var(--vp-c-brand);
-                    border-color: var(--vp-c-brand);
-                    color: var(--color-gray-000);
-                }
-                &:disabled {
-                    cursor: default;
-                    opacity: .4;
-                }
             }
         }
 

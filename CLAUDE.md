@@ -11,7 +11,7 @@ VitePress 1.3 的部落格：Vue 3.5、TypeScript、SCSS、pnpm。網址 `https:
 ## 1. 開工先做
 
 1. 讀 `coordination/board.md`（工作區 `DinDon/` 根目錄），有沒有指名給「網頁 Claude」的單。
-2. `git status`、`git branch --show-current`：工作樹常有別人的半成品，分支通常是 `develop_galaxy_tags`（第 3 節）。
+2. `git status`：工作樹常有使用者未提交的草稿，**只 add 自己改的檔案**。
 
 ## 2. 目錄
 
@@ -31,10 +31,8 @@ alias：`@`＝`docs/`、`@features`、`@shared`、`@components`、`@hooks`、`@u
 
 ## 3. 分支與部署
 
-- 只有一個工作樹，長期待在 **`develop_galaxy_tags`**（3D 星系文章頁、HUD 這些長期開發都在這裡）。
-- 部署是 GitHub Actions（`.github/workflows/deploy.yml`），**push 到 `main` 才會建置上線**。
-- 做法：在 `develop_galaxy_tags` commit，要上線的 commit **cherry-pick 到 `main`** 再 push。`main` 的 reflog 全部是 cherry-pick，
-  兩邊叮咚的檔案內容完全一致、只有 hash 不同。**不要 merge、不要 rebase** 這兩支分支。步驟在 [[web-dindon]]。
+- **只有 `main` 一支**（2026-09-22 把 `develop_galaxy_tags` 併進來之後就不再分支、不再 cherry-pick）。直接在 `main` commit、push。
+- 部署是 GitHub Actions（`.github/workflows/deploy.yml`）：push 到 `main` 就跑 lint → typecheck → build → 上線，紅了不會部署。
 - commit 訊息 `type(scope): 中文一句話`。叮咚的 scope 是 `dindon`（`feat(dindon):`、`fix(dindon):`、`chore(dindon):`），
   文章是 `docs(article):`，主題是 `fix(theme):`、`feat(gallery):`、`feat(galaxy):`。
 - 提交前 `git status`，**只 add 自己改的檔案**，不要 `git add -A`。
@@ -97,5 +95,5 @@ interface 用 `i` 前綴（`iProps`、`iPoint`）、`.vue` 檔名一律 PascalCa
 |---|---|
 | `web-page-and-feature` | 加頁面、加 feature、改 nav 或 sidebar、版型、alias、SSR 報錯 |
 | `web-code-style` | 寫或改任何 `.vue`、`.ts`、`.scss` |
-| `web-dindon` | 碰 `/dindon/` 底下任何東西、接後端、同步政策、cherry-pick 上線 |
+| `web-dindon` | 碰 `/dindon/` 底下任何東西、接後端、同步政策、上線 |
 | `web-blog-post` | 寫新文章、改 frontmatter、設公開、文章圖片、側欄分類 |

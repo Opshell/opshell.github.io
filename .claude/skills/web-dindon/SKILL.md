@@ -1,6 +1,6 @@
 ---
 name: web-dindon
-description: 叮咚記帳在官網上的四頁（宣傳頁、後台、隱私權政策、刪除帳號）怎麼維護——檔案在哪、api.md 是唯一規格、apiBase 與 ?api= 本機覆寫、Google 登入的 token 只放記憶體、隱私權政策由腳本從 App 原稿產生、後台 noindex 且不載第三方腳本、cherry-pick 到 main 才會上線、什麼時候要開單給前端／後端／上架。碰 /dindon/ 底下任何東西時用。
+description: 叮咚記帳在官網上的四頁（宣傳頁、後台、隱私權政策、刪除帳號）怎麼維護——檔案在哪、api.md 是唯一規格、apiBase 與 ?api= 本機覆寫、Google 登入的 token 只放記憶體、隱私權政策由腳本從 App 原稿產生、後台 noindex 且不載第三方腳本、push main 就上線、什麼時候要開單給前端／後端／上架。碰 /dindon/ 底下任何東西時用。
 ---
 
 # 叮咚記帳的四頁
@@ -18,7 +18,7 @@ description: 叮咚記帳在官網上的四頁（宣傳頁、後台、隱私權�
 
 1. 讀工作區 `coordination/board.md`，有沒有指名給網頁 Claude 的單（skill `cross-repo-handoff`）。
 2. 要接新端點或欄位，先讀 `DinDon_BackEnd/docs/api.md` 對應那一節。**規格只有這一份，只有後端改**；後端常常已經做好了，不要自己猜格式。
-3. `git branch --show-current`，通常在 `develop_galaxy_tags`。
+3. `git status`，只 add 自己改的檔案。
 
 ## 檔案地圖
 
@@ -85,23 +85,10 @@ pnpm dindon:privacy /別的路徑.md    # 原稿在別處
 都是對外承諾，要跟 App 的「獎勵說明」、`docs/roadmap/beta-todo.md`、Play Console 一致。
 改了要開單通知前端（App 內文案）與上架小精靈（Play 的商店資訊）。
 
-## 上線：cherry-pick 到 main
+## 上線
 
-部署只在 push `main` 時觸發。日常在 `develop_galaxy_tags` commit，然後：
-
-```bash
-git -C DinDon_Web status                      # 工作樹要乾淨，或先 stash
-git -C DinDon_Web log --oneline main..develop_galaxy_tags   # 看哪些還沒上去
-git -C DinDon_Web checkout main
-git -C DinDon_Web cherry-pick <hash>…         # 只挑叮咚的、要上線的
-git -C DinDon_Web push origin main
-git -C DinDon_Web checkout develop_galaxy_tags
-```
-
-- `main` 的歷史全部是 cherry-pick，**不要 merge 或 rebase** 這兩支。
-- 星系文章頁、HUD 這些長期開發的 commit 不挑；只挑 `(dindon)` 與明確要上線的。
-- 建置在 CI 跑（Node 24.13、pnpm 10.28、`--frozen-lockfile`）；本機先 `pnpm docs:build` 過再推。
-- push 之後到 GitHub Actions 看 `Deploy VitePress site to Pages` 綠了，再開 `https://opshell.me/dindon/` 確認。
+只有 `main` 一支（2026-09-22 起）。commit 後 `git push origin main`，GitHub Actions 跑 lint → typecheck → build → 部署，
+紅了不會上線。本機先 `pnpm check` 過再推。推完到 Actions 看綠了，再開 `https://opshell.me/dindon/` 確認。
 
 ## 什麼時候要開單
 

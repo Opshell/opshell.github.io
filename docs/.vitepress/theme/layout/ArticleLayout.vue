@@ -358,7 +358,7 @@
         color: var(--vp-c-text-2);
         cursor: pointer;
         transform: scale(1);
-        transition: 2.2s var(--op-cubic-FiSo);
+        transition: .2s var(--cubic-FiSo); // 之前寫成 2.2s 加不存在的 --op-cubic-FiSo
         z-index: 10;
         @include setFlex();
         @include setSize(35px, 35px);

@@ -12,18 +12,10 @@
             <header class="section-header">
                 <h3 class="title">Type Scale</h3>
 
-                <button
-                    class="toggle-specs-btn"
-                    :class="{ active: showSpecs }"
-                    title="Toggle CSS Specs"
-                    @click="showSpecs = !showSpecs"
-                >
-                    <span class="icon">
-                        <svg v-if="showSpecs" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
-                        <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                    </span>
-                    <span class="label">{{ showSpecs ? 'Hide Specs' : 'Preview Mode' }}</span>
-                </button>
+                <ElBtn size="sm" :variant="showSpecs ? 'primary' : 'ghost'" title="Toggle CSS Specs" @click="showSpecs = !showSpecs">
+                    <template #icon><ElSvgIcon :name="showSpecs ? 'zoom_in_map' : 'pageview'" /></template>
+                    {{ showSpecs ? 'Hide Specs' : 'Preview Mode' }}
+                </ElBtn>
             </header>
 
             <div class="scale-list">
@@ -75,33 +67,6 @@
     }
 
     // --- Toggle Button ---
-    .toggle-specs-btn {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        background: var(--vp-c-bg);
-        padding: 6px 12px;
-        border: 1px solid var(--vp-c-divider);
-        border-radius: 20px;
-        color: var(--vp-c-text-2);
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-
-        &:hover {
-            background: var(--vp-c-bg-soft);
-            border-color: var(--vp-c-brand);
-            color: var(--vp-c-brand);
-        }
-
-        &.active {
-            background: var(--vp-c-brand-dimm, rgb(244, 185, 54, 10%));
-            border-color: var(--vp-c-brand);
-            color: var(--vp-c-brand);
-        }
-    }
-
     // --- Scale List (Grid Layout) ---
     .scale-list {
         display: flex;

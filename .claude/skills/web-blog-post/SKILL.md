@@ -86,7 +86,7 @@ isPublished: false              # true 才是「已發布」
 1. `isPublished: true`。
 2. `pnpm docs:build`，再 `pnpm docs:preview` 看文章頁、時間軸、側欄有沒有出現。
 3. commit：`docs(article): 標題設為公開` 或 `docs(article): 新增〈標題〉`。
-4. 要上線就 cherry-pick 到 `main` 再 push（`CLAUDE.md` 第 3 節）。
+4. push `main` 就上線（CI 跑 lint、typecheck、build）。
 
 ## 主題與設計 token
 

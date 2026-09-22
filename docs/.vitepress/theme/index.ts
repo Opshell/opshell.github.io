@@ -1,3 +1,4 @@
+import type { Component } from 'vue';
 import Tres from '@tresjs/core';
 import mediumZoom from 'medium-zoom';
 import { Theme, useRoute } from 'vitepress';
@@ -20,6 +21,8 @@ import './scss/style.scss';
 
 // [-] Svg Icon引用
 import 'virtual:svg-icons-register';
+
+const elComponents = import.meta.glob('../../shared/components/el/*.vue', { eager: true });
 
 // 這些頁面不載入第三方的計數腳本：它們手上有 Google 的登入憑證（後台是管理員、帳號頁是使用者本人），
 // 不讓外部腳本跑在同一頁。
@@ -69,6 +72,12 @@ export default {
         });
     },
     enhanceApp({ app }) {
+        // shared/components/el 全域註冊成 <ElXxx>。unplugin-vue-components 在 .vue 裡會自動 import，
+        // 但在 markdown 頁面裡解析不到（resume.md 的 ElBtn、文章裡的 ElCheckbox 都變成未知標籤），所以這裡再註冊一次
+        for (const [path, module] of Object.entries(elComponents)) {
+            const name = path.split('/').pop()!.replace('.vue', '');
+            app.component(`El${name}`, (module as { default: Component }).default);
+        }
         app.component('resume', LayoutResume);
         app.component('Sandbox', Sandbox);
         app.use(Tres);
