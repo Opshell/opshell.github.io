@@ -248,3 +248,39 @@ VitePress 1.6 之後建置從約 30 秒降到 14 秒。
 工作樹的差異只剩那一行文案。**教訓**：全倉庫 `--fix` 之後，凡是刻意不納進 commit 的檔，要另外對 HEAD 版本跑一次 lint。
 
 順帶：GitHub Actions 提醒 `actions/checkout@v4`、`setup-node@v4`、`configure-pages@v4`、`pnpm/action-setup@v4` 還在用 Node 20，之後升 v5／v6。
+
+---
+
+# 2026-09-22 下午：Timeline 收尾、Tags 重做、相簿加文案、藏 404 連結
+
+## 起因
+
+**使用者**：1. timeline 這個頁面整體上差不多了，但是應該還有一些細節可以優化，幫我做完？ 2. tags list 這個頁面差蠻多的，幫我把他做完？要符合 design system 的風格。
+3. portfolio 裡面 Flosker 先隱藏，畢竟那個頁面還沒做。 4. photography 應該也是要符合 design system 的風格，但是要記得這裡是相簿，照片呈現的方式我還是蠻喜歡的，另外我想要幫照片、相簿集可以加文案，你想想怎麼做好。 5. 把目前 404 的 nav 連結先隱藏。
+
+## 做了什麼
+
+| 項 | commit | 內容 |
+|---|---|---|
+| 3、5 | `4b66053` | nav 藏起 Flosker、Front-End Basic 三個索引頁、活動&賽事（都是 404），留 `[+]` 註解 |
+| 1 | `7c1a78d` | Timeline：主線改成 `__wrap::before` 版面內定位（原本 `position: fixed` 加一串 calc，視窗一窄就跟圓點對不上）、漸層頁首、年份篇數、分類徽章、沒摘要就不放假句、手機版；`useBuildSiteData` 濾掉 `- null` 標籤 |
+| 2 | `9e7d2c5` | Tags：整頁重做。原本分類陣列印成 `[ "使用實例" ]`、`tagSummaries` 沒顯示、沒有分頁按鈕、搜尋框沒樣式；現在有標籤介紹卡、Activity 卡、分頁、網址同步、手機版；熱圖預設跳到最近有文章的一年 |
+| 4 | `c72240d` | Gallery：照片呈現不動；相簿卡加資訊列、頁首、內頁標題列；文案機制見下 |
+
+## 相簿文案怎麼做的
+
+- `photos/data.json` 是 `generate-gallery.mjs` 產生的，重跑會蓋掉，文案不能放那裡。
+- 改放 `photos/albums/<相簿資料夾名>.md`：frontmatter 的 `title`、`subtitle`、`cover`（檔名）、`captions`（檔名 → 圖說），內文是相簿介紹（markdown）。
+- `docs/shared/data/albums.data.ts` 用 VitePress 的 `defineLoader` 在建置時讀進來，內文用 `createMarkdownRenderer` 轉 HTML；`Gallery.vue` 依 id 合併。
+- 圖說顯示在拍立得的白邊上（EXIF 上面）和燈箱的資訊列；介紹顯示在內頁標題列下面。
+- `_範例.md` 是格式說明，底線開頭的檔不會被讀；複製改名成相簿名就能用。目前沒有任何一本有文案，等使用者寫。
+
+## 驗證
+
+`pnpm check` 全綠。CDP：三頁桌面與 390px 手機都沒有橫向溢出、沒有 JS 例外；tags 頁點標籤與換頁網址跟著變、直接開 `?tag=VitePress&page=2` 還原正確；相簿內頁打得開、拍立得數量對；兩頁的空「#」標籤消失。
+
+## 留給之後的
+
+- `tagSummaries` 只有四個標籤有介紹（TypeScript、vue、vitepress、developer），其他標籤的介紹卡只顯示篇數；要補的話改 `docs/shared/data/tagSummeries.ts`。
+- Front-End Basic 的 HTML／CSS／JavaScript 索引頁、活動&賽事、Flosker 做好後把 nav 的註解放回來。
+- `docs/public/icons/` 沒有 `search.svg`，搜尋框用 `pageview`；要一致的話補一個。
