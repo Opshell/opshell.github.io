@@ -16,6 +16,8 @@
             };
         };
         r2Thumb: string; // 縮圖網域
+        /** 圖說（photos/albums/<相簿>.md 的 captions），沒有就只顯示 EXIF */
+        caption?: string;
     }>();
 
     // 路徑編碼工具
@@ -48,6 +50,8 @@
                 class="polaroid-card__photo"
                 :style="{ aspectRatio: `${photo.width} / ${photo.height}` }"
             />
+
+            <p v-if="caption" class="polaroid-card__caption">{{ caption }}</p>
 
             <div class="polaroid-card__exif">
                 <div class="polaroid-card__exif-info">
@@ -103,6 +107,16 @@
             border: 1px solid rgb(0,0,0,5%); // 照片邊緣加上極細的框線增加真實感
             transition: .5s ease;
             object-fit: cover;
+        }
+
+        // 圖說：寫在拍立得白邊上的那一句
+        &__caption {
+            padding: 12px 8px 0;
+            margin: 0;
+            color: #2c3e50;
+            font-size: .9rem;
+            line-height: 1.5;
+            text-align: center;
         }
 
         &__exif {

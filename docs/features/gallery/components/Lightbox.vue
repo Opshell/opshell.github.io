@@ -4,9 +4,11 @@
     import { computed, onMounted, onUnmounted, watch } from 'vue';
 
     // 定義 Props
-    const { photos = [], r2Raw = '' } = defineProps<{
+    const { photos = [], r2Raw = '', captions = {} } = defineProps<{
         photos?: any[]; // 照片列表
         r2Raw?: string; // Raw 圖網域
+        /** 檔名 → 圖說 */
+        captions?: Record<string, string>;
     }>();
 
     const lightboxIndex = defineModel<number | null>({ required: true });
@@ -120,6 +122,7 @@
 
                     <div v-if="!isLoaded" class="loading-spinner" />
                     <div class="lb-info">
+                        <p v-if="captions[currentPhoto.filename]" class="lb-caption">{{ captions[currentPhoto.filename] }}</p>
                         <p>{{ currentPhoto.exif.camera }} {{ currentPhoto.exif.lens }}</p>
                         <p class="exif-detail">
                             {{ currentPhoto.exif.iso }} |
@@ -254,5 +257,15 @@
         &.placeholder.hidden {
             opacity: 0;
         }
+    }
+</style>
+
+<style lang="scss">
+    // 圖說放在 EXIF 上面，比機身資訊大一號
+    .gallery-lightbox .lb-caption {
+        margin: 0 0 .5rem;
+        color: #fff;
+        font-size: var(--font-size-m);
+        line-height: 1.5;
     }
 </style>
