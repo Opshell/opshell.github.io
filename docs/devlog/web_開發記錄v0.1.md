@@ -194,3 +194,48 @@
 ## commit
 
 - `docs/devlog/待辦.md` 新增、這一節。只在 `develop_galaxy_tags`，分支怎麼收等使用者決定後再一起上 `main`。
+
+---
+
+# 2026-09-22 白天：整理待辦第 1～5 步一路做完
+
+## 起因
+
+**使用者**：那這四波和原本的待辦整合成執行順序。星系頁還是半成品，先上沒關係嗎？
+**使用者**：檔名統一 PascalCase，具體是哪種類型的檔案呢？
+**使用者**：好，一路做到第五件事做完，每完成一件事就 commit 一次。
+
+## 做了什麼（每步一個 commit，都在 `main`）
+
+| 步 | commit | 內容 |
+|---|---|---|
+| 1 | `e11a5b9`、`c148388` | 導覽列標 beta；`develop_galaxy_tags` merge 進 `main`（三個衝突檔都取 develop 版），之後只維護 `main`。線上 `/galaxy-posts.html` 從 404 變成有頁 |
+| 2a | `4a4b0bf` | 移除 vitest 五件、markdown-it-footnote、@mdit/plugin-tasklist；config.mts 的 test 區塊 |
+| 2b | `69869df` | 刪兩個舊版型、三個 HUD 備份、zod.ts、四個 build log；tsconfig／config.mts 拿掉不存在的 widgets、entities；.gitignore 加 .DS_Store；flowscker 搬到 resource/。**保留** api-examples.md、markdown-theme-preview.md（鐵人賽文章連到）與 resource/ 的草稿 |
+| 3 | `48e4ff4` | ESLint 10 ＋ antfu 9、stylelint 17、unplugin 21／32、vue-tsc；三個工具全倉庫清零；scripts 加 check／lint／lint:style／typecheck；CI 加 Lint、Typecheck |
+| 4 | `e899ec9` | VitePress 1.6.4、Vue 3.5.43、three 0.186、TresJS 5.9、sass、gsap、axios、@vueuse/core 15 等；TresJS 的 position／scale 改 Vector3 常數 |
+| 5 | `9ede835` | 44 個 .vue 改 PascalCase，17 個引用檔跟著改 |
+
+## 過程中的判斷
+
+- **antfu 預設 vs 倉庫寫法**：關掉 `antfu/if-newline`、`antfu/top-level-function`、`vue/singleline-html-element-content-newline`、`vue/custom-event-name-casing` 四條；`ts/no-use-before-define` 放寬 variables；`regexp/no-super-linear-backtracking` 關掉（只在建置時跑自己的 markdown）。文章 md 不 lint，免得 `--fix` 改到教學內容。
+- **vue-tsc 與 VitePress 內部元件**：文章版型 import 了 `vitepress/dist/client/theme-default/components/*.vue`，那些檔在 node_modules 裡自己的 import 沒型別，報 60 幾條。`declare module` 的 wildcard 擋不住（真檔存在就會去讀），改用 tsconfig `paths` 指到 `docs/types/shims/vp-theme-component.d.ts` 才有效。
+- **stylelint 的 inline style 誤判**：`no-invalid-position-declaration` 把模板的 `style="..."` 當成沒有選擇器的 CSS，設 null。
+- **順手抓到的真 bug**：`FeedbackTriage.vue` 關閉快速審核時 `entry.shots` 不存在會 TypeError；`articleTOC.vue` 的 `@hooks/useTOC` 路徑指到不存在的位置（type-only import 所以建置沒擋）；`btn.vue` 引用沒裝的 vue-router、`select.vue` 引用沒裝的 quasar。
+- **改名腳本改到文章**：更新引用時把四篇鐵人賽教學文章裡的路徑也改了，已 `git checkout` 還原。
+
+## 驗證
+
+每一步都跑 `pnpm docs:build`；第 3 步之後每步 lint、stylelint、typecheck 三個都 0。
+第 4、5 步另外用 CDP 跑：星系頁鎖定、↓、↵、Esc；首頁、文章、時間軸、叮咚宣傳頁、後台五頁掛載、無 JS 例外、無橫向溢出。
+VitePress 1.6 之後建置從約 30 秒降到 14 秒。
+
+## 踩到的坑（都寫進 skill 了）
+
+`vitepress preview` 重建後要重啟（`pkill -f 'vitepress preview'` 殺不到，命令列是 `vitepress.js preview`，用 `lsof -ti :4173`）；無頭 Edge 兩個實例同時用 swiftshader 會互搶到頁面載不完；CDP 模式的 `--window-size` 無效，要 `Emulation.setDeviceMetricsOverride`；zsh 裡 `echo =====` 會被當成指令。
+
+## 留給之後的
+
+- 待辦第 6 步（規範文章）需要使用者參與；第 7 步（叮咚後台 Zod）先討論。
+- `resource/flowscker/`、`docs/features/design-system/README.md`、`zod-schema-型別使用規範拷貝.md`、`DinDonLanding.vue` 那一行都是使用者未提交的東西，沒動。
+- `develop_galaxy_tags` 分支還在，內容已全部在 `main`，可以刪。
