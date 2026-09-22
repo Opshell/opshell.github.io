@@ -42,6 +42,12 @@ jobs:
         # pnpm 10 建議使用 --frozen-lockfile 確保 CI 環境一致性
         run: pnpm install --frozen-lockfile
 
+      - name: Lint
+        run: pnpm lint && pnpm lint:style
+
+      - name: Typecheck
+        run: pnpm typecheck
+
       - name: Build with VitePress
         run: pnpm docs:build
 

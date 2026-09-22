@@ -1,5 +1,5 @@
-import { computed } from 'vue';
 import { useData, useRoute } from 'vitepress';
+import { computed } from 'vue';
 
 // 定義 Sidebar 的型別 (簡化版)
 export interface SidebarItem {
@@ -25,23 +25,23 @@ export function useSidebarData() {
         if (typeof sidebarConfig === 'object' && !Array.isArray(sidebarConfig)) {
         // 找出所有 key，並依照長度排序 (讓最精確的路徑優先匹配)
         // 例如 '/article/vue/' 應該比 '/article/' 先被匹配到
-        const matchedKey = Object.keys(sidebarConfig)
-            .sort((a, b) => b.length - a.length)
-            .find(key => {
+            const matchedKey = Object.keys(sidebarConfig)
+                .sort((a, b) => b.length - a.length)
+                .find((key) => {
                 // 處理結尾斜線，確保比對準確
                 // 這裡的邏輯是：當前路徑 是否以 key 開頭
-                return path.startsWith(key);
-            });
+                    return path.startsWith(key);
+                });
 
-        if (matchedKey) {
-            return sidebarConfig[matchedKey] as SidebarItem[];
-        }
-        return [];
+            if (matchedKey) {
+                return sidebarConfig[matchedKey] as SidebarItem[];
+            }
+            return [];
         }
 
         // 3. 如果是陣列 (全站統一 Sidebar)
         if (Array.isArray(sidebarConfig)) {
-        return sidebarConfig as SidebarItem[];
+            return sidebarConfig as SidebarItem[];
         }
 
         return [];

@@ -1,8 +1,8 @@
 <script setup lang="ts">
     withDefaults(
         defineProps<{
-            label?: string
-            val?: string | number
+            label?: string;
+            val?: string | number;
         }>(),
         {
             label: '',

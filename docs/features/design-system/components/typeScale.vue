@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { typeScales, fontFamilies } from "../constants";
+    import { typeScales } from '../constants';
 
     // --- 狀態控制 ---
     // 預設顯示詳細規格，點擊可切換為精簡預覽模式
@@ -15,12 +15,12 @@
                 <button
                     class="toggle-specs-btn"
                     :class="{ active: showSpecs }"
-                    @click="showSpecs = !showSpecs"
                     title="Toggle CSS Specs"
+                    @click="showSpecs = !showSpecs"
                 >
                     <span class="icon">
-                        <svg v-if="showSpecs" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-                        <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg v-if="showSpecs" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
+                        <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                     </span>
                     <span class="label">{{ showSpecs ? 'Hide Specs' : 'Preview Mode' }}</span>
                 </button>
@@ -33,7 +33,6 @@
                     class="scale-item"
                     :class="{ 'compact-mode': !showSpecs }"
                 >
-
                     <div class="area-title">
                         <span class="tag-badge">{{ scale.tag }}</span>
                         <span class="scale-name">{{ scale.name }}</span>
@@ -55,7 +54,7 @@
 
                     <div class="area-preview">
                         <component :is="scale.tag" v-if="scale.tag !== 'a'">
-                        {{ scale.sample }}
+                            {{ scale.sample }}
                         </component>
                         <p v-else><a href="javascript:;">{{ scale.sample }}</a></p>
                     </div>

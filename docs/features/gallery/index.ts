@@ -1,5 +1,5 @@
-import Gallery from "./components/Gallery.vue";
+import Gallery from './components/Gallery.vue';
 
 export {
     Gallery
-}
+};

@@ -16,7 +16,7 @@ export function useMergeCandidates() {
         if (!force && Date.now() - loadedAt < 60_000) return;
         pending ??= (async () => {
             try {
-                const list = await call(token => adminApi.listFeedback(token, { status: 'all', page: 1, perPage: 50 }));
+                const list = await call(async token => adminApi.listFeedback(token, { status: 'all', page: 1, perPage: 50 }));
                 // 被退回的不會算分、內容清掉的也認不出是哪件事，列出來只是雜訊
                 candidates.value = list.reports.filter(r => r.status !== 'rejected' && !r.content_purged_at);
                 loadedAt = Date.now();

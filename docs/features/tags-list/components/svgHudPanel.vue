@@ -1,6 +1,6 @@
 <script setup lang="ts">
-    import { ref, computed } from 'vue';
     import { useElementSize } from '@vueuse/core';
+    import { computed, ref } from 'vue';
 
     const props = withDefaults(defineProps<{
         title?: string;
@@ -42,11 +42,14 @@
         const _w = hw.value;
         const _h = hh.value;
         const points = [
-            [fhx(_w - 5), 0], [fhx(_w), 5],             // 頂部 [fhx(SLOPE / 2), 0],
+            [fhx(_w - 5), 0],
+            [fhx(_w), 5], // 頂部 [fhx(SLOPE / 2), 0],
 
-            [fhx(_w), _h - 10], [fhx(_w - 5), _h - 5],                   // 底部 (平整對接)
-            [fhx(_w - 5), _h], [fhx(0), _h],                   // 底部 (平整對接)
-            [fhx(0), 0]                        // 左側接上左
+            [fhx(_w), _h - 10],
+            [fhx(_w - 5), _h - 5], // 底部 (平整對接)
+            [fhx(_w - 5), _h],
+            [fhx(0), _h], // 底部 (平整對接)
+            [fhx(0), 0] // 左側接上左
         ];
         return `M ${points.map(p => p.join(',')).join(' L ')} Z`;
     });
@@ -56,12 +59,16 @@
         const _w = mw.value;
         const _h = mh.value;
         const points = [
-            [fmx(0), 0], [fmx(_w - 5), 0],                              // 頂部 (平整對接 Header)
-            [fmx(_w - 5), 5], [fmx(_w), 10],   // 右側接上右切角
-            [fmx(_w), _h / 3 - SLOPE], [fmx(_w - SLOPE), _h / 3],   // 右側接上右切角
-            [fmx(_w - SLOPE), _h - 0.5 * SLOPE],                      // 右下切角
+            [fmx(0), 0],
+            [fmx(_w - 5), 0], // 頂部 (平整對接 Header)
+            [fmx(_w - 5), 5],
+            [fmx(_w), 10], // 右側接上右切角
+            [fmx(_w), _h / 3 - SLOPE],
+            [fmx(_w - SLOPE), _h / 3], // 右側接上右切角
+            [fmx(_w - SLOPE), _h - 0.5 * SLOPE], // 右下切角
             [fmx(_w - SLOPE - 0.5 * SLOPE), _h],
-            [fmx(SLOPE + 5), _h], [fmx(0), _h - SLOPE - 5]          // 左下切角
+            [fmx(SLOPE + 5), _h],
+            [fmx(0), _h - SLOPE - 5] // 左下切角
         ];
         return `M ${points.map(p => p.join(',')).join(' L ')} Z`;
     });
@@ -119,7 +126,7 @@
             <div class="header-content">
                 <div class="icon-box"><ElSvgIcon :name="icon" /></div>
                 <h2 class="title">{{ title }}</h2>
-                <div class="minimize-btn" :class="{ active: isCollapsed }"></div>
+                <div class="minimize-btn" :class="{ active: isCollapsed }" />
             </div>
         </header>
 
@@ -146,7 +153,6 @@
                 </div>
             </main>
         </div>
-
     </section>
 </template>
 
@@ -180,7 +186,11 @@
                 backdrop-filter: blur(8px);
                 pointer-events: none;
             }
-            .shape-border { stroke: var(--hud-color); stroke-width: 1px; opacity: 0.7; }
+            .shape-border {
+                stroke: var(--hud-color);
+                stroke-width: 1px;
+                opacity: 0.7;
+            }
             .corner-tri,
             .side-tab-block,
             .buttom-block { fill: var(--hud-color); }
@@ -213,7 +223,11 @@
             .header-content {
                 position: relative; display: flex; gap: 12px; align-items: center; height: 40px;
                 padding: 0 12px; z-index: 1;
-                .icon-box { display: flex; align-items: center; color: var(--hud-color); }
+                .icon-box {
+                    display: flex;
+                    align-items: center;
+                    color: var(--hud-color);
+                }
                 .title {
                     flex: 1; margin: 0; font-family: Orbitron, sans-serif;
                     font-size: 0.9rem; font-weight: 700; letter-spacing: 1.5px;
@@ -223,7 +237,10 @@
                 .minimize-btn { background: var(--hud-color);
                     width: 12px; height: 2px;
                     transition: transform 0.3s, background-color 0.3s;
-                    &.active { background: #f05; transform: rotate(180deg); }
+                    &.active {
+                        background: #f05;
+                        transform: rotate(180deg);
+                    }
                 }
             }
 

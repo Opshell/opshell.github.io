@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { onMounted, onUnmounted, nextTick, ref } from 'vue';
+    import { onMounted, onUnmounted, ref } from 'vue';
 
     const containerRef = ref<HTMLElement | null>(null);
     let resizeObserver: ResizeObserver | null = null;
@@ -67,7 +67,7 @@
 </script>
 
 <template>
-    <article class="orga-waterfalls-flow-block" ref="containerRef">
+    <article ref="containerRef" class="orga-waterfalls-flow-block">
         <slot />
     </article>
 </template>

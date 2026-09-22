@@ -9,6 +9,8 @@ export default {
     ],
     rules: {
         'scss/operator-no-newline-after': null,
+        // .vue 模板裡的 inline style="..." 會被 postcss-html 當成一段沒有選擇器的 CSS，這條規則對它是誤判
+        'no-invalid-position-declaration': null,
         'order/order': [
             'custom-properties',
             'declarations'

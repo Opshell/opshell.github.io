@@ -21,7 +21,7 @@ const startPathDir = path.resolve(__dirname, '../pages'); // 把pages 設定成�
 const mdFiles = fs.readdirSync(startPathDir); // 讀取目錄下的資料夾&文件
 
 interface iThemeConfig extends DefaultTheme.Config {
-    siteData: iSiteData
+    siteData: iSiteData;
 }
 
 const siteData = await buildSiteData(startPathDir);
@@ -44,7 +44,7 @@ export default defineConfig({
                     const frontmatter = getFrontMatter(filepath);
 
                     if (frontmatter.isPublished) {
-                        const { sitemap } = frontmatter as { sitemap?: { changefreq?: string, priority?: number } };
+                        const { sitemap } = frontmatter as { sitemap?: { changefreq?: string; priority?: number } };
                         item.changefreq = (sitemap?.changefreq as any) || 'yearly';
                         item.priority = sitemap?.priority || 0.6;
 
@@ -55,7 +55,7 @@ export default defineConfig({
             })
             // 利用 typeof items[number] 抓取引數 items 的元素型別
             // 用 NonNullable 排除掉 false / null / undefined
-            .filter((item): item is NonNullable<typeof items[number]> => !!item);
+                .filter((item): item is NonNullable<typeof items[number]> => !!item);
         }
     },
     head: [
@@ -179,10 +179,8 @@ export default defineConfig({
                 const start: number = state.bMarks[startLine] + state.tShift[startLine]; // 行的開始位置
                 const max: number = state.eMarks[startLine]; // 行的結束位置
 
-                if (state.src.charCodeAt(start) !== 0x5B) /* [ */
-                    return false;
-                if (state.src.charCodeAt(start + 2) !== 0x5D) /* ] */
-                    return false;
+                if (state.src.charCodeAt(start) !== 0x5B) return false; // [
+                if (state.src.charCodeAt(start + 2) !== 0x5D) return false; // ]
 
                 const content = state.src.substring(start, max); // 取出整段文字
                 const reg = /\[(\s|x)\]/;
@@ -332,7 +330,7 @@ export default defineConfig({
 
                 '@features': path.resolve(__dirname, '../', 'features'),
                 '@pages': path.resolve(__dirname, '../', 'pages'),
-                '@photos': path.resolve(__dirname, '../../', 'photos'),
+                '@photos': path.resolve(__dirname, '../../', 'photos')
             }
         },
         plugins: [
@@ -358,7 +356,7 @@ export default defineConfig({
                             ['default', 'axios']
                         ],
                         // vue 3.5.x
-                        vue: ['useTemplateRef', 'onWatcherCleanup', 'useId']
+                        'vue': ['useTemplateRef', 'onWatcherCleanup', 'useId']
                     }
                 ],
                 dirs: [
@@ -449,10 +447,10 @@ export default defineConfig({
     vue: {
         template: {
             compilerOptions: {
-                isCustomElement: (tag) => tag.startsWith('Tres') && tag !== 'TresCanvas',
-            },
-        },
-    } as any,
+                isCustomElement: (tag: string) => tag.startsWith('Tres') && tag !== 'TresCanvas'
+            }
+        }
+    },
 
     ignoreDeadLinks: true
 });

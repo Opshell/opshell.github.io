@@ -15,12 +15,11 @@ function serializeHeader(h: Element): string {
     let ret = '';
     for (const node of h.childNodes) {
         if (node.nodeType === 1) { // Element
-
             // 忽略 VitePress 的錨點符號或特定 class
             if (
-                (node as Element).classList.contains('VPBadge') ||
-                (node as Element).classList.contains('header-anchor') ||
-                (node as Element).classList.contains('ignore-header')
+                (node as Element).classList.contains('VPBadge')
+                || (node as Element).classList.contains('header-anchor')
+                || (node as Element).classList.contains('ignore-header')
             ) {
                 continue;
             }
@@ -59,7 +58,7 @@ export function useTOC(contentRef: Ref<HTMLElement | undefined>) {
 
         // 針對傳入的容器尋找 H2-H6 (可根據需求調整選擇器)
         const nodes = Array.from(contentRef.value.querySelectorAll('h2, h3, h4, h5, h6'))
-        .filter((el) => el.id && el.hasChildNodes()) as HTMLElement[];
+            .filter(el => el.id && el.hasChildNodes()) as HTMLElement[];
 
         const newHeaders: Header[] = [];
         flatHeaders = []; // 重置緩存
@@ -76,7 +75,7 @@ export function useTOC(contentRef: Ref<HTMLElement | undefined>) {
                 level: Number(el.tagName[1]),
                 title: serializeHeader(el),
                 slug: el.id,
-                link: '#' + el.id
+                link: `#${el.id}`
             };
             newHeaders.push(header);
             flatHeaders.push({ link: header.link, element: el });

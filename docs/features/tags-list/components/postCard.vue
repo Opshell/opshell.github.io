@@ -1,6 +1,6 @@
 <script setup lang="ts">
+    import { Post } from '@hooks/useBuildSiteData';
     import { computed } from 'vue';
-    import { Post } from "@hooks/useBuildSiteData";
     import DateBadge from './dateBadge.vue'; // 假設你有這個組件
 
     const props = defineProps<{
@@ -16,7 +16,7 @@
 <template>
     <article class="post-card-item">
         <div class="post-marker">
-            <div class="dot"></div>
+            <div class="dot" />
         </div>
 
         <section class="post-card-content">

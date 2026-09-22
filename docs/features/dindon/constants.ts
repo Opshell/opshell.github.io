@@ -31,11 +31,11 @@ const SIGNUP_BODY = [
 export const SIGNUP_HREF = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(SIGNUP_SUBJECT)}&body=${encodeURIComponent(SIGNUP_BODY)}`;
 
 export interface iPoint {
-    icon: string
-    title: string
-    text: string
+    icon: string;
+    title: string;
+    text: string;
     /** 小標籤，例如「新功能」 */
-    tag?: string
+    tag?: string;
 }
 
 /** 電子發票的痛點。叮咚記帳要回答的就是「那不是已經有電子發票 App 了嗎？」 */
@@ -80,12 +80,12 @@ export const betaSteps: string[] = [
 ];
 
 export interface iReward {
-    tag: string
-    title: string
-    condition: string
-    reward: string
+    tag: string;
+    title: string;
+    condition: string;
+    reward: string;
     /** 依名次分級的獎勵，一列一級 */
-    tiers?: { rank: string, reward: string }[]
+    tiers?: { rank: string; reward: string }[];
 }
 
 /**

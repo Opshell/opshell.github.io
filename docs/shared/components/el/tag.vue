@@ -1,14 +1,14 @@
 <script setup lang="ts">
     defineProps<{
-        tag: string
+        tag: string;
     }>();
 </script>
 
 <template>
     <a class="el-tag" :href="`/tags-list.html?tag=${tag}`">
         <span class="hash">#</span>
-        <span>{{tag}}</span>
-        <slot></slot>
+        <span>{{ tag }}</span>
+        <slot />
     </a>
 </template>
 

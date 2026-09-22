@@ -1,9 +1,9 @@
 export interface TypeSpec {
-    tag: string;       // HTML 標籤 (h1, p, a...)
-    name: string;      // 顯示名稱 (Heading 1)
+    tag: string; // HTML 標籤 (h1, p, a...)
+    name: string; // 顯示名稱 (Heading 1)
     specs: Record<string, string>; // CSS 變數對照表
     description?: string; // 用法說明
-    sample: string;    // 範例文本
+    sample: string; // 範例文本
 }
 
 export const typeScales: TypeSpec[] = [
@@ -14,7 +14,7 @@ export const typeScales: TypeSpec[] = [
             'color': '--color-gray-900',
             'font-size': '--font-size-xxl (36px)',
             'font-weight': '600',
-            'line-height': '1.25',
+            'line-height': '1.25'
         },
         description: '頁面主標題，每頁僅使用一次。',
         sample: 'The quick brown fox jumps over the lazy dog. 永和九年，歲在癸丑，暮春之初，會于會稽山陰之蘭亭。'
@@ -28,7 +28,7 @@ export const typeScales: TypeSpec[] = [
             'color': '--color-gray-850',
             'font-size': '--font-size-xl (26px)',
             'font-weight': '500',
-            'line-height': '1.4',
+            'line-height': '1.4'
         },
         description: '主要章節標題，上方帶有分隔線。',
         sample: 'The quick brown fox jumps over the lazy dog永和九年，歲在癸丑，暮春之初，會于會稽山陰之蘭亭。'
@@ -97,15 +97,15 @@ export const typeScales: TypeSpec[] = [
         name: 'Link',
         specs: {
             'color': '--color-primary-2',
-            'font-weight': '400',
+            'font-weight': '400'
         },
         sample: '這是一個超連結樣式 (Hyperlink)'
-    },
+    }
 ];
 
 export const fontFamilies = [
     { name: 'Base (Sans-Serif)', var: '--font-sans-serif' },
-    { name: 'Monospace (Code)', var: '--font-monospace' },
+    { name: 'Monospace (Code)', var: '--font-monospace' }
 ];
 
 export const fontSizes = [
@@ -114,7 +114,7 @@ export const fontSizes = [
     { name: 'Large', var: '--font-size-l', val: '1.25rem (20px)', sample: 'Ag' },
     { name: 'Medium', var: '--font-size-m', val: '1rem (16px)', sample: 'Ag' },
     { name: 'Small', var: '--font-size-s', val: '0.875rem (14px)', sample: 'Ag' },
-    { name: 'Extra Small', var: '--font-size-xs', val: '0.75rem (12px)', sample: 'Ag' },
+    { name: 'Extra Small', var: '--font-size-xs', val: '0.75rem (12px)', sample: 'Ag' }
 ];
 
 export const animations = [

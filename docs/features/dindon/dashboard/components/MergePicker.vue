@@ -14,7 +14,7 @@
     // - 選的那則已經在某個問題裡 → 這則掛過去
     // - 選的那則還沒合併過 → 用兩則開一個新問題（一次 API 就好，後端的 report_ids 收陣列）
     // 已經有的問題也列在最上面，可以直接掛。
-    const { report, issues } = defineProps<{ report: FeedbackReport, issues: FeedbackIssue[] }>();
+    const { report, issues } = defineProps<{ report: FeedbackReport; issues: FeedbackIssue[] }>();
     const emit = defineEmits<{ merged: [issueId: number] }>();
 
     const call = useAdminCall();
@@ -38,7 +38,7 @@
     const issueTitle = (id: number | null | undefined) => issues.find(i => i.id === id)?.title ?? `#${id}`;
 
     // 開新問題時的預設標題：用比較早的那一則的描述，通常寫得比較完整
-    watch(pickedReport, target => {
+    watch(pickedReport, (target) => {
         if (!target || target.issue_id) return;
         const earlier = new Date(target.created_at) < new Date(report.created_at) ? target : report;
         title.value = short(earlier.description.replace(/\s+/g, ' ').trim(), 24);

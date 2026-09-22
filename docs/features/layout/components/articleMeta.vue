@@ -4,9 +4,9 @@
     const { frontmatter, page, isDark } = useData();
 
     const lastUpdated = computed(() => {
-    const timestamp = page.value.lastUpdated as number;
-    return timestamp > 0 ? new Date(timestamp).toLocaleDateString() : '';
-});
+        const timestamp = page.value.lastUpdated as number;
+        return timestamp > 0 ? new Date(timestamp).toLocaleDateString() : '';
+    });
 </script>
 
 <template>
@@ -31,12 +31,12 @@
             </div>
 
             <div v-if="frontmatter.tags" class="tags-row">
-                <ElTag v-for="tag in frontmatter.tags" :key="tag" :tag/>
+                <ElTag v-for="tag in frontmatter.tags" :key="tag" :tag />
             </div>
         </div>
 
         <div v-if="frontmatter.image" class="banner-block">
-            <img :src="frontmatter.image" :alt="`${frontmatter.title}_image`" loading="lazy"/>
+            <img :src="frontmatter.image" :alt="`${frontmatter.title}_image`" loading="lazy" />
         </div>
     </header>
 </template>
@@ -86,7 +86,6 @@
         flex-wrap: wrap;
         gap: 8px;
     }
-
 
     .banner-block {
         border-radius: 12px;

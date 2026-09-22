@@ -31,8 +31,7 @@ export default {
         _render(src, env, md) {
             const html = md.render(src, env);
             // 排除 有設定不給搜尋 或者 沒有發布的頁面
-            if (env.frontmatter?.search === false || !env.frontmatter?.isPublished)
-                return '';
+            if (env.frontmatter?.search === false || !env.frontmatter?.isPublished) { return ''; }
 
             // 要排除特定的目錄
             for (const path of ignorePath) {
@@ -43,8 +42,7 @@ export default {
 
             // 新增錨點
             const frontmatter = env.frontmatter as { title?: string } | undefined;
-            if (frontmatter?.title)
-                return md.render(`# ${frontmatter.title}`) + html;
+            if (frontmatter?.title) { return md.render(`# ${frontmatter.title}`) + html; }
 
             return html;
         }

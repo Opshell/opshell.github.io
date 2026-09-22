@@ -44,9 +44,19 @@
 
     function resetForm() {
         Object.assign(form, {
-            code: '', givesPlan: true, planTier: 'pro', months: 1, days: 0,
-            givesTokens: false, tokens: 100, unlimitedSeats: true, seats: 50,
-            unlimitedExpiry: true, expiresAt: '', note: '', active: true
+            code: '',
+            givesPlan: true,
+            planTier: 'pro',
+            months: 1,
+            days: 0,
+            givesTokens: false,
+            tokens: 100,
+            unlimitedSeats: true,
+            seats: 50,
+            unlimitedExpiry: true,
+            expiresAt: '',
+            note: '',
+            active: true
         });
     }
 
@@ -66,7 +76,7 @@
         promo.max_redemptions === null ? `${formatInt(promo.redeemed)} / 不限` : `${formatInt(promo.redeemed)} / ${formatInt(promo.max_redemptions)}`;
 
     /** 用完了、過期了，即使 active 還是 true 也兌換不到 */
-    function stateOf(promo: PromoCode): { label: string, kind: string } {
+    function stateOf(promo: PromoCode): { label: string; kind: string } {
         if (!promo.active) return { label: '已停用', kind: 'is-frozen' };
         if (promo.expires_at && new Date(promo.expires_at).getTime() < Date.now()) return { label: '已過期', kind: 'is-frozen' };
         if (promo.max_redemptions !== null && promo.redeemed >= promo.max_redemptions) return { label: '名額用完', kind: 'is-frozen' };
@@ -75,7 +85,7 @@
 
     // 送出前先自己驗一遍，錯誤訊息比後端那句長長的規則好懂
     const formError = computed(() => {
-        if (isNew.value && form.code.trim() && !/^[A-Za-z0-9]{6,32}$/.test(form.code.trim())) return '優惠碼要是 6～32 個英數字（留空就自動產生）';
+        if (isNew.value && form.code.trim() && !/^[A-Z0-9]{6,32}$/i.test(form.code.trim())) return '優惠碼要是 6～32 個英數字（留空就自動產生）';
         if (!form.givesPlan && !form.givesTokens) return '至少要送一種：方案時間或額度點數';
         if (form.givesPlan && form.months + form.days === 0) return '選了方案就要給時間，月數和天數不能都是 0';
         if (form.givesPlan && (form.months < 0 || form.months > MAX_MONTHS || form.days < 0 || form.days > MAX_DAYS)) return `月數 0～${MAX_MONTHS}、天數 0～${MAX_DAYS}`;

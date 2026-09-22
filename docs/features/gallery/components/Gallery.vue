@@ -1,10 +1,10 @@
 <script setup lang="ts">
-    import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
     import galleryData from '@photos/data.json';
+    import { computed, onMounted, onUnmounted, ref } from 'vue';
 
     import Card from './card.vue';
-    import MasonryLayout from './masonryLayout.vue';
     import Lightbox from './lightbox.vue';
+    import MasonryLayout from './masonryLayout.vue';
     import PolaroidCard from './polaroidCard.vue';
 
     // --- 設定區 ---
@@ -15,7 +15,6 @@
     // --- 路由與狀態 ---
     const currentAlbumId = ref<string | null>(null);
     const lightboxIndex = ref<number | null>(null); // 控制 Lightbox 開關與索引
-
 
     onMounted(() => {
         hashChangeＨandler();
@@ -36,8 +35,7 @@
 
         lightboxIndex.value = null; // 每次切換相簿時關閉 Lightbox
 
-        if (!exists) { return; }
-
+        if (!exists) { /* 網址上的相簿不存在：維持目前的 */ }
     };
 
     const currentAlbum = computed(() => {
@@ -79,11 +77,12 @@
                 />
             </MasonryLayout>
 
-            <div v-else
+            <div
+                v-else
                 class="album-detail"
                 :style="{
                     '--origin-x': `${clickOrigin.x}px`,
-                    '--origin-y': `${clickOrigin.y}px`
+                    '--origin-y': `${clickOrigin.y}px`,
                 }"
             >
                 <div class="album-detail__header">

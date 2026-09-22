@@ -1,8 +1,9 @@
 <script setup lang="ts">
+    import type { DeleteScope } from '../api';
     import { computed, nextTick, ref, watch } from 'vue';
     import { CONTACT_EMAIL, PRIVACY_PATH } from '../../constants';
     import { useGoogleAuth } from '../../useGoogleAuth';
-    import { type DeleteScope, DeleteUnavailableError, requestDeletion } from '../api';
+    import { DeleteUnavailableError, requestDeletion } from '../api';
     import { accountErased, accountKept, partialItems } from '../content';
 
     // 刪除資料與帳號。Google Play 要求「帳號刪除」有一個不用裝 App 也打得開的網址，
@@ -21,7 +22,7 @@
     const agreed = ref(false);
     const busy = ref(false);
     const error = ref('');
-    const done = ref<{ scope: DeleteScope, devices: number } | null>(null);
+    const done = ref<{ scope: DeleteScope; devices: number } | null>(null);
     /** 後端那支還沒開通時改走寄信 */
     const fallback = ref(false);
 
@@ -57,7 +58,7 @@
 
     // Google 的按鈕畫在它自己來源的 iframe 裡，元素要先存在才畫得上去。
     // 盯著元素本身而不是登入狀態：登出、從「已完成」退回上一步，都是換一個新的空元素進來，一律要重畫
-    watch(signInSlot, async el => {
+    watch(signInSlot, async (el) => {
         if (!el || framed) return;
         await nextTick();
         auth.renderButton(el);
@@ -188,7 +189,7 @@
 
                     <div v-else-if="!isSignedIn" class="dd-account__signin">
                         <p>請用<strong>要處理的那個 Google 帳號</strong>登入，證明是本人。</p>
-                        <div ref="signInSlot" class="dd-account__gbtn"></div>
+                        <div ref="signInSlot" class="dd-account__gbtn" />
                         <p v-if="expired" class="dd-account__error" role="alert">登入已過期，請重新登入。</p>
                         <p v-if="loadError" class="dd-account__error" role="alert">
                             {{ loadError }}。也可以改用寄信：<a :href="mailHref">{{ CONTACT_EMAIL }}</a>

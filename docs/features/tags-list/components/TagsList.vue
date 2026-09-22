@@ -1,10 +1,10 @@
 <script setup lang="ts">
-    import { ref, computed, onMounted, watch } from 'vue';
-    import { useRouter } from 'vitepress';
-    import { useSiteData } from '@shared/hooks/useSiteData';
     import type { TagSummary } from '@shared/data/tagSummeries';
     import type { Post } from '@shared/hooks/useBuildSiteData';
     import { tagSummaries } from '@shared/data/tagSummeries';
+    import { useSiteData } from '@shared/hooks/useSiteData';
+    import { useRouter } from 'vitepress';
+    import { computed, onMounted, ref, watch } from 'vue';
 
     // 引入新組件
     import Heatmap from './heatmap.vue';
@@ -57,7 +57,6 @@
 
     const totalCount = computed(() => postsOfCurrentTag.value.length);
 
-
     const currentTagSummary = computed<TagSummary | undefined>(() => {
         return tagSummaries[currentTag.value as string];
     });
@@ -88,7 +87,7 @@
             ? tagData.postUrls.map(url => siteData.value!.posts.get(url)).filter(Boolean) as Post[]
             : [];
 
-        targetPosts.forEach(post => {
+        targetPosts.forEach((post) => {
             if (!post.date) return;
             const dateStr = new Date(post.date).toISOString().split('T')[0];
             data[dateStr] = (data[dateStr] || 0) + 1;
@@ -111,7 +110,7 @@
 
         // B. 如果有選擇日期，進行二次篩選
         if (selectedDate.value) {
-            posts = posts.filter(p => {
+            posts = posts.filter((p) => {
                 const pDate = new Date(p.date).toISOString().split('T')[0];
                 return pDate === selectedDate.value;
             });
@@ -133,8 +132,6 @@
         selectedDate.value = date;
         currentPage.value = 1; // 篩選後回到第一頁
     };
-
-
 </script>
 
 <template>
@@ -197,8 +194,7 @@
                     No posts found for this date.
                 </div>
             </div>
-
-            </main>
+        </main>
     </div>
 </template>
 

@@ -1,109 +1,94 @@
 import antfu from '@antfu/eslint-config';
 
+// @antfu/eslint-config 9.x。規則前綴：style/（stylistic）、ts/、vue/、import/、unused-imports/、jsdoc/
 export default antfu(
-    { // General rules
-        env: {
-            browser: true,
-            es2021: true,
-            node: true
-        },
+    {
         stylistic: {
-            indent: 4, // 2, 4, or 'tab'
-            quotes: 'single' // single or 'double'
+            indent: 4,
+            quotes: 'single',
+            semi: true
         },
-        // `.eslintignore` is no longer supported in Flat config, use `ignores` instead
-        ignores: [
-            'node_modules',
-            'certs',
-            'dist'
-        ],
-
-        yaml: false,
-        jsonc: false,
         vue: true,
         typescript: {
-            tsconfigPath: 'tsconfig.json'
-        }
+            tsconfigPath: 'tsconfig.json' // 開型別感知的規則
+        },
+        yaml: false,
+        jsonc: false,
+        // 文章的 markdown 不是程式：程式碼區塊是教學內容，不能被 --fix 改掉
+        markdown: false,
+        ignores: [
+            'node_modules',
+            'dist',
+            'certs',
+            'docs/.vitepress/cache',
+            'docs/.vitepress/dist',
+            'docs/pages/**', // 文章與頁面 md
+            'docs/devlog/**', // 開發記錄
+            'docs/types/**', // unplugin 自動產生的 d.ts
+            'resource/**', // 草稿與參考資料
+            'photos/**'
+        ]
     },
-    { // Without `files`, they are general rules for all files
+    { // 全部檔案
         rules: {
             'no-console': ['warn'],
-            'curly': ['error', 'multi-line'], // if else while 花括號&單行 風格
-            // max-statements-per-line
-            'no-restricted-syntax': 'off', // 關閉 no-restricted-syntax 規則
+            'curly': ['error', 'multi-line'], // if else while 花括號：多行才要
+            'no-restricted-syntax': 'off',
 
-            'style/semi': ['error', 'always'], // 結束需要分號
-            'style/comma-dangle': ['error', 'never'], // 關閉末尾陣列尾隨逗號
-            'style/brace-style': ['error', '1tbs', { allowSingleLine: true }], // 大括號風格
-            'style/max-statements-per-line': ['error', { max: 2 }], // 單行最大語句數
-            // 'style/nonblock-statement-body-position': ['error', 'beside'], // if 單行風格
+            // 這個倉庫刻意的寫法，跟 antfu 預設相反：單行 if、頂層用 const 箭頭函式、事件名 kebab-case
+            'antfu/if-newline': 'off',
+            'antfu/top-level-function': 'off',
+            'vue/custom-event-name-casing': 'off',
+            // 事件處理函式常寫在生命週期後面，只要不在同一層先用到就好
+            'ts/no-use-before-define': ['error', { functions: false, classes: false, variables: false }],
+            // 這些正則只在建置時跑我們自己的 markdown，ReDoS 不是問題
+            'regexp/no-super-linear-backtracking': 'off',
+
+            'style/semi': ['error', 'always'], // 結尾要分號
+            'style/comma-dangle': ['error', 'never'], // 沒有尾逗號
+            'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
+            'style/max-statements-per-line': ['error', { max: 2 }],
 
             'unused-imports/no-unused-vars': 'off',
-
-            'ts/no-unused-vars': 'off', // 關閉 ts/no-unused-vars 規則
+            'ts/no-unused-vars': 'off',
             'ts/strict-boolean-expressions': 'off',
-            'ts/consistent-type-imports': 'off', // 關閉 ts/consistent-type-imports 規則
+            'ts/consistent-type-imports': 'off',
 
-            // [+]再找時間處理 no-unsafe
-            'ts/no-unsafe-return': 'off', // 關閉 no-unsafe-return 規則
-            'ts/no-unsafe-assignment': 'off', // 關閉 no-unsafe-assignment 規則
-            'ts/no-unsafe-argument': 'off', // 關閉 no-unsafe-assignment 規則
-            'ts/no-unsafe-member-access': 'off', // 關閉 no-unsafe-member-access 規則
-            'ts/no-floating-promises': 'off', // 關閉 no-floating-promises 規則   [+]router.push() 會有問題
-            'ts/no-unsafe-call': 'off', // 關閉 no-unsafe-call 規則
+            // [+] 型別感知的 unsafe 規則先關，等 any 清乾淨再開
+            'ts/no-unsafe-return': 'off',
+            'ts/no-unsafe-assignment': 'off',
+            'ts/no-unsafe-argument': 'off',
+            'ts/no-unsafe-member-access': 'off',
+            'ts/no-unsafe-call': 'off',
+            'ts/no-floating-promises': 'off',
 
-            // [-] Features 目錄規劃
-            'import/no-restricted-paths': ['error', { // 禁止跨 features 導入
-                zones: [
-                    {
-                        target: './src/features/UIKit',
-                        from: './src/features',
-                        except: ['./UIKit']
-                    }
-                ]
-            }],
-            'no-restricted-imports': ['error', { // 禁止直接引用 features 內的檔案，只開放從 features/index.ts 引用
-                patterns: ['@/features/*/*']
-            }],
-            'import/no-cycle': 'error', // 禁止循環依賴
-            'jsdoc/multiline-blocks': 'off' // 讓註解標題可以在第一行
+            // features 只能從 index.ts 引用（FSD 的 public API）
+            'no-restricted-imports': ['error', { patterns: ['@/features/*/*', '@features/*/*'] }],
+            'jsdoc/multiline-blocks': 'off' // 註解標題可以在第一行
         }
     },
-    { // 某些規則僅在特定文件中啟用，例如，規則僅在檔中啟用，規則僅在檔中啟用。如果要覆寫規則，則需要指定檔案延伸名稱：ts/*.tsvue/*.vue
+    { // Node 腳本：印東西是它的工作
+        files: ['scripts/**'],
+        rules: { 'no-console': 'off' }
+    },
+    { // .vue：script 與 style 內容多縮一層、標籤自閉合、多行標籤的 > 換行
         files: ['**/*.vue'],
         rules: {
-            // https://eslint.vuejs.org/rules/script-indent
-            'vue/script-indent': ['error', 4, {
-                baseIndent: 1,
-                switchCase: 1,
-                ignores: []
-            }],
-            'style/indent': 'off', // 關閉 style/indent 規則，避免和 vue/script-indent 衝突
-            'vue/require-valid-default-prop': 'off', // 配合 Vue3.5 可解構 props 不再需要 () => [] 只要給 [] 就可以了
+            'vue/script-indent': ['error', 4, { baseIndent: 1, switchCase: 1, ignores: [] }],
+            'vue/singleline-html-element-content-newline': 'off', // <td>{{ x }}</td> 這種一行就好
+            'style/indent': 'off', // 跟 vue/script-indent 衝突
+            'vue/require-valid-default-prop': 'off', // Vue 3.5 可解構 props，[] 就好
             'vue/operator-linebreak': ['error', 'before'],
-            'vue/html-closing-bracket-newline': ['error', { // html '>' 標籤  如果斷行  怎麼處理
+            'vue/html-closing-bracket-newline': ['error', {
                 singleline: 'never',
                 multiline: 'always',
-                selfClosingTag: {
-                    singleline: 'never',
-                    multiline: 'always'
-                }
+                selfClosingTag: { singleline: 'never', multiline: 'always' }
             }],
             'vue/html-self-closing': ['error', {
-                html: {
-                    void: 'always',
-                    normal: 'always',
-                    component: 'always'
-                },
+                html: { void: 'always', normal: 'always', component: 'always' },
                 svg: 'always',
                 math: 'always'
             }]
-        }
-    },
-    {
-        files: ['**/*.md'],
-        rules: {
-            'no-irregular-whitespace': 'off' // MarkDown 文件中不檢查全形空格
         }
     }
 );

@@ -6,22 +6,22 @@
     // - 堆疊的段與段之間留 2px 空隙，不畫邊框
     // - 顏色跟著系列走（series[i].color），不跟著數值排名換
     export interface BarSeries {
-        key: string
-        label: string
+        key: string;
+        label: string;
         /** CSS 顏色，建議傳 var(--dd-series-n) */
-        color: string
+        color: string;
     }
     export interface BarRow {
-        label: string
+        label: string;
         /** 每個系列的值，key 對應 series[].key */
-        values: Record<string, number>
+        values: Record<string, number>;
     }
 
     const { rows, series, format = (v: number) => v.toLocaleString('zh-TW'), unit = '' } = defineProps<{
-        rows: BarRow[]
-        series: BarSeries[]
-        format?: (value: number) => string
-        unit?: string
+        rows: BarRow[];
+        series: BarSeries[];
+        format?: (value: number) => string;
+        unit?: string;
     }>();
 
     const totals = computed(() => rows.map(row => series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0)));
@@ -51,7 +51,7 @@
     <div class="dd-bar">
         <ul v-if="series.length > 1" class="dd-bar__legend" aria-label="圖例">
             <li v-for="s in series" :key="s.key">
-                <span class="swatch" :style="{ background: s.color }" aria-hidden="true"></span>{{ s.label }}
+                <span class="swatch" :style="{ background: s.color }" aria-hidden="true" />{{ s.label }}
             </li>
         </ul>
 
@@ -71,14 +71,14 @@
                             @pointerenter="active = `${rowIndex}|${s.key}`"
                             @focus="active = `${rowIndex}|${s.key}`"
                             @blur="active = null"
-                        ></button>
+                        />
                     </div>
                     <!-- 數字貼在條尾後面；軌道右邊預留了它的位置，條長才能照同一個比例畫 -->
                     <span class="total" :style="{ left: `calc(${(totals[rowIndex] / max) * 100}% + 8px)` }">{{ format(totals[rowIndex]) }}{{ unit }}</span>
 
                     <span v-if="activeTip && activeTip.row === row.label" class="dd-chart-tip is-bar" role="tooltip">
                         <strong>{{ format(activeTip.value) }}{{ unit }}</strong>
-                        <span class="key"><i :style="{ background: activeTip.series.color }"></i>{{ activeTip.series.label }}</span>
+                        <span class="key"><i :style="{ background: activeTip.series.color }" />{{ activeTip.series.label }}</span>
                         <span v-if="series.length > 1">佔 {{ (activeTip.share * 100).toFixed(0) }}%</span>
                     </span>
                 </div>

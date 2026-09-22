@@ -20,7 +20,7 @@ export function formatToOptions<T extends Record<string, any>>(
     array: T[],
     titleKey: keyof T,
     valueKey: keyof T
-): { title: T[keyof T], value: T[keyof T] }[] {
+): { title: T[keyof T]; value: T[keyof T] }[] {
     return array.map(item => ({
         title: item[titleKey],
         value: item[valueKey]

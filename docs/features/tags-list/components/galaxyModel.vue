@@ -1,13 +1,29 @@
 <script setup lang="ts">
-    import { ref, watch, onUnmounted, shallowRef, computed } from 'vue';
     import { useLoop, useTres } from '@tresjs/core';
-    import { Html } from '@tresjs/cientos';
-    import * as THREE from 'three';
-    import { AdditiveBlending, Vector3, BackSide } from 'three';
-    import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide } from 'd3-force-3d';
+    import { forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation } from 'd3-force-3d';
     import gsap from 'gsap';
+    import * as THREE from 'three';
+    import { BackSide, Vector3 } from 'three';
+    import { computed, onUnmounted, ref, shallowRef, watch } from 'vue';
 
     import GalaxyLabel from './galaxyLabel.vue';
+
+    // #endregion
+
+    // #region [P] Props & Emits
+    const props = defineProps<{
+        siteData: any;
+        lockedId: string | null;
+        relatedNodeIds: Set<string>;
+    }>();
+
+    const emit = defineEmits<{
+        (e: 'node-click', node: any): void;
+        (e: 'node-hover', node: any | null): void;
+        (e: 'bg-click'): void;
+        // [新增] 每一幀回傳目標的 2D 螢幕座標
+        (e: 'update-target-pos', pos: { x: number; y: number } | null): void;
+    }>();
 
     // #region [P] 設定
     // 顏色
@@ -21,27 +37,11 @@
 
     // 亮度強度配置
     const INTENSITY = {
-        BASE: 0.45,      // 平常的基礎亮度
-        HOVER: 2.5,      // 滑鼠懸停時的亮度 (高光)
-        LOCKED: 1.8,     // 被鎖定(Focus)時的亮度 (保持微亮)
-        DIMMED: 0.0      // 被忽略/非活躍時的亮度 (變暗)
+        BASE: 0.45, // 平常的基礎亮度
+        HOVER: 2.5, // 滑鼠懸停時的亮度 (高光)
+        LOCKED: 1.8, // 被鎖定(Focus)時的亮度 (保持微亮)
+        DIMMED: 0.0 // 被忽略/非活躍時的亮度 (變暗)
     };
-    // #endregion
-
-    // #region [P] Props & Emits
-    const props = defineProps<{
-        siteData: any;
-        lockedId: string | null;
-        relatedNodeIds: Set<string>;
-    }>();
-
-    const emit = defineEmits<{
-        (e: 'node-click', node: any): void,
-        (e: 'node-hover', node: any | null): void,
-        (e: 'bg-click'): void,
-        // [新增] 每一幀回傳目標的 2D 螢幕座標
-        (e: 'update-target-pos', pos: { x: number, y: number } | null): void
-    }>();
     // #endregion
 
     // [-] 相機，控制器，螢幕尺寸
@@ -98,8 +98,8 @@
             // [-] 備援機制 (Fallback)
             // 有時候 context.camera 可能為空，但 controls 內部通常會持有相機的參照。
             // 為了雙重保險，如果 activeCamera 沒抓到，嘗試從 controls.object 抓取。
-            if (!activeCamera.value && ctrl.object) {
-                activeCamera.value = ctrl.object as THREE.Camera;
+            if (!activeCamera.value && (ctrl as any).object) { // TresControl 型別沒有 object，OrbitControls 實例有
+                activeCamera.value = (ctrl as any).object as THREE.Camera;
             }
         }
     }, { immediate: true });
@@ -191,7 +191,9 @@
             });
             // 體積放大
             gsap.to(mesh.scale, {
-                x: 1.5, y: 1.5, z: 1.5,
+                x: 1.5,
+                y: 1.5,
+                z: 1.5,
                 duration: 0.4,
                 ease: 'back.out(1.7)' // back.out 會有一個可愛的「回彈」效果
             });
@@ -234,7 +236,9 @@
 
             // 縮放歸位
             gsap.to(mesh.scale, {
-                x: 1, y: 1, z: 1,
+                x: 1,
+                y: 1,
+                z: 1,
                 duration: 0.5,
                 ease: 'power2.out'
             });
@@ -258,9 +262,9 @@
 
         // 確保點到的是背景球體 (SphereGeometry)，而不是其他的線條或輔助物件
         if (
-            event && event.object &&
-            event.object.geometry &&
-            event.object.geometry.type === 'SphereGeometry'
+            event && event.object
+            && event.object.geometry
+            && event.object.geometry.type === 'SphereGeometry'
         ) {
             emit('bg-click');
         }
@@ -327,7 +331,7 @@
         cameraTween = gsap.to(tweenObj, {
             t: 1,
             duration: 1.5,
-            ease: "power2.inOut",
+            ease: 'power2.inOut',
 
             onUpdate: () => {
                 const t = tweenObj.t;
@@ -406,15 +410,17 @@
 
         // 平滑地將控制器的旋轉軸心 (Target) 移回宇宙原點 (0,0,0)
         if (controlsInstance) {
-            gsap.to(controlsInstance.target, { x: 0, y: 0, z: 0, duration: 1.5, ease: "power2.inOut" });
+            gsap.to(controlsInstance.target, { x: 0, y: 0, z: 0, duration: 1.5, ease: 'power2.inOut' });
         }
 
         // 將相機移動回預設的鳥瞰位置 (100, 50, 100)
         // 這裡我們直接對 position 屬性做 Tween，因為這次不需要精確同步 LookAt (Controls 會幫忙處理)
         cameraTween = gsap.to(cameraInstance.position, {
-            x: 100, y: 50, z: 100,
+            x: 100,
+            y: 50,
+            z: 100,
             duration: 1.5,
-            ease: "power2.inOut",
+            ease: 'power2.inOut',
 
             onUpdate: () => {
                 // 必須每幀更新 controls，否則相機移動時畫面會卡住，直到動畫結束才跳轉
@@ -488,7 +494,7 @@
 
             // 5. [建立連結] 建立引力關係
             // 將文章 (Planet) 與它所屬的標籤 (Star) 連接起來
-            post.tags.forEach(tag => {
+            post.tags.forEach((tag: string) => {
                 if (tagNodeMap.has(tag)) {
                     _links.push({
                         source: post.url, // 起點：文章
@@ -561,10 +567,10 @@
 
         // 4. [HUD 位置同步]
         // 單例模式：只有一個 Label DOM，我們把它移動到當前活躍目標的頭上
-        if (labelGroupRef.value?.tresObject && activeLabelNode.value) {
+        // GalaxyLabel 的元件實例上，TresJS 會掛一個 tresObject（Object3D）；元件型別裡沒有，所以用 any 拿
+        const label3DGroup = (labelGroupRef.value as any)?.tresObject as THREE.Object3D | undefined;
+        if (label3DGroup && activeLabelNode.value) {
             const targetNode = activeLabelNode.value;
-            const label3DGroup = labelGroupRef.value.tresObject; // 拿出 Object3D
-
             label3DGroup.position.set(targetNode.x, targetNode.y, targetNode.z);
         }
 
@@ -668,7 +674,7 @@
 
         <template v-for="node in nodes" :key="node.id">
             <TresMesh
-                :ref="(el: any) => { if(el) nodeMeshes.set(node.id, el) }"
+                :ref="(el: any) => { if (el) nodeMeshes.set(node.id, el) }"
                 @pointerenter="(e) => pointerEnterHandler(e, node)"
                 @pointerleave="(e) => pointerLeaveHandler(e, node)"
                 @click="(e) => nodeClickHandler(e, node)"
@@ -686,7 +692,7 @@
             </TresMesh>
         </template>
 
-        <GalaxyLabel ref="labelGroupRef" :activeLabelNode />
+        <GalaxyLabel ref="labelGroupRef" :active-label-node />
 
         <!-- <TresGroup ref="labelGroupRef" v-if="activeLabelNode">
             <Html
@@ -758,10 +764,26 @@
             }
 
             // 關鍵 2：貼齊外框的四個角，不使用負數外推
-            .top-left { top: 0; left: 0; border-width: 2px 0 0 2px; }
-            .top-right { top: 0; right: 0; border-width: 2px 2px 0 0; }
-            .bottom-left { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
-            .bottom-right { right: 0; bottom: 0; border-width: 0 2px 2px 0; }
+            .top-left {
+                top: 0;
+                left: 0;
+                border-width: 2px 0 0 2px;
+            }
+            .top-right {
+                top: 0;
+                right: 0;
+                border-width: 2px 2px 0 0;
+            }
+            .bottom-left {
+                bottom: 0;
+                left: 0;
+                border-width: 0 0 2px 2px;
+            }
+            .bottom-right {
+                right: 0;
+                bottom: 0;
+                border-width: 0 2px 2px 0;
+            }
         }
 
         .label-text {

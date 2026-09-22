@@ -34,7 +34,7 @@
     }
 
     // 登出或過期時，登入按鈕要重新畫出來
-    watch(isSignedIn, async signedIn => {
+    watch(isSignedIn, async (signedIn) => {
         if (signedIn || framed.value) return;
         await nextTick();
         if (buttonEl.value) auth.renderButton(buttonEl.value);
@@ -77,7 +77,7 @@
                 只有後端管理員名單上的帳號能使用。這個頁面本身是公開的，所有權限都由後端檢查；
                 登入憑證只放在這個分頁的記憶體裡，一小時後或重新整理後需要再按一次登入。
             </p>
-            <div ref="buttonEl" class="dd-admin__gsi"></div>
+            <div ref="buttonEl" class="dd-admin__gsi" />
             <p v-if="loadError" class="dd-admin__error" role="alert">{{ loadError }}</p>
         </section>
         <!-- #endregion -->

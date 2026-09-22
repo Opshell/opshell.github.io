@@ -7,9 +7,9 @@
 <style lang="scss" scoped>
 .el-card {
     background: var(--vp-c-bg);
+    padding: 16px;
     border: 1px solid var(--vp-c-divider);
     border-radius: 8px;
-    padding: 16px;
     transition: border-color 0.25s;
 
     &:hover {

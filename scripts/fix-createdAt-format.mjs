@@ -17,8 +17,7 @@ function formatDateYYYYMMDD(date) {
 }
 
 function normalizeCreatedAt(value) {
-    if (value == null || value === '')
-        return null; // 不處理缺省
+    if (value == null || value === '') { return null; } // 不處理缺省
 
     // 若已是 Date 或可被解析成 Date（但盡量避免誤判），統一格式化
     if (value instanceof Date) {
@@ -36,8 +35,7 @@ function normalizeCreatedAt(value) {
         }
 
         // 2) 已符合 YYYY-MM-DD 直接返回
-        if (/^\d{4}-\d{2}-\d{2}$/.test(s))
-            return s;
+        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) { return s; }
 
         // 3) 其他可解析情境，盡量保守，避免亂改格式
         const t = Date.parse(s);
@@ -58,8 +56,7 @@ async function processFile(filePath) {
     const parsed = matter(raw);
     const data = { ...parsed.data };
 
-    if (!('createdAt' in data))
-        return false; // 無欄位跳過
+    if (!('createdAt' in data)) { return false; } // 無欄位跳過
 
     const before = data.createdAt;
     const normalized = normalizeCreatedAt(before);
@@ -80,8 +77,7 @@ async function main() {
     let updated = 0;
     for (const f of files) {
         const ok = await processFile(f);
-        if (ok)
-            updated++;
+        if (ok) { updated++; }
     }
     console.log(`Scanned ${files.length} files, updated ${updated} files.`);
 }

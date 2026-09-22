@@ -1,7 +1,7 @@
 // .vitepress/theme/data/tagSummaries.ts
 export interface TagSummary {
-    title: string
-    description: string
+    title: string;
+    description: string;
 }
 
 export const tagSummaries: Record<string, TagSummary> = {

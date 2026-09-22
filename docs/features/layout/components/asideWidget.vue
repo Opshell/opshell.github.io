@@ -1,9 +1,9 @@
 <script setup lang="ts">
-    import { computed } from 'vue';
     import { useSiteData } from '@hooks/useSiteData';
-
     import { formatNumber } from '@utils/number';
-    import { useIntervalFn } from '@vueuse/core'
+
+    import { useIntervalFn } from '@vueuse/core';
+    import { computed } from 'vue';
 
     // [-] 常數渲染
     const siteData = useSiteData();
@@ -89,7 +89,6 @@
 
 <template>
     <div class="widgets-container">
-
         <div
             class="widget-card stats"
             @mouseenter="isHoveringStats = true"
@@ -99,14 +98,14 @@
                 <ElSvgIcon name="group_search" />
                 <span class="text">Data</span>
                 <div class="dots">
-                    <span class="dot" :class="{ active: currentStatPage === 0 }" @click="currentStatPage = 0"></span>
-                    <span class="dot" :class="{ active: currentStatPage === 1 }" @click="currentStatPage = 1"></span>
+                    <span class="dot" :class="{ active: currentStatPage === 0 }" @click="currentStatPage = 0" />
+                    <span class="dot" :class="{ active: currentStatPage === 1 }" @click="currentStatPage = 1" />
                 </div>
             </h4>
 
             <div style="display: none;">
-                <span id="busuanzi_value_site_pv_hidden"></span>
-                <span id="busuanzi_value_site_uv_hidden"></span>
+                <span id="busuanzi_value_site_pv_hidden" />
+                <span id="busuanzi_value_site_uv_hidden" />
             </div>
 
             <div class="stat-content">
@@ -202,7 +201,6 @@
                 text-align: left;
             }
 
-
             // Carousel Dots
             .dots {
                 display: flex; gap: 4px;
@@ -267,7 +265,11 @@
             font-size: 0.8rem; text-decoration: none;
             transition: all 0.2s;
 
-            .hash { color: var(--vp-c-brand); font-weight: 300; opacity: 0.6; }
+            .hash {
+                color: var(--vp-c-brand);
+                font-weight: 300;
+                opacity: 0.6;
+            }
 
             .t-count {
                 background: var(--vp-c-bg-alt);
@@ -281,7 +283,10 @@
             &:hover {
                 color: var(--vp-c-brand);
                 transform: translateY(-1px);
-                .t-count { background: var(--vp-c-brand); color: white; }
+                .t-count {
+                    background: var(--vp-c-brand);
+                    color: white;
+                }
             }
 
             &.more-link {

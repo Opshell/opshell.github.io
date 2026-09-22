@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { useData } from 'vitepress';
+    import { useData } from 'vitepress';
+
     const { frontmatter, page, isDark } = useData();
 
     const lastUpdated = computed(() => {
-    const timestamp = page.value.lastUpdated as number;
-    return timestamp > 0 ? new Date(timestamp).toLocaleDateString() : '';
-});
+        const timestamp = page.value.lastUpdated as number;
+        return timestamp > 0 ? new Date(timestamp).toLocaleDateString() : '';
+    });
 </script>
 
 <template>
@@ -47,7 +48,3 @@ import { useData } from 'vitepress';
         </div>
     </header>
 </template>
-
-<style lang="scss">
-
-</style>

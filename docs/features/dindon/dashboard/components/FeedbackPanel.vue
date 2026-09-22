@@ -5,10 +5,10 @@
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { adminApi } from '../api';
     import ColumnChart from '../charts/ColumnChart.vue';
-    import FeedbackTriage from './FeedbackTriage.vue';
-    import MergePicker from './MergePicker.vue';
     import { formatDateTime, formatInt, formatRelative, KIND_LABELS } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import FeedbackTriage from './FeedbackTriage.vue';
+    import MergePicker from './MergePicker.vue';
 
     // beta 貢獻活動的回報審核（api.md 第 8 節）。
     // 計分規則在後端：同一個問題裡最早的那則採計回報拿全額權重、之後不同的人拿一半；
@@ -34,7 +34,7 @@
     const issues = ref<FeedbackIssue[]>([]);
     const selectedId = ref<number | null>(null);
     const detail = ref<FeedbackReport | null>(null);
-    const shots = ref<{ position: number, url: string }[]>([]);
+    const shots = ref<{ position: number; url: string }[]>([]);
     const loading = ref(false);
     const busy = ref(false);
     const error = ref('');
@@ -90,6 +90,13 @@
     }
     const reviewChecked = () => batch({ report_ids: [...checked.value] }, batchStatus.value, '勾選的回報');
     const rejectDevice = (deviceId: number, name: string) => batch({ device_id: deviceId }, 'rejected', `${name} 的待審`);
+    /** 側欄那顆：正在看的那一則的裝置（模板裡的事件處理拿不到 detail 非 null 的收窄，所以包一層） */
+    const rejectDetailDevice = () => {
+        if (detail.value) rejectDevice(detail.value.device_id, detail.value.device_name || `#${detail.value.device_id}`);
+    };
+    const freezeDetailDevice = () => {
+        if (detail.value) void freezeDevice(detail.value.device_id);
+    };
 
     /** 凍結是另一件事：這裡只是讓「看到垃圾回報」到「停掉那台」不用換分頁。解凍到裝置頁 */
     async function freezeDevice(deviceId: number) {
@@ -110,10 +117,10 @@
 
     // #region [P] 同一台裝置的回報摺起來（純前端，只看這一頁的 50 則；相似度後端沒提供，只依 device_id）
     interface iGroup {
-        deviceId: number
-        name: string
-        reports: FeedbackReport[]
-        pending: number
+        deviceId: number;
+        name: string;
+        reports: FeedbackReport[];
+        pending: number;
     }
     const grouped = ref(true);
     /** 展開的裝置 id；重抓列表就收起來 */
@@ -224,6 +231,12 @@
 
     const review = (next: FeedbackStatus) =>
         mutate(token => adminApi.reviewFeedback(token, selectedId.value!, { status: next }), `已改成「${STATUS_LABELS[next]}」`);
+    /** 正在看的這一則掛在哪個問題上（模板裡的箭頭函式拿不到 detail 非 null 的收窄，所以算在這） */
+    const detailIssueTitle = computed(() => {
+        const current = detail.value;
+        if (!current?.issue_id) return '';
+        return issues.value.find(i => i.id === current.issue_id)?.title ?? `#${current.issue_id}`;
+    });
     const detachIssue = () =>
         mutate(token => adminApi.reviewFeedback(token, selectedId.value!, { issue_id: null }), '已從問題上拿下來');
 
@@ -545,13 +558,13 @@
                             凍結是另一件事、分開按。
                         </p>
                         <div v-if="confirmingDevice === detail.device_id" class="dd-detail__actions">
-                            <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click="rejectDevice(detail.device_id, detail.device_name || `#${detail.device_id}`)">
+                            <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click="rejectDetailDevice">
                                 確定：{{ detail.device_name || `#${detail.device_id}` }} 的待審全部不採計
                             </button>
                             <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirmingDevice = null">取消</button>
                         </div>
                         <div v-else-if="confirming === 'freeze'" class="dd-detail__actions">
-                            <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click="freezeDevice(detail.device_id)">確定凍結 #{{ detail.device_id }}</button>
+                            <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click="freezeDetailDevice">確定凍結 #{{ detail.device_id }}</button>
                             <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = null">取消</button>
                         </div>
                         <div v-else class="dd-detail__actions">
@@ -569,7 +582,7 @@
                         </p>
 
                         <template v-if="detail.issue_id">
-                            <p>已經合併到：<strong>{{ issues.find(i => i.id === detail.issue_id)?.title ?? `#${detail.issue_id}` }}</strong></p>
+                            <p>已經合併到：<strong>{{ detailIssueTitle }}</strong></p>
                             <div class="dd-detail__actions">
                                 <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="detachIssue">拆開（不算同一件）</button>
                             </div>

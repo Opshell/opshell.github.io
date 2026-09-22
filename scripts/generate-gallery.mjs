@@ -1,8 +1,9 @@
 /* scripts/generate-gallery.mjs */
-import fs from 'fs/promises';
-import path from 'path';
-import sharp from 'sharp';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import process from 'node:process';
 import exifr from 'exifr';
+import sharp from 'sharp';
 
 // --- 設定區 ---
 const RAW_DIR = path.resolve('photos/raw');
@@ -23,7 +24,11 @@ async function generate() {
     console.log('📸 開始處理相簿 (含自動旋轉修正)...');
 
     // 1. 確保縮圖根目錄存在
-    try { await fs.access(THUMB_DIR); } catch { await fs.mkdir(THUMB_DIR, { recursive: true }); }
+    try {
+        await fs.access(THUMB_DIR);
+    } catch {
+        await fs.mkdir(THUMB_DIR, { recursive: true });
+    }
 
     // 2. 讀取 RAW 目錄下的所有「資料夾」
     const items = await fs.readdir(RAW_DIR, { withFileTypes: true });
@@ -41,11 +46,15 @@ async function generate() {
         console.log(`\n=== 處理相簿: ${albumId} ===`);
 
         // 建立該相簿的縮圖目錄
-        try { await fs.access(albumThumbPath); } catch { await fs.mkdir(albumThumbPath, { recursive: true }); }
+        try {
+            await fs.access(albumThumbPath);
+        } catch {
+            await fs.mkdir(albumThumbPath, { recursive: true });
+        }
 
         // 讀取相簿內的圖片
         const files = await fs.readdir(albumPath);
-        const imageFiles = files.filter(file => /\.(jpg|jpeg|png|webp)$/i.test(file));
+        const imageFiles = files.filter(file => /\.(?:jpg|jpeg|png|webp)$/i.test(file));
 
         const photos = [];
 
@@ -69,7 +78,10 @@ async function generate() {
 
                 // 檢查縮圖是否已存在
                 let fileExists = false;
-                try { await fs.access(outputPath); fileExists = true; } catch {}
+                try {
+                    await fs.access(outputPath);
+                    fileExists = true;
+                } catch { /* 沒有就是要產生 */ }
 
                 if (!fileExists) {
                     await image
@@ -84,7 +96,14 @@ async function generate() {
 
                 // B. 讀取 EXIF
                 const exif = await exifr.parse(inputPath, [
-                    'Make', 'Model', 'ISO', 'FNumber', 'ExposureTime', 'FocalLength', 'LensModel', 'DateTimeOriginal'
+                    'Make',
+                    'Model',
+                    'ISO',
+                    'FNumber',
+                    'ExposureTime',
+                    'FocalLength',
+                    'LensModel',
+                    'DateTimeOriginal'
                 ]);
 
                 photos.push({
@@ -104,7 +123,6 @@ async function generate() {
                         focalLength: exif?.FocalLength ? `${exif.FocalLength}mm` : ''
                     }
                 });
-
             } catch (error) {
                 console.error(`\n❌ Error: ${file}`, error);
             }
@@ -122,7 +140,7 @@ async function generate() {
                 width: coverPhoto.width,
                 height: coverPhoto.height,
                 count: photos.length,
-                photos: photos
+                photos
             });
         }
     }

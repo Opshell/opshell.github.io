@@ -26,7 +26,7 @@
                 :src="`${R2_THUMB}/${encodePath(album.cover)}`"
                 loading="lazy"
                 alt="cover"
-                :style="{ aspectRatio: `${album.width / album.height || 4/3}` }"
+                :style="{ aspectRatio: `${album.width / album.height || 4 / 3}` }"
             />
 
             <div class="album-card__badge title">

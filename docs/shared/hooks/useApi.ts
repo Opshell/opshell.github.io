@@ -1,4 +1,4 @@
-
+/* eslint-disable no-console -- 請求記錄，只在開發時看 */
 // import router from '@/router';
 // import notifyComponent from '@components/popup/notify.vue';
 // import { getFrontMatter } from '@shared/hooks/useFrontMatter';
@@ -23,12 +23,11 @@ const Dialog = {
 };
 const notifyComponent = {};
 
-
 export interface iResult<R = unknown> { // R = 回傳格式
-    status: boolean
-    data: R
-    messages: string[]
-    httpCode?: number
+    status: boolean;
+    data: R;
+    messages: string[];
+    httpCode?: number;
 }
 
 const { toastNotify } = useDialog();
@@ -94,10 +93,10 @@ axios.interceptors.response.use(
 );
 
 interface iApiOptions {
-    auth?: boolean // 是否需要驗證
-    headers?: AxiosRequestConfig['headers']
-    responseType?: 'json' | 'blob' // Response Type
-    onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
+    auth?: boolean; // 是否需要驗證
+    headers?: AxiosRequestConfig['headers'];
+    responseType?: 'json' | 'blob'; // Response Type
+    onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
 }
 
 // [M] useBackendApi

@@ -1,6 +1,6 @@
+import type { iSiteData, iSiteDataSerializable } from './useBuildSiteData'; // 引入你的型別
 import { useData } from 'vitepress';
 import { computed } from 'vue';
-import type { iSiteData, iSiteDataSerializable } from './useBuildSiteData'; // 引入你的型別
 
 /**
  * 這是一個 Composable，專門用來獲取並「還原」網站的核心資料。

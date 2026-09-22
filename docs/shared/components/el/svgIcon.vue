@@ -1,7 +1,7 @@
 <script setup lang="ts">
     interface iProps {
-        name: string
-        href?: string
+        name?: string;
+        href?: string;
     }
     const { name = 'circle', href = '' } = defineProps<iProps>();
 

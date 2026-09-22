@@ -107,7 +107,7 @@
     const dailyPoints = computed<ColumnPoint[]>(() => {
         const byDate = new Map((report.value?.daily ?? []).map(d => [d.date, d]));
         // 沒有請求的日子後端不會回，這裡補 0，趨勢才看得出空檔
-        return eachDay(key => {
+        return eachDay((key) => {
             const day = byDate.get(key);
             return { ok: day?.ok ?? 0, rejected: day?.rejected ?? 0, failed: day?.failed ?? 0 };
         });
@@ -120,9 +120,11 @@
         const now = Date.now();
         const buckets = { today: 0, week: 0, month: 0, older: 0, never: 0 };
         for (const d of devices.value) {
-            if (!d.last_ai_at) buckets.never++;
-            else if (dayKey(new Date(d.last_ai_at)) === today) buckets.today++;
-            else {
+            if (!d.last_ai_at) {
+                buckets.never++;
+            } else if (dayKey(new Date(d.last_ai_at)) === today) {
+                buckets.today++;
+            } else {
                 const age = now - new Date(d.last_ai_at).getTime();
                 if (age <= 7 * DAY_MS) buckets.week++;
                 else if (age <= 30 * DAY_MS) buckets.month++;
@@ -438,5 +440,4 @@
             transform: none;
         }
     }
-
 </style>

@@ -1,20 +1,20 @@
 <script setup lang="ts">
-    import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
+    import { useSiteData } from '@shared/hooks/useSiteData'; // 資料來源 Hook
     import { OrbitControls, Stars } from '@tresjs/cientos';
     import { TresCanvas } from '@tresjs/core';
+    import { BloomPmndrs, EffectComposerPmndrs } from '@tresjs/post-processing';
     import { useRouter } from 'vitepress';
-    import { EffectComposerPmndrs, BloomPmndrs } from '@tresjs/post-processing';
 
+    import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
     // 引入子元件
     import GalaxyModel from './galaxyModel.vue'; // 負責 3D 場景、物理模擬、運鏡
-    import SvgHudPanel from './svgHudPanel.vue';     // 負責 2D 介面顯示 (左側/右側面板)
-    import HudPanel from './hudPanel.vue';     // 負責 2D 介面顯示 (左側/右側面板)
-    import HudCursor from './hudCursor.vue';   // 負責 跟隨滑鼠的動態游標
-    import { useSiteData } from '@shared/hooks/useSiteData'; // 資料來源 Hook
+    import HudCursor from './hudCursor.vue'; // 負責 跟隨滑鼠的動態游標
+    import HudPanel from './hudPanel.vue'; // 負責 2D 介面顯示 (左側/右側面板)
+    import SvgHudPanel from './svgHudPanel.vue'; // 負責 2D 介面顯示 (左側/右側面板)
 
     // #region [P] 初始化與資料 Init
     const siteData = useSiteData(); // 取得部落格文章與標籤資料
-    const router = useRouter();     // VitePress 路由，用於跳轉頁面
+    const router = useRouter(); // VitePress 路由，用於跳轉頁面
 
     // Template Ref: 用來取得 <GalaxyModel /> 元件的實例
     // 這樣我們才能呼叫它裡面 defineExpose 出來的 focusOnNode() 和 resetView() 方法
@@ -22,10 +22,10 @@
 
     // UI 控制狀態
     const isHudVisible = ref(true); // 控制 HUD 面板是否顯示
-    const zoomSpeed = ref(1);       // 控制相機縮放速度 (按住 Ctrl 加速用)
+    const zoomSpeed = ref(1); // 控制相機縮放速度 (按住 Ctrl 加速用)
 
     // 用來儲存從 3D 世界算出來的 2D 座標
-    const cursorOverridePos = ref<{x: number, y: number} | null>(null);
+    const cursorOverridePos = ref<{ x: number; y: number } | null>(null);
     // #endregion
 
     // #region [P] 有限狀態機 (Finite State Machine) State Machine
@@ -37,7 +37,7 @@
     type SystemStatus = 'IDLE' | 'HOVERING' | 'LOCKED';
 
     const currentStatus = ref<SystemStatus>('IDLE');
-    const hoverTarget = ref<any>(null);  // 當前滑鼠指著誰
+    const hoverTarget = ref<any>(null); // 當前滑鼠指著誰
     const lockedTarget = ref<any>(null); // 當前鎖定著誰
     // #endregion
 
@@ -56,8 +56,14 @@
                 id: null,
                 title: 'SYSTEM_IDLE',
                 type: 'WAITING_FOR_INPUT',
-                tags: [], url: '', val: 0,
-                image: null, excerpt: null, date: null, category: null, coords: null,
+                tags: [],
+                url: '',
+                val: 0,
+                image: null,
+                excerpt: null,
+                date: null,
+                category: null,
+                coords: null,
                 isLocked: false,
                 isPlanet: false
             };
@@ -80,7 +86,7 @@
             excerpt: target.excerpt || (target.type === 'star' ? `檢測到高密度標籤聚合體。質量等級：${target.val}` : 'No data.'),
             date: target.date || 'UNKNOWN_ERA',
             category: target.category ? target.category.join(' / ') : 'UNCLASSIFIED',
-            coords: coords,
+            coords,
             isLocked: currentStatus.value === 'LOCKED',
             isPlanet: target.type === 'planet'
         };
@@ -247,7 +253,7 @@
     };
 
     // [新增] 處理來自 GalaxyModel 的座標更新
-    const handleTargetPosUpdate = (pos: {x: number, y: number} | null) => {
+    const handleTargetPosUpdate = (pos: { x: number; y: number } | null) => {
         // 只有在 LOCKED 狀態下才接收座標更新
         // 這樣可以避免在切換狀態瞬間的閃爍
         if (currentStatus.value === 'LOCKED') {
@@ -315,7 +321,7 @@
     const getEnergyColorClass = (count: number) => {
         if (count >= 100) return 'energy-danger'; // 紅色
         if (count >= 10) return 'energy-warning'; // 黃色
-        return 'energy-normal';                   // 青藍色
+        return 'energy-normal'; // 青藍色
     };
 
     // 計算需要幾個能量磚 (每 1 磚 = 1 篇，超過 10 篇進位為 Warning，超過 100 篇進位為 Danger)
@@ -323,8 +329,8 @@
     const getEnergyBlocks = (count: number) => {
         if (count === 0) return 0;
         if (count >= 100) return Math.min(Math.ceil(count / 20), 10); // 假設每 20 篇一塊紅磚
-        if (count >= 10) return Math.min(Math.ceil(count / 5), 10);   // 假設每 5 篇一塊黃磚
-        return Math.min(count, 10);                                   // 1 篇 1 塊藍磚
+        if (count >= 10) return Math.min(Math.ceil(count / 5), 10); // 假設每 5 篇一塊黃磚
+        return Math.min(count, 10); // 1 篇 1 塊藍磚
     };
     // #endregion
 
@@ -421,12 +427,12 @@
                 <Stars :radius="250" :depth="50" :count="3000" :size="0.5" />
 
                 <GalaxyModel
-                    ref="galaxyModelRef"
                     v-if="siteData"
+                    ref="galaxyModelRef"
                     v-memo="[siteData, lockedTarget?.id, relatedNodeIds]"
-                    :siteData="siteData"
-                    :lockedId="lockedTarget?.id || null"
-                    :relatedNodeIds="relatedNodeIds"
+                    :site-data="siteData"
+                    :locked-id="lockedTarget?.id || null"
+                    :related-node-ids="relatedNodeIds"
                     @node-click="handleNodeClick"
                     @node-hover="handleNodeHover"
                     @bg-click="handleBackgroundClick"
@@ -464,7 +470,7 @@
 
                             <div v-if="displayNodeInfo.image" class="target-thumbnail">
                                 <img :src="displayNodeInfo.image" alt="target image" />
-                                <div class="scan-overlay"></div>
+                                <div class="scan-overlay" />
                             </div>
 
                             <div class="target-excerpt">
@@ -483,19 +489,19 @@
                         <div class="btn-box">
                             <button
                                 v-if="displayNodeInfo.url"
+                                class="hud-btn btn-primary"
                                 @click="navigateHandler(displayNodeInfo.url)"
-                                class="btn-primary"
                             >
                                 [INITIATE_JUMP] 前往節點
                             </button>
                             <button
                                 v-if="displayNodeInfo.url"
-                                @click="copyUrlHandler(displayNodeInfo.url)"
                                 class="hud-btn"
+                                @click="copyUrlHandler(displayNodeInfo.url)"
                             >
                                 {{ copied ? 'COORDINATES COPIED ✓' : 'COPY COORDINATES' }}
                             </button>
-                            <button @click="resetSystem" class="hud-btn alert-btn">
+                            <button class="hud-btn alert-btn" @click="resetSystem">
                                 ABORT / RELEASE TARGET
                             </button>
                         </div>
@@ -581,7 +587,7 @@
                                         :key="i"
                                         class="block"
                                         :class="{ 'is-active': i <= getEnergyBlocks(tag.count) }"
-                                    ></div>
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -591,14 +597,14 @@
         </Transition>
 
         <div class="hud-toggle-btn-box">
-             <button class="hud-toggle-btn" :class="{ 'is-active': isHudVisible }" @click="toggleHud">
-                <div class="scanner-line"></div>{{ isHudVisible ? 'TERMINAL ON' : 'TERMINAL OFF' }}
+            <button class="hud-toggle-btn" :class="{ 'is-active': isHudVisible }" @click="toggleHud">
+                <div class="scanner-line" />{{ isHudVisible ? 'TERMINAL ON' : 'TERMINAL OFF' }}
             </button>
-            <button class="hud-toggle-btn" @click="resetSystem"><div class="scanner-line"></div>[ RESET_VIEW ]</button>
-            <button class="hud-toggle-btn" :disabled="!lockedTarget" @click="zoomToActive"><div class="scanner-line"></div> [ RE-FOCUS ]</button>
+            <button class="hud-toggle-btn" @click="resetSystem"><div class="scanner-line" />[ RESET_VIEW ]</button>
+            <button class="hud-toggle-btn" :disabled="!lockedTarget" @click="zoomToActive"><div class="scanner-line" /> [ RE-FOCUS ]</button>
         </div>
 
-        <HudCursor :status="cursorStatus" :targetVal="cursorScaleTarget" :overridePosition="cursorOverridePos" />
+        <HudCursor :status="cursorStatus" :target-val="cursorScaleTarget" :override-position="cursorOverridePos" />
     </div>
 </template>
 
@@ -611,9 +617,9 @@
         padding: 8px 0 0;
         border-top: 1px dashed rgb(0, 240, 255, 25%);
         margin: 8px 0 0;
-        list-style: none;
         font-family: 'Courier New', monospace;
         font-size: 0.65rem;
+        list-style: none;
         opacity: 0.75;
 
         li {
@@ -849,8 +855,14 @@
         padding-bottom: 5px;
         border-bottom: 1px dashed rgb(255,255,255,20%);
 
-        .label { color: rgb(255,255,255,60%); font-size: 0.8rem; }
-        .value { color: $hud-primary; font-weight: bold; }
+        .label {
+            color: rgb(255,255,255,60%);
+            font-size: 0.8rem;
+        }
+        .value {
+            color: $hud-primary;
+            font-weight: bold;
+        }
     }
 
     // Tag Cloud
@@ -912,8 +924,7 @@
         }
     }
 
-    .btn-primary {
-        @extend .hud-btn;
+    .btn-primary { // 模板上同時掛 hud-btn，這裡只寫差異
         background: rgb(0, 240, 255, 10%);
         padding: 10px;
         border: 1px solid $hud-primary;
@@ -961,14 +972,15 @@
         z-index: 100;
 
         &:hover { background: rgb(0, 240, 255, 20%); }
-        &.is-active { background: #00f0ff; color: #000; }
+        &.is-active {
+            background: #00f0ff;
+            color: #000;
+        }
     }
     .text-glow {
         color: #fff;
         text-shadow: 0 0 10px rgb(0, 240, 255, 80%);
     }
-
-
 
     /* 動畫：HUD 登場 */
     .hud-fade-enter-active, .hud-fade-leave-active {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
     const { date = '' } = defineProps<{
-        date: string
+        date?: string;
     }>();
 
     // 使用 computed 緩存計算結果，效能最佳化
@@ -17,11 +17,11 @@
 </script>
 
 <template>
-  <time class="date-badge" :datetime="date">
-    <span class="day">{{ splitDate.day }}</span>
+    <time class="date-badge" :datetime="date">
+        <span class="day">{{ splitDate.day }}</span>
     <!-- <span class="year">{{ splitDate.year }}</span>
     <span class="month">{{ splitDate.month }}</span> -->
-  </time>
+    </time>
 </template>
 
 <style lang="scss">

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-    import { Post } from "@hooks/useBuildSiteData";
+    import { Post } from '@hooks/useBuildSiteData';
     import dateBadge from './dateBadge.vue';
 
-    const { post } = defineProps<{ post: Post; }>();
+    const { post } = defineProps<{ post: Post }>();
 </script>
 
 <template>
@@ -11,15 +11,15 @@
         class="timeline-page__post-item"
     >
         <div class="timeline-page__post-marker">
-            <div class="dot"></div>
+            <div class="dot" />
         </div>
 
-        <section  class="timeline-page__post-card">
+        <section class="timeline-page__post-card">
             <!-- <img v-if="false" :src="post.image" loading="lazy" class="card-thumbnail" alt="cover" /> -->
-            <dateBadge  class="date" :date="post.date" />
+            <dateBadge class="date" :date="post.date" />
 
             <div v-if="post.category" class="category-box">
-                <span v-for="category in post.category" class="category">{{ category }}</span>
+                <span v-for="category in post.category" :key="category" class="category">{{ category }}</span>
             </div>
 
             <h3 class="title">
@@ -112,7 +112,6 @@
 
                 // opacity: .8;
                 z-index: 2;
-
 
                 &::before {
                     content: '';

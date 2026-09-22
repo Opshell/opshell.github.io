@@ -5,8 +5,8 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
 
 # 這個網站的程式風格
 
-規則來源：`eslint.config.js`（antfu 6.x）、`.stylelintrc.mjs`（standard-scss + order）、既有程式。
-ESLint 目前跑不起來（見 `CLAUDE.md` 第 4 節），所以要自己對；stylelint 能跑：`pnpm exec stylelint <檔案>`。
+規則來源：`eslint.config.js`（antfu 9.x，ESLint 10）、`.stylelintrc.mjs`（standard-scss 17 + order）、既有程式。
+改完跑 `pnpm check`（lint → stylelint → typecheck → build），三個工具都要乾淨。跟 antfu 預設刻意相反、已在設定裡關掉的：單行 `if`、頂層 `const` 箭頭函式、`<td>{{ x }}</td>` 這種單行元素、事件名 kebab-case。
 
 ## TypeScript
 

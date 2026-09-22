@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { fontFamilies, fontSizes } from '../constants'
+    import { fontFamilies, fontSizes } from '../constants';
 </script>
 
 <template>
@@ -8,16 +8,16 @@
             <h3 class="title">Font Sizes</h3>
             <div class="size-list">
                 <div v-for="size in fontSizes" :key="size.var" class="size-card">
-                <div class="size-info">
-                    <span class="name">{{ size.name }}</span>
-                    <code class="var">{{ size.var }}</code>
-                    <span class="val">{{ size.val }}</span>
-                </div>
-                <div class="size-preview">
-                    <span :style="{ fontSize: `var(${size.var})` }">
-                        {{ size.sample }}
-                    </span>
-                </div>
+                    <div class="size-info">
+                        <span class="name">{{ size.name }}</span>
+                        <code class="var">{{ size.var }}</code>
+                        <span class="val">{{ size.val }}</span>
+                    </div>
+                    <div class="size-preview">
+                        <span :style="{ fontSize: `var(${size.var})` }">
+                            {{ size.sample }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -33,8 +33,8 @@
                         <code class="var">{{ font.var }}</code>
                     </div>
                     <div class="preview text-preview" :style="{ fontFamily: `var(${font.var})` }">
-                        AaBbCcDdEeFfGg 0123456789 <br/>
-                        ~!@#$%^&*()_+[]=><\|/<br/>
+                        AaBbCcDdEeFfGg 0123456789 <br />
+                        ~!@#$%^&amp;*()_+[]=&gt;&lt;\|/<br />
                         永和九年，歲在癸丑，暮春之初，會于會稽山陰之蘭亭。
                     </div>
                 </div>

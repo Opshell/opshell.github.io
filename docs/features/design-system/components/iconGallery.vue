@@ -1,6 +1,4 @@
 <script setup lang="ts">
-    import { useClipboard } from '@vueuse/core';
-
     const iconList = ref<string[]>([]);
     const copiedIcon = ref<string | null>(null);
 
@@ -43,7 +41,7 @@
             <div class="icon-preview">
                 <ElSvgIcon :name="icon" class="icon-svg" />
 
-                <div class="copy-overlay" :class="{ 'show': copiedIcon === icon }">
+                <div class="copy-overlay" :class="{ show: copiedIcon === icon }">
                     <span>Copied!</span>
                 </div>
             </div>

@@ -15,7 +15,7 @@ export function throttle<T extends (...args: any[]) => any>(
     let lastRan: number;
 
     return function (this: any, ...args: Parameters<T>) {
-        const context = this;
+        const context = this; // eslint-disable-line ts/no-this-alias -- setTimeout 的回呼要用到呼叫端的 this
 
         if (!inThrottle) {
             // [Leading] 第一次觸發，立即執行
@@ -32,10 +32,10 @@ export function throttle<T extends (...args: any[]) => any>(
             // 確保最後一次操作會在冷卻結束後執行
             clearTimeout(lastFunc);
 
-            lastFunc = setTimeout(function () {
+            lastFunc = setTimeout(() => {
                 if (Date.now() - lastRan >= limit) {
-                func.apply(context, args);
-                lastRan = Date.now();
+                    func.apply(context, args);
+                    lastRan = Date.now();
                 }
             }, limit - (Date.now() - lastRan));
         }

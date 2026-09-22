@@ -1,12 +1,10 @@
 <script setup lang="ts">
-    import { useRoute, useRouter } from 'vitepress';
-
     import ColorPalette from './ColorPalette.vue';
-    import TypeScale from './typeScale.vue';
-    import FontFamily from './fontFamily.vue';
-    import MotionCurve from './motionCurve.vue';
-    import IconGallery from './iconGallery.vue';
     import Components from './components.vue';
+    import FontFamily from './fontFamily.vue';
+    import IconGallery from './iconGallery.vue';
+    import MotionCurve from './motionCurve.vue';
+    import TypeScale from './typeScale.vue';
 
     const activeTab = ref('colors');
 
@@ -31,7 +29,7 @@
     };
 
     // [-] 處理 Hash 變更的邏輯
-    function hashChange () {
+    function hashChange() {
         // 確保在瀏覽器環境執行 (因為 VitePress 有 SSR)
         if (typeof window !== 'undefined') {
             const hash = window.location.hash;
@@ -101,7 +99,7 @@
             <h1 class="title">Design System</h1>
             <p class="subtitle">
                 Opshell's Blog 的視覺語言與設計規範。
-                <br>
+                <br />
                 The visual language and foundation of Opshell's Blog.
             </p>
         </header>
@@ -111,7 +109,7 @@
                 <button
                     v-for="(tab, index) in tabs"
                     :key="tab.id"
-                    :ref="(el) => { if(el) tabRefs[index] = el as HTMLElement }"
+                    :ref="(el) => { if (el) tabRefs[index] = el as HTMLElement }"
                     class="tab-button"
                     :class="{ active: activeTab === tab.id }"
 
@@ -120,13 +118,13 @@
                     <span class="tab-label">{{ tab.label }}</span>
                 </button>
 
-                <div class="tab-indicator" :style="indicatorStyle"></div>
+                <div class="tab-indicator" :style="indicatorStyle" />
             </nav>
         </div>
 
         <main class="design-system__container">
             <Transition name="fade" mode="out-in">
-                <div v-if="activeTab === 'colors'" class="tab-pane" key="colors">
+                <div v-if="activeTab === 'colors'" key="colors" class="tab-pane">
                     <div class="section-header">
                         <h2>Colors</h2>
                         <p>定義品牌識別與狀態溝通的色彩系統。</p>
@@ -134,7 +132,7 @@
                     <ColorPalette />
                 </div>
 
-                <div v-else-if="activeTab === 'typography'" class="tab-pane" key="typography">
+                <div v-else-if="activeTab === 'typography'" key="typography" class="tab-pane">
                     <div class="section-header">
                         <h2>Typography</h2>
                         <p>確保閱讀體驗清晰易讀的排版規範。</p>
@@ -142,7 +140,7 @@
                     <TypeScale />
                 </div>
 
-                <div v-else-if="activeTab === 'font'" class="tab-pane" key="font">
+                <div v-else-if="activeTab === 'font'" key="font" class="tab-pane">
                     <div class="section-header">
                         <h2>Font Family & Sizes</h2>
                         <p>字體家族與字級變數定義。</p>
@@ -150,7 +148,7 @@
                     <FontFamily />
                 </div>
 
-                <div v-else-if="activeTab === 'animations'" class="tab-pane" key="animations">
+                <div v-else-if="activeTab === 'animations'" key="animations" class="tab-pane">
                     <div class="section-header">
                         <h2>Motion & Easing</h2>
                         <p>
@@ -161,7 +159,7 @@
                     <MotionCurve />
                 </div>
 
-                <div v-else-if="activeTab === 'icons'" class="tab-pane" key="icons">
+                <div v-else-if="activeTab === 'icons'" key="icons" class="tab-pane">
                     <div class="section-header">
                         <h2>Icons</h2>
                         <p>
@@ -174,7 +172,7 @@
                     </div>
                 </div>
 
-                <div v-else-if="activeTab === 'components'" class="tab-pane" key="components">
+                <div v-else-if="activeTab === 'components'" key="components" class="tab-pane">
                     <div class="section-header">
                         <h2>Components</h2>
                         <p>Reusable building blocks for creating consistent interfaces.</p>
@@ -183,7 +181,6 @@
                         <Components />
                     </div>
                 </div>
-
             </Transition>
         </main>
     </div>
@@ -321,7 +318,6 @@
             }
         }
     }
-
 
     // --- RWD ---
     @media (width <= 768px) {

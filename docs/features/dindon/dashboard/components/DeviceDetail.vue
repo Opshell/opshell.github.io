@@ -17,15 +17,15 @@
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
     const { deviceId } = defineProps<{ deviceId: number }>();
-    const emit = defineEmits<{ updated: [device: AdminDevice], close: [] }>();
+    const emit = defineEmits<{ updated: [device: AdminDevice]; close: [] }>();
     const call = useAdminCall();
 
     const device = ref<AdminDevice | null>(null);
     const audit = ref<AuditEntry[]>([]);
     // beta 貢獻活動的東西（api.md 第 8 節「裝置頁多的東西」）
     const perks = ref<Perk[]>([]);
-    const realPlan = ref<{ plan_tier: string, plan_source: string } | null>(null);
-    const referrals = ref<{ pending: number, qualified: number } | null>(null);
+    const realPlan = ref<{ plan_tier: string; plan_source: string } | null>(null);
+    const referrals = ref<{ pending: number; qualified: number } | null>(null);
     const referralCode = ref('');
 
     // 使用者上傳的大頭貼：要帶登入憑證取回、轉成 blob URL（新板溝通板 #48 的 /admin/devices/:id/avatar）。
@@ -207,19 +207,24 @@
 
     const saveBonus = () => mutate(
         token => adminApi.updateDevice(token, deviceId, { bonus_bugs: bonusBugs.value, bonus_suggestions: bonusSuggestions.value }),
-        '已更新手動加的件數，分數與名次會跟著變');
+        '已更新手動加的件數，分數與名次會跟著變'
+    );
     const saveIron = () => mutate(
         token => adminApi.updateDevice(token, deviceId, { iron_achieved_on: ironDate.value || null }),
-        ironDate.value ? `已把鐵人達成日設成 ${ironDate.value}` : '已取消鐵人');
+        ironDate.value ? `已把鐵人達成日設成 ${ironDate.value}` : '已取消鐵人'
+    );
     const clearNickname = () => mutate(
         token => adminApi.updateDevice(token, deviceId, { nickname: null }),
-        '已清掉暱稱，排行榜上會顯示「白老鼠 #編號」（原本的暱稱留在操作紀錄裡）');
+        '已清掉暱稱，排行榜上會顯示「白老鼠 #編號」（原本的暱稱留在操作紀錄裡）'
+    );
     const clearTitle = () => mutate(
         token => adminApi.updateDevice(token, deviceId, { title: null }),
-        '已清掉稱號（原本的字留在操作紀錄裡）');
+        '已清掉稱號（原本的字留在操作紀錄裡）'
+    );
     const clearAvatar = () => mutate(
         token => adminApi.updateDevice(token, deviceId, { avatar: null }),
-        '已清掉大頭貼，退回 App 內建圖案');
+        '已清掉大頭貼，退回 App 內建圖案'
+    );
     // #endregion
 
     async function eraseIdentity(freeze: boolean) {

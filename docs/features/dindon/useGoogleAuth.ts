@@ -10,20 +10,20 @@ const GOOGLE_CLIENT_ID = '851099261403-t654nu5furtr264jcsp3s4pvm54nntlo.apps.goo
 const GIS_SRC = 'https://accounts.google.com/gsi/client';
 
 interface GoogleIdApi {
-    initialize: (config: Record<string, unknown>) => void
-    renderButton: (el: HTMLElement, options: Record<string, unknown>) => void
-    disableAutoSelect: () => void
+    initialize: (config: Record<string, unknown>) => void;
+    renderButton: (el: HTMLElement, options: Record<string, unknown>) => void;
+    disableAutoSelect: () => void;
 }
 declare global {
     interface Window { google?: { accounts: { id: GoogleIdApi } } }
 }
 
 export interface GoogleProfile {
-    email: string | null
-    name: string | null
-    picture: string | null
+    email: string | null;
+    name: string | null;
+    picture: string | null;
     /** 過期時間（毫秒）。不是 Google 的 JWT 時為 null */
-    expiresAt: number | null
+    expiresAt: number | null;
 }
 
 // 模組層級的狀態：同一個分頁裡共用一份。
@@ -78,7 +78,7 @@ function handleCredential(response: { credential?: string }) {
  * 有自動登入的話，Google 會不經點擊就把 ID token 發給那個 iframe。
  * 按鈕畫在 Google 自己來源的 iframe 裡，第三方腳本點不到，一定要本人按。
  */
-function ready(): Promise<GoogleIdApi> {
+async function ready(): Promise<GoogleIdApi> {
     readyPromise ??= new Promise<GoogleIdApi>((resolve, reject) => {
         const initialize = () => {
             const google = window.google?.accounts?.id;
@@ -94,7 +94,7 @@ function ready(): Promise<GoogleIdApi> {
         script.onload = initialize;
         script.onerror = () => reject(new Error('Google 登入元件載入失敗，請檢查網路或擋廣告的外掛'));
         document.head.append(script);
-    }).catch(error => {
+    }).catch((error) => {
         readyPromise = null; // 下次再試
         throw error;
     });

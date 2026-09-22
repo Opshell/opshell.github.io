@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import ColorSeries from "./colorSeries.vue";
+    import ColorSeries from './colorSeries.vue';
 </script>
 
 <template>

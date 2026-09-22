@@ -1,4 +1,8 @@
+// d3-force-3d 沒有型別定義；只宣告星系頁用到的幾個工廠函式
 declare module 'd3-force-3d' {
-    const ForceGraph3D: any;
-    export default ForceGraph3D;
+    export function forceSimulation(nodes?: any[], numDimensions?: number): any;
+    export function forceLink(links?: any[]): any;
+    export function forceManyBody(): any;
+    export function forceCenter(x?: number, y?: number, z?: number): any;
+    export function forceCollide(radius?: number | ((node: any) => number)): any;
 }

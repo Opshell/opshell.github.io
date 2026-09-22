@@ -49,7 +49,7 @@
             { label: '每台請求數', dist: d.requests_per_device, fmt: formatInt },
             { label: '每台額度點數', dist: d.quota_charged_per_device, fmt: formatInt },
             { label: '每台成本', dist: d.cost_usd_per_device, fmt: formatUsd }
-        ] satisfies { label: string, dist: Dist, fmt: (v: number) => string }[];
+        ] satisfies { label: string; dist: Dist; fmt: (v: number) => string }[];
     });
 
     onMounted(load);
@@ -132,7 +132,7 @@
                 <table class="dd-table is-static">
                     <thead>
                         <tr>
-                            <th scope="col"></th>
+                            <th scope="col" />
                             <th scope="col" class="is-num">平均</th>
                             <th scope="col" class="is-num">P50</th>
                             <th scope="col" class="is-num">P90</th>

@@ -27,13 +27,10 @@ function shouldAddVersion(filePath, title) {
 }
 
 function normalizeArray(value) {
-    if (Array.isArray(value))
-        return value;
-    if (value == null || value === '')
-        return [];
+    if (Array.isArray(value)) { return value; }
+    if (value == null || value === '') { return []; }
     // 若使用者放了逗號分隔字串，做個寬鬆處理
-    if (typeof value === 'string')
-        return value.split(',').map(s => s.trim()).filter(Boolean);
+    if (typeof value === 'string') { return value.split(',').map(s => s.trim()).filter(Boolean); }
     return [];
 }
 
@@ -58,16 +55,12 @@ async function processFile(filePath) {
     }
 
     // image / description / keywords
-    if (data.image == null)
-        data.image = '';
-    if (data.description == null)
-        data.description = '';
-    if (data.keywords == null)
-        data.keywords = '';
+    data.image ??= '';
+    data.description ??= '';
+    data.keywords ??= '';
 
     // author
-    if (!data.author)
-        data.author = 'Opshell';
+    if (!data.author) { data.author = 'Opshell'; }
 
     // createdAt
     if (!data.createdAt) {
@@ -83,10 +76,8 @@ async function processFile(filePath) {
     data.tags = tags.slice(0, 5);
 
     // editLink / isPublished
-    if (typeof data.editLink !== 'boolean')
-        data.editLink = true;
-    if (typeof data.isPublished !== 'boolean')
-        data.isPublished = false;
+    if (typeof data.editLink !== 'boolean') { data.editLink = true; }
+    if (typeof data.isPublished !== 'boolean') { data.isPublished = false; }
 
     // version（僅在明顯是規範/設定類型且尚未提供時加入）
     if (!data.version && shouldAddVersion(filePath, data.title)) {
@@ -107,8 +98,7 @@ async function main() {
     let updatedCount = 0;
     for (const f of files) {
         const res = await processFile(f);
-        if (res.updated)
-            updatedCount++;
+        if (res.updated) { updatedCount++; }
     }
     console.log(`Processed ${files.length} files, updated ${updatedCount} files.`);
 }

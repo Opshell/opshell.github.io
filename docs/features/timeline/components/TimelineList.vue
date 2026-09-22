@@ -1,8 +1,7 @@
 <script setup lang="ts">
-    import { computed } from 'vue';
-    import { getFrontMatter } from '@shared/hooks/useFrontMatter';
     import type { Post } from '@shared/hooks/useBuildSiteData';
     import { useSiteData } from '@shared/hooks/useSiteData';
+    import { computed } from 'vue';
 
     import postCard from './postCard.vue';
 
@@ -10,7 +9,7 @@
 
     // --- Type Definitions ---
     interface MonthGroup {
-        month: string;      // e.g., "11" or "Nov"
+        month: string; // e.g., "11" or "Nov"
         monthLabel: string; // e.g., "November"
         posts: Post[];
     }
@@ -33,7 +32,7 @@
         // 建立巢狀結構
         const grouped: Record<string, Record<string, Post[]>> = {};
 
-        allPosts.forEach(post => {
+        allPosts.forEach((post) => {
             const dateObj = new Date(post.date);
             const year = isNaN(dateObj.getFullYear()) ? 'Unknown' : dateObj.getFullYear().toString();
             // 取得月份 (0-11)，轉成 1-12
@@ -49,7 +48,7 @@
         // Outer: Years (Desc)
         return Object.keys(grouped)
             .sort((a, b) => Number(b) - Number(a))
-            .map(year => {
+            .map((year) => {
                 const monthMap = grouped[year];
                 // Inner: Months (Desc)
                 const months = Object.keys(monthMap)
@@ -67,8 +66,18 @@
     // [-] 數字轉英文月份
     const getMonthName = (month: string) => {
         const monthNames = [
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec'
         ];
         const index = parseInt(month) - 1;
         return monthNames[index] || month;
@@ -124,7 +133,6 @@
     $dot-size: 14px;
     $line-left-pos: 24px;
 
-
     // **Variables & Config**
     $line-color: var(--vp-c-divider);       // 靜態線條顏色
     $active-color: var(--vp-c-brand);       // 互動發光顏色
@@ -147,7 +155,6 @@
         --op-month-width: 100px;
 
         --op-timeline-font-size: 1.625rem; // 年 月 日 標題 字體大小
-
 
         --op-post-dot-size: 18px;
         max-width: var(--vp-layout-max-width);
@@ -241,8 +248,6 @@
             }
         }
     }
-
-
 
     // --- RWD ---
     @media (width <= 640px) {

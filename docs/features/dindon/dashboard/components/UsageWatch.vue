@@ -13,7 +13,7 @@
     // 不寫「濫用者」，也不自動做任何事。
     const call = useAdminCall();
 
-    const FLAG_INFO: Record<UsageFlag, { label: string, why: string, fair: string, loud?: boolean }> = {
+    const FLAG_INFO: Record<UsageFlag, { label: string; why: string; fair: string; loud?: boolean }> = {
         heavy_today: { label: '今天用很多', why: '今天 80 次以上', fair: '可能在補一整個月的帳' },
         burst: { label: '一小時內很密集', why: '單一小時 40 次以上', fair: '可能一次拍了一疊收據' },
         new_and_heavy: { label: '剛註冊就用很多', why: '註冊 24 小時內超過 50 次', fair: '可能拿到新手機在試功能' },

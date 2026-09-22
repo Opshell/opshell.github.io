@@ -66,7 +66,7 @@
 </script>
 
 <template>
-    <article class="masonry-layout" ref="containerRef">
+    <article ref="containerRef" class="masonry-layout">
         <slot />
     </article>
 </template>

@@ -8,21 +8,21 @@
     // 標籤用文字色、不用資料色；提示框一次列出那一天的每個系列。
     export interface ColumnPoint {
         /** x 軸上的短標籤，例如 9/19 */
-        label: string
+        label: string;
         /** 提示框與表格用的完整標籤，例如 2026/09/19（六） */
-        full: string
+        full: string;
         /** 每個系列的值，key 對應 series[].key */
-        values: Record<string, number>
+        values: Record<string, number>;
     }
 
     const { points, series, unit = '', height = 180, integer = true, format = (v: number) => v.toLocaleString('zh-TW') } = defineProps<{
-        points: ColumnPoint[]
-        series: BarSeries[]
-        unit?: string
-        height?: number
+        points: ColumnPoint[];
+        series: BarSeries[];
+        unit?: string;
+        height?: number;
         /** 計數類（台、次）的刻度只用整數 */
-        integer?: boolean
-        format?: (value: number) => string
+        integer?: boolean;
+        format?: (value: number) => string;
     }>();
 
     const totals = computed(() => points.map(p => series.reduce((sum, s) => sum + (p.values[s.key] ?? 0), 0)));
@@ -41,7 +41,7 @@
     <div class="dd-col" :style="{ '--plot-h': `${height}px` }">
         <ul v-if="series.length > 1" class="dd-bar__legend" aria-label="圖例">
             <li v-for="s in series" :key="s.key">
-                <span class="swatch" :style="{ background: s.color }" aria-hidden="true"></span>{{ s.label }}
+                <span class="swatch" :style="{ background: s.color }" aria-hidden="true" />{{ s.label }}
             </li>
         </ul>
 
@@ -68,14 +68,14 @@
                             :key="s.key"
                             class="seg"
                             :style="{ flexGrow: (point.values[s.key] ?? 0) / (totals[index] || 1) * 1000, background: s.color }"
-                        ></span>
+                        />
                     </span>
 
                     <span v-if="active === index" class="dd-chart-tip" role="tooltip">
                         <span class="when">{{ point.full }}</span>
                         <span v-for="s in series" :key="s.key" class="row">
                             <strong>{{ format(point.values[s.key] ?? 0) }}{{ unit }}</strong>
-                            <span class="key"><i :style="{ background: s.color }"></i>{{ s.label }}</span>
+                            <span class="key"><i :style="{ background: s.color }" />{{ s.label }}</span>
                         </span>
                     </span>
                 </button>

@@ -16,8 +16,8 @@
     // 手速快的話很容易撞到。列表回來的資料已經含內容、機型、截圖清單，所以這裡不再逐則打
     // `GET /v1/admin/feedback/:id`——只有截圖（一張一次）與展開除錯紀錄時才多打。
     // 沒有截圖的一則＝只花一次 PATCH，一分鐘判 30 則不會被擋。
-    const { issues, kind } = defineProps<{ issues: FeedbackIssue[], kind: FeedbackKind }>();
-    const emit = defineEmits<{ 'close': [changed: boolean], 'issues-changed': [] }>();
+    const { issues, kind } = defineProps<{ issues: FeedbackIssue[]; kind: FeedbackKind }>();
+    const emit = defineEmits<{ 'close': [changed: boolean]; 'issues-changed': [] }>();
 
     const call = useAdminCall();
 
@@ -26,7 +26,7 @@
 
     const queue = ref<FeedbackReport[]>([]);
     const index = ref(0);
-    const shots = ref<{ position: number, url: string }[]>([]);
+    const shots = ref<{ position: number; url: string }[]>([]);
     /** 除錯紀錄只有單則 API 才有，展開才抓 */
     const log = ref('');
     const logLoading = ref(false);
@@ -35,7 +35,7 @@
     const error = ref('');
     const done = ref(0);
     /** 剛剛做了什麼，可以按 U 復原 */
-    const lastAction = ref<{ id: number, from: FeedbackStatus, to: FeedbackStatus } | null>(null);
+    const lastAction = ref<{ id: number; from: FeedbackStatus; to: FeedbackStatus } | null>(null);
 
     const current = computed(() => queue.value[index.value] ?? null);
     /** 還沒判的則數。跳過不會讓它變少——跳過的還在佇列裡，只是先往後看 */
@@ -43,7 +43,7 @@
     const canPrev = computed(() => index.value > 0);
     const canNext = computed(() => index.value < queue.value.length - 1);
 
-    const DECISIONS: { key: string, status: FeedbackStatus, label: string }[] = [
+    const DECISIONS: { key: string; status: FeedbackStatus; label: string }[] = [
         { key: '1', status: 'accepted_bug', label: '採計為 bug' },
         { key: '2', status: 'accepted_suggestion', label: '採計為建議' },
         { key: '3', status: 'rejected', label: '不採計' }
@@ -56,11 +56,11 @@
     }
 
     /** 下一則的截圖先抓好放這裡，按完判定就不用等 */
-    const prefetched = new Map<number, { position: number, url: string }[]>();
+    const prefetched = new Map<number, { position: number; url: string }[]>();
 
     /** 截圖要帶登入憑證，不能直接 <img src>：取回來轉成 blob URL */
     async function fetchShots(report: FeedbackReport) {
-        const loaded: { position: number, url: string }[] = [];
+        const loaded: { position: number; url: string }[] = [];
         for (const position of report.screenshots ?? []) {
             const blob = await call(token => adminApi.feedbackScreenshot(token, report.id, position));
             loaded.push({ position, url: URL.createObjectURL(blob) });
@@ -235,7 +235,7 @@
     onBeforeUnmount(() => {
         window.removeEventListener('keydown', onKey);
         releaseShots();
-        prefetched.forEach(entry => entry.shots.forEach(s => URL.revokeObjectURL(s.url)));
+        prefetched.forEach(entry => entry.forEach(s => URL.revokeObjectURL(s.url))); // 之前寫成 entry.shots，關閉時會 TypeError
         prefetched.clear();
     });
 </script>

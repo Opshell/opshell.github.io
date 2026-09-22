@@ -1,10 +1,8 @@
 <script setup lang="ts">
-    import type { RouteLocationRaw } from 'vue-router';
-
     interface iProps {
-        title?: string
-        icon?: string
-        href?: RouteLocationRaw
+        title?: string;
+        icon?: string;
+        href?: string;
     }
     withDefaults(defineProps<iProps>(), {
         title: '',

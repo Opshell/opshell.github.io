@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { ref, watch, withDefaults } from 'vue';
-import { file } from '@shared/hooks/utilityFunctions';
-import useBackendApi from '@shared/hooks/useApi';
+    import useBackendApi from '@shared/hooks/useApi';
+    import { file } from '@shared/hooks/utilityFunctions';
+    import { ref, watch } from 'vue';
 
-const { getImage } = useBackendApi();
-
-interface iProps {
-    src: string;
-    origin?: 'public' | 'src' | 'token';
-    renderMethod?: 'blob' | 'base64';
-}
-
-const props = withDefaults(defineProps<iProps>(), {
+    const props = withDefaults(defineProps<iProps>(), {
         src: '',
         origin: 'public',
         renderMethod: 'blob'
     });
+
+    const { getImage } = useBackendApi();
+
+    interface iProps {
+        src?: string;
+        origin?: 'public' | 'src' | 'token';
+        renderMethod?: 'blob' | 'base64';
+    }
 
     const imgDom = ref<HTMLImageElement | null>(null);
     const imgSrc = ref<string>('');

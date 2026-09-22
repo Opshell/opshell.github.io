@@ -22,11 +22,15 @@ export const vZoomImg: Directive = {
         // 初始化狀態
         stateMap.set(el, {
             scale: 1,
-            x: 0, y: 0,
-            originX: 50, originY: 50,
+            x: 0,
+            y: 0,
+            originX: 50,
+            originY: 50,
             isDragging: false,
-            startX: 0, startY: 0,
-            initialTranslateX: 0, initialTranslateY: 0
+            startX: 0,
+            startY: 0,
+            initialTranslateX: 0,
+            initialTranslateY: 0
         });
 
         // 預設樣式
@@ -35,7 +39,7 @@ export const vZoomImg: Directive = {
         el.style.transformOrigin = '50% 50%';
         // 禁止使用者選取圖片反白，避免拖曳干擾
         el.style.userSelect = 'none';
-        // @ts-ignore
+        // @ts-expect-error webkitUserDrag 不在標準的 CSSStyleDeclaration 裡
         el.style.webkitUserDrag = 'none';
 
         // === 事件處理器 ===

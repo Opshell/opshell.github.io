@@ -9,9 +9,9 @@ import { apiBase } from '../apiBase';
 export type DeleteScope = 'link' | 'account';
 
 export interface DeleteResult {
-    scope: DeleteScope
+    scope: DeleteScope;
     /** 這個 Google 帳號綁到的裝置數。0 代表沒有東西可刪（已經解除過，或從來沒綁過） */
-    devices: number
+    devices: number;
 }
 
 /** 後端還沒開這支、或跨來源被擋掉時丟這個：畫面改走寄信那條路，不要讓使用者卡住 */

@@ -22,7 +22,7 @@
 </script>
 
 <template>
-    <aside class="series-sidebar" ref="sidebarRef" v-if="sidebarGroups.length">
+    <aside v-if="sidebarGroups.length" ref="sidebarRef" class="series-sidebar">
         <div v-for="(group, gIndex) in sidebarGroups" :key="gIndex" class="sidebar-group">
             <div v-if="group.text" class="group-title">
                 {{ group.text }}
@@ -39,7 +39,7 @@
         </div>
     </aside>
 
-    <div v-else class="empty-sidebar"></div>
+    <div v-else class="empty-sidebar" />
 </template>
 
 <style lang="scss">

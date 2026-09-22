@@ -59,7 +59,7 @@ export function isObjEqual<T extends object>(objA: T, objB: T): boolean {
 
         // 如果 B 沒有 A 的 key，或者遞迴比對子屬性不相等，則回傳 false
         if (
-            !Object.prototype.hasOwnProperty.call(objB, key)
+            !Object.hasOwn(objB, key)
             || !isObjEqual(objA[keyTyped] as any, objB[keyTyped] as any)
         ) {
             return false;
@@ -72,5 +72,5 @@ export function isObjEqual<T extends object>(objA: T, objB: T): boolean {
 
 // 簡化版的 hasOwnProperty 檢查
 export function hasOwn(obj: object, key: string | symbol): key is keyof typeof obj {
-    return Object.prototype.hasOwnProperty.call(obj, key);
+    return Object.hasOwn(obj, key);
 }

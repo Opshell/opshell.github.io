@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- 除錯輸出 */
 import { useMagicKeys } from '@vueuse/core';
 import { useData, useRouter } from 'vitepress';
 import { watchEffect } from 'vue';

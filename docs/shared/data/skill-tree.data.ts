@@ -1,10 +1,10 @@
 import { defineLoader } from 'vitepress';
 
 export interface Data {
-    icon: string
-    title: string
-    summary: string
-    href: string
+    icon: string;
+    title: string;
+    summary: string;
+    href: string;
 }
 
 declare const data: Data[];

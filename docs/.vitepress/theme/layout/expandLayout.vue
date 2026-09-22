@@ -1,12 +1,12 @@
 <script setup lang="ts">
-    import { computed, provide, nextTick, onMounted } from 'vue';
-    import { useData } from 'vitepress';
-
-    import DefaultTheme from 'vitepress/theme';
-    import DesignSystemLayout from './DesignSystemLayout.vue';
-    import ArticleLayout from './articleLayout.vue';
     import useKeyBoardControl from '@shared/hooks/useKeyBoardControl';
     import { useSiteData } from '@shared/hooks/useSiteData';
+
+    import { useData } from 'vitepress';
+    import DefaultTheme from 'vitepress/theme';
+    import { computed, nextTick, provide } from 'vue';
+    import ArticleLayout from './articleLayout.vue';
+    import DesignSystemLayout from './DesignSystemLayout.vue';
 
     // Layout Component
     const { Layout } = DefaultTheme;
@@ -196,8 +196,8 @@
                 <div class="aside-tags-cloud">
                     <a
                         v-for="tag in tags"
-                        :key="`tag-${tag.name}`"
                         v-show="tag.count > 1"
+                        :key="`tag-${tag.name}`"
                         class="mini-tag"
                         :href="`/tags-list.html?tag=${tag.name}&page=1`"
                     >

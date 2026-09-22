@@ -1,12 +1,12 @@
 <script setup lang="ts">
-    import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
     import gsap from 'gsap';
+    import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
     const props = defineProps<{
         status: 'IDLE' | 'HOVER' | 'LOCKED';
         targetVal: number;
         // [新增] 接收強制座標，格式為 { x: 100, y: 200 } 或 null
-        overridePosition?: { x: number, y: number } | null;
+        overridePosition?: { x: number; y: number } | null;
     }>();
 
     const cursorRef = ref<HTMLElement | null>(null);
@@ -46,11 +46,17 @@
 
         // 內圈：順時針慢轉
         gsap.to(innerGroupRef.value, {
-            rotation: "+=360", duration: 5, repeat: -1, ease: 'none'
+            rotation: '+=360',
+            duration: 5,
+            repeat: -1,
+            ease: 'none'
         });
         // 外圈：逆時針慢轉
         gsap.to(outerGroupRef.value, {
-            rotation: "-=360", duration: 10, repeat: -1, ease: 'none'
+            rotation: '-=360',
+            duration: 10,
+            repeat: -1,
+            ease: 'none'
         });
 
         // 確保狀態還原 (顏色、粗細)
@@ -87,23 +93,22 @@
                 strokeWidth: 2,
                 duration: 0.4
             })
-            // "<0.1" 代表：比上一段動畫 (內圈) 晚 0.1 秒開始
-            // 這會產生一種「內圈先動，外圈隨後跟上」的層次感
-            .to(outerGroupRef.value, {
-                rotation: 45,
-                scale: newScale * 1.3,
-                stroke: COLORS.HOVER,
-                strokeWidth: 2,
-                duration: 0.4
-            }, "<0.15")
-            .to(linesGroupRef.value, {
-                rotation: 0,
-                scale: newScale * 1.3,
-                opacity: 1,
-                stroke: COLORS.HOVER,
-                duration: 0.3
-            }, "<"); // 線條跟著外圈一起出現
-
+                // "<0.1" 代表：比上一段動畫 (內圈) 晚 0.1 秒開始
+                // 這會產生一種「內圈先動，外圈隨後跟上」的層次感
+                .to(outerGroupRef.value, {
+                    rotation: 45,
+                    scale: newScale * 1.3,
+                    stroke: COLORS.HOVER,
+                    strokeWidth: 2,
+                    duration: 0.4
+                }, '<0.15')
+                .to(linesGroupRef.value, {
+                    rotation: 0,
+                    scale: newScale * 1.3,
+                    opacity: 1,
+                    stroke: COLORS.HOVER,
+                    duration: 0.3
+                }, '<'); // 線條跟著外圈一起出現
         } else if (newStatus === 'LOCKED') {
             // [LOCKED]
             currentTl.to(innerGroupRef.value, {
@@ -113,22 +118,21 @@
                 strokeWidth: 3,
                 duration: 0.6
             })
-            .to(outerGroupRef.value, {
-                rotation: 45, // 強制歸零，並且因為上面 killTweensOf 了，它不會再轉
-                scale: newScale * 1,
-                stroke: COLORS.LOCKED,
-                strokeWidth: 3,
-                duration: 0.3
-            }, "<0.2") // 同樣 Delay 0.1 秒，增加機械感
-            .to(linesGroupRef.value, {
-                rotation: 45,
-                scale: newScale * 0.7,
-                opacity: 1,
-                stroke: COLORS.LOCKED,
-                strokeWidth: 4,
-                duration: 0.3
-            }, "<1.4"); // 線條跟著外圈一起出現
-
+                .to(outerGroupRef.value, {
+                    rotation: 45, // 強制歸零，並且因為上面 killTweensOf 了，它不會再轉
+                    scale: newScale * 1,
+                    stroke: COLORS.LOCKED,
+                    strokeWidth: 3,
+                    duration: 0.3
+                }, '<0.2') // 同樣 Delay 0.1 秒，增加機械感
+                .to(linesGroupRef.value, {
+                    rotation: 45,
+                    scale: newScale * 0.7,
+                    opacity: 1,
+                    stroke: COLORS.LOCKED,
+                    strokeWidth: 4,
+                    duration: 0.3
+                }, '<1.4'); // 線條跟著外圈一起出現
         } else {
             // [IDLE]
             gsap.to([innerGroupRef.value, outerGroupRef.value], {
@@ -158,26 +162,29 @@
             <circle cx="0" cy="0" r="2" fill="#fff" />
 
             <g ref="innerGroupRef" class="rotator" :stroke="COLORS.IDLE" stroke-width="2">
-                <path v-for="i in 4" :key="`in-${i}`"
+                <path
+                    v-for="i in 4" :key="`in-${i}`"
                     d="M -10 -30 A 30 30 0 0 1 10 -30"
                     fill="none" stroke-linecap="round"
-                    :transform="`rotate(${(i-1) * 90})`"
+                    :transform="`rotate(${(i - 1) * 90})`"
                 />
             </g>
 
             <g ref="outerGroupRef" class="rotator out" :stroke="COLORS.IDLE" stroke-width="2">
-                <path v-for="i in 4" :key="`out-${i}`"
+                <path
+                    v-for="i in 4" :key="`out-${i}`"
                     d="M 15 -50 A 55 55 0 0 1 50 -15"
                     fill="none" stroke-linecap="round"
-                    :transform="`rotate(${(i-1) * 90})`"
+                    :transform="`rotate(${(i - 1) * 90})`"
                 />
             </g>
 
             <g ref="linesGroupRef" class="rotator line" :stroke="COLORS.IDLE" stroke-width="2" style="opacity: 0;">
-                <line v-for="i in 4" :key="`line-${i}`"
+                <line
+                    v-for="i in 4" :key="`line-${i}`"
                     x1="0" y1="-60" x2="0" y2="-80"
                     stroke-linecap="round"
-                    :transform="`rotate(${(i-1) * 90})`"
+                    :transform="`rotate(${(i - 1) * 90})`"
                 />
             </g>
         </svg>

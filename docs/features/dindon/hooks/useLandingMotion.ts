@@ -50,12 +50,12 @@ export function useLandingMotion(root: Ref<HTMLElement | undefined>) {
         // [-] 捲動進場：已經在畫面裡的直接顯示，只有畫面外的才先藏起來，避免內容閃一下
         const revealEls = [...el.querySelectorAll<HTMLElement>('[data-reveal]')];
         const foldLine = window.innerHeight * 0.92;
-        revealEls.forEach(item => {
+        revealEls.forEach((item) => {
             if (item.getBoundingClientRect().top < foldLine) item.classList.add('is-visible');
         });
         el.classList.add('is-motion');
 
-        observer = new IntersectionObserver(entries => {
+        observer = new IntersectionObserver((entries) => {
             for (const entry of entries) {
                 if (!entry.isIntersecting) continue;
                 entry.target.classList.add('is-visible');

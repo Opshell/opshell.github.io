@@ -1,82 +1,81 @@
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue';
-import type { Header } from '@hooks/useTOC';
+    import type { Header } from '../hooks/useTOC';
+    import { nextTick, ref, watch } from 'vue';
 
-const props = defineProps<{
-    headers: Header[];
-    activeAnchor: string;
-}>();
+    const props = defineProps<{
+        headers: Header[];
+        activeAnchor: string;
+    }>();
 
-const navRef = ref<HTMLElement>();
-const markerTop = ref(0);
-const markerHeight = ref(0);
-const markerOpacity = ref(0);
+    const navRef = ref<HTMLElement>();
+    const markerTop = ref(0);
+    const markerHeight = ref(0);
+    const markerOpacity = ref(0);
 
-// --- 修正後的 Marker 定位邏輯 ---
-const updateMarker = async (anchor: string) => {
-    // 1. 基本防呆
-    if (!anchor || !navRef.value) {
-        markerOpacity.value = 0;
-        return;
-    }
+    // --- 修正後的 Marker 定位邏輯 ---
+    const updateMarker = async (anchor: string) => {
+        // 1. 基本防呆
+        if (!anchor || !navRef.value) {
+            markerOpacity.value = 0;
+            return;
+        }
 
-    await nextTick();
+        await nextTick();
 
-    // 2. 尋找目標元素
-    // [!] 使用 decodeURIComponent 防止中文路徑編碼不一致導致找不到元素
-    // [!] 增加 CSS.escape (雖然在屬性選取器中通常還好，但加了保險)
-    const decodedAnchor = decodeURIComponent(anchor);
-    const activeLinkEl = navRef.value.querySelector(`a[href="${decodedAnchor}"]`) as HTMLElement;
+        // 2. 尋找目標元素
+        // [!] 使用 decodeURIComponent 防止中文路徑編碼不一致導致找不到元素
+        // [!] 增加 CSS.escape (雖然在屬性選取器中通常還好，但加了保險)
+        const decodedAnchor = decodeURIComponent(anchor);
+        const activeLinkEl = navRef.value.querySelector(`a[href="${decodedAnchor}"]`) as HTMLElement;
 
-    if (activeLinkEl) {
-        // 3. [關鍵修正] 使用 getBoundingClientRect 計算精確的相對位置
-        // 這能自動處理掉所有中間層級的 margin/padding/h3 高度影響
-        const navRect = navRef.value.getBoundingClientRect();
-        const linkRect = activeLinkEl.getBoundingClientRect();
+        if (activeLinkEl) {
+            // 3. [關鍵修正] 使用 getBoundingClientRect 計算精確的相對位置
+            // 這能自動處理掉所有中間層級的 margin/padding/h3 高度影響
+            const navRect = navRef.value.getBoundingClientRect();
+            const linkRect = activeLinkEl.getBoundingClientRect();
 
-        // 兩者的 Top 差值，就是 Marker 該去的位置
-        markerTop.value = linkRect.top - navRect.top;
+            // 兩者的 Top 差值，就是 Marker 該去的位置
+            markerTop.value = linkRect.top - navRect.top;
 
-        // 高度直接取連結的高度
-        markerHeight.value = linkRect.height;
-        markerOpacity.value = 1;
-    } else {
-        markerOpacity.value = 0;
-    }
-};
+            // 高度直接取連結的高度
+            markerHeight.value = linkRect.height;
+            markerOpacity.value = 1;
+        } else {
+            markerOpacity.value = 0;
+        }
+    };
 
-// 監聽 activeAnchor 變化
-watch(() => props.activeAnchor, (newVal) => {
-    updateMarker(newVal);
-}, { immediate: true });
+    // 監聽 activeAnchor 變化
+    watch(() => props.activeAnchor, (newVal) => {
+        updateMarker(newVal);
+    }, { immediate: true });
 
-// [!] 額外監聽 headers 變化
-// 防止一開始 activeAnchor 有值，但 headers 還沒渲染出來導致抓不到 DOM
-watch(() => props.headers, () => {
-    updateMarker(props.activeAnchor);
-}, { deep: true });
+    // [!] 額外監聽 headers 變化
+    // 防止一開始 activeAnchor 有值，但 headers 還沒渲染出來導致抓不到 DOM
+    watch(() => props.headers, () => {
+        updateMarker(props.activeAnchor);
+    }, { deep: true });
 
+    // --- Smooth Scroll (保持不變) ---
+    const handleClick = (e: MouseEvent, link: string) => {
+        e.preventDefault();
+        const targetId = decodeURIComponent(link).replace('#', ''); // 這裡也要 decode
+        const target = document.getElementById(targetId);
 
-// --- Smooth Scroll (保持不變) ---
-const handleClick = (e: MouseEvent, link: string) => {
-    e.preventDefault();
-    const targetId = decodeURIComponent(link).replace('#', ''); // 這裡也要 decode
-    const target = document.getElementById(targetId);
-
-    if (target) {
-        const offset = 80;
-        const top = target.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top, behavior: 'smooth' });
-        history.pushState(null, '', link);
-    }
-};
+        if (target) {
+            const offset = 80;
+            const top = target.getBoundingClientRect().top + window.scrollY - offset;
+            window.scrollTo({ top, behavior: 'smooth' });
+            history.pushState(null, '', link);
+        }
+    };
 </script>
 
 <template>
     <nav
-        class="article-toc"
-        ref="navRef"
         v-if="headers.length > 0"
+        ref="navRef"
+        class="article-toc"
         aria-label="Table of Contents"
     >
         <h3 class="toc-title">
@@ -89,9 +88,9 @@ const handleClick = (e: MouseEvent, link: string) => {
             :style="{
                 transform: `translateY(${markerTop}px)`,
                 height: `${markerHeight}px`,
-                opacity: markerOpacity
+                opacity: markerOpacity,
             }"
-        ></div>
+        />
 
         <ul class="toc-list">
             <li
@@ -99,13 +98,13 @@ const handleClick = (e: MouseEvent, link: string) => {
                 :key="header.slug"
                 :class="[
                     `level-${header.level}`,
-                    { active: activeAnchor === header.link }
+                    { active: activeAnchor === header.link },
                 ]"
             >
                 <a
                     :href="header.link"
-                    @click="handleClick($event, header.link)"
                     :title="header.title"
+                    @click="handleClick($event, header.link)"
                 >
                     {{ header.title }}
                 </a>

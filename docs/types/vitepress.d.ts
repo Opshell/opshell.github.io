@@ -1,5 +1,6 @@
 /// <reference types="vitepress/client" />
 
+
 // 告訴 TS 這個路徑是存在的，並定義它的回傳結構
 declare module 'vitepress/dist/client/theme-default/composables/sidebar' {
   import { ComputedRef, Ref } from 'vue';

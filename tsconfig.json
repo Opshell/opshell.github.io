@@ -23,7 +23,8 @@
 
             "@features/*": ["./docs/features/*"],
             "@pages/*": ["./docs/pages/*"],
-            "@photos/*": ["./photos/*"]
+            "@photos/*": ["./photos/*"],
+            "vitepress/dist/client/theme-default/components/*": ["./docs/types/shims/vp-theme-component.d.ts"]
         }
     },
     "include": [

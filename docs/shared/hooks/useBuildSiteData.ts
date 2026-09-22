@@ -4,53 +4,53 @@ import matter from 'gray-matter';
 
 interface iTags {
     [key: string]: {
-        count: number
+        count: number;
         group: {
-            title: string
-            image: string
-            category: string
-            date: string
-            url: string
-        }[]
-    }
+            title: string;
+            image: string;
+            category: string;
+            date: string;
+            url: string;
+        }[];
+    };
 }
 export interface iClassification {
     count: {
-        total: number
-        published: number
-        unpublished: number
-    }
-    tags: iTags
-    category: string
+        total: number;
+        published: number;
+        unpublished: number;
+    };
+    tags: iTags;
+    category: string;
 }
 
 // [-] 單篇文章的結構 SSoT
 export interface Post {
-    url: string
-    title: string
-    date: string
-    image: string
-    category: string[]
-    tags: string[]
-    excerpt: string
+    url: string;
+    title: string;
+    date: string;
+    image: string;
+    category: string[];
+    tags: string[];
+    excerpt: string;
     // ... 之後可擴充其他需要的 frontmatter 欄位
 }
 
 // [-] Tag 索引的結構
 export interface TagIndex {
-    count: number
-    postUrls: string[] // 只儲存文章的 url 作為 "指針"
+    count: number;
+    postUrls: string[]; // 只儲存文章的 url 作為 "指針"
 }
 
 export interface iSiteData {
     counts: {
-        published: number
-        unpublished: number
-        total: number
-    }
-    posts: Map<string, Post> //  關鍵資料來源: url -> Post object for O(1) lookup
-    sortedPostUrls: string[] // 按日期排序的文章 url 列表，Timeline 專用
-    tags: Map<string, TagIndex> // Tag 索引: tagName -> TagIndex
+        published: number;
+        unpublished: number;
+        total: number;
+    };
+    posts: Map<string, Post>; //  關鍵資料來源: url -> Post object for O(1) lookup
+    sortedPostUrls: string[]; // 按日期排序的文章 url 列表，Timeline 專用
+    tags: Map<string, TagIndex>; // Tag 索引: tagName -> TagIndex
     // [#] 未來可以繼續擴充
     // categories: Map<string, CategoryIndex>;
 }
@@ -58,13 +58,13 @@ export interface iSiteData {
 // 這個是我們真正要傳給前端的、可序列化的資料結構
 export interface iSiteDataSerializable {
     counts: {
-        published: number
-        unpublished: number
-        total: number
-    }
-    posts: [string, Post][] // Map<string, Post> -> [string, Post][]
-    sortedPostUrls: string[]
-    tags: [string, TagIndex][] // Map<string, TagIndex> -> [string, TagIndex][]
+        published: number;
+        unpublished: number;
+        total: number;
+    };
+    posts: [string, Post][]; // Map<string, Post> -> [string, Post][]
+    sortedPostUrls: string[];
+    tags: [string, TagIndex][]; // Map<string, TagIndex> -> [string, TagIndex][]
 }
 
 const isDirectory = (path: string) => fs.lstatSync(path).isDirectory();
@@ -93,7 +93,7 @@ function getExcerpt(content: string, description?: string): string {
     // 移除 VitePress/VuePress 自定義容器 (Custom Containers)
     // 針對 ::: info / ::: tip ... 等語法
     // 策略：移除 ::: 開頭的那一行，但保留中間的文字內容
-    text = text.replace(/^:::\s*[a-z]*\s*(.*)?$/gm, '$1');
+    text = text.replace(/^:::\s*(?:[a-z]+\s*)?(.*)$/gm, '$1');
 
     // 移除圖片 (Images)
     // 針對 ![alt](url "title") 或 ![alt](url)
@@ -129,7 +129,7 @@ function getExcerpt(content: string, description?: string): string {
     // 截斷文字 (Truncate)
     const limit = 108;
     if (text.length <= limit) return text;
-    return text.slice(0, limit) + '...';
+    return `${text.slice(0, limit)}...`;
 }
 
 /**

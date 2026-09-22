@@ -1,9 +1,10 @@
+/* eslint-disable no-console -- 除錯輸出，由呼叫端的 showKey 開關 */
 type Key = string;
 // type Code = string;
 type KeyCombination = string;
 
 interface KeyBoardControlConfig {
-    [key: string]: () => void
+    [key: string]: () => void;
 }
 
 const keyStrategies: { [key in Key]: () => void } = {};

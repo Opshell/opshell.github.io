@@ -8,12 +8,9 @@ const ROOT = path.resolve('c:/wamp64/www/opshell.github.io');
 const TARGET_GLOB = 'docs/pages/article/**/*.md';
 
 function normalizeArray(value) {
-    if (Array.isArray(value))
-        return value;
-    if (value == null || value === '')
-        return [];
-    if (typeof value === 'string')
-        return value.split(',').map(s => s.trim()).filter(Boolean);
+    if (Array.isArray(value)) { return value; }
+    if (value == null || value === '') { return []; }
+    if (typeof value === 'string') { return value.split(',').map(s => s.trim()).filter(Boolean); }
     return [];
 }
 
@@ -68,8 +65,7 @@ async function main() {
     let updated = 0;
     for (const f of files) {
         const res = await processFile(f);
-        if (res.updated)
-            updated++;
+        if (res.updated) { updated++; }
     }
     console.log(`Scanned ${files.length} files, updated ${updated} files.`);
 }

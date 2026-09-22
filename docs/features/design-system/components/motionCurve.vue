@@ -1,94 +1,92 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+    import { ref } from 'vue';
 
-// 動畫持續時間 (秒)
-const duration = ref(0.5);
+    // 動畫持續時間 (秒)
+    const duration = ref(0.5);
 
-const animations = [
-    {
-        name: 'Fast In, Slow Out',
-        var: '--cubic-FiSo',
-        desc: '適合進場動畫，快速出現後緩慢定位 (類 iOS)。',
-        bezier: 'cubic-bezier(.37, .99, .92, .96)'
-    },
-    {
-        name: 'Fast In, Fast Out',
-        var: '--cubic-FiFo',
-        desc: '適合過場或背景變換，節奏明快不拖泥帶水。',
-        bezier: 'cubic-bezier(.25, .65, .85, .45)'
-    },
-    {
-        name: 'Single Recoil (回彈)',
-        var: '--cubic-SiRo',
-        desc: '帶有誇張的回彈效果，適合強調性互動 (如錯誤搖晃)。',
-        bezier: 'cubic-bezier(.31, 1.26, .19, 1.11)'
-    },
-    {
-        name: 'Smooth Motion',
-        var: '--cubic-SiMo',
-        desc: '緩進微彈，適合一般 UI 互動，如 Hover 放大。',
-        bezier: 'cubic-bezier(.3, 1, .94, 1.1)'
-    },
-];
+    const animations = [
+        {
+            name: 'Fast In, Slow Out',
+            var: '--cubic-FiSo',
+            desc: '適合進場動畫，快速出現後緩慢定位 (類 iOS)。',
+            bezier: 'cubic-bezier(.37, .99, .92, .96)'
+        },
+        {
+            name: 'Fast In, Fast Out',
+            var: '--cubic-FiFo',
+            desc: '適合過場或背景變換，節奏明快不拖泥帶水。',
+            bezier: 'cubic-bezier(.25, .65, .85, .45)'
+        },
+        {
+            name: 'Single Recoil (回彈)',
+            var: '--cubic-SiRo',
+            desc: '帶有誇張的回彈效果，適合強調性互動 (如錯誤搖晃)。',
+            bezier: 'cubic-bezier(.31, 1.26, .19, 1.11)'
+        },
+        {
+            name: 'Smooth Motion',
+            var: '--cubic-SiMo',
+            desc: '緩進微彈，適合一般 UI 互動，如 Hover 放大。',
+            bezier: 'cubic-bezier(.3, 1, .94, 1.1)'
+        }
+    ];
 </script>
 
 <template>
-  <div class="motion-container">
+    <div class="motion-container">
+        <div class="control-panel">
+            <label class="control-label">
+                <span>Duration:</span>
+                <input
+                    v-model.number="duration"
+                    type="range"
+                    min="0.05"
+                    max="2"
+                    step="0.1"
+                    class="duration-slider"
+                />
+                <input
+                    v-model.number="duration"
+                    type="number"
+                    class="duration-input"
+                    min="0.1"
+                    step="0.1"
+                />
+                <span>s</span>
+            </label>
+            <p class="hint">Hover over cards to play animation</p>
+        </div>
 
-    <div class="control-panel">
-        <label class="control-label">
-            <span>Duration:</span>
-            <input
-                type="range"
-                v-model.number="duration"
-                min="0.05"
-                max="2"
-                step="0.1"
-                class="duration-slider"
-            >
-            <input
-                type="number"
-                v-model.number="duration"
-                class="duration-input"
-                min="0.1"
-                step="0.1"
-            >
-            <span>s</span>
-        </label>
-        <p class="hint">Hover over cards to play animation</p>
-    </div>
+        <div class="motion-grid">
+            <div v-for="anim in animations" :key="anim.var" class="motion-card">
+                <div class="motion-header">
+                    <span class="motion-name">{{ anim.name }}</span>
+                    <code class="motion-var">{{ anim.var }}</code>
+                </div>
 
-    <div class="motion-grid">
-        <div v-for="anim in animations" :key="anim.var" class="motion-card">
+                <p class="motion-desc">{{ anim.desc }}</p>
 
-            <div class="motion-header">
-                <span class="motion-name">{{ anim.name }}</span>
-                <code class="motion-var">{{ anim.var }}</code>
-            </div>
+                <div class="motion-track">
+                    <div
+                        class="motion-ball main"
+                        :style="{
+                            transitionTimingFunction: `var(${anim.var})`,
+                            transitionDuration: `${duration}s`,
+                        }"
+                    />
 
-            <p class="motion-desc">{{ anim.desc }}</p>
+                    <div
+                        class="motion-ball ghost"
+                        :style="{ transitionDuration: `${duration}s` }"
+                    />
+                </div>
 
-            <div class="motion-track">
-                <div
-                    class="motion-ball main"
-                    :style="{
-                        transitionTimingFunction: `var(${anim.var})`,
-                        transitionDuration: `${duration}s`
-                    }"
-                ></div>
-
-                <div
-                    class="motion-ball ghost"
-                    :style="{ transitionDuration: `${duration}s` }"
-                ></div>
-            </div>
-
-            <div class="motion-code">
-                {{ anim.bezier }}
+                <div class="motion-code">
+                    {{ anim.bezier }}
+                </div>
             </div>
         </div>
     </div>
-  </div>
 </template>
 
 <style lang="scss" scoped>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-    import { ref, computed } from 'vue';
+    import { computed, ref } from 'vue';
 
-    const { title, icon="bookmark_stacks", side } = defineProps<{
+    const { title, icon = 'bookmark_stacks', side } = defineProps<{
         title: string;
         icon?: string; //  ElSvgIcon name
         side?: 'left' | 'right'; // 決定縮起來時靠哪邊
@@ -16,7 +16,7 @@
     // 計算縮起時的 class
     const containerClass = computed(() => ({
         'is-collapsed': isCollapsed.value,
-        [`side-${ side || 'left' }`]: true
+        [`side-${side || 'left'}`]: true
     }));
 </script>
 
@@ -30,7 +30,7 @@
                 {{ title }}
             </h2>
             <div class="hud-panel__header-decor">
-                <div class="minimize-btn" :class="{ active: isCollapsed }"></div>
+                <div class="minimize-btn" :class="{ active: isCollapsed }" />
             </div>
         </header>
 
@@ -84,8 +84,6 @@
             width: 20px; height: 20px;
         }
 
-
-
         // 縮起狀態
         &.is-collapsed {
             // clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); // 取消切角以適應小方塊
@@ -108,9 +106,6 @@
                     }
                 }
 
-                &__content {
-
-                }
             }
 
             // 如果在右側，縮起時要靠右對齊 (這部分需要父層 flex 設定配合，或這裡用 align-self)

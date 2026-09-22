@@ -1,12 +1,12 @@
 <script setup lang="ts">
-    import { computed, onMounted, onUnmounted, watch } from 'vue';
-
     import { vZoomImg } from '@directives/zoomImg';
+
+    import { computed, onMounted, onUnmounted, watch } from 'vue';
 
     // 定義 Props
     const { photos = [], r2Raw = '' } = defineProps<{
-        photos: any[];             // 照片列表
-        r2Raw: string;             // Raw 圖網域
+        photos?: any[]; // 照片列表
+        r2Raw?: string; // Raw 圖網域
     }>();
 
     const lightboxIndex = defineModel<number | null>({ required: true });
@@ -104,7 +104,7 @@
                         v-if="currentPhoto"
                         :src="`${r2Raw.replace('/raw', '/thumbs')}/${getEncodedPath(currentPhoto.thumb)}`"
                         class="lb-img placeholder"
-                        :class="{ 'hidden': isLoaded }"
+                        :class="{ hidden: isLoaded }"
                         alt="placeholder"
                     />
 
@@ -113,7 +113,7 @@
                         v-zoom-img="3"
                         :src="`${r2Raw}/${getEncodedPath(currentPhoto.src)}`"
                         class="lb-img raw"
-                        :class="{ 'visible': isLoaded }"
+                        :class="{ visible: isLoaded }"
                         alt="lightbox-image"
                         @load="onRawLoad"
                     />

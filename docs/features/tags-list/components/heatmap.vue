@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { computed, ref, watch } from 'vue';
+    import { computed, ref } from 'vue';
 
     const props = defineProps<{
         data: Record<string, number>; // { '2023-01-01': 5 }
@@ -73,13 +73,13 @@
         <div class="heatmap-header">
             <span class="year-control" @click="switchYear(-1)">❮</span>
             <span class="current-year">{{ currentYear }} Activity</span>
-            <span class="year-control" @click="switchYear(1)" :class="{ disabled: currentYear >= new Date().getFullYear() }">❯</span>
+            <span class="year-control" :class="{ disabled: currentYear >= new Date().getFullYear() }" @click="switchYear(1)">❯</span>
 
             <div class="legend">
                 <span>Less</span>
-                <div class="cell level-0"></div>
-                <div class="cell level-2"></div>
-                <div class="cell level-3"></div>
+                <div class="cell level-0" />
+                <div class="cell level-2" />
+                <div class="cell level-3" />
                 <span>More</span>
             </div>
         </div>
@@ -88,17 +88,17 @@
             <div class="heatmap-grid">
                 <div v-for="(week, wIdx) in heatmapGrid" :key="wIdx" class="heatmap-column">
                     <div
-                        v-for="(day, dIdx) in week"
+                        v-for="day in week"
                         :key="day.date"
                         class="heatmap-cell"
                         :class="[
                             `level-${day.level}`,
                             { 'is-selected': selectedDate === day.date },
-                            { 'not-current-year': !day.isCurrentYear }
+                            { 'not-current-year': !day.isCurrentYear },
                         ]"
                         :title="`${day.date}: ${day.count} posts`"
                         @click="handleCellClick(day.date, day.count)"
-                    ></div>
+                    />
                 </div>
             </div>
         </div>
@@ -127,11 +127,21 @@
             padding: 2px 8px;
             cursor: pointer;
             user-select: none;
-            &:hover { background: var(--vp-c-bg-soft); border-radius: 4px; color: var(--vp-c-brand); }
-            &.disabled { pointer-events: none; opacity: 0.3; }
+            &:hover {
+                background: var(--vp-c-bg-soft);
+                border-radius: 4px;
+                color: var(--vp-c-brand);
+            }
+            &.disabled {
+                pointer-events: none;
+                opacity: 0.3;
+            }
         }
 
-        .current-year { color: var(--vp-c-text-1); font-weight: 600; }
+        .current-year {
+            color: var(--vp-c-text-1);
+            font-weight: 600;
+        }
 
         .legend {
             display: flex;
@@ -140,7 +150,11 @@
             margin-left: auto;
             font-size: 0.75rem;
 
-            .cell { width: 10px; height: 10px; border-radius: 2px; }
+            .cell {
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+            }
             .level-0 { background: var(--vp-c-bg-soft); }
             .level-2 { background: color-mix(in srgb, var(--vp-c-brand) 55%, transparent); }
             .level-3 { background: var(--vp-c-brand); }
@@ -151,7 +165,10 @@
         padding-bottom: 4px;
         overflow-x: auto;
         &::-webkit-scrollbar { height: 4px; }
-        &::-webkit-scrollbar-thumb { background: var(--vp-c-divider); border-radius: 4px; }
+        &::-webkit-scrollbar-thumb {
+            background: var(--vp-c-divider);
+            border-radius: 4px;
+        }
     }
 
     .heatmap-grid {

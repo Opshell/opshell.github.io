@@ -1,13 +1,13 @@
 <script setup lang="ts">
     import { useData } from 'vitepress';
 
+    const props = defineProps<Props>();
+
     const { frontmatter, page, isDark } = useData();
 
     interface Props {
         category: 'brand' | 'gray' | 'functional' | 'community' | 'mdtag';
     }
-
-    const props = defineProps<Props>();
 
     const colors = computed(() => {
         switch (props.category) {
@@ -18,7 +18,7 @@
                     { name: 'Primary 3', var: '--color-primary-3', hex: '#b99436' },
                     { name: 'Primary soft', var: '--color-primary-soft', hex: 'rgb(185, 148, 54, 16%)', darkHex: '#c4882c' },
 
-                    { name: 'Adorn', var: '--color-adorn', hex: '#bd34fe' },
+                    { name: 'Adorn', var: '--color-adorn', hex: '#bd34fe' }
                 ];
             case 'gray':
                 return [
@@ -39,7 +39,7 @@
                     { name: 'Success', var: '--color-success', hex: '#03A61C' },
                     { name: 'Warning', var: '--color-warning', hex: '#FAAD14' },
                     { name: 'Error', var: '--color-error', hex: '#F23005' },
-                    { name: 'Info', var: '--color-info', hex: '#1890FF' },
+                    { name: 'Info', var: '--color-info', hex: '#1890FF' }
                 ];
             case 'community':
                 return [
@@ -48,7 +48,7 @@
                     { name: 'Twitter', var: '--color-twitter', hex: '#1DA1F2' },
                     { name: 'Line', var: '--color-line', hex: '#00BA01' },
                     { name: 'Cake', var: '--color-cake', hex: '#1DAB69' },
-                    { name: 'Instagram', var: '--color-instagram', hex: '#FD1389' },
+                    { name: 'Instagram', var: '--color-instagram', hex: '#FD1389' }
                 ];
             case 'mdtag':
                 return [
@@ -62,7 +62,7 @@
 
     const copiedColor = ref<string | null>(null);
 
-    const copyColor = (color: { hex: string, darkHex?: string }) => {
+    const copyColor = (color: { hex: string; darkHex?: string }) => {
         const targetHex = isDark.value
             ? (color.darkHex || color.hex)
             : color.hex;
@@ -86,8 +86,8 @@
             @click="copyColor(color)"
         >
             <div class="color-series__swatch">
-                <div class="color-swatch" :style="{ backgroundColor: `var(${color.var})` }"></div>
-                <div class="copy-overlay" :class="{ 'show': copiedColor === color.hex }">
+                <div class="color-swatch" :style="{ backgroundColor: `var(${color.var})` }" />
+                <div class="copy-overlay" :class="{ show: copiedColor === color.hex }">
                     <span>Copied!</span>
                 </div>
             </div>

@@ -44,15 +44,17 @@ alias：`@`＝`docs/`、`@features`、`@shared`、`@components`、`@hooks`、`@u
 | 指令 | 做什麼 |
 |---|---|
 | `pnpm docs:dev` | 開發伺服器，port 8086，會自動開瀏覽器。叮咚頁面加 `?api=http://localhost:8090` 改打本機後端 |
-| `pnpm docs:build` | 正式建置，約 30 秒。**改完必跑**，CI 也只跑這個 |
+| `pnpm docs:build` | 正式建置，約 30 秒 |
 | `pnpm docs:preview` | 用建置結果起伺服器。要看網址行為（結尾斜線、404、SSR 輸出）用這個，dev 模式在無頭瀏覽器裡是空白的 |
 | `pnpm dindon:privacy` | 從 App 的 `privacy_policy.md` 重新產生 `/dindon/privacy/`（[[web-dindon]]） |
 | `pnpm new-post "標題"` | 新文章骨架（[[web-blog-post]]） |
-| `pnpm exec stylelint <改到的檔案>` | 樣式檢查。**不要跑 `pnpm lint:style`**：它會 `--fix` 整個倉庫，主題 SCSS 有 57 個舊問題會一起混進你的 commit |
-| `pnpm lint` | **目前壞掉**（2026-09-22 確認）：`eslint.config.js` 的 `import/no-restricted-paths` 與 `import/no-cycle` 在 antfu 6.x 換用的 import 外掛裡不存在，ESLint 讀設定就報錯。修法是拿掉那兩條（前者指向不存在的 `src/features/UIKit`，本來就沒作用）。修好前照 [[web-code-style]] 自己對 |
+| `pnpm check` | **改完必跑**：lint → stylelint → typecheck → build，CI 跑的就是這四個 |
+| `pnpm lint`／`pnpm lint:fix` | ESLint 10 ＋ antfu 9，全倉庫要 0 error 0 warning。文章的 md 不 lint（`ignores`） |
+| `pnpm lint:style`／`pnpm lint:style:fix` | stylelint 17，`docs/**/*.{scss,vue}` |
+| `pnpm typecheck` | `vue-tsc --noEmit`。VitePress 內部元件的 import 由 `tsconfig` 的 `paths` 指到 `docs/types/shims/`，不進去檢查 |
 
 Node 24、pnpm 10.28（`packageManager` 鎖住）。`ignoreDeadLinks: true`，壞連結不會讓建置失敗，要自己點。
-沒有測試：`vitest` 裝了但 `__test__/` 不存在，不要建議加測試框架。
+沒有測試框架（2026-09-22 拿掉沒用到的 vitest），要寫測試那天再裝。
 
 ## 5. 頁面怎麼組
 

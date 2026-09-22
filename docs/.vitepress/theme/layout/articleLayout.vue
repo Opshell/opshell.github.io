@@ -1,29 +1,24 @@
 <script setup lang="ts">
-    import { ref, provide, nextTick, computed } from 'vue';
-    import { useData } from 'vitepress';
-    import { useSiteData } from '@hooks/useSiteData';
-
-    import { defaultWindow, useScroll } from '@vueuse/core';
-
-    // 深度引入 VitePress 原生導航與頁尾 (這是合法的黑魔法)
-    import VPNav from 'vitepress/dist/client/theme-default/components/VPNav.vue';
-    import VPFooter from 'vitepress/dist/client/theme-default/components/VPFooter.vue';
-    import VPSidebar from 'vitepress/dist/client/theme-default/components/VPSidebar.vue';
-    import VPDocAsideOutline from 'vitepress/dist/client/theme-default/components/VPDocAsideOutline.vue';
-    import VPLocalNav from 'vitepress/dist/client/theme-default/components/VPLocalNav.vue'; // 手機版選單控制用
-
     import {
+        ArticleMeta,
         ArticleTOC,
         AsideWidget,
         SeriesSidebar,
-        ArticleMeta,
         useTOC
     } from '@features/layout';
+    import { useSiteData } from '@hooks/useSiteData';
+    import { defaultWindow, useScroll } from '@vueuse/core';
 
+    import { useData } from 'vitepress';
+
+    import VPFooter from 'vitepress/dist/client/theme-default/components/VPFooter.vue';
+    // 深度引入 VitePress 原生導航與頁尾 (這是合法的黑魔法)
+    import VPNav from 'vitepress/dist/client/theme-default/components/VPNav.vue';
+
+    import { computed, nextTick, provide, ref } from 'vue';
 
     const { frontmatter, page, isDark } = useData();
     const siteData = useSiteData();
-
 
     const contentDom = ref<HTMLElement>();
     // 把 ref 丟進去 useTOC
@@ -54,7 +49,6 @@
         return y.value > 200;
     });
     // #endregion
-
 
     // --- 1. TypeScript Fix & Data Logic ---
     // 修復：使用 computed 並處理 siteData 可能為 undefined 的情況
@@ -154,7 +148,7 @@
         class="article-layout"
         :class="{
             'focus-mode': isFocusMode,
-            'reading-mode': isReadingMode
+            'reading-mode': isReadingMode,
         }"
     >
         <header class="article-layout__header">
@@ -208,7 +202,7 @@
             </aside>
         </div>
 
-        <div class="mobile-nav-overlay" v-if="isSidebarOpen" @click="closeSidebar"></div>
+        <div v-if="isSidebarOpen" class="mobile-nav-overlay" @click="closeSidebar" />
 
         <VPFooter />
     </div>
@@ -272,7 +266,6 @@
             padding: calc(var(--vp-nav-height) + 3rem) 2rem 4rem; // 避開 Fixed Header
             margin: 0 auto;
             transition: grid-template-columns 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-
 
             // --- Columns ---
             &-left {
@@ -343,13 +336,6 @@
             opacity: 1; // 預設是不透明
         }
     }
-
-
-
-
-
-
-
 
     // Paper Card Style
     .paper-card {

@@ -4,12 +4,12 @@
 import { CONTACT_EMAIL } from '../constants';
 
 export interface iPartialItem {
-    title: string
+    title: string;
     /** 在 App 裡的路徑；要寫信處理的留 null */
-    inApp: string | null
-    what: string
+    inApp: string | null;
+    what: string;
     /** 做完之後留下什麼 */
-    keeps: string
+    keeps: string;
 }
 
 /** 只想刪一部分：每一項都能單獨處理，帳戶、方案與額度都保留 */

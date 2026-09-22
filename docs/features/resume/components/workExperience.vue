@@ -2,15 +2,15 @@
     import { withBase } from 'vitepress';
 
     const props = defineProps<{
-        compImg: string
-        company: string
-        location: string
-        jobTitle: string
-        period: string
-        isDescriptionOpen?: boolean
+        compImg: string;
+        company: string;
+        location: string;
+        jobTitle: string;
+        period: string;
+        isDescriptionOpen?: boolean;
     }>();
     const emit = defineEmits<{
-        calcMonths: [months: number]
+        calcMonths: [months: number];
     }>();
 
     // [-] 做一個可以開關的description 區塊

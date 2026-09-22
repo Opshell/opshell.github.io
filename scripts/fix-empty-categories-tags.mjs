@@ -8,11 +8,9 @@ const TARGET_GLOB = 'docs/**/*.md';
 
 function replaceEmptyArraysInFrontmatter(source) {
     // 僅處理檔案開頭的第一個 frontmatter 區塊
-    if (!source.startsWith('---'))
-        return { changed: false, output: source };
+    if (!source.startsWith('---')) { return { changed: false, output: source }; }
     const end = source.indexOf('\n---', 3);
-    if (end === -1)
-        return { changed: false, output: source };
+    if (end === -1) { return { changed: false, output: source }; }
 
     const headerEnd = end + '\n---'.length; // 位置在第二個 --- 的起頭
     const header = source.slice(0, headerEnd);
@@ -45,8 +43,7 @@ async function main() {
     let updated = 0;
     for (const f of files) {
         const ok = await processFile(f);
-        if (ok)
-            updated++;
+        if (ok) { updated++; }
     }
     console.log(`Scanned ${files.length} files, updated ${updated} files.`);
 }

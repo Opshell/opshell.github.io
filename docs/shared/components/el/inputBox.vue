@@ -1,8 +1,8 @@
 <script setup lang="ts">
     withDefaults(defineProps<{
-        fieldName?: string
-        type?: 'row' | 'column'
-        remark?: string
+        fieldName?: string;
+        type?: 'row' | 'column';
+        remark?: string;
     }>(), {
         fieldName: '',
         type: 'column'

@@ -1,14 +1,16 @@
+import Tres from '@tresjs/core';
 import mediumZoom from 'medium-zoom';
 import { Theme, useRoute } from 'vitepress';
 import { Sandbox } from 'vitepress-plugin-sandpack';
+
 import DefaultTheme from 'vitepress/theme-without-fonts';
 
 import ExpandLayout from './layout/expandLayout.vue';
-
 import LayoutResume from './layout/resume.vue';
-import 'vitepress-plugin-sandpack/dist/style.css';
 
 // https://vitepress.dev/guide/custom-theme
+
+import 'vitepress-plugin-sandpack/dist/style.css';
 
 // [-] 字體引用
 import './fonts/font.css';
@@ -18,8 +20,6 @@ import './scss/style.scss';
 
 // [-] Svg Icon引用
 import 'virtual:svg-icons-register';
-
-import Tres from '@tresjs/core'
 
 // 這些頁面不載入第三方的計數腳本：它們手上有 Google 的登入憑證（後台是管理員、帳號頁是使用者本人），
 // 不讓外部腳本跑在同一頁。

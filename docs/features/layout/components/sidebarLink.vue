@@ -1,7 +1,7 @@
 <script setup lang="ts">
-    import { computed, ref, watch } from 'vue';
-    import { useRoute } from 'vitepress';
     import type { SidebarItem } from '../hooks/useSidebarData';
+    import { useRoute } from 'vitepress';
+    import { computed, ref, watch } from 'vue';
 
     // 定義 Props
     const props = defineProps<{
@@ -26,7 +26,7 @@
     // Active 判斷 ---
     const normalize = (path: string) => decodeURIComponent(path).replace(/\.html$/, '').replace(/\/$/, '');
     const isActive = computed(() => {
-    if (!props.item.link) return false;
+        if (!props.item.link) return false;
         return normalize(route.path) === normalize(props.item.link);
     });
 
@@ -45,18 +45,18 @@
 
     const toggle = () => {
         isCollapsed.value = !isCollapsed.value;
-    }
+    };
 </script>
 
 <template>
     <li class="sidebar-item">
         <div v-if="hasChildren" class="sidebar-item__folder">
-            <button class="sidebar-item__folder-title" @click="toggle" :class="{ collapsed: isCollapsed }">
+            <button class="sidebar-item__folder-title" :class="{ collapsed: isCollapsed }" @click="toggle">
                 <span class="icon-arrow">▼</span>
                 <span class="text">{{ item.text }}</span>
             </button>
 
-            <ul class="sidebar-item__folder-items" v-show="!isCollapsed">
+            <ul v-show="!isCollapsed" class="sidebar-item__folder-items">
                 <SidebarLink
                     v-for="(child, index) in item.items"
                     :key="index"

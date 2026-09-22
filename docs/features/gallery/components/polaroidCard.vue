@@ -32,15 +32,15 @@
     });
 
     const lensString = computed(() => {
-        const { lens, focalLength,  } = props.photo.exif || {};
+        const { lens, focalLength } = props.photo.exif || {};
         // 如果鏡頭名字太長，可以考慮只顯示焦段
-        return  lens || focalLength || '';
+        return lens || focalLength || '';
     });
 </script>
 
 <template>
     <div class="polaroid-card">
-        <div class="polaroid-card__container" >
+        <div class="polaroid-card__container">
             <img
                 :src="`${r2Thumb}/${encodePath(photo.thumb)}`"
                 loading="lazy"

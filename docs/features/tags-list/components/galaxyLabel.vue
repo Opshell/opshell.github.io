@@ -1,56 +1,55 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { Html } from '@tresjs/cientos';
+    import { Html } from '@tresjs/cientos';
+    import { computed, ref, watch } from 'vue';
 
-const { activeLabelNode = {
-    name: 'title',
-    type: 'star', // 或 'star'
-}} = defineProps<{
-    activeLabelNode: {
-        name: string;
-        type: 'planet' | 'star';
-    } | null;
-}>();
+    const { activeLabelNode = {
+        name: 'title',
+        type: 'star' // 或 'star'
+    } } = defineProps<{
+        activeLabelNode?: {
+            name: string;
+            type: 'planet' | 'star';
+        } | null;
+    }>();
 
+    // 1. 宣告一個內部 ref 用來抓取真實的 Tres 3D 物件
+    const labelGroupRef = ref(null);
 
-// 1. 宣告一個內部 ref 用來抓取真實的 Tres 3D 物件
-const labelGroupRef = ref(null);
+    // 標題文字，用於打字機效果
+    const displayText = ref('');
+    const fullText = computed(() => activeLabelNode?.name || '');
+    let typingInterval: ReturnType<typeof setInterval> | null = null;
 
-// 標題文字，用於打字機效果
-const displayText = ref('');
-const fullText = computed(() => activeLabelNode?.name || '');
-let typingInterval: ReturnType<typeof setInterval> | null = null;
+    // 啟動打字機效果
+    const startTyping = () => {
+        if (typingInterval) clearInterval(typingInterval);
+        displayText.value = '';
+        let i = 0;
+        typingInterval = setInterval(() => {
+            if (i < fullText.value.length) {
+                displayText.value += fullText.value.charAt(i);
+                i++;
+            } else {
+                if (typingInterval) clearInterval(typingInterval);
+            }
+        }, 50); // 打字速度，可自行調整
+    };
 
-// 啟動打字機效果
-const startTyping = () => {
-    if (typingInterval) clearInterval(typingInterval);
-    displayText.value = '';
-    let i = 0;
-    typingInterval = setInterval(() => {
-        if (i < fullText.value.length) {
-            displayText.value += fullText.value.charAt(i);
-            i++;
-        } else {
-            if (typingInterval) clearInterval(typingInterval);
+    // 當標題內容改變時，重新啟動打字機
+    watch(fullText, (newText) => {
+        if (newText) {
+            startTyping();
         }
-    }, 50); // 打字速度，可自行調整
-};
+    }, { immediate: true });
 
-// 當標題內容改變時，重新啟動打字機
-watch(fullText, (newText) => {
-    if (newText) {
-        startTyping();
-    }
-}, { immediate: true });
-
-// 2. 關鍵：把這個 3D 物件暴露給父元件
-defineExpose({
-    tresObject: labelGroupRef
-});
+    // 2. 關鍵：把這個 3D 物件暴露給父元件
+    defineExpose({
+        tresObject: labelGroupRef
+    });
 </script>
 
 <template>
-    <TresGroup ref="labelGroupRef" v-if="activeLabelNode">
+    <TresGroup v-if="activeLabelNode" ref="labelGroupRef">
         <Html
             center transform sprite
             :distance-factor="15"
@@ -62,14 +61,14 @@ defineExpose({
                 :class="{ 'is-star': activeLabelNode.type === 'star' }"
             >
                 <div class="sci-fi-box">
-                    <div class="corner top-left"></div>
-                    <div class="corner top-right"></div>
-                    <div class="corner bottom-left"></div>
-                    <div class="corner bottom-right"></div>
+                    <div class="corner top-left" />
+                    <div class="corner top-right" />
+                    <div class="corner bottom-left" />
+                    <div class="corner bottom-right" />
                 </div>
                 <div class="label-container">
                     <Transition name="typing">
-                        <div class="label-text" v-show="displayText.length > 0">
+                        <div v-show="displayText.length > 0" class="label-text">
                             {{ displayText }}<span class="cursor">_</span>
                         </div>
                     </Transition>
@@ -129,10 +128,26 @@ defineExpose({
             }
 
             // 關鍵 2：貼齊外框的四個角，不使用負數外推
-            .top-left { top: -4px; left: -4px; border-width: 3px 0 0 3px; }
-            .top-right { top: -4px; right: -4px; border-width: 3px 3px 0 0; }
-            .bottom-left { bottom: -4px; left: -4px; border-width: 0 0 3px 3px; }
-            .bottom-right { right: -4px; bottom: -4px; border-width: 0 3px 3px 0; }
+            .top-left {
+                top: -4px;
+                left: -4px;
+                border-width: 3px 0 0 3px;
+            }
+            .top-right {
+                top: -4px;
+                right: -4px;
+                border-width: 3px 3px 0 0;
+            }
+            .bottom-left {
+                bottom: -4px;
+                left: -4px;
+                border-width: 0 0 3px 3px;
+            }
+            .bottom-right {
+                right: -4px;
+                bottom: -4px;
+                border-width: 0 3px 3px 0;
+            }
         }
 
         // 標題容器，用於定位
