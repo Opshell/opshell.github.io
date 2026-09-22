@@ -4,6 +4,7 @@ description: 付款的那一刻，帳就記好了。叮咚記帳會讀付款通�
 layout: page
 class: dindon-page
 sidebar: false
+ogImage: /images/dindon/og.png
 aside: false
 # 不設 isPublished：設了會被當成文章，出現在時間軸與標籤列表
 ---

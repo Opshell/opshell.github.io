@@ -293,6 +293,30 @@ export default defineConfig({
             // };
         }
     },
+    // 每一頁的 Open Graph／Twitter 卡片：預覽服務沒有這些就會撿頁面第一張圖（導覽列的 logo）。
+    // 圖片用 frontmatter 的 ogImage（絕對路徑，例如 /images/dindon/og.png），沒有就用站台預設那張。
+    transformPageData(pageData) {
+        const site = 'https://opshell.me';
+        const title = pageData.frontmatter.title ? `${pageData.frontmatter.title} | Opshell's Blog` : 'Opshell\'s Blog';
+        const description = pageData.frontmatter.description || pageData.description || 'Opshell\'s work and life records.';
+        const path = `/${pageData.relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '.html')}`;
+        const image = `${site}${pageData.frontmatter.ogImage || '/images/og-default.jpg'}`;
+        pageData.frontmatter.head ??= [];
+        pageData.frontmatter.head.push(
+            ['meta', { property: 'og:type', content: 'website' }],
+            ['meta', { property: 'og:site_name', content: 'Opshell\'s Blog' }],
+            ['meta', { property: 'og:title', content: title }],
+            ['meta', { property: 'og:description', content: description }],
+            ['meta', { property: 'og:url', content: `${site}${path}` }],
+            ['meta', { property: 'og:image', content: image }],
+            ['meta', { property: 'og:image:width', content: '1200' }],
+            ['meta', { property: 'og:image:height', content: '630' }],
+            ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+            ['meta', { name: 'twitter:title', content: title }],
+            ['meta', { name: 'twitter:description', content: description }],
+            ['meta', { name: 'twitter:image', content: image }]
+        );
+    },
     transformHead({ assets }) {
         // adjust the regex accordingly to match your font
         ['Roboto', 'NotoSansTC', 'FiraCode'].map((fontName) => {
