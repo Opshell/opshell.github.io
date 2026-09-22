@@ -1,5 +1,3 @@
-/// <reference types="vitest" />
-
 /* eslint-disable antfu/no-top-level-await */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -448,14 +446,6 @@ export default defineConfig({
                 'postprocessing',
                 'd3-force-3d'
             ]
-        },
-        test: { // https://vitest.dev/guide/#configuring-vitest
-            include: [`${path.resolve(__dirname, '../')}__test__/*.spec.ts`],
-            // exclude: ['**/node_modules/**', '**/dist/**'],
-
-            globals: true,
-            environment: 'jsdom',
-            deps: {}
         }
     },
     vue: {
