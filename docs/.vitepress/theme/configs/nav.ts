@@ -8,23 +8,7 @@ export default [
                 text: 'Life\'s Mumurs',
                 link: '/article/life-murmurs/life'
             },
-            {
-                text: 'Front-End Basic',
-                items: [
-                    {
-                        text: 'HTML',
-                        link: '/article/code-sea/html'
-                    },
-                    {
-                        text: 'CSS',
-                        link: '/article/code-sea/css'
-                    },
-                    {
-                        text: 'Javascript',
-                        link: '/article/code-sea/javascript'
-                    }
-                ]
-            },
+            // [+] Front-End Basic（HTML／CSS／JavaScript 的索引頁還沒做，做好再放回來）
             {
                 text: 'Code Sea',
                 items: [
@@ -55,10 +39,7 @@ export default [
     {
         text: 'Portfolio',
         items: [
-            {
-                text: '活動&賽事',
-                link: '/article/portfolio/competition/'
-            },
+            // [+] 活動&賽事：/article/portfolio/competition/ 還沒有頁面
             {
                 text: 'Side Projects',
                 items: [
@@ -70,10 +51,7 @@ export default [
                         text: '3D Galaxy Posts（beta）',
                         link: '/galaxy-posts'
                     },
-                    {
-                        text: 'Flosker',
-                        link: '/flosker'
-                    },
+                    // [+] Flosker：頁面還沒做，做好再放回來（/flosker）
                     {
                         text: 'DinDon 記帳',
                         link: '/dindon/' // 頁面是 dindon/index.md，沒開 cleanUrls，少了結尾斜線會 404
