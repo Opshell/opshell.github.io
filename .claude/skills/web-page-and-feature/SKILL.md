@@ -98,6 +98,15 @@ docs/features/dindon/
 
 alias（`config.mts` 與 `tsconfig.json` 兩邊都要有）：`@`＝`docs/`、`@features`、`@shared`、`@components`、`@hooks`、`@utils`、`@data`、`@theme`、`@vitepress`、`@pages`、`@photos`。
 
+## 分享預覽圖（Open Graph）
+
+`config.mts` 的 `transformPageData` 給每一頁產 `og:*` 與 `twitter:*`。要指定圖就在 frontmatter 寫 `ogImage: /images/xxx.png`（1200×630），
+沒寫用 `/images/og-default.jpg`。叮咚四頁用 `/images/dindon/og-share.png`。
+
+- **換圖一定換檔名**，不要覆蓋舊檔：`opshell.me` 前面有 Cloudflare，圖片快取 4 小時，Facebook、LINE、Threads 也各自快取圖片網址。
+- **部署完成前不要去 curl 新的圖片網址**：Cloudflare 會把那次的 404 快取 4 小時，之後誰抓都是 404（2026-09-22 踩過，只好改檔名）。
+- 部署後到 Facebook Sharing Debugger 按「重新抓取」；LINE 的 Page Poker 網域已經停用。
+
 ## 導覽與側欄
 
 - 頂部選單：`docs/.vitepress/theme/configs/nav.ts`。叮咚有自己一個大項（關於、隱私權政策、刪除資料與帳號），Portfolio → Side Projects 也有一項。

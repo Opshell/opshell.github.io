@@ -365,3 +365,16 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 隱私權政策頁由同步腳本產生，範本一起改。
 
 **注意**：LINE、Facebook、Threads 會快取舊的預覽，部署後要用各家的分享除錯工具重抓一次（Facebook Sharing Debugger、LINE 的 Page Poker）。
+
+## 補記：Facebook 抓到的還是方角版、以及 Cloudflare 快取住的 404
+
+**使用者**：我用 Facebook 的工具了，中間的 logo 可以有圓角嗎？然後加點陰影。Facebook 除錯工具有順便更新 Threads 嗎？
+**使用者**（附截圖）：我意思是叮咚的 APP LOGO 白色的四個角落要圓角，然後整塊白色要有陰影。然後你沒回答我 Facebook 和 Threads 的預覽圖相通嗎？
+
+- 圓角加陰影在 `47dc670` 就做了。Facebook 抓到方角版，是因為它抓圖時上線的還是第一版（`2f729b3`）。
+- 更糟的是：我在 `47dc670` 部署完成前 curl 了一次 `og.png`，Cloudflare 把那次的 404 快取 4 小時，之後誰抓都是 404。
+  沒有 Cloudflare 權限清快取，改檔名成 `og-share.png`（`fca011b`），部署完成後才驗證：線上 200、內容跟倉庫一致。
+- 這兩個坑寫進 `web-page-and-feature` skill：換圖一定換檔名、部署完成前不要碰新圖片網址。
+- LINE 的 Page Poker（poker.line.naver.jp）DNS 已經解析不到，停用了。Facebook Sharing Debugger 要登入，只能使用者自己按。
+- Threads 與 Facebook：兩者都用 Meta 的爬蟲，但 Meta 沒有公開說明兩邊共用同一份預覽快取，這點沒辦法確認。Threads 本身沒有除錯工具；
+  最可靠的驗證是在 Threads 開一則草稿貼網址看預覽。因為這次圖片網址換新了，任何一邊只要重新抓頁面就一定拿到新圖。
