@@ -89,7 +89,7 @@ docs/features/dindon/
 
 | 東西 | 在哪 | 怎麼用 |
 |---|---|---|
-| 基本元件 | `docs/shared/components/el/*.vue` | 自動註冊，直接寫 `<ElBtn>`、`<ElTag>`、`<ElSvgIcon name="tag" />`；不用 import |
+| 基本元件 | `docs/shared/components/el/*.vue` | 自動註冊，直接寫 `<ElBtn>`、`<ElTag>`、`<ElInput>`、`<ElSvgIcon name="tag" />`；不用 import。全部的示範、props 與用法在 `/design-system#components`（`features/design-system/components/Components.vue`），**加新元件要補一塊 `<DemoBlock>`** |
 | SVG 圖示 | `docs/public/icons/<name>.svg` | `<ElSvgIcon name="<name>" />`（`vite-plugin-svg-icons`，symbolId 就是檔名） |
 | 共用 hook／util | `docs/shared/hooks/`、`docs/shared/utils/` | 自動 import（`unplugin-auto-import`），直接用；`vue` 的 API 也自動 import，但既有程式習慣還是明寫 `import { ref } from 'vue'` |
 | 文章索引 | `useSiteData()`（`@shared/hooks/useSiteData`） | 拿 `posts`、`tags`、`counts` |

@@ -1,57 +1,74 @@
 <script setup lang="ts">
-    withDefaults(
-        defineProps<{
-            label?: string;
-            val?: string | number;
-        }>(),
-        {
-            label: '',
-            val: ''
-        }
-    );
+    import { computed } from 'vue';
 
+    // 單選。同一組給同一個 v-model，各自帶 val
+    const { val, label = '', disabled = false } = defineProps<{
+        val: string | number;
+        label?: string;
+        disabled?: boolean;
+    }>();
     const data = defineModel<string | number>({ default: '' });
+    const checked = computed(() => data.value === val);
 </script>
 
 <template>
-    <q-radio
-        v-model="data"
-        class="el-radio"
-
-        :label
-        :val
-    >
-        <slot />
-    </q-radio>
+    <label class="el-radio" :class="{ 'is-checked': checked, 'is-disabled': disabled }">
+        <input type="radio" class="el-radio__native" :checked :disabled @change="data = val" />
+        <span class="el-radio__dot" aria-hidden="true" />
+        <span v-if="label || $slots.default" class="el-radio__label"><slot>{{ label }}</slot></span>
+    </label>
 </template>
 
 <style lang="scss">
     .el-radio {
-        .q-radio__inner--truthy {
-            color: var(--color-primary-1);
-            .q-radio__bg {
-                border-color: var(--color-primary-1);
-            }
-        }
-        .q-radio__bg {
-            background: var(--color-gray-000);
-            border: 1px solid var(--color-gray-200);
-            border-radius: 100%;
-            font-size: 18px;
-            path:not(.q-radio__check) { // 捨棄原先的svg circle
-                display: none;
-            }
-        }
-        .q-radio {
-            &__label {
-                color: var(--color-gray-900);
-                font-weight: 400;
-                transform: translateX(-5px) translateY(1px);
-            }
-        }
-    }
+        @include setFlex(flex-start, center, 8px);
+        display: inline-flex;
+        color: var(--vp-c-text-1);
+        font-size: var(--font-size-s);
+        cursor: pointer;
+        user-select: none;
 
-    body.desktop .el-radio:not(.disabled) .q-radio__inner::before {
-        background: var(--color-primary-light);
+        &__native {
+            position: absolute;
+            @include setSize(1px, 1px);
+            clip-path: inset(50%);
+            opacity: 0;
+        }
+        &__dot {
+            position: relative;
+            flex-shrink: 0;
+            background: var(--vp-c-bg-soft);
+            @include setSize(18px, 18px);
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 50%;
+            transition: .15s var(--cubic-FiSo);
+
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 4px;
+                background: var(--color-gray-000);
+                border-radius: 50%;
+                transform: scale(0);
+                transition: transform .15s var(--cubic-SiRo);
+            }
+        }
+
+        &:hover .el-radio__dot { border-color: var(--vp-c-brand); }
+        &__native:focus-visible + .el-radio__dot {
+            outline: 2px solid var(--vp-c-brand-1);
+            outline-offset: 2px;
+        }
+
+        &.is-checked .el-radio__dot {
+            background: var(--vp-c-brand);
+            border-color: var(--vp-c-brand);
+
+            &::after { transform: scale(1); }
+        }
+        &.is-disabled {
+            cursor: not-allowed;
+            opacity: .5;
+        }
     }
 </style>

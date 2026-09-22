@@ -1,133 +1,114 @@
 <script setup lang="ts">
+    // 按鈕。有 href 就是 <a>，沒有就是 <button>。
+    // 四種樣式：ghost（預設，跟標籤頁的分頁鈕、相簿的返回鈕同一套）、primary（品牌色）、text（只有字）、danger。
     interface iProps {
-        title?: string;
-        icon?: string;
+        variant?: 'ghost' | 'primary' | 'text' | 'danger';
+        size?: 'sm' | 'md';
         href?: string;
+        target?: string;
+        disabled?: boolean;
+        type?: 'button' | 'submit';
     }
-    withDefaults(defineProps<iProps>(), {
-        title: '',
-        icon: '',
-        href: ''
-    });
+    const { variant = 'ghost', size = 'md', href = '', target, disabled = false, type = 'button' } = defineProps<iProps>();
 </script>
 
 <template>
-    <router-link v-if="href !== ''" :to="href" class="el-btn" role="button">
-        <slot v-if="$slots.icon" name="icon" />
-        <span v-if="$slots.default" class="text">
-            <slot />
-        </span>
-    </router-link>
-
-    <div v-else class="el-btn" role="button">
-        <slot v-if="$slots.icon" name="icon" />
-        <span v-if="$slots.default" class="text">
-            <slot />
-        </span>
-    </div>
+    <component
+        :is="href ? 'a' : 'button'"
+        class="el-btn"
+        :class="[`el-btn--${variant}`, `el-btn--${size}`, { 'is-disabled': disabled }]"
+        :href="href || undefined"
+        :target="href ? target : undefined"
+        :rel="href && target === '_blank' ? 'noopener' : undefined"
+        :type="href ? undefined : type"
+        :disabled="href ? undefined : disabled"
+        :aria-disabled="disabled || undefined"
+    >
+        <span v-if="$slots.icon" class="el-btn__icon"><slot name="icon" /></span>
+        <span v-if="$slots.default" class="el-btn__text"><slot /></span>
+    </component>
 </template>
 
 <style lang="scss">
     .el-btn {
-        --color-gray-200: #F5F5F5;
-        position: relative;
-        @include setFlex ();
-        gap: 3px;
-        background: var(--color-gray-200);
-        @include setSize(auto, 40px);
-        padding: 10px 20px;
-        border: 1px solid var(--color-gray-200);
-        border-radius: 5px;
-        color: var(--color-gray-900);
+        @include setFlex(center, center, 6px);
+        display: inline-flex;
+        background: var(--vp-c-bg-soft);
+        height: 36px;
+        padding: 0 14px;
+        border: 1px solid var(--vp-c-divider);
+        border-radius: 10px;
+        color: var(--vp-c-text-2);
+        font-size: var(--font-size-s);
+        font-weight: 500;
+        line-height: 1;
+        white-space: nowrap;
+        text-decoration: none;
         cursor: pointer;
-        transition: 0.2s $cubic-FiSo;
-        overflow: hidden;
-        .text {
-            font-size: 1rem;
-            white-space: nowrap;
-            transform: translateY(1px);
-            user-select: none;
-        }
-        .icon {
-            flex-shrink: 0;
-            margin-left: -8px;
-            fill: var(--color-gray-900);
-            transform: translateY(-1px);
-        }
+        transition: .2s var(--cubic-FiSo);
 
-        &.hight {
-            background: var(--color-primary-1);
-            border-color: var(--color-primary-1);
-            color: var(--color-gray-000);
-            .icon { fill: var(--color-gray-000);}
-        }
-        &.sub{
-            background: var(--color-gray-000);
-            border-color: var(--color-primary-1);
-            color: var(--color-primary-1);
-            .icon { fill: var(--color-primary-1);}
-        }
-        &.add {
-            background: var(--color-gray-050);
-            border: 1px dashed var(--color-gray-200);
-            color: var(--color-gray-700);
-            .icon { fill: var(--color-gray-700);}
-        }
-        &.danger {
-            background: var(--color-error);
-            border-color: var(--color-error);
-            color: var(--color-gray-000);
-            .icon { fill: var(--color-gray-000);}
-        }
-        &.white {
-            background: var(--color-gray-000);
-            border-color: var(--color-gray-000);
-            color: var(--color-gray-900);
-            .icon { fill: var(--color-gray-900);}
-        }
+        &__icon {
+            @include setFlex();
+            @include setSize(16px, 16px);
+            fill: currentColor;
 
-        &.border{
-            border: 1px solid var(--color-primary-1);
-            box-shadow: 0 0 0 2px var(--color-brand);
-        }
-        &.bg-inherit{
-            background-color: inherit;
+            .icon { @include setSize(16px, 16px); padding: 0; }
         }
 
         &:hover {
-            background: var(--color-primary-light);
-            border-color: var(--color-primary-light);
+            border-color: var(--vp-c-brand);
+            color: var(--vp-c-brand);
+        }
+        &:active { transition-duration: .05s; }
+        &:focus-visible {
+            outline: 2px solid var(--vp-c-brand-1);
+            outline-offset: 2px;
+        }
+
+        &--primary {
+            background: var(--vp-c-brand);
+            border-color: var(--vp-c-brand);
             color: var(--color-gray-000);
-            .icon { fill: var(--color-gray-000);}
-        }
-        &:active {
-            background: var(--color-primary-3);
-            border-color: var(--color-primary-3);
-            color: var(--color-gray-000);
-            .icon { fill: var(--color-gray-000);}
-            transition-duration: .03s;
-        }
-        &.current { // 當前頁面
-            background: var(--color-primary-dilute);
-            border-color: var(--color-primary-3);
-            color: var(--color-primary-3);
-            .icon { fill: var(--color-primary-3);}
-        }
-        &.disable {
-            background: var(--color-gray-050);
-            border-color: var(--color-gray-200);
-            color: var(--color-gray-300);
-            .icon { fill: var(--color-gray-300);}
-            cursor: not-allowed;
+
             &:hover {
-                background: var(--color-gray-050);
-                border-color: var(--color-gray-200);
-                color: var(--color-gray-300);
-                .icon { fill: var(--color-gray-300);}
+                background: var(--vp-c-brand-2);
+                border-color: var(--vp-c-brand-2);
+                color: var(--color-gray-000);
             }
         }
-        &.small-text .text{
-            font-size: 0.875rem;
+        &--text {
+            background: transparent;
+            border-color: transparent;
+
+            &:hover {
+                background: var(--vp-c-bg-soft);
+                border-color: transparent;
+            }
+        }
+        &--danger {
+            background: transparent;
+            border-color: var(--color-error);
+            color: var(--color-error);
+
+            &:hover {
+                background: var(--color-error);
+                border-color: var(--color-error);
+                color: var(--color-gray-000);
+            }
+        }
+
+        &--sm {
+            height: 30px;
+            padding: 0 10px;
+            border-radius: 8px;
+            font-size: var(--font-size-xs);
+        }
+
+        &.is-disabled,
+        &:disabled {
+            pointer-events: none;
+            cursor: not-allowed;
+            opacity: .4;
         }
     }
 </style>

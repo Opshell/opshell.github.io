@@ -31,7 +31,7 @@
         @include setSize(33px, 33px);
         padding: 2px;
         fill: currentColor;
-        transition: 0.2s var(--op-cubic-FiSo);
+        transition: .2s var(--cubic-FiSo); // 之前寫成 --op-cubic-FiSo，那個變數不存在
         .svg {
             @include setFlex();
             @include setSize(100%, 100%);

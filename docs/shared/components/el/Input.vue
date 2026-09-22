@@ -1,129 +1,59 @@
 <script setup lang="ts">
+    // 文字輸入。外殼跟標籤頁的搜尋框同一套；其他 attribute（placeholder、type、maxlength…）直接落到 <input> 上。
+    defineOptions({ inheritAttrs: false });
+    const { disabled = false } = defineProps<{ disabled?: boolean }>();
     const data = defineModel<string | number>({ default: '' });
 </script>
 
 <template>
-    <q-input
-        v-model="data"
-        class="el-input"
-        v-bind="$attrs"
-    >
-        <template v-if="$slots.icon" #append>
-            <slot name="icon" />
-        </template>
-    </q-input>
+    <label class="el-input" :class="{ 'is-disabled': disabled }">
+        <span v-if="$slots.icon" class="el-input__icon"><slot name="icon" /></span>
+        <input v-model="data" class="el-input__native" :disabled v-bind="$attrs" />
+        <span v-if="$slots.suffix" class="el-input__suffix"><slot name="suffix" /></span>
+    </label>
 </template>
 
 <style lang="scss">
-    .el-input,
-    .q-textarea {
-        @include setSize(100%, 45px);
+    .el-input {
+        @include setFlex(flex-start, center, 8px);
+        background: var(--vp-c-bg-soft);
+        width: 100%;
+        height: 40px;
+        padding: 0 12px;
+        border: 1px solid var(--vp-c-divider);
+        border-radius: 10px;
+        transition: border-color .2s var(--cubic-FiSo);
 
-        .q-field {
-            &__inner,
-            &__control {
-                height: 100%;
-            }
+        &:hover { border-color: color-mix(in srgb, var(--vp-c-brand) 50%, var(--vp-c-divider)); }
+        &:focus-within { border-color: var(--vp-c-brand); }
 
-            &__control { // 主外殼
-                background: var(--color-gray-000);
-                padding: 0 5px 0 15px;
-                border: 1px solid var(--color-gray-200);
-                border-radius: 5px;
-                transition: .2s $cubic-FiSo;
-                &::before,
-                &::after {
-                    display: none;
-                }
-            }
+        &__icon,
+        &__suffix {
+            flex-shrink: 0;
+            @include setFlex();
+            color: var(--vp-c-text-3);
+            fill: var(--vp-c-text-3);
 
-            &__native { // input 本體
-                background: transparent;
-                accent-color: transparent;
-                padding: 12px 0;
-            }
+            .icon { @include setSize(16px, 16px); padding: 0; }
+        }
+        &__native {
+            background: transparent;
+            width: 100%;
+            min-width: 0;
+            padding: 0;
+            border: 0;
+            outline: none;
+            color: var(--vp-c-text-1);
+            font-size: var(--font-size-s);
 
-            &__marginal { // icon
-                @include setFlex();
-                height: 100%;
-                padding: 5px 0 5px 8px;
-                .icon {
-                    background: transparent;
-                    border-radius: 5px;
-                    transition: .2s $cubic-FiSo;
-                }
-            }
+            &::placeholder { color: var(--vp-c-text-3); }
         }
 
-        &:hover:not(.q-field--disabled) {
-            .q-field__native,
-            .q-field__prefix,
-            .q-field__suffix {
-                color: var(--color-primary-1);
-            }
+        &.is-disabled {
+            cursor: not-allowed;
+            opacity: .5;
 
-            .icon {
-                fill: var(--color-brand);
-            }
-
-            .q-field__control{
-                border-color: var(--color-brand);
-            }
+            .el-input__native { cursor: not-allowed; }
         }
-
-        // [M] 狀態
-        &.q-field {
-            &--focused {
-                .q-field {
-                    &__control {
-                        border-color: var(--color-primary-1);
-                        box-shadow: 0 0 0 2px var(--color-brand);
-                    }
-
-                    &__marginal {
-                        color: var(--color-primary-1);
-                        fill: var(--color-primary-1);
-                        .icon {
-                            background: var(--color-brand);
-                            color: var(--color-primary-1);
-                            fill: var(--color-primary-1);
-                        }
-                    }
-                }
-            }
-
-            &--disabled {
-                .q-field {
-                    &__control {
-                        background: var(--color-gray-050);
-                    }
-                }
-            }
-        }
-
-        &.close:not(.q-field--focused, .q-field--float){
-            max-width: 45px;
-            .q-field {
-                &__control,
-                &__native,
-                &__marginal {
-                    padding: 0;
-                }
-                &__control {
-                    border-width: 0;
-                }
-            }
-
-            .icon {
-                background: var(--color-gray-050);
-                @include setSize(45px, 45px);
-                padding: 5px;
-
-                // border-color: transparent;
-            }
-        }
-    }
-    .q-textarea {
-        height: auto;
     }
 </style>

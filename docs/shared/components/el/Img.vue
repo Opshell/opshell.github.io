@@ -1,97 +1,73 @@
 <script setup lang="ts">
-    import useBackendApi from '@shared/hooks/useApi';
-    import { file } from '@shared/hooks/utilityFunctions';
     import { ref, watch } from 'vue';
 
-    const props = withDefaults(defineProps<iProps>(), {
-        src: '',
-        origin: 'public',
-        renderMethod: 'blob'
-    });
-
-    const { getImage } = useBackendApi();
-
-    interface iProps {
+    // 圖片：載入中有轉圈、失敗換成 no_image、可以指定比例。就這樣，不接任何後端
+    const { src = '', alt = '', ratio = '', fit = 'cover' } = defineProps<{
         src?: string;
-        origin?: 'public' | 'src' | 'token';
-        renderMethod?: 'blob' | 'base64';
-    }
+        alt?: string;
+        /** 例如 '4 / 3'、'1 / 1'；不給就跟著圖片 */
+        ratio?: string;
+        fit?: 'cover' | 'contain';
+    }>();
 
-    const imgDom = ref<HTMLImageElement | null>(null);
-    const imgSrc = ref<string>('');
-    const isLoading = ref<boolean>(true);
+    const FALLBACK = '/images/no_image.svg';
+    const loading = ref(true);
+    const failed = ref(false);
 
-    watch(props, async (newVal) => {
-        isLoading.value = true;
-        if (newVal.src !== '') {
-            if (newVal.origin === 'public') {
-                imgSrc.value = newVal.src;
-                isLoading.value = false;
-            } else if (newVal.origin === 'src') {
-                if (file.getAssetsImageUrl(newVal.src) !== file.getAssetsImageUrl('')) {
-                    imgSrc.value = file.getAssetsImageUrl(newVal.src);
-                    isLoading.value = false;
-                }
-            } else if (newVal.origin === 'token') {
-                await getImage(newVal.src).then((response) => {
-                    if (response?.status) {
-                        if (props.renderMethod === 'base64') {
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                                imgSrc.value = e.target?.result as string;
-                            };
-                            reader.readAsDataURL(response.data);
-                        } else if (props.renderMethod === 'blob') {
-                            const blobUrl = URL.createObjectURL(response.data);
-                            imgSrc.value = blobUrl;
-                        }
-                        isLoading.value = false;
-                    }
-                }).catch((error) => {
-                    console.error(error);
-                    imgSrc.value = '/assets/images/No_Image.jpg';
-                    isLoading.value = false;
-                });
-            }
-        } else {
-            imgSrc.value = '/assets/images/No_Image.jpg';
-            isLoading.value = false;
-        }
-    }, {
-        immediate: true,
-        deep: true
+    watch(() => src, () => {
+        loading.value = true;
+        failed.value = false;
     });
 </script>
 
 <template>
-    <div class="el-img">
-        <img ref="imgDom" :src="imgSrc" />
-        <transition name="fade">
-            <div v-if="isLoading" class="loadingOverlay">
-                <div class="spinner" />
-            </div>
-        </transition>
+    <div class="el-img" :class="{ 'is-loading': loading, 'is-failed': failed }" :style="ratio ? { aspectRatio: ratio } : undefined">
+        <img
+            :src="failed || !src ? FALLBACK : src"
+            :alt
+            loading="lazy"
+            :style="{ objectFit: fit }"
+            @load="loading = false"
+            @error="failed = true; loading = false"
+        />
+        <Transition name="fade">
+            <span v-if="loading" class="el-img__spinner" aria-hidden="true" />
+        </Transition>
     </div>
 </template>
 
 <style lang="scss">
     .el-img {
         position: relative;
+        display: block;
+        background: var(--vp-c-bg-soft);
+        border-radius: 10px;
         overflow: hidden;
-        .loadingOverlay {
-            @include setFlex();
-            position: absolute;
-            inset: 0;
-            background: rgb(255, 255, 255, 80%);
-            backdrop-filter: blur(10px);
-            .spinner {
-                width: 40px;
-                height: 40px;
-                border: 4px solid #f3f3f3;
-                border-top: 4px solid #3498db;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            }
+
+        img {
+            display: block;
+            @include setSize(100%, 100%);
+            transition: opacity .3s var(--cubic-FiSo);
         }
+        &.is-loading img { opacity: 0; }
+        &.is-failed img {
+            padding: 20%;
+            opacity: .5;
+        }
+
+        &__spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            @include setSize(24px, 24px);
+            border: 2px solid var(--vp-c-divider);
+            border-top-color: var(--vp-c-brand);
+            border-radius: 50%;
+            margin: -12px 0 0 -12px;
+            animation: el-img-spin .8s linear infinite;
+        }
+    }
+    @keyframes el-img-spin {
+        to { transform: rotate(360deg); }
     }
 </style>

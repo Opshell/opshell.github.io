@@ -21,6 +21,7 @@ declare module 'vue' {
     ElInputBox: typeof import('./../shared/components/el/InputBox.vue')['default']
     ElRadio: typeof import('./../shared/components/el/Radio.vue')['default']
     ElSectionBlock: typeof import('./../shared/components/el/SectionBlock.vue')['default']
+    ElSelect: typeof import('./../shared/components/el/Select.vue')['default']
     ElSvgIcon: typeof import('./../shared/components/el/SvgIcon.vue')['default']
     ElTag: typeof import('./../shared/components/el/Tag.vue')['default']
     WidgetGiscusComment: typeof import('./../shared/components/widget/GiscusComment.vue')['default']

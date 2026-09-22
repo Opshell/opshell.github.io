@@ -177,9 +177,7 @@
                         <h2>Components</h2>
                         <p>Reusable building blocks for creating consistent interfaces.</p>
                     </div>
-                    <div class="card">
-                        <Components />
-                    </div>
+                    <Components />
                 </div>
             </Transition>
         </main>
