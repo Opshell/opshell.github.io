@@ -118,6 +118,6 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
 
 ## 檔名
 
-- feature 對外的元件 PascalCase：`DinDonLanding.vue`、`DashboardApp.vue`、`TagsList.vue`。
-- feature 內部的小元件既有的是 camelCase（`postCard.vue`、`dateBadge.vue`），叮咚底下是 PascalCase（`PromoPanel.vue`）。**跟同一個資料夾的鄰居一致**。
+- **`.vue` 一律 PascalCase**（2026-09-22 統一）：`DinDonLanding.vue`、`PostCard.vue`、`SvgHudPanel.vue`、`shared/components/el/Btn.vue`。
+  `el/` 底下自動註冊成 `<ElBtn>`，跟檔名的大小寫無關，改檔名不用改模板。
 - hook `useXxx.ts`、資料 `xxx.data.ts`、常數 `constants.ts`、API `api.ts`、格式化 `format.ts`。

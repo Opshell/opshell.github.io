@@ -3,7 +3,7 @@
     import { useSiteData } from '@shared/hooks/useSiteData';
     import { computed } from 'vue';
 
-    import postCard from './postCard.vue';
+    import postCard from './PostCard.vue';
 
     const siteData = useSiteData();
 

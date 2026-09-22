@@ -1,10 +1,10 @@
 <script setup lang="ts">
     import ColorPalette from './ColorPalette.vue';
-    import Components from './components.vue';
-    import FontFamily from './fontFamily.vue';
-    import IconGallery from './iconGallery.vue';
-    import MotionCurve from './motionCurve.vue';
-    import TypeScale from './typeScale.vue';
+    import Components from './Components.vue';
+    import FontFamily from './FontFamily.vue';
+    import IconGallery from './IconGallery.vue';
+    import MotionCurve from './MotionCurve.vue';
+    import TypeScale from './TypeScale.vue';
 
     const activeTab = ref('colors');
 

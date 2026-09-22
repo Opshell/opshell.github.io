@@ -6,7 +6,7 @@
     import { BackSide, Vector3 } from 'three';
     import { computed, onUnmounted, ref, shallowRef, watch } from 'vue';
 
-    import GalaxyLabel from './galaxyLabel.vue';
+    import GalaxyLabel from './GalaxyLabel.vue';
 
     // #endregion
 

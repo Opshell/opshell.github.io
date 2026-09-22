@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { useRoute } from 'vitepress';
     import { useSidebarData } from '../hooks/useSidebarData';
-    import SidebarLink from './sidebarLink.vue'; // 引入遞迴組件
+    import SidebarLink from './SidebarLink.vue'; // 引入遞迴組件
 
     const route = useRoute();
     const { sidebarGroups } = useSidebarData();

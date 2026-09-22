@@ -5,8 +5,8 @@ import { Sandbox } from 'vitepress-plugin-sandpack';
 
 import DefaultTheme from 'vitepress/theme-without-fonts';
 
-import ExpandLayout from './layout/expandLayout.vue';
-import LayoutResume from './layout/resume.vue';
+import ExpandLayout from './layout/ExpandLayout.vue';
+import LayoutResume from './layout/Resume.vue';
 
 // https://vitepress.dev/guide/custom-theme
 

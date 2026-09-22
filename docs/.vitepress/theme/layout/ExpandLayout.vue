@@ -5,7 +5,7 @@
     import { useData } from 'vitepress';
     import DefaultTheme from 'vitepress/theme';
     import { computed, nextTick, provide } from 'vue';
-    import ArticleLayout from './articleLayout.vue';
+    import ArticleLayout from './ArticleLayout.vue';
     import DesignSystemLayout from './DesignSystemLayout.vue';
 
     // Layout Component

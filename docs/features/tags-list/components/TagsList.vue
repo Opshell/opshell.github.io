@@ -7,8 +7,8 @@
     import { computed, onMounted, ref, watch } from 'vue';
 
     // 引入新組件
-    import Heatmap from './heatmap.vue';
-    import PostCard from './postCard.vue';
+    import Heatmap from './Heatmap.vue';
+    import PostCard from './PostCard.vue';
 
     // --- Data Fetching ---
     const siteData = useSiteData();

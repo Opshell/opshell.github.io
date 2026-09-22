@@ -2,10 +2,10 @@
     import galleryData from '@photos/data.json';
     import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-    import Card from './card.vue';
-    import Lightbox from './lightbox.vue';
-    import MasonryLayout from './masonryLayout.vue';
-    import PolaroidCard from './polaroidCard.vue';
+    import Card from './Card.vue';
+    import Lightbox from './Lightbox.vue';
+    import MasonryLayout from './MasonryLayout.vue';
+    import PolaroidCard from './PolaroidCard.vue';
 
     // --- 設定區 ---
     const R2_DOMAIN = 'https://image.opshell.me';

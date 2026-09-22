@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { Post } from '@hooks/useBuildSiteData';
     import { computed } from 'vue';
-    import DateBadge from './dateBadge.vue'; // 假設你有這個組件
+    import DateBadge from './DateBadge.vue'; // 假設你有這個組件
 
     const props = defineProps<{
         post: Post;

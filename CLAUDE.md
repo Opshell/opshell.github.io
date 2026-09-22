@@ -70,7 +70,7 @@ Node 24、pnpm 10.28（`packageManager` 鎖住）。`ignoreDeadLinks: true`，�
 
 從 `eslint.config.js`、`.stylelintrc.mjs` 與既有程式歸納，全文在 [[web-code-style]]。最常踩的：
 4 空格、`.vue` 的 `<script>` 與 `<style>` 內容再多縮一層、單引號、有分號、**沒有尾逗號**、
-interface 用 `i` 前綴（`iProps`、`iPoint`）、class 用 `區塊__元素` 加 `is-狀態`、
+interface 用 `i` 前綴（`iProps`、`iPoint`）、`.vue` 檔名一律 PascalCase、class 用 `區塊__元素` 加 `is-狀態`、
 `<style lang="scss">` 不加 `scoped` 而是整段包在頂層 class 裡、CSS 屬性照 stylelint-order 的順序、註解用中文寫「為什麼」。
 
 ## 7. 叮咚記帳的部分

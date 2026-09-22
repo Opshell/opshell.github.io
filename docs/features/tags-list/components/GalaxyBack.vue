@@ -8,10 +8,10 @@
 
     import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
     // 引入子元件
-    import GalaxyModel from './galaxyModel.vue'; // 負責 3D 場景、物理模擬、運鏡
-    import HudCursor from './hudCursor.vue'; // 負責 跟隨滑鼠的動態游標
-    import HudPanel from './hudPanel.vue'; // 負責 2D 介面顯示 (左側/右側面板)
-    import SvgHudPanel from './svgHudPanel.vue'; // 負責 2D 介面顯示 (左側/右側面板)
+    import GalaxyModel from './GalaxyModel.vue'; // 負責 3D 場景、物理模擬、運鏡
+    import HudCursor from './HudCursor.vue'; // 負責 跟隨滑鼠的動態游標
+    import HudPanel from './HudPanel.vue'; // 負責 2D 介面顯示 (左側/右側面板)
+    import SvgHudPanel from './SvgHudPanel.vue'; // 負責 2D 介面顯示 (左側/右側面板)
 
     // #region [P] 初始化與資料 Init
     const siteData = useSiteData(); // 取得部落格文章與標籤資料

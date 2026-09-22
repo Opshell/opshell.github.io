@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { Post } from '@hooks/useBuildSiteData';
-    import dateBadge from './dateBadge.vue';
+    import dateBadge from './DateBadge.vue';
 
     const { post } = defineProps<{ post: Post }>();
 </script>
