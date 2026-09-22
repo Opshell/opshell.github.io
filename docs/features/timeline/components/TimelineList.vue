@@ -2,119 +2,87 @@
     import type { Post } from '@shared/hooks/useBuildSiteData';
     import { useSiteData } from '@shared/hooks/useSiteData';
     import { computed } from 'vue';
+    import PostCard from './PostCard.vue';
 
-    import postCard from './PostCard.vue';
-
+    // 時間軸：全部已發布的文章，年 > 月 > 文章。
+    // 主線畫在 __wrap 上（版面內的絕對定位），不再用 fixed 加一串 calc 去猜圓點在哪；窄螢幕只要改 --op-line-left 就對得上。
     const siteData = useSiteData();
 
-    // --- Type Definitions ---
-    interface MonthGroup {
-        month: string; // e.g., "11" or "Nov"
-        monthLabel: string; // e.g., "November"
+    interface iMonthGroup {
+        month: string;
+        label: string;
         posts: Post[];
     }
-
-    interface YearGroup {
+    interface iYearGroup {
         year: string;
-        months: MonthGroup[];
+        months: iMonthGroup[];
+        count: number;
     }
 
-    // --- Logic: Data Grouping (Year > Month > Posts) ---
-    const timelineData = computed<YearGroup[]>(() => {
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthLabel = (month: string) => MONTHS[Number(month) - 1] ?? month;
+
+    const timelineData = computed<iYearGroup[]>(() => {
         if (!siteData.value) return [];
 
-        const allPosts = Array.from(siteData.value.posts.values())
-            .filter(post => post.date);
+        const posts = Array.from(siteData.value.posts.values())
+            .filter(post => post.date)
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-        // 先排序所有文章 (新 -> 舊)
-        allPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-        // 建立巢狀結構
         const grouped: Record<string, Record<string, Post[]>> = {};
+        for (const post of posts) {
+            const date = new Date(post.date);
+            const year = Number.isNaN(date.getFullYear()) ? 'Unknown' : String(date.getFullYear());
+            const month = Number.isNaN(date.getMonth()) ? '0' : String(date.getMonth() + 1);
+            ((grouped[year] ??= {})[month] ??= []).push(post);
+        }
 
-        allPosts.forEach((post) => {
-            const dateObj = new Date(post.date);
-            const year = isNaN(dateObj.getFullYear()) ? 'Unknown' : dateObj.getFullYear().toString();
-            // 取得月份 (0-11)，轉成 1-12
-            const month = isNaN(dateObj.getMonth()) ? '0' : (dateObj.getMonth() + 1).toString();
-
-            if (!grouped[year]) grouped[year] = {};
-            if (!grouped[year][month]) grouped[year][month] = [];
-
-            grouped[year][month].push(post);
-        });
-
-        // 轉為陣列並排序
-        // Outer: Years (Desc)
         return Object.keys(grouped)
             .sort((a, b) => Number(b) - Number(a))
             .map((year) => {
-                const monthMap = grouped[year];
-                // Inner: Months (Desc)
-                const months = Object.keys(monthMap)
+                const months = Object.keys(grouped[year])
                     .sort((a, b) => Number(b) - Number(a))
-                    .map(month => ({
-                        month,
-                        monthLabel: getMonthName(month),
-                        posts: monthMap[month]
-                    }));
-
-                return { year, months };
+                    .map(month => ({ month, label: monthLabel(month), posts: grouped[year][month] }));
+                return { year, months, count: months.reduce((n, m) => n + m.posts.length, 0) };
             });
     });
 
-    // [-] 數字轉英文月份
-    const getMonthName = (month: string) => {
-        const monthNames = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec'
-        ];
-        const index = parseInt(month) - 1;
-        return monthNames[index] || month;
-    };
+    const totalCount = computed(() => timelineData.value.reduce((n, y) => n + y.count, 0));
 </script>
 
 <template>
     <div class="timeline-page">
-        <div v-if="!timelineData.length" class="empty-state">
-            <div class="msg">時間軸空空如也...</div>
-        </div>
+        <header class="timeline-page__hero">
+            <h1 class="title">Timeline</h1>
+            <p class="subtitle">依時間排列的全部文章，共 {{ totalCount }} 篇。</p>
+        </header>
+
+        <p v-if="!timelineData.length" class="timeline-page__empty">時間軸空空如也…</p>
 
         <div v-else class="timeline-page__wrap">
-            <div
+            <section
                 v-for="yearGroup in timelineData"
                 :key="yearGroup.year"
-                class="timeline-page__year-section"
+                class="timeline-page__year"
             >
-                <div class="timeline-page__year-header">
+                <h2 class="timeline-page__year-label">
                     <span class="year">{{ yearGroup.year }}</span>
-                </div>
+                    <span class="count">{{ yearGroup.count }} 篇</span>
+                </h2>
 
-                <div class="timeline-page__year-container">
+                <div class="timeline-page__months">
                     <section
                         v-for="monthGroup in yearGroup.months"
                         :key="monthGroup.month"
-                        class="timeline-page__month-section"
+                        class="timeline-page__month"
                     >
-                        <header class="timeline-page__month-header">
-                            <h2 class="month" :title="`${monthGroup.month}月`">
-                                {{ monthGroup.monthLabel }}
-                                <span class="sr-only">{{ yearGroup.year }}</span>
-                            </h2>
-                        </header>
+                        <h3 class="timeline-page__month-label" :title="`${yearGroup.year} 年 ${monthGroup.month} 月`">
+                            {{ monthGroup.label }}
+                            <span class="sr-only">{{ yearGroup.year }} 年 {{ monthGroup.month }} 月</span>
+                        </h3>
 
-                        <ul class="timeline-page__month-container">
-                            <postCard
+                        <ul class="timeline-page__posts">
+                            <PostCard
                                 v-for="post in monthGroup.posts"
                                 :key="post.url"
                                 :post
@@ -122,153 +90,179 @@
                         </ul>
                     </section>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 </template>
 
-<style lang="scss" scoped>
-    // **Variables**
-    $line-width: 2px;
-    $dot-size: 14px;
-    $line-left-pos: 24px;
-
-    // **Variables & Config**
-    $line-color: var(--vp-c-divider);       // 靜態線條顏色
-    $active-color: var(--vp-c-brand);       // 互動發光顏色
-    $dot-size: 12px;                        // 節點大小
-    $line-offset: 19px;                     // 線條距離左邊的距離 (對齊 Month header 的視覺中心或自訂)
-
-    // **Animations**
-    @keyframes pulse-glow {
-        0% { box-shadow: 0 0 0 0 rgb(var(--vp-c-brand-1), 0.4); }
-        70% { box-shadow: 0 0 0 6px rgb(var(--vp-c-brand-1), 0); }
-        100% { box-shadow: 0 0 0 0 rgb(var(--vp-c-brand-1), 0); }
-    }
-    @keyframes flow-down {
-        0% { background-position: 0% 0%; }
-        100% { background-position: 0% 100%; }
-    }
-
+<style lang="scss">
     .timeline-page {
         --op-year-width: 120px;
         --op-month-width: 100px;
+        --op-gap: 1rem;
+        --op-post-dot-size: 20px;
+        --op-timeline-font-size: var(--font-size-xl); // 年、月、日、標題共用
+        --op-sticky-top: calc(var(--vp-nav-height) + 1rem);
 
-        --op-timeline-font-size: 1.625rem; // 年 月 日 標題 字體大小
-
-        --op-post-dot-size: 18px;
+        // 主線的 x：年欄 + 間距 + 月欄 + 間距 + 圓點的一半
+        --op-line-left: calc(var(--op-year-width) + var(--op-gap) + var(--op-month-width) + var(--op-gap) + var(--op-post-dot-size) / 2 - 1px);
         max-width: var(--vp-layout-max-width);
         min-height: 60vh;
-        padding: 3rem 120px;
+        padding: 2rem 120px 4rem;
         margin: 0 auto;
 
-        // 科技感主線：使用漸層讓它頭尾消失，不顯得生硬
-        &::before {
-            content: '';
-            position: fixed;
-            top: 62px;
-            bottom: 0;
-            left: calc(
-                (100vw - var(--vp-layout-max-width)) / 2 +
-                var(--op-year-width) + var(--op-month-width) + 93px + 4rem
-            ); // 調整到圓點中心
-            background: var(--vp-home-hero-name-background);
-            width: 2px;
-            height: calc(100vh - 62px);
-            z-index: 1;
+        // #region [P] 頁首：跟 Design System 頁同一種漸層標題
+        &__hero {
+            margin-bottom: 2.5rem;
+
+            .title {
+                display: inline-block;
+                background: var(--vp-home-hero-name-background);
+                -webkit-background-clip: text;
+                background-clip: text;
+                margin: 0;
+                font-size: 2.5rem;
+                font-weight: 800;
+                line-height: 1.4;
+                -webkit-text-fill-color: transparent;
+            }
+            .subtitle {
+                margin: .25rem 0 0;
+                color: var(--vp-c-text-2);
+                font-size: var(--font-size-m);
+            }
+        }
+
+        // #endregion
+
+        &__empty {
+            padding: 4rem 0;
+            color: var(--vp-c-text-3);
+            text-align: center;
         }
 
         &__wrap {
+            position: relative;
             @include setFlex(flex-start, stretch, 1.25rem, column);
+
+            // 主線：漸層讓頭尾自然淡出
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: var(--op-line-left);
+                background: var(--vp-home-hero-name-background);
+                width: 2px;
+                border-radius: 1px;
+                mask-image: linear-gradient(to bottom, transparent, #000 4rem, #000 calc(100% - 4rem), transparent);
+                z-index: 0;
+            }
         }
 
         &__year {
-            &-section {
-                // display: flex;
-                // align-items: flex-start;
-                display: grid;
-                grid-template: "year section" auto / var(--op-year-width) 1fr;
-                gap: 1rem;
-            }
+            display: grid;
+            grid-template: 'year months' auto / var(--op-year-width) 1fr;
+            gap: var(--op-gap);
 
-            &-header {
+            &-label {
                 position: sticky;
-                top: calc(var(--vp-nav-height) + 1rem);
+                top: var(--op-sticky-top);
+                grid-area: year;
                 align-self: start;
+                @include setFlex(flex-start, baseline, .5rem);
                 padding: 1rem 1rem 1rem 0;
-                z-index: 10;
+                border: 0;
+                margin: 0;
+                z-index: 3;
 
                 .year {
                     color: var(--vp-c-text-1);
                     font-size: var(--op-timeline-font-size);
                     font-weight: 900;
                     line-height: 1;
-                    z-index: 2;
                     -webkit-text-stroke: 1px var(--vp-c-brand-light);
                 }
+                .count {
+                    color: var(--vp-c-text-3);
+                    font-size: var(--font-size-xs);
+                    white-space: nowrap;
+                }
             }
+        }
 
-            &-container {
-                @include setFlex(flex-start, stretch, 1.25rem, column);
-            }
+        &__months {
+            grid-area: months;
+            @include setFlex(flex-start, stretch, 1.25rem, column);
         }
 
         &__month {
-            &-section {
-                position: relative; // 為了讓線條定位
-                // display: flex;
-                // align-items: flex-start;
-                display: grid;
-                grid-template: "month section" auto / var(--op-month-width) 1fr;
-                gap: 1rem;
-            }
+            display: grid;
+            grid-template: 'month posts' auto / var(--op-month-width) 1fr;
+            gap: var(--op-gap);
 
-            &-header {
+            &-label {
                 position: sticky;
-                top: calc(var(--vp-nav-height) + 1rem);
+                top: var(--op-sticky-top);
                 align-self: start;
-                background-color: var(--vp-c-bg);
+                background: var(--vp-c-bg);
                 padding: 1rem 1rem 1rem 0;
-                z-index: 10;
-                .month {
-                    color: var(--vp-c-text-1);
-                    font-size: var(--op-timeline-font-size);
-                    font-weight: 900;
-                    line-height: 1;
-                    z-index: 2;
-                    -webkit-text-stroke: 1px var(--vp-c-brand-light);
-                }
-            }
-
-            // 時間軸的主線 (垂直線)
-            &-container {
-                position: relative;
-                @include setFlex(flex-start, stretch, 1.25rem, column);
-                list-style: none;
+                border: 0;
+                margin: 0;
+                color: var(--vp-c-text-1);
+                font-size: var(--op-timeline-font-size);
+                font-weight: 900;
+                line-height: 1;
+                z-index: 3;
+                -webkit-text-stroke: 1px var(--vp-c-brand-light);
             }
         }
-    }
 
-    // --- RWD ---
-    @media (width <= 640px) {
-        .timeline-layout { padding: 2rem 1rem; }
-
-        $mobile-line-left: 16px;
-
-        .year-section::before { left: $mobile-line-left; }
-        .month-label { margin-left: calc(#{$mobile-line-left} + 20px); }
-        .time-marker { left: $mobile-line-left; }
-        .timeline-item { padding-left: $mobile-line-left; }
-
-        .modern-card {
-            flex-direction: column-reverse;
-            .card-thumbnail {
-                width: 100%;
-                height: 140px;
-                border-bottom: 1px solid var(--vp-c-divider);
-                border-left: none;
-            }
-            .card-body { padding: 1rem; }
+        &__posts {
+            position: relative;
+            @include setFlex(flex-start, stretch, 1.25rem, column);
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            z-index: 1;
         }
+
+        .sr-only {
+            position: absolute;
+            clip-path: inset(50%);
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
+        // #region [P] RWD：平板縮欄寬；手機把年、月改成橫排的標籤，主線貼左
+        @include setRWD(1100px) {
+            --op-year-width: 80px;
+            --op-month-width: 64px;
+            --op-timeline-font-size: var(--font-size-l);
+            padding: 2rem 2rem 4rem;
+        }
+        @include setRWD(640px) {
+            --op-line-left: calc(var(--op-post-dot-size) / 2 - 1px);
+            padding: 1.5rem 1rem 3rem;
+
+            &__year,
+            &__month {
+                display: block;
+            }
+            &__year-label,
+            &__month-label {
+                position: static;
+                padding: 0 0 .75rem;
+            }
+            &__month-label {
+                padding-left: calc(var(--op-post-dot-size) + 1.5rem);
+                color: var(--vp-c-text-2);
+                font-size: var(--font-size-m);
+                -webkit-text-stroke: 0;
+            }
+        }
+
+        // #endregion
     }
 </style>

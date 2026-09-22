@@ -76,6 +76,13 @@ function getFrontMatter(filePath: string) {
     return data;
 }
 
+/** frontmatter 的清單欄位：不是陣列就當空、去掉 null 與空白、去重 */
+function cleanList(value: unknown, fallback: string[]): string[] {
+    if (!Array.isArray(value)) return fallback;
+    const items = value.filter((v): v is string => typeof v === 'string' && v.trim() !== '').map(v => v.trim());
+    return items.length ? [...new Set(items)] : fallback;
+}
+
 function getExcerpt(content: string, description?: string): string {
     // 如果有手動寫 description，直接回傳 (優先權最高)
     if (description) return description;
@@ -157,9 +164,10 @@ function processFile(fullPath: string, contentRoot: string): Post | null {
         url,
         title: frontmatter.title as string,
         image: frontmatter.image as string ?? '/images/no_image.svg',
-        category: frontmatter.categories ?? ['雜談'],
+        category: cleanList(frontmatter.categories, ['雜談']),
         date: frontmatter.createdAt as string ?? '',
-        tags: frontmatter.tags as string[] ?? [],
+        // frontmatter 常有 `- null` 或空字串（早期腳本補的），不濾掉會出現一個叫「#」的標籤
+        tags: cleanList(frontmatter.tags, []),
         excerpt: getExcerpt(content, frontmatter.description as string)
     };
 }

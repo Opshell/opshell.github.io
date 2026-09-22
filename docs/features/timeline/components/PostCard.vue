@@ -1,67 +1,57 @@
 <script setup lang="ts">
-    import { Post } from '@hooks/useBuildSiteData';
-    import dateBadge from './DateBadge.vue';
+    import type { Post } from '@shared/hooks/useBuildSiteData';
+    import { computed } from 'vue';
+    import DateBadge from './DateBadge.vue';
 
     const { post } = defineProps<{ post: Post }>();
+
+    // 「未分類」「雜談」是預設值，不是資訊，不顯示
+    const categories = computed(() => (post.category ?? []).filter(c => c && !['未分類', '雜談'].includes(c)));
 </script>
 
 <template>
-    <li
-        :key="post.url"
-        class="timeline-page__post-item"
-    >
-        <div class="timeline-page__post-marker">
+    <li class="timeline-page__post-item">
+        <div class="timeline-page__post-marker" aria-hidden="true">
             <div class="dot" />
         </div>
 
-        <section class="timeline-page__post-card">
-            <!-- <img v-if="false" :src="post.image" loading="lazy" class="card-thumbnail" alt="cover" /> -->
-            <dateBadge class="date" :date="post.date" />
+        <article class="timeline-page__post-card">
+            <DateBadge class="date" :date="post.date" />
 
-            <div v-if="post.category" class="category-box">
-                <span v-for="category in post.category" :key="category" class="category">{{ category }}</span>
+            <div v-if="categories.length" class="category-box">
+                <span v-for="category in categories" :key="category" class="category">{{ category }}</span>
             </div>
 
             <h3 class="title">
                 <a :href="post.url">{{ post.title }}</a>
             </h3>
 
-            <p class="excerpt">
-                {{ (post as any).excerpt || '點擊閱讀更多內容...' }}
-            </p>
+            <p v-if="post.excerpt" class="excerpt">{{ post.excerpt }}</p>
 
-            <div v-if="post.tags.length > 0" class="tag-box">
+            <div v-if="post.tags.length" class="tag-box">
                 <ElTag v-for="tag in post.tags" :key="tag" :tag />
             </div>
 
-            <a :href="post.url" class="read-more">
-                Read more
-                <!-- <ElSvgIcon name="arrow_forward" /> -->
+            <a :href="post.url" class="read-more" :aria-label="`閱讀 ${post.title}`">
+                Read more <span class="arrow" aria-hidden="true">→</span>
             </a>
-        </section>
+        </article>
     </li>
 </template>
 
 <style lang="scss">
     .timeline-page__post {
-        --op-post-dot-size: 20px;
-
         &-item {
             position: relative;
-            @include setFlex(flex-start, stretch);
-            gap: 1.5rem;
+            @include setFlex(flex-start, stretch, 1.5rem);
 
+            // hover：圓點與卡片之間拉一條線、卡片外圍亮一圈漸層
             &:hover {
-                .timeline-page__post-marker {
-                    .dot { backdrop-filter: blur(4px); }
-                    &::after { transform: scaleX(1) rotateZ(180deg); }
-                }
-
+                .timeline-page__post-marker::after { transform: scaleX(1); }
                 &::before {
                     top: -2px;
                     @include setSize(calc(100% + 4px), calc(100% + 4px));
-                    transition: width 0.15s var(--cubic-FiSo) .2s,
-                            height 0.15s var(--cubic-FiSo) .1s;
+                    transition: width .15s var(--cubic-FiSo) .2s, height .15s var(--cubic-FiSo) .1s;
                 }
             }
 
@@ -72,181 +62,158 @@
                 left: calc(var(--op-post-dot-size) + 1.5rem - 2px);
                 background: var(--vp-home-hero-name-background);
                 @include setSize(0, 0);
-                clip-path: inset(0 round calc(1rem + 2px)); // 裁切圓角
+                clip-path: inset(0 round calc(1rem + 2px));
                 pointer-events: none;
-                transition: 0.2s var(--cubic-FiSo);
+                transition: .2s var(--cubic-FiSo);
                 z-index: -1;
             }
         }
 
         &-marker {
             position: sticky;
-            top: calc(var(--vp-nav-height) + 1rem); // 讓圓點也黏住
+            top: var(--op-sticky-top);
+            flex-shrink: 0;
             @include setFlex();
-            @include setSize(var(--op-post-dot-size), 3.25rem); // 字高 2.25rem + padding
-            padding: .2rem 0 0;
+            @include setSize(var(--op-post-dot-size), 3.25rem); // 對齊標題那一行
+            padding-top: .2rem;
             z-index: 2;
 
-            // 水平連接線 (從圓點連到卡片的線)
+            // 圓點到卡片的橫線
             &::after {
                 content: '';
                 position: absolute;
                 top: calc(3.25rem / 2 + 1px);
-                left: calc(-1rem - 7px);
+                left: calc(var(--op-post-dot-size) - 2px);
                 background: var(--vp-home-hero-name-background);
-                @include setSize(2rem, 2px);
+                @include setSize(calc(1.5rem + 2px), 2px);
                 border-radius: 2px;
-                transform: scaleX(0) rotateZ(180deg);
-                transform-origin: right;
-                transition: 0.2s var(--cubic-FiSo);
+                transform: scaleX(0);
+                transform-origin: left;
+                transition: .2s var(--cubic-FiSo);
             }
 
             .dot {
                 position: relative;
-                background: rgba($color: #FFF, $alpha: 8%); // 中間鏤空 (背景色)
+                background: rgb(255 255 255 / 8%);
                 @include setSize(var(--op-post-dot-size), var(--op-post-dot-size));
                 backdrop-filter: blur(2px);
                 border: 2px solid var(--color-gray-900);
                 border-radius: 50%;
-                transition: 0.25s var(--cubic-FiSo);
-
-                // opacity: .8;
+                transition: .25s var(--cubic-FiSo);
                 z-index: 2;
-
-                &::before {
-                    content: '';
-                    position: absolute;
-                    inset: 2px;
-                    flex-shrink: 0;
-                    background: var(--vp-home-hero-name-background);
-                    border-radius: 50%;
-                    transition: 0.25s ease;
-                    filter: blur(10px);
-                    opacity: 0;
-                    z-index: -1;
-                }
             }
         }
 
         &-card {
             position: relative;
-            flex-shrink: 0;
             display: grid;
-            grid-template:  "date title   category" auto
-                            "date excerpt excerpt " auto
-                            "date tags    read"     auto/
-                             80px 1fr     auto    ;
-            gap: 1rem;
+            grid-template:
+                'date title   category' auto
+                'date excerpt excerpt' auto
+                'date tags    read' auto /
+                80px 1fr auto;
+            gap: .75rem 1rem;
             background: var(--vp-c-bg);
             width: 100%;
-            padding: 0 2rem 1.25rem 1rem;
+            min-width: 0;
+            padding: 0 1.5rem 1.25rem 1rem;
             border: 2px solid transparent;
-
-            // clip-path: inset(0 round 1rem); // 裁切圓角
             border-radius: 1rem;
             box-shadow: var(--card-shadow);
             transition: .2s var(--cubic-FiSo);
+
             .date {
                 position: sticky;
-                top: calc(var(--vp-nav-height) + 1rem);
+                top: var(--op-sticky-top);
                 grid-area: date;
-                align-self: flex-start;
+                align-self: start;
             }
 
             .category-box {
                 grid-area: category;
-                justify-self: end;
-                color: var(--vp-c-brand-dark);
-                font-size: 0.75rem;
-                font-weight: 500;
+                @include setFlex(flex-end, center, 6px);
+                padding-top: calc(1rem - 2px);
 
                 .category {
-                    position: absolute;
-                    top: -3px;
-                    right: -3px;
-                    display: none;
-                    background: rgb(from var(--vp-c-brand-1) r g b / 60%);
-                    padding: 4px 12px;
-                    border-radius: 3px;
-                    border-top-right-radius: 1rem;
-                    border-bottom-left-radius: 12px;
-
-                    // 4. 陰影增加層次
-                    box-shadow: 2px -2px 5px rgb(0,0,0,5%) inset;
-                    color: white; // 反白字體
-                    font-size: 0.8rem;
-                    font-weight: 700;
-                    z-index: 5;
+                    background: color-mix(in srgb, var(--vp-c-brand) 12%, transparent);
+                    padding: 3px 10px;
+                    border-radius: 6px;
+                    color: var(--vp-c-brand-dark);
+                    font-size: var(--font-size-xs);
+                    font-weight: 600;
+                    white-space: nowrap;
                 }
             }
 
             .title {
                 grid-area: title;
+                min-width: 0;
                 padding: calc(1rem - 2px) 0 0;
-                color: var(--vp-c-text-1);
+                border: 0;
+                margin: 0;
                 font-size: var(--op-timeline-font-size);
                 font-weight: 700;
-                line-height: 1;
-                transition: .2s var(--cubic-FiSo);
+                line-height: 1.2;
 
-                &:hover { color: var(--vp-c-brand); }
+                a {
+                    color: var(--vp-c-text-1);
+                    text-decoration: none;
+                    transition: color .2s var(--cubic-FiSo);
+
+                    &:hover { color: var(--vp-c-brand); }
+                }
             }
 
             .excerpt {
                 grid-area: excerpt;
                 display: -webkit-box;
-                margin-bottom: .5rem;
+                margin: 0;
                 color: var(--vp-c-text-2);
-                font-size: 1rem;
+                font-size: var(--font-size-m);
                 font-weight: 300;
                 line-height: 1.6;
                 overflow: hidden;
+                -webkit-line-clamp: 2;
                 line-clamp: 2;
                 -webkit-box-orient: vertical;
             }
 
             .tag-box {
                 grid-area: tags;
-                display: flex;
+                @include setFlex(flex-start, center, 6px);
                 flex-wrap: wrap;
-                gap: 6px;
-                align-items: center;
-
-                .tag {
-                    background-color: color-mix(in srgb, var(--vp-c-brand) 20%, transparent);
-                    padding: 6px 15px 5px;
-                    border-radius: 14px;
-                    color: var(--vp-c-brand-dark);
-                    font-size: .9rem;
-                    font-weight: 400;
-                    line-height: 1;
-                    transition: .2s var(--cubic-FiSo);
-                    &:hover {
-                        background-color: var(--vp-c-brand);
-                        color: white;
-                    }
-                }
             }
 
             .read-more {
                 grid-area: read;
                 place-self: end end;
-                gap: 6px;
-                align-items: center;
+                @include setFlex(flex-start, center, 4px);
                 color: var(--vp-c-brand);
-                font-size: 1.2rem;
+                font-size: var(--font-size-m);
                 font-weight: 500;
                 line-height: 1;
-                .arrow {
-                    width: 16px;
-                    height: 16px;
-                    transition: transform 0.2s;
-                }
-            }
+                white-space: nowrap;
+                transition: gap .2s var(--cubic-FiSo);
 
-            &:hover {
-                // transform: translateX(5px); // 輕微右移，配合水平線伸長
-                // 這裡可以加一點 Glassmorphism 效果
+                &:hover { gap: 8px; }
+            }
+        }
+
+        // 手機：日期改到最上面一列，分類跟著，不再佔左欄
+        @include setRWD(640px) {
+            &-card {
+                grid-template:
+                    'date    category' auto
+                    'title   title' auto
+                    'excerpt excerpt' auto
+                    'tags    tags' auto
+                    'read    read' auto /
+                    auto 1fr;
+                padding: 1rem 1rem 1.25rem;
+
+                .date { position: static; }
+                .category-box { padding-top: 0; }
+                .title { padding-top: 0; }
             }
         }
     }

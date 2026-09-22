@@ -1,59 +1,35 @@
 <script setup lang="ts">
-    const { date = '' } = defineProps<{
-        date?: string;
-    }>();
+    import { computed } from 'vue';
 
-    // 使用 computed 緩存計算結果，效能最佳化
-    const splitDate = computed(() => {
+    // 時間軸已經按年、月分組，卡片上只剩「日」；完整日期放在 title 給滑鼠停留看
+    const { date = '' } = defineProps<{ date?: string }>();
+
+    const parsed = computed(() => {
         const d = new Date(date);
-        if (isNaN(d.getTime())) return { year: '--', month: '--', day: '--' };
-
-        return {
-            year: d.getFullYear().toString().slice(-2), // 取後兩位
-            month: String(d.getMonth() + 1).padStart(2, '0'),
-            day: String(d.getDate()).padStart(2, '0')
-        };
+        if (Number.isNaN(d.getTime())) return { day: '--', full: '' };
+        const pad = (n: number) => String(n).padStart(2, '0');
+        return { day: pad(d.getDate()), full: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` };
     });
 </script>
 
 <template>
-    <time class="date-badge" :datetime="date">
-        <span class="day">{{ splitDate.day }}</span>
-    <!-- <span class="year">{{ splitDate.year }}</span>
-    <span class="month">{{ splitDate.month }}</span> -->
+    <time class="date-badge" :datetime="parsed.full" :title="parsed.full">
+        <span class="day">{{ parsed.day }}</span>
     </time>
 </template>
 
 <style lang="scss">
     .date-badge {
-        display: grid;
-        grid-template: "day  day" auto
-                       "year month" auto /
-                        auto auto;
+        display: block;
         padding: calc(1rem - 2px) 1rem 0 0;
         line-height: 1;
 
         .day {
-            grid-area: day;
-            @include setFlex(center, flex-end);
+            display: block;
             color: var(--vp-c-brand);
-            font-size: var(--op-timeline-font-size);
+            font-size: var(--op-timeline-font-size, var(--font-size-xl));
             font-weight: bold;
-        }
-        .year {
-            grid-area: year;
-            justify-self: center;
-            padding: 0 4px;
-            color: var(--vp-c-text-1);
-            font-size: 1.5rem;
-        }
-
-        .month {
-            grid-area: month;
-            justify-self: center;
-            padding: 0 4px;
-            color: var(--vp-c-text-1);
-            font-size: 1.5rem;
+            text-align: right;
         }
     }
 </style>
