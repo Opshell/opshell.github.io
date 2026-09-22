@@ -10,14 +10,16 @@ import 'vitepress-plugin-sandpack/dist/style.css';
 
 // https://vitepress.dev/guide/custom-theme
 
-// [-]字體引用
+// [-] 字體引用
 import './fonts/font.css';
 
-// [-]全局樣式引用
+// [-] 全局樣式引用
 import './scss/style.scss';
 
-// [-]Svg Icon引用
+// [-] Svg Icon引用
 import 'virtual:svg-icons-register';
+
+import Tres from '@tresjs/core'
 
 // 這些頁面不載入第三方的計數腳本：它們手上有 Google 的登入憑證（後台是管理員、帳號頁是使用者本人），
 // 不讓外部腳本跑在同一頁。
@@ -50,7 +52,7 @@ function initZoom() {
 }
 
 export default {
-    ...DefaultTheme,
+    extends: DefaultTheme, // 使用 extends 而不是展開運算符 (...) 展開會破壞 DefaultTheme 的結構，特別是 enhanceApp
     Layout: ExpandLayout,
     setup() {
         const route = useRoute();
@@ -69,5 +71,6 @@ export default {
     enhanceApp({ app }) {
         app.component('resume', LayoutResume);
         app.component('Sandbox', Sandbox);
+        app.use(Tres);
     }
 } satisfies Theme;

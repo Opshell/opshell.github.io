@@ -334,7 +334,7 @@ export default defineConfig({
 
                 '@features': path.resolve(__dirname, '../', 'features'),
                 '@pages': path.resolve(__dirname, '../', 'pages'),
-                '@photos': path.resolve(__dirname, '../../', 'photos')
+                '@photos': path.resolve(__dirname, '../../', 'photos'),
             }
         },
         plugins: [
@@ -439,6 +439,16 @@ export default defineConfig({
                 }
             }
         },
+        ssr: {
+            noExternal: [
+                'three',
+                '@tresjs/core',
+                '@tresjs/cientos',
+                '@tresjs/post-processing', // 強制 VitePress 處理
+                'postprocessing',
+                'd3-force-3d'
+            ]
+        },
         test: { // https://vitest.dev/guide/#configuring-vitest
             include: [`${path.resolve(__dirname, '../')}__test__/*.spec.ts`],
             // exclude: ['**/node_modules/**', '**/dist/**'],
@@ -448,6 +458,13 @@ export default defineConfig({
             deps: {}
         }
     },
+    vue: {
+        template: {
+            compilerOptions: {
+                isCustomElement: (tag) => tag.startsWith('Tres') && tag !== 'TresCanvas',
+            },
+        },
+    } as any,
 
     ignoreDeadLinks: true
 });

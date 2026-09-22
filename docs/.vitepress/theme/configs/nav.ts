@@ -67,6 +67,14 @@ export default [
                         link: '/design-system'
                     },
                     {
+                        text: '3D Galaxy Posts（beta）',
+                        link: '/galaxy-posts'
+                    },
+                    {
+                        text: 'Flosker',
+                        link: '/flosker'
+                    },
+                    {
                         text: 'DinDon 記帳',
                         link: '/dindon/' // 頁面是 dindon/index.md，沒開 cleanUrls，少了結尾斜線會 404
                     }

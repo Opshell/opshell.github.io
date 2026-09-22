@@ -124,7 +124,8 @@
                         <p class="exif-detail">
                             {{ currentPhoto.exif.iso }} |
                             {{ currentPhoto.exif.aperture }} |
-                            {{ currentPhoto.exif.shutter }}
+                            {{ currentPhoto.exif.shutter }} |
+                            {{ currentPhoto.exif.focalLength }}
                         </p>
                     </div>
                 </div>
@@ -188,7 +189,8 @@
         .lb-image-wrapper {
             position: relative;
             display: flex;
-            flex: 1;
+
+            // flex: 1;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -202,6 +204,9 @@
             }
 
             .lb-info {
+                @include setFlex(space-between, center, 10px);
+                flex-wrap: wrap;
+                width: 100%;
                 margin-top: 15px;
                 color: #ddd;
                 font-family: monospace;
