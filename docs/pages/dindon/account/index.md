@@ -4,7 +4,7 @@ description: 叮咚記帳（DinDon Ledger）的帳號與資料刪除說明：哪
 layout: page
 class: dindon-account
 sidebar: false
-ogImage: /images/dindon/og.png
+ogImage: /images/dindon/og-share.png
 aside: false
 # Google Play 的「帳號刪除」要求有一個不用裝 App 也打得開的網址，所以這一頁要讓搜尋引擎收得到。
 # 不設 isPublished：設了會被當成文章，出現在時間軸與標籤列表

@@ -4,7 +4,7 @@ description: 叮咚記帳的管理後台（僅限管理員）
 layout: page
 class: dindon-dashboard
 sidebar: false
-ogImage: /images/dindon/og.png
+ogImage: /images/dindon/og-share.png
 aside: false
 # 後台不給搜尋引擎收錄；也刻意不設 isPublished、不放進導覽列
 head:

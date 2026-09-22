@@ -294,7 +294,7 @@ export default defineConfig({
         }
     },
     // 每一頁的 Open Graph／Twitter 卡片：預覽服務沒有這些就會撿頁面第一張圖（導覽列的 logo）。
-    // 圖片用 frontmatter 的 ogImage（絕對路徑，例如 /images/dindon/og.png），沒有就用站台預設那張。
+    // 圖片用 frontmatter 的 ogImage（絕對路徑，例如 /images/dindon/og-share.png），沒有就用站台預設那張。
     transformPageData(pageData) {
         const site = 'https://opshell.me';
         const title = pageData.frontmatter.title ? `${pageData.frontmatter.title} | Opshell's Blog` : 'Opshell\'s Blog';

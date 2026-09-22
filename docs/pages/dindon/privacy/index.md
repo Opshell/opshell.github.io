@@ -4,7 +4,7 @@ description: 叮咚記帳（DinDon Ledger）的隱私權政策：App 會碰到�
 layout: doc
 class: dindon-privacy
 sidebar: false
-ogImage: /images/dindon/og.png
+ogImage: /images/dindon/og-share.png
 # 這一頁由 scripts/sync-dindon-privacy.mjs 從 App 的 privacy_policy.md 產生，不要直接改這個檔案。
 # 不設 isPublished：設了會被當成文章，出現在時間軸與標籤列表。
 ---
