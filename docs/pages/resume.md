@@ -1,254 +1,160 @@
 ---
 layout: resume
+title: Resume
+description: Opshell 的履歷：Senior Front-End Developer，前端架構、開發流程與 AI 協作。
 
 portrait: /images/resume/portrait.webp
 name: Opshell
-jobTitle: Front-End Developer
-mbti: INTP-A
-summary:
-skills:
-  - type: Front-End Skills
-    items:
-      - icon: colorful/vue
-        text: Vue
-        color: 4da986
-      - icon: colorful/vite
-        text: Vite
-        color: 9B5FFC
-      - icon: colorful/typescript
-        text: Typescript
-        color: 3178C6
-      - icon: colorful/css
-        text: CSS
-        color: 1872B7
-      - icon: colorful/javascript
-        text: Javascript
-        color: FFBB00
-      - icon: colorful/scss
-        text: SCSS
-        color: CC6699
-      - icon: colorful/html
-        text: HTML
-        color: E24B2A
-  - type: Back-End Skills
-    items:
-      - icon: colorful/php
-        text: php
-        color: 8993BE
-      - icon: colorful/sql
-        text: SQL
-        color: F16529
-      - icon: colorful/laravel
-        text: Laravel
-        color: F35045
-  - type: Design Skills
-    items:
-      - icon: colorful/figma
-        text: Figma
-        color: A259FF
-      - icon: colorful/photoshop
-        text: Photoshop
-        color: 86caf7
-      - icon: colorful/illustrator
-        text: illustrator
-        color: febd39
+jobTitle: Senior Front-End Developer
+tagline: 具備全端視野的前端工程師，熱衷於「解決混亂」與「提升團隊產能」。
 contact:
-  - icon: call
-    text: +886 938-643-321
-    href: tel:+886 938643321
   - icon: mail
     text: phenomx9990@gmail.com
     href: mailto:phenomx9990@gmail.com
+  - icon: call
+    text: +886 938-643-321
+    href: tel:+886938643321
   - icon: language
-    text: Opshell's Website
-    href: https://www.opshell.info
-  - icon: language
-    text: Opshell's Github
+    text: github.com/Opshell
     href: https://github.com/Opshell
+  - icon: language
+    text: linkedin.com/in/opshell
+    href: https://www.linkedin.com/in/opshell
   - icon: location_on
     text: Tainan, Taiwan
     href: https://maps.app.goo.gl/9q1aF5LEaEihmDh37
-  - icon: location_on
-    text: Tainan, Taiwan
-    href: https://maps.app.goo.gl/9q1aF5LEaEihmDh37
+skills:
+  - type: Languages
+    items:
+      - { icon: colorful/typescript, text: TypeScript, color: 3178C6 }
+      - { icon: colorful/javascript, text: JavaScript (ES6+), color: FFBB00 }
+      - { icon: colorful/html, text: HTML, color: E24B2A }
+      - { icon: colorful/css, text: CSS, color: 1872B7 }
+      - { icon: colorful/scss, text: SCSS, color: CC6699 }
+      - { icon: colorful/php, text: PHP, color: 8993BE }
+      - { icon: colorful/sql, text: SQL, color: F16529 }
+  - type: Frameworks
+    items:
+      - { icon: colorful/vue, text: Vue 3, color: 4da986 }
+      - { icon: colorful/vite, text: Vite, color: 9B5FFC }
+      - { text: Pinia, color: FFD859 }
+      - { text: Zod, color: 3E67B1 }
+      - { text: TanStack Query, color: FF4154 }
+      - { text: Quasar, color: 00B4FF }
+      - { icon: colorful/laravel, text: Laravel, color: F35045 }
+  - type: Tools
+    items:
+      - { text: Git, color: F05032 }
+      - { text: Docker, color: 2496ED }
+      - { text: Vitest, color: 6E9F18 }
+      - { text: CI/CD }
+      - { text: Postman }
+      - { text: JIRA / Trello }
+      - { icon: colorful/figma, text: Figma, color: A259FF }
+      - { icon: colorful/photoshop, text: Photoshop, color: 31A8FF }
+      - { icon: colorful/illustrator, text: Illustrator, color: FF9A00 }
+  - type: Others
+    items:
+      - { text: RESTful API }
+      - { text: Web Bluetooth }
+      - { text: WCAG 2.0 AA }
+      - { text: Agentic Workflow }
 ---
 
-## About Opshell
-有 **7~8 年**{.brand}工作經驗的網頁工程師，擅長 **UIUX 調整**{.brand}、**專案架構開發**{.brand}、**新技術研究導入**{.brand}及**撰寫工程文件**{.brand}。<br/><br/>
-
-**前端工程師**{.vue}，要成為 **UIUX 設計師**{.info}、**後端**{.info}、**PM**{.info} 及 **客戶**{.info} 之間的潤滑油，協同處理問題，讓產品順利產出。<br/><br/>
-
 <script setup lang="ts">
-import { computed, ref, type Ref } from 'vue';
-// import { data as workExperienceData } from '@shared/data/works.data';
+import { computed, ref } from 'vue';
+import { data as works, formatMonths, monthsOf, WorkExperience } from '@features/resume';
 
-import {
-    data as workExperienceData,
-    WorkExperience,
-    SkillBox
-} from '@features/resume';
-
-const workMonths: Ref<{[key: number]: number}> = ref({});
-
-const calcMonths = (index: number, months: number) => {
-    workMonths.value[index] = months + 1;
-}
-
-const workExperienceTotal = computed(() => {
-      const count = Object.values(workMonths.value).reduce((acc, cur) => acc + cur, 0);
-
-      const years = Math.floor(count / 12);
-      const months = count % 12; // 一般是月初入職，月底離職，所以要加1
-
-      let result = '';
-
-      if (years !== 0) {
-          result += `${years}y `;
-      }
-      if (months !== 0) {
-          result += `${months}m`;
-      }
-
-      return result;
-  });
-
-  const isDescriptionOpen = ref(true);
+const total = computed(() => formatMonths(works.reduce((sum, work) => sum + monthsOf(work.period), 0)));
+const allOpen = ref(true);
 </script>
 
-<section class="work-experience-block">
+## About
 
-<header class="header">
+面對盤根錯節的技術債，習慣以清晰的邏輯解構問題，在複雜的商業需求與技術重構之間找到最佳平衡。
+相信優秀的架構不僅服務於產品，更服務於共同奮鬥的團隊。
 
-  ## Work Experience {{ workExperienceTotal }}
+前端工程師是 **UI/UX 設計師**、**後端**、**PM** 與 **客戶** 之間的潤滑油：擅長把需求拆成可以協作的介面，把混亂的專案收斂成一套所有人都能接手的架構。
 
-<div class="btn-box" @click="() => { isDescriptionOpen = !isDescriptionOpen }">
-  <ElSvgIcon :name="isDescriptionOpen? 'zoom_in_map' : 'zoom_out_map'" />
-  <span> {{ isDescriptionOpen ? '關閉' : '展開' }} </span>
-</div>
+<section class="resume__works">
+
+<header class="resume__works-header">
+
+## Work Experience <span class="resume__total">{{ total }}</span>
+
+<ElBtn size="sm" class="resume__works-toggle" @click="allOpen = !allOpen">{{ allOpen ? '全部收合' : '全部展開' }}</ElBtn>
+
 </header>
 
-<WorkExperience
-  :comp-img="workExperienceData[0].compImg"
-  :company="workExperienceData[0].company"
-  :location="workExperienceData[0].location"
-  :job-title="workExperienceData[0].jobTitle"
-  :period="workExperienceData[0].period"
-  :isDescriptionOpen
-  @calcMonths="calcMonths(0, $event)"
->
+<WorkExperience :work="works[0]" :open="allOpen">
 
-#### 工作內容概述：
-  - 大型專案架構規劃與開發，技術選型、主導 UI/UX。
-  - 規劃、開發 **RESTful API**{.info} ，對接及串接第三方API
-  - 新技術選型與導入，撰寫技術文件，相關技術的員工教育訓練。
+#### 架構與流程
+- 導入 **FSD** 架構，多人協作效率提升 **54%**
+- 建構 **Zod Schema-First** 開發流程，實現 100% Runtime Type Safety
+- 以 Axios Interceptors 與 Adapter Pattern 封裝 API 層；導入 **TanStack Query**，開發成本降低 **43%**
+- 設計 Code Splitting 策略，首屏體積縮減 **43%**
+- 建立 Postman + Mock Server 的合約優先模式，API 串接工時縮短 **52%**
+- 運用 **Web Bluetooth API** 解決特規設備整合需求
 
-#### 重大貢獻：
-  - 導入 **Vite**{.info}、**Vue3**{.info}、**Typescript**{.info}、**Vitest**{.info}，**提高開發效率**、**降低維護成本**。
-  - 導入 **Swiper**{.info}、**Quasar**{.info} **axios**{.info} 等元件庫封裝，對齊專案技術，**降低專案維護門檻**。
-  - 導入 **Figma**{.info} 設計軟體 + 工作流導入。
-  - 導入 **Postman Workspaces**{.info} + **Mock**{.info} 前後端串接SOP，**降低串接負載150%**。
-  - 開發 **OAuth 2.0**{.info} 身份識別系統，**撰寫技術文件**及**執行相關教育訓練**。
-  - 開發 無障礙網站，通過**無障礙 2A 級**{.info}審查。
+#### AI 協作
+- 結合 FSD 與 Zod 打造 AI 友善環境，消除 **64%** AI 幻覺
+- 導入 Agentic 工作流與《前端開發手冊》系統 Prompt
+- 制定 AI 輔助開發的安全邊界與資料去識別化 SOP
+
 </WorkExperience>
 
-<WorkExperience
-  :key="workExperienceData[1].company"
-  :comp-img="workExperienceData[1].compImg"
-  :company="workExperienceData[1].company"
-  :location="workExperienceData[1].location"
-  :job-title="workExperienceData[1].jobTitle"
-  :period="workExperienceData[1].period"
-  :isDescriptionOpen
-  @calcMonths="calcMonths(1, $event)"
->
+<WorkExperience :work="works[1]" :open="allOpen">
 
-#### 工作內容概述：
-  - 大型專案開發，前端特效撰寫，多團隊協作、API、後臺功能及資料庫架構規劃製作。
-  - 大型舊專案重構，技術迭代，邏輯、效能優化及舊資料整合導入。
-  - 定期開發新技術、導入並模組化，撰寫技術文件及教育訓練。
+#### 架構收斂
+- 主導 **10 套**異質 Legacy 系統收斂至統一架構（Vue.js + Laravel）
+- 推動 jQuery → Vue (ES6+) 現代化轉型，維護效率提升 **63%**
+- 廢除 FTP 部署，導入 **Git** 版本控制，開發效率提升 **168%**
 
-#### 重大貢獻：
-  - 導入 **Git**{.info} 版控系統，整合工作SOP，**降低維護工時 180%**。
-  - 導入 **Javascript(ES6)**{.info}、**Vue**{.info}、**SCSS**{.info} 等現代前端技術，
-  - 導入 **Swiper**{.info}，統一輪播套件，更容易實現複雜特效，**提高協作效率80%**。
-  - 導入 **Laravel Eloquent**{.info} 等現代後端技術，整合公司後端框架，提高公司產品的**安全性**及**可維護性**。
-  - 主導 多團隊 **API 整合**{.info}：APP Team + 機臺 Team + 外包 Team。
-  - 開發 **藍新金流**{.info}串接、**電子發票**{.info}串接，**內部團隊 API**{.info} 規劃及串接。
-  - 開發 **外國金流串接(2C2P)**{.info}串接，**定期定額扣款**功能。
+#### 整合與金流
+- 主導 **23 位**工程師的 API 整合（App、機臺、外包三個團隊）
+- 開發高複雜度金流架構：**藍新**、**電子發票**、**2C2P** 跨國支付與定期定額
+- 開發符合 **WCAG 2.0 AA** 的無障礙系統
+
+#### 團隊
+- 進行 ChatGPT 與 GitHub Copilot 的早期概念驗證
+- 主辦內部技術研討會，推動人機協作的開發文化
+
 </WorkExperience>
 
-<WorkExperience
-  :key="workExperienceData[2].company"
-  :comp-img="workExperienceData[2].compImg"
-  :company="workExperienceData[2].company"
-  :location="workExperienceData[2].location"
-  :job-title="workExperienceData[2].jobTitle"
-  :period="workExperienceData[2].period"
-  :isDescriptionOpen
-  @calcMonths="calcMonths(2, $event)"
->
+<WorkExperience :work="works[2]" :open="allOpen">
 
-#### 工作內容概述：
-- 客製網站主題，設計UIUX、製作動畫效果、網頁切版、RWD規劃
-- 後臺功能製作、SEO調整、網站部屬。
+- 運用 HTML5 Canvas 與 CSS3 實現 Pixel Perfect 的設計還原
+- 開發模組化 Slide 輪播演算法，效能提升 **67%**
+- 開發 **Trello** 同步模組，輪班支援效率提升 **78%**
+- 導入 VS Code 協作規範與 SCSS、Flex／Grid 現代切版
 
-#### 重大貢獻：
-  - 整合 **Trello**{.info} 工作流，透明化案件製作進度，提高輪班時**案件支援效率50%**。
-  - 導入 **VS Code**{.info} ，整合團隊技術，**提高協作效率**。
-  - 導入 **SCSS**{.info} 預處理器技術，**提高切版及維護效率200%**。
-  - 導入 **flex**{.info}、**grid**{.info}等更具效率，邏輯的現代切版方式，**實現更複雜的排版**，**提高切版效率**。
-  - 開發 多套件底層整合，頁面**提高渲染效能50%**。
-  - 開發 Slide 特效演算法並模組化。
 </WorkExperience>
 
-<WorkExperience
-  :key="workExperienceData[3].company"
-  :comp-img="workExperienceData[3].compImg"
-  :company="workExperienceData[3].company"
-  :location="workExperienceData[3].location"
-  :job-title="workExperienceData[3].jobTitle"
-  :period="workExperienceData[3].period"
-  :isDescriptionOpen
-  @calcMonths="calcMonths(3, $event)"
->
+<WorkExperience :work="works[3]" :open="allOpen">
 
-#### 工作內容概述：
-  - 協助影像辨識相關軟體開發，軟硬體整合，部分網頁開發案，其他行政工作。
+- 參與「高速公路遠距車辨系統」開發，軟硬體整合
+- 將 PC 端核心演算法移植至 Embedded System
+- 開發軟體保護金鑰（Dongle）加密機制與韌體化
 
-#### 重大貢獻：
-  - "客戶試用車牌辨識軟體"硬體金鑰鎖設計及撰寫。
-  - "高速公路遠距無線車辨系統"，軟硬體開發、整合。
-  - "barCode 無紅外影像辨識機"，核心演算法韌體化。
 </WorkExperience>
+
 </section>
 
 <style lang="scss">
-  .work-experience-block {
-    .header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      width: 100%;
-      .btn-box {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        padding: 3px 15px 3px 10px;
-        border: 1px solid var(--vp-c-text-1);
-        border-radius: 20px;
-        cursor: pointer;
-        user-select: none;
-        transition: .2s $cubic-FiSo;
-        &:hover {
-          color: var(--vp-c-brand-1);
-          border-color: var(--vp-c-brand-1);
-        }
-        .icon {
-          transition: .2s $cubic-FiSo;
-        }
-      }
+  .resume__works {
+    margin-top: 2.5rem;
+
+    &-header {
+      @include setFlex(space-between, baseline, 1rem);
+
+      h2 { flex: 1; }
     }
+  }
+  .resume__total {
+    margin-left: .5rem;
+    color: var(--vp-c-text-3);
+    font-family: var(--vp-font-family-mono);
+    font-size: var(--font-size-s);
+    font-weight: 400;
   }
 </style>

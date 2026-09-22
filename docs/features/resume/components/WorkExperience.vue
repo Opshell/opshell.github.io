@@ -1,229 +1,198 @@
 <script setup lang="ts">
-    import { withBase } from 'vitepress';
+    import type { iWork } from '../work-experience.data';
+    import { computed, ref, watch } from 'vue';
+    import { formatMonths, monthsOf } from '../period';
 
-    const props = defineProps<{
-        compImg: string;
-        company: string;
-        location: string;
-        jobTitle: string;
-        period: string;
-        isDescriptionOpen?: boolean;
-    }>();
-    const emit = defineEmits<{
-        calcMonths: [months: number];
+    // 一段工作經歷：左邊 logo、右邊公司與職稱、下面條列（slot 是 markdown）。可以收合，預設由父層決定。
+    const { work, open = true } = defineProps<{
+        work: iWork;
+        open?: boolean;
     }>();
 
-    // [-] 做一個可以開關的description 區塊
-    const isOpen = ref(props.isDescriptionOpen);
-    const descriptionDom = ref<HTMLElement | null>(null);
-    const descriptionHeight = computed(() => {
-        return isOpen.value ? `${descriptionDom.value?.scrollHeight ?? 0}px` : '0';
-    });
-    watch(() => props.isDescriptionOpen, (newStatus) => {
-        isOpen.value = newStatus;
-    });
-    function triggerHandler() {
-        isOpen.value = !isOpen.value;
-    }
+    const isOpen = ref(open);
+    watch(() => open, v => isOpen.value = v);
 
-    // [-]計算工作年資
-    const calcPeriod = computed(() => {
-        const [start, end] = props.period.split(' - ');
-
-        const [startYear, startMonth] = start.split('.');
-        const [endYear, endMonth] = end.split('.');
-
-        // Date 的月份是 0 ~ 11 所以要 -1
-        const startDate = new Date(Number(startYear), Number(startMonth) - 1);
-        const endDate = end === 'Now' ? new Date() : new Date(Number(endYear), Number(endMonth) - 1);
-
-        const diffInMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
-        emit('calcMonths', diffInMonths);
-
-        const years = Math.floor(diffInMonths / 12);
-        const months = (diffInMonths + 1) % 12; // 一般是月初入職，月底離職，所以要加1
-
-        let result = '';
-
-        if (years !== 0) {
-            result += `${years}y `;
-        }
-        if (months !== 0) {
-            result += `${months}m`;
-        }
-
-        return result;
-    });
+    const duration = computed(() => formatMonths(monthsOf(work.period)));
+    const isCurrent = computed(() => work.period.endsWith('Now'));
 </script>
 
 <template>
-    <section
-        class="work-experience-box"
-        :class="{ '--is-open': isOpen }"
-        @click="triggerHandler"
-    >
-        <header class="work-experience">
-            <div class="img-box">
-                <img :src="withBase(compImg)" alt="" />
+    <article class="work" :class="{ 'is-open': isOpen, 'is-current': isCurrent }">
+        <header class="work__header" @click="isOpen = !isOpen">
+            <div class="work__logo">
+                <img :src="work.logo" :alt="`${work.company} logo`" loading="lazy" />
             </div>
-
-            <h3 class="company">
-                {{ company }}
-            </h3>
-            <div class="location">
-                <ElSvgIcon name="location_on" />
-                <span>{{ location }}</span>
+            <div class="work__title">
+                <h3 class="work__company">
+                    {{ work.company }}
+                    <span v-if="work.companyAlt" class="work__company-alt">{{ work.companyAlt }}</span>
+                </h3>
+                <p class="work__job">{{ work.jobTitle }}</p>
             </div>
-            <span class="job-title">{{ jobTitle }}</span>
-            <span class="period">{{ period }} ({{ calcPeriod }})</span>
+            <div class="work__meta">
+                <span class="work__period">
+                    {{ work.period }}
+                    <span class="work__duration">{{ duration }}</span>
+                </span>
+                <span class="work__location">
+                    <ElSvgIcon name="location_on" />
+                    {{ work.location }}
+                </span>
+            </div>
+            <ElSvgIcon class="work__toggle" :name="isOpen ? 'zoom_in_map' : 'zoom_out_map'" :title="isOpen ? '收合' : '展開'" />
         </header>
 
-        <div
-            ref="descriptionDom"
-            class="description vp-doc"
-            :style="{ height: descriptionHeight }"
-        >
+        <div v-show="isOpen" class="work__body vp-doc">
             <slot />
         </div>
-    </section>
+    </article>
 </template>
 
 <style lang="scss">
-    .work-experience-box {
+    .work {
+        --work-logo: 56px;
         position: relative;
-        width: 100%;
-        cursor: pointer;
-        transition: .2s $cubic-FiSo;
-        .work-experience {
+        padding: 1.25rem 0 1.5rem;
+        border-bottom: 1px solid var(--vp-c-divider);
+
+        &:last-child { border-bottom: 0; }
+
+        &__header {
             display: grid;
-            grid-template-areas: "img-box company   location"
-                                 "img-box job-title period";
-            grid-template-columns: 110px repeat(2, 1fr);
-            gap: 10px;
-
-            // grid area
-            .img-box {
-                grid-area: img-box;
-                background: #FFF;
-                padding: 2px;
-                border: 2px solid #666;
-                border-radius: 10px;
-                @include setSize(100px, 100px);
-            }
-            .company {
-                grid-area: company;
-                @include setFlex(flex-start);
-
-                /* 主色-黃 */
-                color: #4AA985;
-                font-size: 28px;
-                font-weight: 700;
-                font-style: normal;
-                line-height: 42px;
-                letter-spacing: 0.03em;
-                transition: .25s $cubic-FiSo;
-            }
-            .location {
-                grid-area: location;
-                @include setFlex(flex-end);
-
-                // text style
-                color: #4AA985;
-                font-size: 20px;
-                font-weight: 500;
-                font-style: normal;
-                line-height: 32px;
-
-                .icon {
-                    fill: #4AA985;
-                }
-            }
-            .job-title {
-                grid-area: job-title;
-                @include setFlex(flex-start);
-            }
-            .period {
-                grid-area: period;
-                @include setFlex(flex-end);
-            }
-
-            .job-title ,
-            .period {
-                color: #666;
-                font-size: 1.375rem;
-                font-weight: 500;
-                line-height: 2rem;
-            }
+            grid-template:
+                'logo title meta toggle' auto /
+                var(--work-logo) minmax(0, 1fr) auto 24px;
+            gap: 4px 1rem;
+            align-items: start;
+            cursor: pointer;
         }
-
-        .description {
-            width: 100%;
-            padding: 0 0 0 120px;
-            box-sizing: border-box;
-
-            /* 6666 */
-            color: var(--vp-c-text-2);
-            font-size: 1.125rem;
-            font-weight: 400;
-            font-style: normal;
-            line-height: 1.625rem;
-            letter-spacing: 0.03em;
-            transition: .2s $cubic-FiSo;
+        &__logo {
+            grid-area: logo;
+            @include setSize(var(--work-logo), var(--work-logo));
+            background: var(--color-gray-000);
+            padding: 4px;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 12px;
+            transition: border-color .2s var(--cubic-FiSo);
             overflow: hidden;
-            h4 {
-                color: var(--vp-c-text-1);
-                font-size: 1.25rem;
+
+            img {
+                @include setSize(100%, 100%);
+                object-fit: contain;
             }
         }
+        &__title {
+            grid-area: title;
+            min-width: 0;
+        }
+        &__company {
+            @include setFlex(flex-start, baseline, 8px);
+            flex-wrap: wrap;
+            padding: 0;
+            border: 0;
+            margin: 0;
+            color: var(--vp-c-text-1);
+            font-size: var(--font-size-l);
+            font-weight: 700;
+            line-height: 1.4;
+            transition: color .2s var(--cubic-FiSo);
 
-        &::before {
-            content: '';
-            position: absolute;
-            inset: -20px;
-            display: block;
+            &-alt {
+                color: var(--vp-c-text-3);
+                font-family: var(--vp-font-family-mono);
+                font-size: var(--font-size-xs);
+                font-weight: 400;
+            }
+        }
+        &__job {
+            margin: 2px 0 0;
+            color: var(--vp-c-brand-1);
+            font-size: var(--font-size-s);
+            font-weight: 600;
+        }
+        &__meta {
+            grid-area: meta;
+            @include setFlex(flex-start, flex-end, 4px, column);
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-xs);
+            white-space: nowrap;
+        }
+        &__period {
+            font-family: var(--vp-font-family-mono);
+        }
+        &__duration {
             background: var(--vp-c-bg-soft);
-            @include setSize(calc(100% + 2.5rem), calc(100% + 2.5rem));
-            border-radius: 10px;
-            transition: .3s $cubic-FiSo;
-            opacity: 0;
-            z-index: -1;
+            padding: 1px 6px;
+            border-radius: 999px;
+            margin-left: 4px;
+            color: var(--vp-c-text-3);
+        }
+        &__location {
+            @include setFlex(flex-start, center, 2px);
+            color: var(--vp-c-text-3);
+
+            .icon {
+                @include setSize(14px, 14px);
+                padding: 0;
+            }
+        }
+        &__toggle {
+            grid-area: toggle;
+            @include setSize(24px, 24px);
+            padding: 2px;
+            color: var(--vp-c-text-3);
+            transition: color .2s var(--cubic-FiSo);
         }
 
-        // 狀態
+        &__body {
+            padding: 1rem 0 0 calc(var(--work-logo) + 1rem);
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-s);
+            line-height: 1.8;
+
+            h4 {
+                padding: 0;
+                border: 0;
+                margin: 1rem 0 .25rem;
+                color: var(--vp-c-text-1);
+                font-size: var(--font-size-s);
+                font-weight: 700;
+
+                &:first-child { margin-top: 0; }
+            }
+            ul {
+                padding-left: 1.2em;
+                margin: 0;
+            }
+            li { margin: .15em 0; }
+            strong {
+                background: none;
+                padding: 0;
+                color: var(--vp-c-text-1);
+                font-size: inherit;
+                font-weight: 600;
+            }
+        }
+
         &:hover {
-            &::before {
-                opacity: 1;
-            }
-            .work-experience {
-                .company {
-                    color: var(--vp-c-brand-1);
-                }
-            }
+            .work__company { color: var(--vp-c-brand-1); }
+            .work__toggle { color: var(--vp-c-brand-1); }
         }
-
-        &.--is-open {
-            .img-box {
-                border-color: var(--vp-c-brand-1);
+        &.is-current .work__logo { border-color: var(--vp-c-brand-1); }
+        @include setRWD(640px) {
+            &__header {
+                grid-template:
+                    'logo title toggle' auto
+                    'meta meta meta' auto /
+                    var(--work-logo) minmax(0, 1fr) 24px;
             }
-            .company {
-                color: var(--vp-c-brand-1);
+            &__meta {
+                flex-flow: row wrap;
+                gap: 4px 12px;
+                align-items: center;
+                margin-top: 4px;
             }
-
-            &::before {
-                // border: 1px solid var(--vp-c-brand-3);
-                opacity: 1;
-            }
-        }
-
-        ~ .work-experience-box {
-            padding-top: 40px;
-            border-top: 1px solid #ccc;
-            margin-top: 20px;
-
-            &::before {
-                inset: 20px -20px -20px;
-                height: 100%;
-            }
+            &__body { padding-left: 0; }
         }
     }
 </style>

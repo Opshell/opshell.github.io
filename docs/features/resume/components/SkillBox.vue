@@ -1,7 +1,3 @@
-<script setup lang="ts">
-
-</script>
-
 <template>
     <ul class="skill-box">
         <slot />
@@ -10,9 +6,10 @@
 
 <style lang="scss">
     .skill-box {
-        @include setFlex(flex-start);
+        @include setFlex(flex-start, center, 6px);
         flex-wrap: wrap;
-        gap: 10px;
-        @include setSize(100%, auto);
+        padding: 0;
+        margin: 0;
+        list-style: none;
     }
 </style>
