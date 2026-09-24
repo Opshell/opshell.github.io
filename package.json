@@ -46,6 +46,8 @@
     "lint:style:fix": "stylelint 'docs/**/*.{scss,vue}' --fix",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "new-post": "node scripts/new-post.js",
+    "publish-next": "node scripts/publish-post.mjs --next",
+    "publish-post": "node scripts/publish-post.mjs",
     "add-frontmatter": "node scripts/add-frontmatter.mjs",
     "fix-tags": "node scripts/fix-tags.mjs",
     "fix-empty-frontmatter": "node scripts/fix-empty-categories-tags.mjs",

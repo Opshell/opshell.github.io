@@ -1,6 +1,6 @@
 ---
 name: web-blog-post
-description: 在這個部落格寫文章——pnpm new-post 產骨架後搬到對的分類、frontmatter 每個欄位的意思、isPublished 才會出現在時間軸／標籤／側欄／sitemap、categories 只放一個、圖片放 public/images/article、新分類要在 config.mts 加側欄 key、站台自訂的 markdown 語法。寫新文章、改 frontmatter、設公開、整理標籤時用。
+description: 在這個部落格寫文章與每天發一篇——pnpm new-post 產骨架（可指定資料夾，AI 專區與心得）、pnpm publish-next 照發文排程發佈、frontmatter 每個欄位的意思、isPublished 才會出現在時間軸／標籤／側欄／sitemap、categories 只放一個、圖片放 public/images/article、新分類要在 config.mts 加側欄 key、站台自訂的 markdown 語法。寫新文章、改 frontmatter、設公開、整理標籤時用。
 ---
 
 # 寫文章
@@ -8,15 +8,19 @@ description: 在這個部落格寫文章——pnpm new-post 產骨架後搬到�
 ## 新文章
 
 ```bash
-pnpm new-post "文章標題"
+pnpm new-post "文章標題"                 # 放 article/ 根目錄，之後要自己搬
+pnpm new-post "文章標題" ai              # AI 專區，分類 AI
+pnpm new-post "文章標題" ai 心得         # AI 專區首頁的「心得」分頁
+pnpm new-post "文章標題" code-sea/vue    # 直接放進分類資料夾
 ```
 
-會在 `docs/pages/article/` 根目錄建 `<slug>.md`（標題轉小寫、非英數中文的字元換成 `-`）。
-**建好要搬到對的分類資料夾**，因為側欄是按資料夾掃的：
+檔名是標題轉小寫、非英數中文的字元換成 `-`。骨架開頭有一段 `::: info 這篇的脈絡`，要填：為什麼寫、遇到什麼狀況、寫給誰看。
+**要放對資料夾**，因為側欄是按資料夾掃的：
 
 ```
 docs/pages/article/
 ├── code-sea/          ← 技術：css/ developer/ git/ html/ javascript/ typescript/ vitepress/ vue/
+├── ai/                ← AI 專區（2026-09-24）：index.md 是專區首頁，依分類切「技術／心得」
 ├── design/            ← 設計系統、token
 ├── life-murmurs/      ← 生活雜記（搜尋排除）
 ├── poe/               ← 遊戲
@@ -81,12 +85,21 @@ isPublished: false              # true 才是「已發布」
 3. 要進頂部選單的話改 `theme/configs/nav.ts`（連結指到該分類的第一篇）。
 4. 不想被搜尋到的加進 `configs/search.ts` 的 `ignorePath`。
 
-## 發布
+## 發布：每天一篇
 
-1. `isPublished: true`。
-2. `pnpm docs:build`，再 `pnpm docs:preview` 看文章頁、時間軸、側欄有沒有出現。
-3. commit：`docs(article): 標題設為公開` 或 `docs(article): 新增〈標題〉`。
-4. push `main` 就上線（CI 跑 lint、typecheck、build）。
+排程清單在 `docs/devlog/發文排程.md`（佇列、半成品、筆記、不發的四級盤點）。
+
+```bash
+pnpm publish-next            # 拿佇列第一篇沒打勾的發佈，並在清單打勾
+pnpm publish-post <md 路徑>   # 指定某一篇
+```
+
+- 工具會把 `isPublished` 改成 `true`、`createdAt` 改成今天（台灣時間），原稿日期留在 `draftedAt`：時間軸依 `createdAt` 排，
+  不改的話舊稿一發佈就沉到很後面。
+- 內文還有 `::: warning 草稿` 的文章會被拒絕（Claude 代寫的草稿用這個擋）。
+- 只改檔案，不 commit；照它印出來的指令 `pnpm docs:build`、commit（`docs(article): 發佈〈標題〉`）、push。
+- 整理半成品進佇列時：開頭補「這篇的脈絡」、刪 AI 對話殘留（「這個問題問得太好了」這種）、純文字小標改成 `##`、frontmatter 補描述與分類，
+  **文字內容保留作者原話**。
 
 ## 主題與設計 token
 
