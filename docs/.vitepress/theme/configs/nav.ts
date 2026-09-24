@@ -79,6 +79,10 @@ export default [
                 link: '/dindon/'
             },
             {
+                text: '功能演示',
+                link: '/dindon/demo/'
+            },
+            {
                 text: '隱私權政策',
                 link: '/dindon/privacy/'
             },
