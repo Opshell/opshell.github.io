@@ -48,9 +48,11 @@
             // hover：圓點與卡片之間拉一條線、卡片外圍亮一圈漸層
             &:hover {
                 .timeline-page__post-marker::after { transform: scaleX(1); }
+
+                // 框從卡片左緣開始畫，寬度要扣掉左邊的圓點與間距，不然右邊會凸出去同樣的距離
                 &::before {
                     top: -2px;
-                    @include setSize(calc(100% + 4px), calc(100% + 4px));
+                    @include setSize(calc(100% - var(--op-post-dot-size) - 1.5rem + 4px), calc(100% + 4px));
                     transition: width .15s var(--cubic-FiSo) .2s, height .15s var(--cubic-FiSo) .1s;
                 }
             }
