@@ -1,18 +1,19 @@
 ---
 name: web-dindon
-description: 叮咚記帳在官網上的四頁（宣傳頁、後台、隱私權政策、刪除帳號）怎麼維護——檔案在哪、api.md 是唯一規格、apiBase 與 ?api= 本機覆寫、Google 登入的 token 只放記憶體、隱私權政策由腳本從 App 原稿產生、後台 noindex 且不載第三方腳本、push main 就上線、什麼時候要開單給前端／後端／上架。碰 /dindon/ 底下任何東西時用。
+description: 叮咚記帳在官網上的五頁（宣傳頁、功能演示、後台、隱私權政策、刪除帳號）怎麼維護——檔案在哪、api.md 是唯一規格、apiBase 與 ?api= 本機覆寫、Google 登入的 token 只放記憶體、隱私權政策與演示素材由腳本從 App 倉庫同步、後台 noindex 且不載第三方腳本、push main 就上線、什麼時候要開單給前端／後端／上架。碰 /dindon/ 底下任何東西時用。
 ---
 
-# 叮咚記帳的四頁
+# 叮咚記帳的五頁
 
 | 網址 | 頁面 md | 元件 | 給誰看 |
 |---|---|---|---|
 | `/dindon/` | `docs/pages/dindon/index.md` | `features/dindon/components/DinDonLanding.vue` | 大眾、招募封測 |
+| `/dindon/demo/` | `docs/pages/dindon/demo/index.md` | `features/dindon/demo/components/DemoPage.vue` | 大眾：41 項功能的錄影演示（溝通板 #0055） |
 | `/dindon/privacy/` | `docs/pages/dindon/privacy/index.md`（**產生的**） | 純 markdown，`layout: doc` | Play Console 要交出去的網址 |
 | `/dindon/account/` | `docs/pages/dindon/account/index.md` | `features/dindon/account/components/AccountDeletion.vue` | Play 要求「不用裝 App 也能刪帳號」的網址 |
 | `/dindon/dashboard/` | `docs/pages/dindon/dashboard/index.md`（`noindex`） | `features/dindon/dashboard/components/DashboardApp.vue` | 只有管理員 |
 
-入口 `features/dindon/index.ts` 只 export 這三個元件。
+入口 `features/dindon/index.ts` 只 export 這四個元件。
 
 ## 開工先做
 
@@ -33,6 +34,11 @@ features/dindon/
 ├── hooks/useLandingMotion.ts ← data-reveal 進場、data-parallax 視差；reduced-motion 時不動
 ├── account/
 │   ├── api.ts  content.ts  components/AccountDeletion.vue
+├── demo/                   ← 功能演示頁
+│   ├── demos.json          ← **產生的**（pnpm dindon:demos），App 倉庫 store/demos/index.json 的副本
+│   ├── catalog.ts  types.ts
+│   ├── hooks/useDemoOverlay.ts ← 依影片秒數算手指位置與說明泡泡（步驟格式見 App 倉庫 store/demos/README.md）
+│   └── components/         ← DemoPage（目錄＋對話框）、DemoPlayer（外框、影片、疊圖、控制列）、diagrams/（第 4、10、39 項的圖解）
 └── dashboard/
     ├── api.ts              ← /v1/admin/*，型別註明 api.md 第幾節；AdminApiError(status, message).needsLogin
     ├── useAdminCall.ts     ← 帶 token 呼叫；401 就 markExpired 回登入畫面；errorMessage()
@@ -78,6 +84,20 @@ pnpm dindon:privacy /別的路徑.md    # 原稿在別處
 - 原稿只有一份，在 App 倉庫，App 內頁讀的也是它。政策內容有問題→開單給前端 Claude 改原稿，改完再跑腳本。
 - 網頁專屬的部分（標題、刪除入口的提示框、樣式）在 `scripts/sync-dindon-privacy.mjs` 裡，要改這些就改腳本。
 - 產出要 commit（CI 拿不到另一個倉庫）。commit 訊息 `chore(dindon): 隱私權政策同步到 M/D 版`。
+
+## 功能演示：素材從 App 倉庫複製
+
+```bash
+pnpm dindon:demos                   # 預設讀 ../DinDon/DinDon_Android/store/demos
+```
+
+- 前端 Claude 錄影、產 `index.json`（規格在那邊的 `README.md`），錄好會在溝通板回覆。網頁只要重跑腳本、commit：
+  影片與封面進 `docs/public/images/dindon/demos/`、順便縮出 `*.thumb.webp` 給目錄用、舊檔自動刪掉，`index.json` 複製成 `demo/demos.json`。
+- 手指與泡泡的時間參數在 `useDemoOverlay.ts` 頂端（拖曳的延遲是對照影格調的）；泡泡的位置規則在 `bubbleAbove()`。
+- 圖解要跟 App 實際行為一致：第 4 項的前後對照是拿 `NotificationParser.deIdentify` 真的跑出來的，App 改規則要跟著改。
+- **對話框裡的元件要用 `defineAsyncComponent` 載入**：VitePress 第一次載入用「精簡版」頁面程式，會把靜態 HTML 清成空字串
+  （假設伺服器已經渲染過）。只在瀏覽器端才渲染的東西（對話框、`v-if` 打開的內容）如果整塊是靜態的，打開會是空的；
+  拆成獨立檔案就不會被精簡。檢查方法：`grep -o 've("",[0-9]*)' docs/.vitepress/dist/assets/<頁面>.lean.js`。
 
 ## 文案數字要對得上
 
