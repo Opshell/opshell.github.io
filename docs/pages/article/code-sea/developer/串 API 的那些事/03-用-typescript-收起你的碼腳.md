@@ -465,7 +465,7 @@ async function sendRequest<I = unknown, R = unknown>(
 1. data 的預設值 [] as I
 data 的型別 I 是個泛型，它可以是 object、FormData、undefined... 任何東西。但我們卻給了它一個 [] 的預設值，並用 as I 強行斷言「它就是 I 型別」。這就像拿著一把螺絲起子，然後跟 TypeScript 說：「相信我，它在任何情況下都是一把好用的槌子」。
 
-當 method 是 POST，且我們忘記傳 data 時，API 就會收到一個空的陣列 []，這很可能不是後端{.info}預期的格式，進而導致非預期的錯誤。
+當 method 是 POST，且我們忘記傳 data 時，API 就會收到一個空的陣列 []，這很可能不是**後端**{.info}預期的格式，進而導致非預期的錯誤。
 
 2. `axios<iResult>`(config) 的假設
 這個寫法假設了 axios 的回傳 data 永遠是 iResult 格式。但我們在 options 裡明明就支援了 responseType: 'blob'。當請求圖片或檔案時，axiosResponse.data 會是一個 Blob 物件，而不是 { status, data, messages } 這種結構。這會導致型別上的衝突和誤判。
@@ -707,4 +707,4 @@ const handleDownloadReport = () => {
 
 2. 務實的整合：我們沒有為了 downloadFile 而污染 sendRequest 的純粹性，而是將其作為一個獨立但歸屬在同一個 Composable 下的專用工具，達成了程式碼組織和功能實現的平衡。
 
-這就是從「能用」到「好用」，再到「可靠」的演進過程。對細節的雕琢，正是前端工程師{.vue}價值的體現。
+這就是從「能用」到「好用」，再到「可靠」的演進過程。對細節的雕琢，正是**前端工程師**{.vue}價值的體現。
