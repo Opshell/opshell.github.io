@@ -120,7 +120,9 @@
 </template>
 
 <style lang="scss" scoped>
+    // 空方塊的顏色：卡片本身是 bg-soft，方塊用同色就看不見了，改用淡淡的文字色，深淺色模式都看得到
     .heatmap-container {
+        --heatmap-empty: color-mix(in srgb, var(--vp-c-text-3) 18%, transparent);
         display: flex;
         flex-direction: column;
         gap: 1rem;
@@ -165,7 +167,7 @@
                 height: 10px;
                 border-radius: 2px;
             }
-            .level-0 { background: var(--vp-c-bg-soft); }
+            .level-0 { background: var(--heatmap-empty); }
             .level-2 { background: color-mix(in srgb, var(--vp-c-brand) 55%, transparent); }
             .level-3 { background: var(--vp-c-brand); }
         }
@@ -194,7 +196,7 @@
     }
 
     .heatmap-cell {
-        background: var(--vp-c-bg-soft);
+        background: var(--heatmap-empty);
         width: 11px;
         height: 11px;
         border: 1px solid transparent;

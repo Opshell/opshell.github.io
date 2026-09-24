@@ -47,14 +47,18 @@
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     });
 
-    const toDay = (date: string) => new Date(date).toISOString().split('T')[0];
+    /** 壞掉的日期給空字串，呼叫端跳過；不然 toISOString() 丟例外會讓整頁空白 */
+    const toDay = (date: string) => {
+        const d = new Date(date);
+        return Number.isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+    };
 
     /** 熱圖：這個標籤每天幾篇 */
     const heatmapData = computed(() => {
         const data: Record<string, number> = {};
         for (const post of postsOfTag.value) {
-            if (!post.date) continue;
             const day = toDay(post.date);
+            if (!day) continue;
             data[day] = (data[day] || 0) + 1;
         }
         return data;

@@ -76,6 +76,16 @@ function getFrontMatter(filePath: string) {
     return data;
 }
 
+/**
+ * createdAt 沒加引號時（createdAt: 2026-01-08），YAML 會把它讀成 Date 物件，傳到瀏覽器後就壞掉了，
+ * new Date() 轉不回來，標籤頁的熱圖會整頁掛掉。一律轉成 YYYY-MM-DD 字串；轉不了就給空字串（各頁會跳過沒日期的文章）。
+ */
+function normalizeDate(value: unknown): string {
+    if (value instanceof Date) return Number.isNaN(value.getTime()) ? '' : value.toISOString().slice(0, 10);
+    if (typeof value !== 'string' || !value.trim()) return '';
+    return Number.isNaN(new Date(value).getTime()) ? '' : value.trim();
+}
+
 /** frontmatter 的清單欄位：不是陣列就當空、去掉 null 與空白、去重 */
 function cleanList(value: unknown, fallback: string[]): string[] {
     if (!Array.isArray(value)) return fallback;
@@ -123,6 +133,9 @@ function getExcerpt(content: string, description?: string): string {
     // 處理 **text**, __text__, *text*, _text_
     text = text.replace(/([*_]{1,2})(.*?)\1/g, '$2');
 
+    // 移除 markdown-it-attrs 的屬性標記：**前端工程師**{.vue} → 前端工程師
+    text = text.replace(/\{[.#][\w-]+(?:\s+[.#][\w-]+)*\}/g, '');
+
     // 移除行內程式碼 (Inline Code)
     text = text.replace(/`([^`]+)`/g, '$1');
 
@@ -165,7 +178,7 @@ function processFile(fullPath: string, contentRoot: string): Post | null {
         title: frontmatter.title as string,
         image: frontmatter.image as string ?? '/images/no_image.svg',
         category: cleanList(frontmatter.categories, ['雜談']),
-        date: frontmatter.createdAt as string ?? '',
+        date: normalizeDate(frontmatter.createdAt),
         // frontmatter 常有 `- null` 或空字串（早期腳本補的），不濾掉會出現一個叫「#」的標籤
         tags: cleanList(frontmatter.tags, []),
         excerpt: getExcerpt(content, frontmatter.description as string)
