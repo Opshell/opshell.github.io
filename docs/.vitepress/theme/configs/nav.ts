@@ -5,6 +5,11 @@ export default [
         text: 'Article',
         items: [
             {
+                // AI 專區：技術與心得都在這，首頁可以切分類（pages/article/ai/index.md）
+                text: 'AI',
+                link: '/article/ai/'
+            },
+            {
                 text: 'Life\'s Mumurs',
                 link: '/article/life-murmurs/life'
             },
@@ -35,12 +40,6 @@ export default [
                 ]
             }
         ]
-    },
-    {
-        // AI 專區：技術與心得都在這，首頁可以切分類（pages/article/ai/index.md）
-        text: 'AI',
-        link: '/article/ai/',
-        activeMatch: '/article/ai/'
     },
     {
         text: 'Portfolio',
