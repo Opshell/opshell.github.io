@@ -1,18 +1,24 @@
 ---
-title: 前端還要加水?水合(Hydration)是什麼?
+title: '前端還要加水？水合（Hydration）是什麼'
 image: ''
-description: ''
+description: '從一杯即溶咖啡講起：水合就是把靜態的資料或 HTML 灌入狀態、響應性與方法，讓它活過來。三個情境：SSR、把 API 資料轉成表單狀態、把 JSON 實例化成 Class。'
 keywords: ''
 author: Opshell
 createdAt: '2025-09-19'
 categories:
-  - 未分類
+  - Developer
 tags:
-  - null
+  - SSR
+  - Vue
+  - 前端觀念
 editLink: true
 isPublished: false
 ---
-# 前端術語｜「水合」(Hydration) 到底是什麼？從一杯即溶咖啡談起
+::: info 這篇的脈絡
+「水合」這個詞在 Nuxt、Next.js、VitePress 的文件裡到處都是，但很少人講清楚它到底在做什麼。寫著寫著我發現它不只是 SSR 的專有名詞：我每天把後端的 JSON 轉成表單狀態（情境二的查核表就是工作上真實的例子），做的其實是同一件事。
+:::
+
+
 
 在 **Vue**, **Nuxt**, React, Next.js 或其他現代前端框架的技術文章中，你很可能看過「**水合**」或 **Hydration** 這個詞。它聽起來很學術，但概念其實非常直觀且重要。
 
@@ -91,6 +97,8 @@ app.mount('#app');
 ### 情境二：API 資料轉換
 這是將後端資料轉為前端可用狀態的常見模式。
 
+#### 1. 脫水狀態（後端的 JSON）
+
 我們從後端獲取了一份查核表題目的「定義」，這是一份純粹的 JSON 資料。
 
 ```ts
@@ -107,7 +115,7 @@ const rawTopicData = {
 };
 ```
 
-2. 水合過程 (寫一個 Hydration 函式)
+#### 2. 水合過程（寫一個 Hydration 函式）
 
 為了讓使用者能在表單中填寫這份查核表，我們需要為它添加一些前端 UI 專用的狀態。最佳實踐是編寫一個專門的函式來處理這個過程。
 
@@ -162,7 +170,8 @@ const formTopicState = hydrateTopicForFilling(rawTopicData);
 ### 情境三：Class-based Models (物件導向模式)
 有時候，「水合」不僅是增加狀態，也可能是增加「行為 (方法)」。
 
-1. 脫水狀態 (純粹的 User JSON)
+#### 1. 脫水狀態（純粹的 User JSON）
+
 ```ts
 const rawUserData = {
     id: 1,
@@ -171,7 +180,8 @@ const rawUserData = {
 };
 ```
 
-2. 水合過程 (實例化一個 Class)
+#### 2. 水合過程（實例化一個 Class）
+
 我們可以定義一個 User class，它不僅有屬性，還有方法。
 
 ```js

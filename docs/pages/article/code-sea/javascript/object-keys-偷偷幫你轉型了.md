@@ -1,19 +1,26 @@
 ---
-title: Object.Keys 偷偷幫你轉型了！
+title: 'Object.keys 偷偷幫你轉型了：v-for 物件的數字 key 為什麼變成字串'
 image: ''
-description: ''
+description: '型別寫的是 Record<number, …>，v-model 收集回來的卻是 string[]。問題不在 Vue 也不在 TypeScript，而是 JavaScript 物件的 key 永遠是字串；解法是在源頭轉型。'
 keywords: ''
 author: Opshell
 createdAt: '2025-08-28'
 categories:
-  - TypeScript
+  - JavaScript
 tags:
+  - JavaScript
   - TypeScript
   - Vue
 editLink: true
 isPublished: false
 ---
-# [Vue/TS] 為何 v-for 物件的數字 key，在 v-model 中卻變成了 string？
+::: info 這篇的脈絡
+一個「勾選餐點」的清單，同一段程式碼讓我撞了兩次牆。這篇是第一次：勾選回來的 key 變成字串。第二次是接著寫篩選時的型別錯誤與效能，在下一篇 [修好型別錯誤，再用 Set 把查找變 O(1)](./透過-set-優化性能-2)。
+
+這種坑的共通點是：TypeScript 在編譯時說沒問題，JavaScript 在執行時做了另一件事。
+:::
+
+
 
 今天在開發時遇到一個有趣的狀況。我有一個響應式物件，其型別定義如下：
 

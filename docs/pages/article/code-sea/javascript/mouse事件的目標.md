@@ -1,27 +1,30 @@
 ---
-title: mouse事件的目標
+title: 'mouseenter 跟 mouseover 的 $event.target 為什麼不一樣'
 image: ''
-description: ''
+description: '同樣綁在外層 div，mouseenter 拿到的是 div 本身，mouseover 可能拿到裡面的子元素：差在會不會冒泡。一定要用 mouseover 的話，改讀 currentTarget。'
 keywords: ''
 author: Opshell
 createdAt: '2025-05-14'
 categories:
-  - 未分類
+  - JavaScript
 tags:
-  - null
+  - JavaScript
+  - DOM
+  - Vue
 editLink: true
 isPublished: false
 ---
 ## 前言
-在串接 Google Map 時  要動態渲染標記，多標記時 想實現hover 浮到最上層的功能，但是怎麼樣都抓不到正確的 el
+在串接 Google Map 時要動態渲染標記，標記一多，想做「hover 的那個浮到最上層」，但怎麼樣都抓不到正確的元素。
 
-後來發現是因為事件用錯了，Ai 會推薦你用 mouseover 和 mouseout 但是其實要用的是 mouseenter 和 mouseleave 事件，差異如下
+後來發現是事件用錯了。AI 會推薦你用 `mouseover` 和 `mouseout`，但這裡要用的其實是 `mouseenter` 和 `mouseleave`，差異如下。
 
-::: tip
-  @mouseenter="mouseEnterHandler($event.target)"
-  和
-  @mouseover="mouseEnterHandler($event.target)"
-  的$event.target的Dom 居然不一樣為什麼呢?
+::: tip 同樣的寫法，拿到的 DOM 不一樣
+```vue
+@mouseenter="mouseEnterHandler($event.target)"
+@mouseover="mouseEnterHandler($event.target)"
+```
+這兩行的 `$event.target` 居然不是同一個元素，為什麼？
 :::
 
 ## 兩個進入事件比較

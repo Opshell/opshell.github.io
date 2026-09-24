@@ -1,24 +1,30 @@
 ---
-title: 透過 set 優化性能 2
+title: 'Object.keys 之後：修好型別錯誤，再用 Set 把查找變 O(1)'
 image: ''
-description: ''
+description: 'Object.keys 回傳的永遠是 string[]，拿去 number[] 裡 includes 就報錯。用 map(Number) 加 flatMap 修好型別也變好讀；資料量大時再把陣列轉成 Set，查找從 O(n) 變 O(1)。'
 keywords: ''
 author: Opshell
 createdAt: '2025-08-27'
 categories:
-  - 未分類
+  - JavaScript
 tags:
-  - null
+  - JavaScript
+  - TypeScript
+  - 效能
 editLink: true
 isPublished: false
 ---
-# TypeScript 程式碼分析與優化：從型別錯誤到性能提升
+::: info 這篇的脈絡
+這是 [Object.keys 偷偷幫你轉型了](./object-keys-偷偷幫你轉型了) 的下集：上一篇搞懂了 key 為什麼變字串，這篇處理它在篩選邏輯裡造成的型別錯誤，順便把查找效能也顧到。
+:::
 
-本文檔旨在分析一段常見的 TypeScript 程式碼片段，解決其型別錯誤，並提供兩種優化方案以提高程式碼的可讀性與執行性能。
+
+
+同一段勾選清單的程式碼，接著要從 `mealDataGroup` 篩出已勾選的項目，就撞上型別錯誤。這篇先修好它，再提供兩種寫法：一種為了好讀，一種為了資料量大的時候不卡。
 
 ## 1. 原始程式碼與問題
 
-開發者在處理物件資料時，遇到了以下 TypeScript 型別錯誤。
+處理物件資料時，遇到了以下 TypeScript 型別錯誤。
 
 **原始程式碼：**
 

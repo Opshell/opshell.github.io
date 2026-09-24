@@ -1,19 +1,34 @@
 ---
-title: 串API 的那些是 part.3 用 Typescript-收起你的碼腳
+title: '串 API 的那些事（三）：用 TypeScript 收起你的碼腳'
 image: ''
-description: ''
+description: '用 unknown 收束 any 之後還是有型別漏洞：[] as I 的假預設值、假設 axios 永遠回傳 JSON。用函式重載把 GET 與 POST 的參數分開約束，再把檔案下載整合進同一支 composable。'
 keywords: ''
 author: Opshell
 createdAt: '2025-09-11'
 categories:
-  - 未分類
+  - Developer
 tags:
-  - null
+  - TypeScript
+  - Axios
+  - 函式重載
+  - API
 editLink: true
 isPublished: false
 ---
-# 用 Typescript-收起你的碼腳
-## 問題
+::: info 系列：串 API 的那些事
+這個系列從群組裡一段別人貼出來的 axios 封裝開始，一路改到型別安全，每一篇都在收拾上一篇留下的問題。
+1. [Axios 封裝，從「能用」到「好用」](./01-axios-封裝-從能用到好用)
+2. [取名是小事，也是大事](./02-取名是小事也是大事)
+3. **用 TypeScript 收起你的碼腳**（這篇）
+4. [告別非空斷言：非同步 Composable 的型別安全](./04-告別非空斷言-非同步-composable-的型別安全)
+
+**這篇的脈絡**：前兩篇把封裝改好用、名字取清楚了，這篇處理剩下的型別漏洞。前半是我當時卡住的程式碼，後半是怎麼用函式重載收緊它。
+:::
+
+
+## 起點：想用 unknown 收束 any
+
+上一篇之後，我把 useBackendApi 再往前推了一步，試著用 `unknown` 收束原本到處都是的 `any`：
 ```ts
 import router from '@/router';
 
@@ -337,11 +352,7 @@ export default function useApi() {
 
 }
 ```
-目前是這樣 想說使用 unknown 來收束 any 的問題
-
-但是好像還是有一點型別問題 教教我該怎麼做
-
-然後 語法糖的部分 添加
+但總覺得型別還是哪裡不對。另外，也想把專案裡另一支檔案下載的 `useFileDownload` 一起整合進來：
 ```ts
 import useDialog from '@hooks/useDialog.ts';
 
@@ -426,18 +437,12 @@ export async function useFileDownload(url: string, params: Record<string, any> =
 // 匯出檔案的下載?
 ```
 
-好的，看到你基於上次的討論做了這麼棒的重構，而且還開始思考如何用 unknown 來收束 any，這代表你對 TypeScript 的理解又更深一層了！這非常好！
-
-你遇到的「感覺還是有一點型別問題」，是非常敏銳的直覺。的確有幾個地方，我們可以透過更進階的 TypeScript 技巧，讓它變得無懈可擊。
-
-同時，關於 useFileDownload 如何整合進來，這也是個好問題。它不單純只是語法糖，還涉及到 sendRequest 目前設計的回傳格式。
-
-讓我們來一一拆解，這篇筆記可能會稍微硬核一點，但絕對值得！
+「感覺還是有一點型別問題」這個直覺是對的：有幾個地方可以用更進階的 TypeScript 技巧收緊。而 `useFileDownload` 也不只是加個語法糖，它牽涉到 `sendRequest` 回傳格式的設計。這篇會稍微硬核一點。
 
 ## TypeScript 進階技巧：用「函式重載」精準定義你的 Axios 封裝
 在上次重構了 useBackendApi 之後，我們得到了一個更健壯、可讀性更高的版本。這次，我們來挑戰最後一哩路：用更精準的型別定義，徹底消滅潛在的型別風險，並優雅地整合檔案下載功能。
 
-批判性思考：unknown 很好，但我們能做得更好
+### 批判性思考：unknown 很好，但我們能做得更好
 
 ```ts
 async function sendRequest<I = unknown, R = unknown>(
@@ -593,7 +598,7 @@ export default function useApi() {
 2. 安全的型別處理：我們移除了 `axios<iResult>` 這個不總是正確的假設。改為在 try 區塊內部，根據 responseType 的值，來做條件式的安全斷言 (Safe Assertion)。這樣 blob 和 json 兩種不同的回傳格式就能在型別系統中和平共存。
 
 ## 整合檔案下載：不只是語法糖
-你提供的 useFileDownload 寫得很好，但它獨立於 useApi 之外，重複了 axios.get 和 headers 的設定，違反了 DRY 原則。我們的目標是把它整合進 useApi，成為一個方便的工具函式。
+原本的 useFileDownload 寫得不錯，但它獨立於 useApi 之外，重複了 axios.get 和 headers 的設定，違反了 DRY 原則。我們的目標是把它整合進 useApi，成為一個方便的工具函式。
 
 但這裡有個挑戰：下載檔案不只需要 blob 資料，還需要從 response.headers['content-disposition'] 來解析檔案名稱。而我們重構的 sendRequest 為了保持回傳格式的純粹，只回傳了 iResult，並沒有包含 headers。
 
@@ -603,8 +608,8 @@ export default function useApi() {
 一個務實的作法是：在 useApi 內部新增一個專門的 downloadFile 函式。這個函式雖然也直接使用 axios，但它被視為 useApi 這個工具箱的一部分，可以共用 userStore 等內部狀態，同時又能處理自己特殊的邏輯（如讀取 headers）。
 :::
 
-整合後的檔案下載函式
-我們可以把你的 useFileDownload 邏輯，變成 useApi 回傳的一個方法：
+### 整合後的檔案下載函式
+我們可以把 useFileDownload 的邏輯，變成 useApi 回傳的一個方法：
 
 ::: details 點我展開新增 downloadFile 後的完整程式碼
 ```ts
@@ -702,4 +707,4 @@ const handleDownloadReport = () => {
 
 2. 務實的整合：我們沒有為了 downloadFile 而污染 sendRequest 的純粹性，而是將其作為一個獨立但歸屬在同一個 Composable 下的專用工具，達成了程式碼組織和功能實現的平衡。
 
-這就是從「能用」到「好用」，再到「可靠」的演進過程。對細節的雕琢，正是前端工程師{.vue}價值的體現。做得非常好！
+這就是從「能用」到「好用」，再到「可靠」的演進過程。對細節的雕琢，正是前端工程師{.vue}價值的體現。

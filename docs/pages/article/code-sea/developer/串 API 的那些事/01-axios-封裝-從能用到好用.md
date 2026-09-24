@@ -1,18 +1,31 @@
 ---
-title: 串API 的那些事 part.1 Axios 封裝，從「能用」到「好用」
+title: '串 API 的那些事（一）：Axios 封裝，從「能用」到「好用」'
 image: ''
-description: ''
+description: '拆解一份常見的 useApi 封裝：它做對了什麼、全域旗標藏著什麼競爭條件、為什麼不該回傳 null，最後用 async/await 重構成永遠回傳同一種格式。'
 keywords: ''
 author: Opshell
 createdAt: '2025-09-11'
 categories:
-  - 未分類
+  - Developer
 tags:
-  - null
+  - Axios
+  - Vue
+  - TypeScript
+  - API
 editLink: true
 isPublished: false
 ---
-# Axios 封裝，從「能用」到「好用」
+::: info 系列：串 API 的那些事
+這個系列從群組裡一段別人貼出來的 axios 封裝開始，一路改到型別安全，每一篇都在收拾上一篇留下的問題。
+1. **Axios 封裝，從「能用」到「好用」**（這篇）
+2. [取名是小事，也是大事](./02-取名是小事也是大事)
+3. [用 TypeScript 收起你的碼腳](./03-用-typescript-收起你的碼腳)
+4. [告別非空斷言：非同步 Composable 的型別安全](./04-告別非空斷言-非同步-composable-的型別安全)
+
+**這篇的脈絡**：有人在群組貼出專案裡的 useApi composable，問大家怎麼看。這種檔案幾乎每個專案都有一支，所以我把討論整理成筆記：先講它做對了什麼，再講哪裡可以更好，最後動手重構。程式碼用到 Quasar 的 Dialog，換成你用的 UI 框架道理一樣。
+:::
+
+
 今天在群組看到有位大大貼了他專案中封裝 axios 的 useApi composable，想問問大家的看法。這是一個非常經典的議題，幾乎每個專案都會有類似的檔案。把 API 請求的邏輯抽離出來，統一管理，絕對是正確的方向。
 
 這份程式碼寫得不錯，涵蓋了 TypeScript 型別、攔截器、統一的回傳格式等。但身為一個追求程式效能、可讀性、多人協作的前端工程師{.vue}，總覺得有些地方「怪怪的」，好像可以更完美。
@@ -220,7 +233,7 @@ export default function useApi() {
 ## 還可以再：
 雖然優點很多，但從多人協作和極端情況 (Edge Case) 的角度來看，有幾個地方值得我們深入探討。
 
-1. 全域狀態旗標 (Global Flag) 的風險
+### 1. 全域狀態旗標（Global Flag）的風險
 ::: warning
 showNetErrorDialog 和 showPermissionsErrorDialog 是潛在的 Race Condition (競爭條件) 風險來源。
 :::
@@ -241,12 +254,12 @@ showNetErrorDialog 和 showPermissionsErrorDialog 是潛在的 Race Condition (�
 
 結果：使用者只看到一個錯誤視窗，但其實有兩個 API 請求都失敗了。他可能永遠不會知道請求 B 也出錯了。這種不穩定的行為在複雜的應用中很難除錯。
 
-2. getImage 和 sendRequest 的功能重疊
+### 2. getImage 和 sendRequest 的功能重疊
 getImage 函式本質上就是一個特殊設定的 sendRequest (指定 responseType: 'blob')。但目前的寫法卻是完全獨立的兩套邏輯，包括 header 的設定、.then 和 .catch 的處理都重複了。
 
 這違反了 DRY 原則。如果未來 Authorization 的取得方式改變了 (例如從 userStore 換到另一個地方)，我們就必須同時修改 sendRequest 和 getImage 兩個地方，增加了維護成本和出錯的風險。
 
-3. 回傳 null 可能導致的麻煩
+### 3. 回傳 null 可能導致的麻煩
 在 sendRequest 和 getImage 的 .catch 區塊中，最終都 return null。這代表呼叫端的程式碼必須這樣寫：
 ```ts
 const result = await api.sendRequest(...);
@@ -260,7 +273,7 @@ if (result) {
 
 每次呼叫都需要做一次 if 判斷，有點繁瑣。更重要的是，當請求失敗時，我們失去了錯誤的詳細資訊。呼叫端只知道「失敗了 (拿到 null)」，但不知道為什麼失敗。如果我們總是回傳一個 iResult 物件，只是 status 為 false，並在 messages 裡帶上錯誤訊息，這樣呼叫端的處理會更統一。
 
-4. sendRequest 的 .then 區塊邏輯可以更清晰
+### 4. sendRequest 的 .then 區塊邏輯可以更清晰
 目前的寫法在 .then 裡面處理 status === 400 的情況。
 ```ts
 // ... in .then()
@@ -276,7 +289,7 @@ const messages = axiosResponse.status === 400
 ::: tip
 我們的重構核心思想：
 
-1. 제거全域旗標，讓錯誤處理更可靠。
+1. 移除全域旗標，讓錯誤處理更可靠。
 
 2. 抽象化 sendRequest，讓 getImage 成為它的一個應用。
 

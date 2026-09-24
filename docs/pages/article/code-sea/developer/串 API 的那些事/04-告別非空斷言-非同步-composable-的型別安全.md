@@ -1,29 +1,29 @@
 ---
-title: 重構 Vue Typescript 非同步Composable 實現真正的型別安全
+title: '串 API 的那些事（四）：告別非空斷言，非同步 Composable 的型別安全'
 image: ''
-description: ''
+description: '回傳 Promise<boolean> 的 useApi 讓 TypeScript 看不出「成功時 data 一定有值」，只好到處寫 !。兩種解法：成功回傳資料、失敗拋錯；或抽出通用的 useAsyncState。'
 keywords: ''
 author: Opshell
 createdAt: '2025-08-26'
 categories:
-  - TypeScript
+  - Developer
 tags:
   - TypeScript
+  - Vue
   - Composables
+  - API
 editLink: true
 isPublished: false
 ---
-# TypeScript 開發實戰：如何優雅地設計可預測的非同步 API Hook
-別再讓 TypeScript 猜測：打造健壯的 useApi Composable
-Vue + TypeScript: 優化非同步 Composable，告別 ! 非空斷言
+::: info 系列：串 API 的那些事
+這個系列從群組裡一段別人貼出來的 axios 封裝開始，一路改到型別安全，每一篇都在收拾上一篇留下的問題。
+1. [Axios 封裝，從「能用」到「好用」](./01-axios-封裝-從能用到好用)
+2. [取名是小事，也是大事](./02-取名是小事也是大事)
+3. [用 TypeScript 收起你的碼腳](./03-用-typescript-收起你的碼腳)
+4. **告別非空斷言：非同步 Composable 的型別安全**（這篇）
 
-好的，身為 Vuer，這個問題簡直是每天都會遇到的經典場景！你那「感覺不太對勁」的直覺，正是區分「會寫 Code」跟「寫好 Code」的關鍵。用 `!` 處理，就像是眼睛業障重，假裝看不到，但它總有一天會在你意想不到的地方 `runtime error` 給你看。
-
-這篇筆記就來聊聊，我們如何從根本上解決這個問題，讓 TypeScript 成為我們的神隊友，而不是那個只會บ่นบ่นบ่น的編譯器。
-
------
-
-# 告別 `!`，我如何重構我的 `useApi` Hook
+**這篇的脈絡**：前三篇都在改 useApi 這支檔案本身，這篇看的是「用它的人」：呼叫端為什麼總要寫一堆 `!`，問題其實出在 composable 的回傳設計。
+:::
 
 身為一個追求程式碼優雅的 Vue 開發者，我跟 TypeScript 的關係就像一對情侶，大部分時間我們相處融洽，它總是能在我犯錯前提醒我。但偶爾，它也會過於嘮叨，尤其是在處理非同步 API 的時候。
 
@@ -104,8 +104,6 @@ TypeScript 的**控制流分析 (Control Flow Analysis)** 很強大，但它無�
   - 使用**泛型 `<T>`**，讓 `data` 的型別可以由外部傳入，提高複用性。
   - 建立一個**自定義錯誤型別 `ApiError`**，可以攜帶更豐富的錯誤資訊。
   - 函式不再回傳 `Promise<boolean>`，而是 `Promise<ApiResult<T>>`。
-
-<!-- end list -->
 
 ```typescript
 // composables/useSendApi.ts (新版)
@@ -221,9 +219,9 @@ setup(props, { emit }) {
 
 ## 方案二：終極進化，打造通用的 `useAsyncState`
 
-當你的專案越來越大，你會發現到處都在重複「發請求 -\> 管理 loading -\> 管理 error -\> 管理 data」這套邏輯。身為一個有追求的工程師，我們應該把它抽象出來。
+當你的專案越來越大，你會發現到處都在重複「發請求 -> 管理 loading -> 管理 error -> 管理 data」這套邏輯。身為一個有追求的工程師，我們應該把它抽象出來。
 
-這個模式將\*\*「關注點分離 (Separation of Concerns)」\*\*做得更徹底：
+這個模式將**「關注點分離 (Separation of Concerns)」**做得更徹底：
 
 1.  **API 函式**: 只負責定義如何發送請求、處理原始回傳並回傳乾淨的資料（或拋出錯誤）。
 2.  **Composable (`useAsyncState`)**: 只負責管理任何非同步操作的通用狀態（`isLoading`, `error`, `state`）。
@@ -325,24 +323,3 @@ setup() {
 
 從今天起，讓我們和 `!` 說分手，擁抱 `try...catch`，寫出讓自己和 TypeScript 都滿意的程式碼吧！
 
-## TypeScript 關鍵字 (TypeScript Concepts)
-- Type Safety (型別安全)
-- Type Inference (型別推斷)
-- Non-null Assertion (非空斷言 !)
-- Generics (泛型 T)
-- Control Flow Analysis (控制流分析)
-- Custom Error Types (自定義錯誤型別)
-
-## 非同步與錯誤處理 (Async & Error Handling)
-- Async/Await
-- Promise
-- try...catch
-- Error Handling (錯誤處理模式)
-- Throwing Errors (拋出錯誤)
-
-## 設計模式與概念 (Design Patterns & Concepts)
-- Refactoring (程式碼重構)
-- State Management (狀態管理)
-- Separation of Concerns (關注點分離)
-- Reusable Code (程式碼複用)
-- API Abstraction (API 抽象化)
