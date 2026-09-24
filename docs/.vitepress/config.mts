@@ -120,6 +120,10 @@ export default defineConfig({
                 text: 'Vitepress',
                 items: await getSidebar('/article/code-sea/vitepress')
             }],
+            '/article/ai/': [{
+                text: 'AI',
+                items: await getSidebar('/article/ai')
+            }],
             '/article/life-murmurs/': [{
                 text: 'Life\'s Mumurs',
                 items: await getSidebar('/article/life-murmurs')
