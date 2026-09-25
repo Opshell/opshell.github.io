@@ -6,6 +6,9 @@ export const BETA_SEATS = 100;
 
 export const PRIVACY_PATH = '/dindon/privacy/';
 
+/** 功能演示（溝通板 #0055） */
+export const DEMO_PATH = '/dindon/demo/';
+
 /** 刪除資料與帳號。Google Play 要求「帳號刪除」有一個不用裝 App 也打得開的網址 */
 export const ACCOUNT_PATH = '/dindon/account/';
 
@@ -13,10 +16,10 @@ export const ACCOUNT_PATH = '/dindon/account/';
 export const GROUP_URL = 'https://groups.google.com/g/dindon-beta';
 
 /**
- * Play 的「加入測試」連結。等封閉測試軌道建好、上傳 AAB 之後才會有，
- * 填進來之後宣傳頁會自動多一顆按鈕；空的時候文案是「核准後把連結寄給你」。
+ * Play 的「加入測試」連結（2026-09-25 封閉測試審查通過）。
+ * 要先加入上面的群組，這個連結才有用：Play 看的是「這個帳號在不在測試群組裡」。
  */
-export const PLAY_OPTIN_URL = '';
+export const PLAY_OPTIN_URL = 'https://play.google.com/apps/testing/me.opshell.dindon';
 
 // 報名信的範本：Play Console 加測試者要的是對方 Play 商店登入的那個 Gmail
 const SIGNUP_SUBJECT = '叮咚記帳封閉測試';
@@ -73,10 +76,31 @@ export const lazyPoints: iPoint[] = [
     { icon: '🧘', title: '沒有複雜的設定', text: '不用設預算、不用建帳戶。打開統計就知道錢去哪了；想找某一筆，直接用講的：「上個月在超商花了多少」。' }
 ];
 
-export const betaSteps: string[] = [
-    '用你在 Play 商店登入的那個 Google 帳號，申請加入封測群組。',
-    '核准之後，會收到 Google Play 的測試版連結，正常下載安裝。',
-    '每天打開一次，連續 14 天。遇到問題或有想法，在 App 裡回報。'
+/** 加入封測的兩步（流程見外層 docs/ops/google-group-setup.md 第三節）；宣傳頁的 BetaJoinGuide 用 */
+export interface iJoinStep {
+    title: string;
+    text: string;
+    action: string;
+    href: string;
+    /** 容易做錯的地方 */
+    caution?: string;
+}
+
+export const joinSteps: iJoinStep[] = [
+    {
+        title: '申請加入封測群組',
+        text: '用你在 Play 商店登入的那個 Google 帳號打開群組，按「申請加入群組」。核准後 Google 會寄信通知你。',
+        action: '申請加入群組',
+        href: GROUP_URL,
+        caution: '帳號一定要和 Play 商店的同一個，不然 Play 認不出你是測試者。'
+    },
+    {
+        title: '成為測試人員，下載安裝',
+        text: '收到核准信之後，打開測試連結，按「成為測試人員」，再點「在 Google Play 下載」，照一般 App 安裝。',
+        action: '打開測試連結',
+        href: PLAY_OPTIN_URL,
+        caution: '還沒被核准就打開，會加入不了——先做第 1 步。'
+    }
 ];
 
 export interface iReward {
