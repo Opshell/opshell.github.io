@@ -22,7 +22,7 @@
 
     const steps = computed(() => props.item.steps ?? []);
     const duration = computed(() => props.item.duration ?? 0);
-    const { finger, bubble } = useDemoOverlay(time, steps);
+    const { finger, box, bubble } = useDemoOverlay(time, steps);
 
     const trailPoints = computed(() => finger.value?.trail.map(([x, y]) => `${x * 540},${y * 1200}`).join(' ') ?? '');
     const percent = (seconds: number) => `${Math.min(100, (seconds / (duration.value || 1)) * 100)}%`;
@@ -146,6 +146,12 @@
                     <svg v-if="finger?.trail.length" class="trail" viewBox="0 0 540 1200" preserveAspectRatio="none" :style="{ opacity: finger.opacity }">
                         <polyline :points="trailPoints" />
                     </svg>
+                    <!-- 紅框：手指落下前先框出要點的元件 -->
+                    <span
+                        v-if="box"
+                        class="target"
+                        :style="{ left: `${box.x1 * 100}%`, top: `${box.y1 * 100}%`, width: `${(box.x2 - box.x1) * 100}%`, height: `${(box.y2 - box.y1) * 100}%`, opacity: box.opacity }"
+                    />
                     <span
                         v-if="finger"
                         class="finger"
@@ -168,7 +174,7 @@
                 </div>
 
                 <button v-if="ended || !playing && time === 0" type="button" class="demo-player__big" :aria-label="ended ? '再看一次' : '播放'" @click="ended ? replay() : play()">
-                    <svg v-if="ended" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z" /></svg>
+                    <svg v-if="ended" class="is-stroke" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.5" /><path d="M4 3.5v5h5" /></svg>
                     <svg v-else viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z" /></svg>
                 </button>
             </div>
@@ -204,7 +210,7 @@
             <span class="time">{{ clock(time) }} / {{ clock(duration) }}</span>
             <button type="button" class="control is-text" :class="{ 'is-on': slow }" :aria-pressed="slow" title="慢速播放" @click="toggleSpeed">0.5×</button>
             <button type="button" class="control" aria-label="從頭播放" @click="replay">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z" /></svg>
+                <svg class="is-stroke" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.5" /><path d="M4 3.5v5h5" /></svg>
             </button>
         </div>
     </div>
@@ -265,6 +271,11 @@
                     stroke-linejoin: round;
                 }
             }
+            .target {
+                position: absolute;
+                border: 2px solid #E5484D;
+                border-radius: 6px;
+            }
             .finger {
                 position: absolute;
                 background: color-mix(in srgb, var(--dd-accent) 55%, transparent);
@@ -320,6 +331,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
+            @include setFlex(center, center); // 沒有這行圖示會貼在圓的左上角
             background: color-mix(in srgb, #1B1815 72%, transparent);
             @include setSize(64px, 64px);
             border: 0;
@@ -331,6 +343,13 @@
             svg {
                 @include setSize(30px, 30px);
                 fill: currentcolor;
+            }
+            svg.is-stroke {
+                fill: none;
+                stroke: currentcolor;
+                stroke-width: 2.4;
+                stroke-linecap: round;
+                stroke-linejoin: round;
             }
             &:focus-visible { outline: 3px solid var(--dd-primary); }
         }
@@ -353,6 +372,13 @@
                 svg {
                     @include setSize(18px, 18px);
                     fill: currentcolor;
+                }
+                svg.is-stroke {
+                    fill: none;
+                    stroke: currentcolor;
+                    stroke-width: 2.4;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
                 }
                 &.is-text {
                     width: auto;
