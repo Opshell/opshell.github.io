@@ -4,18 +4,17 @@
         ACCOUNT_PATH,
         BETA_SEATS,
         betaRewards,
-        betaSteps,
         CONTACT_EMAIL,
-        GROUP_URL,
+        DEMO_PATH,
         invoicePains,
         lazyPoints,
         photoSources,
-        PLAY_OPTIN_URL,
         PRIVACY_PATH,
         SIGNUP_HREF,
         withoutNotice
     } from '../constants';
     import { useLandingMotion } from '../hooks/useLandingMotion';
+    import BetaJoinGuide from './BetaJoinGuide.vue';
     import DinDonBell from './DinDonBell.vue';
 
     const rootRef = ref<HTMLElement>();
@@ -49,7 +48,8 @@
                     </p>
 
                     <div class="dindon-landing__actions">
-                        <a class="dindon-landing__btn is-primary" :href="GROUP_URL" target="_blank" rel="noopener">加入封閉測試<span class="arrow" aria-hidden="true">→</span></a>
+                        <!-- 先到下面看兩步驟：直接連去群組的話，很多人會漏掉第二步的測試連結 -->
+                        <a class="dindon-landing__btn is-primary" href="#beta">加入封閉測試<span class="arrow is-down" aria-hidden="true">↓</span></a>
                         <a class="dindon-landing__btn" href="#why">看看怎麼做到<span class="arrow is-down" aria-hidden="true">↓</span></a>
                     </div>
                     <p class="dindon-landing__note">僅限 Android 7.0 以上 · 封測限額 {{ BETA_SEATS }} 名 · 即將在 Google Play 上架</p>
@@ -120,6 +120,10 @@
                         <p>{{ item.text }}</p>
                     </li>
                 </ul>
+
+                <p class="dindon-landing__links is-center">
+                    <a class="dindon-landing__link" :href="DEMO_PATH" data-reveal>每個功能的動態演示<span class="arrow" aria-hidden="true">→</span></a>
+                </p>
             </div>
         </section>
         <!-- #endregion -->
@@ -137,7 +141,7 @@
                     </ul>
 
                     <p class="dindon-landing__shutter" data-reveal>
-                        只要上面有資料，<strong>喀嚓</strong>，5 秒，記完帳了。
+                        上面有資料，<strong>喀嚓</strong>，5 秒，記完帳了。
                     </p>
                 </div>
 
@@ -211,29 +215,33 @@
         <!-- #region [P] 封測招募 -->
         <section id="beta" class="dindon-landing__section is-sunken">
             <div class="dindon-landing__container">
-                <div class="dindon-landing__beta">
-                    <div class="beta-copy">
-                        <p class="dindon-landing__seats" data-reveal>
-                            <strong>限額 {{ BETA_SEATS }} 名</strong>
-                            <span>僅限 Android · 額滿為止</span>
-                        </p>
-                        <h2 class="dindon-landing__title" data-reveal :style="delay(1)">加入封閉測試</h2>
-                        <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">
-                            Google Play 規定新 App 上架前，要先經過一段封閉測試。體驗最無腦的記帳，順手幫幫叮咚記帳上架。
-                        </p>
+                <!-- 加入方式放整個寬度：兩步驟並排，一眼看出「要做兩件事」 -->
+                <div class="dindon-landing__join">
+                    <p class="dindon-landing__seats" data-reveal>
+                        <strong>限額 {{ BETA_SEATS }} 名</strong>
+                        <span>僅限 Android · 額滿為止</span>
+                    </p>
+                    <h2 class="dindon-landing__title" data-reveal :style="delay(1)">加入封閉測試</h2>
+                    <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">
+                        Google Play 規定新 App 上架前，要先經過一段封閉測試。體驗最無腦的記帳，順手幫幫叮咚記帳上架。
+                    </p>
 
-                        <ol class="dindon-landing__steps">
-                            <li v-for="(step, index) in betaSteps" :key="step" data-reveal :style="delay(index + 3, 90)">{{ step }}</li>
-                        </ol>
-
-                        <div class="dindon-landing__actions" data-reveal :style="delay(6, 90)">
-                            <a class="dindon-landing__btn is-primary" :href="GROUP_URL" target="_blank" rel="noopener">申請加入封測群組<span class="arrow" aria-hidden="true">→</span></a>
-                            <a v-if="PLAY_OPTIN_URL" class="dindon-landing__btn" :href="PLAY_OPTIN_URL" target="_blank" rel="noopener">已核准？前往安裝<span class="arrow" aria-hidden="true">→</span></a>
-                        </div>
+                    <p class="dindon-landing__join-lead" data-reveal :style="delay(3)">
+                        <strong>要兩個步驟</strong>：先加入封測群組，被核准之後再打開測試連結。只做第一步的話，Play 商店還找不到測試版。
+                    </p>
+                    <BetaJoinGuide data-reveal :style="delay(4)" />
+                    <div>
+                        <p class="dindon-landing__note">
+                            裝好之後，每天打開一次、連續 14 天，中途退出測試要重新算。遇到問題或有想法，在 App 裡回報。
+                        </p>
                         <p class="dindon-landing__note">
                             需要：Android 7.0 以上的手機、一個 Google 帳號（要和 Play 商店登入的是同一個）。有問題寫信到 <a :href="SIGNUP_HREF" class="email">{{ CONTACT_EMAIL }}</a>。
                         </p>
+                    </div>
+                </div>
 
+                <div class="dindon-landing__beta">
+                    <div class="beta-copy">
                         <figure class="dindon-landing__figure is-event" data-reveal>
                             <div class="dindon-landing__phone" data-parallax="-.05">
                                 <img src="/images/dindon/event.webp" alt="Beta 貢獻活動的排行榜：前三名、自己的名次與每個人的回報件數" loading="lazy" />
@@ -269,6 +277,8 @@
 
         <footer class="dindon-landing__footer">
             <div class="dindon-landing__container">
+                <a :href="DEMO_PATH">功能演示</a>
+                <span aria-hidden="true">·</span>
                 <a :href="PRIVACY_PATH">隱私權政策</a>
                 <span aria-hidden="true">·</span>
                 <a :href="ACCOUNT_PATH">刪除資料與帳號</a>
@@ -665,6 +675,7 @@
             margin-top: 24px;
 
             .dindon-landing__link { margin-top: 18px; }
+            &.is-center { justify-content: center; }
         }
         &__link {
             display: inline-block;
@@ -890,38 +901,19 @@
                 font-weight: 600;
             }
         }
-        &__steps {
-            @include setFlex(flex-start, stretch, 14px, column);
-            list-style: none;
-            counter-reset: step;
-
-            li {
-                position: relative;
-                padding-left: 44px;
-                counter-increment: step;
-
-                &::before {
-                    content: counter(step);
-                    position: absolute;
-                    top: -2px;
-                    left: 0;
-                    background: var(--dd-accent);
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 50%;
-                    color: #1B1815;
-                    font-weight: 800;
-                    @include setFlex();
-                }
-            }
+        &__join {
+            @include setFlex(flex-start, flex-start, 22px, column);
+            margin-bottom: 72px;
         }
+        &__join-lead {
+            background: var(--dd-accent-tint);
+            padding: 12px 16px;
+            border-left: 4px solid var(--dd-accent);
+            border-radius: 8px;
+            color: #1B1815;
 
-        // 步驟數字：整列浮上來之後，圓點再帶一點回彈地「蹦」出來
-        &.is-motion &__steps li::before {
-            transform: scale(0);
-            transition: transform .5s var(--cubic-SiRo) calc(var(--reveal-delay, 0ms) + 250ms);
+            strong { color: #1B1815; }
         }
-        &.is-motion &__steps li.is-visible::before { transform: scale(1); }
 
         &__rewards-title {
             margin-bottom: 14px !important;
