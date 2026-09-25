@@ -30,6 +30,8 @@ features/dindon/
 ├── useGoogleAuth.ts        ← Google 登入，後台與刪除頁共用；client ID 在這（公開的）
 ├── components/
 │   ├── DinDonLanding.vue   ← 宣傳頁；配色是 App 的 Sicily 色票（--dd-* 變數）
+│   ├── BetaJoinGuide.vue   ← 加入封測的兩步（群組 → 測試連結）＋示意小手機；文案是 constants.ts 的 joinSteps。
+│   │                         手指的 top 是量出來的按鈕位置，改了示意畫面的排版要重量
 │   └── DinDonBell.vue      ← 鈴鐺動畫，讀 --dd-story-duration / --dd-story-delay
 ├── hooks/useLandingMotion.ts ← data-reveal 進場、data-parallax 視差；reduced-motion 時不動
 ├── account/
@@ -93,7 +95,7 @@ pnpm dindon:demos                   # 預設讀 ../DinDon/DinDon_Android/store/d
 
 - 前端 Claude 錄影、產 `index.json`（規格在那邊的 `README.md`），錄好會在溝通板回覆。網頁只要重跑腳本、commit：
   影片與封面進 `docs/public/images/dindon/demos/`、順便縮出 `*.thumb.webp` 給目錄用、舊檔自動刪掉，`index.json` 複製成 `demo/demos.json`。
-- 手指與泡泡的時間參數在 `useDemoOverlay.ts` 頂端（拖曳的延遲是對照影格調的）；泡泡的位置規則在 `bubbleAbove()`。
+- 手指、紅框、泡泡的時間參數在 `useDemoOverlay.ts` 頂端。drag 照 `pathMs` 走、紅框照 `box` 畫（兩者都是錄影時實測的）；泡泡的位置規則在 `bubbleAbove()`。
 - 圖解要跟 App 實際行為一致：第 4 項的前後對照是拿 `NotificationParser.deIdentify` 真的跑出來的，App 改規則要跟著改。
 - **對話框裡的元件要用 `defineAsyncComponent` 載入**：VitePress 第一次載入用「精簡版」頁面程式，會把靜態 HTML 清成空字串
   （假設伺服器已經渲染過）。只在瀏覽器端才渲染的東西（對話框、`v-if` 打開的內容）如果整塊是靜態的，打開會是空的；
@@ -101,7 +103,7 @@ pnpm dindon:demos                   # 預設讀 ../DinDon/DinDon_Android/store/d
 
 ## 文案數字要對得上
 
-`constants.ts` 裡的封測名額（`BETA_SEATS`）、獎勵（`betaRewards`）、群組網址、Play 測試連結（`PLAY_OPTIN_URL`，空字串時宣傳頁不顯示按鈕）
+`constants.ts` 裡的封測名額（`BETA_SEATS`）、獎勵（`betaRewards`）、群組網址、Play 測試連結（`PLAY_OPTIN_URL`，2026-09-25 審查通過後填上，兩步驟引導的第 2 步用它）
 都是對外承諾，要跟 App 的「獎勵說明」、`docs/roadmap/beta-todo.md`、Play Console 一致。
 改了要開單通知前端（App 內文案）與上架小精靈（Play 的商店資訊）。
 
