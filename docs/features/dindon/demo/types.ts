@@ -15,12 +15,16 @@ export interface iDemoStep {
     y?: number;
     toX?: number;
     toY?: number;
-    /** longpress 按住、swipe 滑動花的毫秒數 */
+    /** longpress 按住、swipe 滑動、drag 按下到放開的毫秒數 */
     ms?: number;
     /** drag 移動前先按住的毫秒數 */
     holdMs?: number;
     /** drag 經過的點，第一點是按下的位置 */
     path?: [number, number][];
+    /** drag 第 i 點在按下後幾毫秒到（ms 則是按下到放開） */
+    pathMs?: number[];
+    /** 被點的元件範圍 [x1, y1, x2, y2]，點下去之前用紅框標出來；tap、longpress、drag 才有，也不一定每步都有 */
+    box?: [number, number, number, number];
     /** 說明泡泡；type 步驟是打的字 */
     label?: string;
 }

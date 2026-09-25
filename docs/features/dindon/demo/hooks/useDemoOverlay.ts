@@ -7,10 +7,10 @@ const LEAD = 0.35;
 const TAIL = 0.35;
 // tap 按下去的長度。實際的點擊只有幾十毫秒，畫這麼短看不出來
 const TAP = 0.18;
-// drag 每一段移動的時間。錄影工具每段 sleep 60ms，加上 adb 每下一個指令的延遲，一段約 0.2 秒；
-// 按住之後畫面上的東西也比 holdMs 晚約 0.25 秒才開始動（2026-09-25 對照第 17 支的影格）
-const DRAG_SEGMENT = 0.2;
-const DRAG_LAG = 0.25;
+// 紅框在手指碰到螢幕前多久出現：先看到「要點哪裡」，手指再落下去
+const BOX_LEAD = 0.7;
+// 紅框放開後很快就收掉：點下去常常馬上換頁，框留著會框在新畫面不相干的地方
+const BOX_TAIL = 0.12;
 // 說明泡泡最少停多久；字多的再依字數加長
 const BUBBLE_MIN = 2.2;
 const BUBBLE_PER_CHAR = 0.1;
@@ -26,6 +26,15 @@ export interface iFinger {
     trail: tPoint[];
 }
 
+/** 被點的元件範圍，0～1 的比例 */
+export interface iBox {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+    opacity: number;
+}
+
 export interface iBubble {
     text: string;
     kind: iDemoStep['type'];
@@ -38,32 +47,38 @@ export interface iBubble {
 
 const hasPoint = (step: iDemoStep) => step.x !== undefined && step.y !== undefined;
 
-/** 手指從按下到放開經過的點。tap、longpress 只有一點 */
-function pathOf(step: iDemoStep): tPoint[] {
-    const start: tPoint = [step.x!, step.y!];
-    if (step.type === 'drag') return step.path?.length ? step.path : [start, [step.toX!, step.toY!]];
-    if (step.type === 'swipe') return [start, [step.toX!, step.toY!]];
-    return [start];
+/**
+ * 手指的軌跡：[秒數（從碰到螢幕算起）, x, y]，最後一點是放開的時間與位置。
+ * drag 用錄影時量到的 pathMs；swipe 是等速直線；tap、longpress 停在原地。
+ */
+function trackOf(step: iDemoStep): [number, number, number][] {
+    const { x, y } = step as Required<iDemoStep>;
+    if (step.type === 'drag' && step.path?.length && step.pathMs?.length === step.path.length) {
+        const track = step.path.map(([px, py], i): [number, number, number] => [step.pathMs![i] / 1000, px, py]);
+        const release = (step.ms ?? step.pathMs.at(-1)!) / 1000;
+        if (release > track.at(-1)![0]) track.push([release, track.at(-1)![1], track.at(-1)![2]]);
+        return track;
+    }
+    if (step.type === 'swipe' || step.type === 'drag') return [[0, x, y], [(step.ms ?? 350) / 1000, step.toX ?? x, step.toY ?? y]];
+    if (step.type === 'longpress') return [[0, x, y], [(step.ms ?? 800) / 1000, x, y]];
+    return [[0, x, y], [TAP, x, y]];
 }
 
-/** [按住不動的秒數, 移動的秒數] */
-function timingOf(step: iDemoStep): [number, number] {
-    if (step.type === 'longpress') return [(step.ms ?? 800) / 1000, 0];
-    if (step.type === 'swipe') return [0.05, (step.ms ?? 350) / 1000];
-    if (step.type === 'drag') return [(step.holdMs ?? 700) / 1000 + DRAG_LAG, (pathOf(step).length - 1) * DRAG_SEGMENT];
-    return [TAP, 0];
-}
-
-/** 沿著折線走到 progress（0～1）的位置，回傳走過的點 */
-function walk(points: tPoint[], progress: number): tPoint[] {
-    if (points.length < 2 || progress <= 0) return [points[0]];
-    const segments = points.length - 1;
-    const exact = Math.min(progress, 1) * segments;
-    const index = Math.min(Math.floor(exact), segments - 1);
-    const local = exact - index;
-    const [ax, ay] = points[index];
-    const [bx, by] = points[index + 1];
-    return [...points.slice(0, index + 1), [ax + (bx - ax) * local, ay + (by - ay) * local]];
+/** 走到第 elapsed 秒時，經過的點（最後一點是現在的位置） */
+function walk(track: [number, number, number][], elapsed: number): tPoint[] {
+    const passed: tPoint[] = [[track[0][1], track[0][2]]];
+    for (let i = 1; i < track.length; i++) {
+        const [t0, ax, ay] = track[i - 1];
+        const [t1, bx, by] = track[i];
+        if (elapsed >= t1) {
+            passed.push([bx, by]);
+            continue;
+        }
+        const local = t1 > t0 ? Math.max(0, (elapsed - t0) / (t1 - t0)) : 1;
+        passed.push([ax + (bx - ax) * local, ay + (by - ay) * local]);
+        break;
+    }
+    return passed;
 }
 
 /**
@@ -90,24 +105,41 @@ export function useDemoOverlay(time: Ref<number>, steps: Ref<iDemoStep[]>) {
         const step = steps.value.filter(s => hasPoint(s) && s.t - LEAD <= now).at(-1);
         if (!step) return null;
 
-        const [hold, move] = timingOf(step);
-        const end = step.t + hold + move;
+        const track = trackOf(step);
+        const end = step.t + track.at(-1)![0];
         if (now > end + TAIL) return null;
 
-        const points = pathOf(step);
-        const walked = walk(points, move ? (now - step.t - hold) / move : 0);
+        const walked = walk(track, now - step.t);
         const [x, y] = walked.at(-1)!;
         let opacity = 1;
         if (now < step.t) opacity = (now - (step.t - LEAD)) / LEAD;
         else if (now > end) opacity = 1 - (now - end) / TAIL;
+        const moves = track.some(([, px, py]) => px !== track[0][1] || py !== track[0][2]);
 
         return {
             x,
             y,
             opacity: Math.max(0, Math.min(1, opacity)),
             pressed: now >= step.t && now <= end,
-            trail: points.length > 1 && now >= step.t ? walked : []
+            // 只保留真的有移動的點，按住不動的那一段不畫線
+            trail: moves && now >= step.t ? walked : []
         };
+    });
+
+    /** 紅框：手指落下前先框出要點的元件，放開後跟手指一起淡掉 */
+    const box = computed<iBox | null>(() => {
+        const now = time.value;
+        const step = steps.value.filter(s => s.box && s.t - BOX_LEAD <= now).at(-1);
+        if (!step) return null;
+
+        const end = step.t + trackOf(step).at(-1)![0];
+        if (now > end + BOX_TAIL) return null;
+
+        let opacity = 1;
+        if (now < step.t - BOX_LEAD + 0.15) opacity = (now - (step.t - BOX_LEAD)) / 0.15;
+        else if (now > end) opacity = 1 - (now - end) / BOX_TAIL;
+        const [x1, y1, x2, y2] = step.box!;
+        return { x1, y1, x2, y2, opacity: Math.max(0, Math.min(1, opacity)) };
     });
 
     const bubble = computed<iBubble | null>(() => {
@@ -126,5 +158,5 @@ export function useDemoOverlay(time: Ref<number>, steps: Ref<iDemoStep[]>) {
         return { text, kind: step.type, x: step.x!, y: step.y!, above: bubbleAbove(step) };
     });
 
-    return { finger, bubble };
+    return { finger, box, bubble };
 }

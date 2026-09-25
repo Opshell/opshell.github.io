@@ -19,9 +19,6 @@
         39: defineAsyncComponent(() => import('./diagrams/BackupDiagram.vue'))
     };
 
-    /** 通知那幾支畫面上的金流來源是「Shell」：模擬器的假通知是 adb 發的（見 Android 的 store/demos/README.md） */
-    const SHELL_SOURCE_ITEMS = [2, 3, 5, 6, 7];
-
     const sectionOf = (item: iDemoItem) => demoIndex.sections.find(section => section.items.includes(item))!;
     const clock = (seconds = 0) => `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, '0')}`;
     const thumbOf = (item: iDemoItem) => `${MEDIA_BASE}${item.poster!.replace(/\.\w+$/, '.thumb.webp')}`;
@@ -217,10 +214,6 @@
                             </button>
                         </li>
                     </ol>
-
-                    <p v-if="SHELL_SOURCE_ITEMS.includes(current.no)" class="demo-dialog__note">
-                        畫面上的金流來源「Shell」是模擬器發假通知的身分；在真的手機上，會是發出那則通知的 App。
-                    </p>
 
                     <nav class="demo-dialog__nav" aria-label="上一個、下一個演示">
                         <button v-if="prevItem" type="button" @click="open(prevItem)">
