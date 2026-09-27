@@ -8,21 +8,21 @@
     // 主線畫在 __wrap 上（版面內的絕對定位），不再用 fixed 加一串 calc 去猜圓點在哪；窄螢幕只要改 --op-line-left 就對得上。
     const siteData = useSiteData();
 
-    interface iMonthGroup {
+    interface MonthGroup {
         month: string;
         label: string;
         posts: Post[];
     }
-    interface iYearGroup {
+    interface YearGroup {
         year: string;
-        months: iMonthGroup[];
+        months: MonthGroup[];
         count: number;
     }
 
     const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const monthLabel = (month: string) => MONTHS[Number(month) - 1] ?? month;
 
-    const timelineData = computed<iYearGroup[]>(() => {
+    const timelineData = computed<YearGroup[]>(() => {
         if (!siteData.value) return [];
 
         const posts = Array.from(siteData.value.posts.values())

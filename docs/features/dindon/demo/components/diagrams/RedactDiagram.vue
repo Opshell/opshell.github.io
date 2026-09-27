@@ -1,13 +1,13 @@
 <script setup lang="ts">
     // 第 4 項：通知送出前先抹掉卡號與餘額
     // 範例的前後對照是拿 App 的 NotificationParser.deIdentify 實際跑出來的結果，改規則的話這裡要跟著對
-    interface iPiece {
+    interface Piece {
         text: string;
         /** 有值就是會被抹掉的部分，值是抹掉之後剩下的字 */
         redact?: string;
     }
 
-    const examples: { source: string; pieces: iPiece[] }[] = [
+    const examples: { source: string; pieces: Piece[] }[] = [
         {
             source: '信用卡的刷卡通知',
             pieces: [

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-    import type { iWork } from '../workExperience.data';
+    import type { Work } from '../workExperience.data';
     import { computed, ref, watch } from 'vue';
     import { formatMonths, monthsOf } from '../period';
 
     // 一段工作經歷：左邊 logo、右邊公司與職稱、下面條列（slot 是 markdown）。可以收合，預設由父層決定。
     const { work, open = true } = defineProps<{
-        work: iWork;
+        work: Work;
         open?: boolean;
     }>();
 

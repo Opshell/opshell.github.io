@@ -1,11 +1,11 @@
 <script setup lang="ts">
-    import type { iDemoItem } from '../types';
+    import type { DemoItem } from '../types';
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { MEDIA_BASE } from '../catalog';
     import { useDemoOverlay } from '../hooks/useDemoOverlay';
 
     const props = defineProps<{
-        item: iDemoItem;
+        item: DemoItem;
         /** 開了「減少動態效果」就不自動播放，留一顆播放鈕 */
         autoplay?: boolean;
     }>();

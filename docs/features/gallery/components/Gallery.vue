@@ -15,13 +15,13 @@
     const R2_RAW = `${R2_DOMAIN}/raw`;
 
     type RawAlbum = (typeof galleryData)[number];
-    interface iAlbum extends RawAlbum {
+    interface Album extends RawAlbum {
         subtitle?: string;
         descriptionHtml: string;
         captions: Record<string, string>;
     }
 
-    const albums = computed<iAlbum[]>(() => galleryData.map((album) => {
+    const albums = computed<Album[]>(() => galleryData.map((album) => {
         const meta: AlbumMeta | undefined = albumMeta[album.id];
         const coverPhoto = meta?.cover ? album.photos.find(p => p.filename === meta.cover) : undefined;
         return {

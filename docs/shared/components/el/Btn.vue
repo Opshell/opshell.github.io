@@ -1,7 +1,7 @@
 <script setup lang="ts">
     // 按鈕。有 href 就是 <a>，沒有就是 <button>。
     // 四種樣式：ghost（預設，跟標籤頁的分頁鈕、相簿的返回鈕同一套）、primary（品牌色）、text（只有字）、danger。
-    interface iProps {
+    interface Props {
         variant?: 'ghost' | 'primary' | 'text' | 'danger';
         size?: 'sm' | 'md';
         href?: string;
@@ -9,7 +9,7 @@
         disabled?: boolean;
         type?: 'button' | 'submit';
     }
-    const { variant = 'ghost', size = 'md', href = '', target, disabled = false, type = 'button' } = defineProps<iProps>();
+    const { variant = 'ghost', size = 'md', href = '', target, disabled = false, type = 'button' } = defineProps<Props>();
 </script>
 
 <template>

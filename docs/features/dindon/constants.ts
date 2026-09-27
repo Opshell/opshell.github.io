@@ -33,7 +33,7 @@ const SIGNUP_BODY = [
 
 export const SIGNUP_HREF = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(SIGNUP_SUBJECT)}&body=${encodeURIComponent(SIGNUP_BODY)}`;
 
-export interface iPoint {
+export interface LandingPoint {
     icon: string;
     title: string;
     text: string;
@@ -42,7 +42,7 @@ export interface iPoint {
 }
 
 /** 電子發票的痛點。叮咚記帳要回答的就是「那不是已經有電子發票 App 了嗎？」 */
-export const invoicePains: iPoint[] = [
+export const invoicePains: LandingPoint[] = [
     { icon: '⏳', title: '最久要等兩天', text: '消費資料從店家上傳、再同步到載具，常常隔天甚至兩天後才看得到。' },
     { icon: '🧩', title: '總覽不直覺', text: '一張張發票排在一起，看不出這個月的錢都花去哪了。' },
     { icon: '💵', title: '付現的帳記不到', text: '夜市、早餐店、傳統市場，沒有電子發票的消費，全部不見。' },
@@ -50,7 +50,7 @@ export const invoicePains: iPoint[] = [
 ];
 
 /** 沒有通知也能記：自動歸類、拍照、語音、帳單截圖 */
-export const withoutNotice: iPoint[] = [
+export const withoutNotice: LandingPoint[] = [
     { icon: '🏷️', title: '自動歸類', text: '記住你改過的店家和分類，下次同一家店自動分對。分類也能自己增減。' },
     { icon: '📷', title: '拍照記帳', text: '拍一張，AI 讀出店家、金額和每個品項。電子發票的 QR 碼直接在手機上解碼。' },
     { icon: '🎙️', title: '語音記帳', text: '說一句「午餐牛肉麵 150」就好。轉出來的文字先給你確認，改好了再送出。' },
@@ -69,7 +69,7 @@ export const photoSources: string[] = [
 ];
 
 /** 最懶人的記帳體驗。每一點都要和隱私權政策對得上 */
-export const lazyPoints: iPoint[] = [
+export const lazyPoints: LandingPoint[] = [
     { icon: '🚪', title: '不用註冊', text: '不用帳號、不用登入，裝好打開就能記。' },
     { icon: '🚫', title: '沒有廣告', text: '沒有廣告，不賣資料，也不拿你的資料去做廣告。' },
     { icon: '📱', title: '帳只存在你的手機', text: '帳目只存在這支手機，換手機時隨 Android 備份從你自己的 Google 帳號還原，我們看不到。隨時可以匯出完整備份，也能一鍵全部刪除。' },
@@ -77,7 +77,7 @@ export const lazyPoints: iPoint[] = [
 ];
 
 /** 加入封測的兩步（流程見外層 docs/ops/google-group-setup.md 第三節）；宣傳頁的 BetaJoinGuide 用 */
-export interface iJoinStep {
+export interface JoinStep {
     title: string;
     text: string;
     action: string;
@@ -86,7 +86,7 @@ export interface iJoinStep {
     caution?: string;
 }
 
-export const joinSteps: iJoinStep[] = [
+export const joinSteps: JoinStep[] = [
     {
         title: '申請加入封測群組',
         text: '用你在 Play 商店登入的那個 Google 帳號打開群組，按「申請加入群組」。核准後 Google 會寄信通知你。',
@@ -103,7 +103,7 @@ export const joinSteps: iJoinStep[] = [
     }
 ];
 
-export interface iReward {
+export interface Reward {
     tag: string;
     title: string;
     condition: string;
@@ -116,7 +116,7 @@ export interface iReward {
  * 封測獎勵，數字以 App 的「獎勵說明」為準（新板溝通板 #2）。
  * 名次獎與全勤另外算，都從正式版上線那天開始算。
  */
-export const betaRewards: iReward[] = [
+export const betaRewards: Reward[] = [
     { tag: '所有人', title: '勇敢白老鼠', condition: '加入封測', reward: '封測期間，所有功能免費用' },
     {
         tag: '依名次',

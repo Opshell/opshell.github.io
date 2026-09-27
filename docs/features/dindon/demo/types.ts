@@ -2,15 +2,15 @@
 // 欄位的意思以那邊的 README.md 為準（溝通板 #0055），這裡只寫網頁用到的
 
 /** ready 能播；phone 等使用者用手機錄；diagram 由網頁畫圖解；todo 前端還沒錄 */
-export type tDemoStatus = 'ready' | 'todo' | 'phone' | 'diagram';
+export type DemoStatus = 'ready' | 'todo' | 'phone' | 'diagram';
 
-export type tStepType = 'tap' | 'longpress' | 'swipe' | 'drag' | 'type' | 'back' | 'caption';
+export type StepType = 'tap' | 'longpress' | 'swipe' | 'drag' | 'type' | 'back' | 'caption';
 
 /** 座標都是 0～1 的比例，以影片畫面的左上角為原點 */
-export interface iDemoStep {
+export interface DemoStep {
     /** 發生在影片的第幾秒 */
     t: number;
-    type: tStepType;
+    type: StepType;
     x?: number;
     y?: number;
     toX?: number;
@@ -29,7 +29,7 @@ export interface iDemoStep {
     label?: string;
 }
 
-export interface iDemoItem {
+export interface DemoItem {
     /** 也是檔名與錨點：16-record-fan */
     id: string;
     /** 對應 App 倉庫「功能巧思清單」的編號 */
@@ -38,23 +38,23 @@ export interface iDemoItem {
     summary: string;
     /** 1～3，3 是一定要演示的 */
     stars: number;
-    status: tDemoStatus;
+    status: DemoStatus;
     video?: string;
     poster?: string;
     duration?: number;
-    steps?: iDemoStep[];
+    steps?: DemoStep[];
 }
 
-export interface iDemoSection {
+export interface DemoSection {
     id: string;
     title: string;
-    items: iDemoItem[];
+    items: DemoItem[];
 }
 
-export interface iDemoIndex {
+export interface DemoIndex {
     version: number;
     appVersion: string;
     generatedAt: string;
     video: { width: number; height: number; format: string };
-    sections: iDemoSection[];
+    sections: DemoSection[];
 }

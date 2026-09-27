@@ -9,7 +9,7 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import { DefaultTheme, defineConfig } from 'vitepress';
 import { renderSandbox } from 'vitepress-plugin-sandpack';
 
-import { buildSiteData, iSiteData } from '../shared/hooks/useBuildSiteData';
+import { buildSiteData, SiteData } from '../shared/hooks/useBuildSiteData';
 import { absolutePath, getFrontMatter, isDirectory } from '../shared/hooks/useFrontMatter';
 import { getSidebar } from '../shared/hooks/useGetSidebar';
 
@@ -20,8 +20,8 @@ import socialLinks from './theme/configs/socialLinks';
 const startPathDir = path.resolve(__dirname, '../pages'); // 把pages 設定成根目錄
 const mdFiles = fs.readdirSync(startPathDir); // 讀取目錄下的資料夾&文件
 
-interface iThemeConfig extends DefaultTheme.Config {
-    siteData: iSiteData;
+interface ThemeConfig extends DefaultTheme.Config {
+    siteData: SiteData;
 }
 
 const siteData = await buildSiteData(startPathDir);
@@ -152,7 +152,7 @@ export default defineConfig({
             linkText: '回到首頁'
         },
         externalLinkIcon: true
-    } as unknown as iThemeConfig,
+    } as unknown as ThemeConfig,
     markdown: {
         theme: 'one-dark-pro',
         lineNumbers: true,

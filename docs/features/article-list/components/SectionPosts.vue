@@ -5,7 +5,7 @@
 
     // 專區首頁：列出某個資料夾底下已發佈的文章，可以依分類切換（例如 AI 專區的「技術／心得」）。
     // 文章要出現在這裡只要兩件事：放在 prefix 那個資料夾底下、isPublished: true。
-    interface iTab {
+    interface Tab {
         label: string;
         /** 對應 frontmatter 的 categories；不給就是「全部」 */
         category?: string;
@@ -14,7 +14,7 @@
         prefix: string;
         title: string;
         lead?: string;
-        tabs?: iTab[];
+        tabs?: Tab[];
     }>();
 
     const siteData = useSiteData();
@@ -26,8 +26,8 @@
             .filter(post => post.url.startsWith(prefix))
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     });
-    const allTabs = computed<iTab[]>(() => (tabs.length ? [{ label: '全部' }, ...tabs] : []));
-    const countOf = (tab: iTab) => (tab.category ? posts.value.filter(p => p.category.includes(tab.category!)).length : posts.value.length);
+    const allTabs = computed<Tab[]>(() => (tabs.length ? [{ label: '全部' }, ...tabs] : []));
+    const countOf = (tab: Tab) => (tab.category ? posts.value.filter(p => p.category.includes(tab.category!)).length : posts.value.length);
     const shown = computed(() => {
         const tab = allTabs.value[active.value];
         return tab?.category ? posts.value.filter(p => p.category.includes(tab.category!)) : posts.value;

@@ -2,7 +2,7 @@ import { defineLoader } from 'vitepress';
 
 // 工作經歷的基本資料（公司、職稱、期間）。內容條列在 pages/resume.md 的 <WorkExperience> slot 裡，
 // 因為那是 markdown，比塞在 TS 字串裡好寫。順序：新的在前。期間格式 'YYYY.MM - YYYY.MM' 或 'YYYY.MM - Now'。
-export interface iWork {
+export interface Work {
     logo: string;
     company: string;
     /** 公司的英文或簡稱，顯示在名稱下方 */
@@ -12,11 +12,11 @@ export interface iWork {
     period: string;
 }
 
-declare const data: iWork[];
+declare const data: Work[];
 export { data };
 
 export default defineLoader({
-    load(): iWork[] {
+    load(): Work[] {
         return [
             {
                 logo: '/images/resume/ai4dt.webp',

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-    interface iProps {
+    interface Props {
         name?: string;
         href?: string;
     }
-    const { name = 'circle', href = '' } = defineProps<iProps>();
+    const { name = 'circle', href = '' } = defineProps<Props>();
 
     // 跳轉
     function jump() {

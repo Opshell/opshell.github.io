@@ -116,7 +116,7 @@
     // #endregion
 
     // #region [P] 同一台裝置的回報摺起來（純前端，只看這一頁的 50 則；相似度後端沒提供，只依 device_id）
-    interface iGroup {
+    interface Group {
         deviceId: number;
         name: string;
         reports: FeedbackReport[];
@@ -125,8 +125,8 @@
     const grouped = ref(true);
     /** 展開的裝置 id；重抓列表就收起來 */
     const expanded = ref<Set<number>>(new Set());
-    const groups = computed<iGroup[]>(() => {
-        const map = new Map<number, iGroup>();
+    const groups = computed<Group[]>(() => {
+        const map = new Map<number, Group>();
         for (const report of reports.value) {
             let group = map.get(report.device_id);
             if (!group) {
@@ -139,14 +139,14 @@
         return [...map.values()]; // Map 保留插入順序：第一次出現的裝置在前，跟後端「新的在前」一致
     });
     /** 只有一則的不摺：摺了反而多一次點擊 */
-    const isFolded = (group: iGroup) => group.reports.length > 1 && !expanded.value.has(group.deviceId);
+    const isFolded = (group: Group) => group.reports.length > 1 && !expanded.value.has(group.deviceId);
     function toggleExpanded(deviceId: number) {
         const next = new Set(expanded.value);
         if (next.has(deviceId)) next.delete(deviceId);
         else next.add(deviceId);
         expanded.value = next;
     }
-    const groupAllChecked = (group: iGroup) => group.reports.every(r => checked.value.has(r.id));
+    const groupAllChecked = (group: Group) => group.reports.every(r => checked.value.has(r.id));
     // #endregion
 
     async function load(nextPage = page.value) {

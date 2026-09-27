@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
 
-interface iTags {
+interface Tags {
     [key: string]: {
         count: number;
         group: {
@@ -14,13 +14,13 @@ interface iTags {
         }[];
     };
 }
-export interface iClassification {
+export interface Classification {
     count: {
         total: number;
         published: number;
         unpublished: number;
     };
-    tags: iTags;
+    tags: Tags;
     category: string;
 }
 
@@ -42,7 +42,7 @@ export interface TagIndex {
     postUrls: string[]; // 只儲存文章的 url 作為 "指針"
 }
 
-export interface iSiteData {
+export interface SiteData {
     counts: {
         published: number;
         unpublished: number;
@@ -56,7 +56,7 @@ export interface iSiteData {
 }
 
 // 這個是我們真正要傳給前端的、可序列化的資料結構
-export interface iSiteDataSerializable {
+export interface SiteDataSerializable {
     counts: {
         published: number;
         unpublished: number;
@@ -185,8 +185,8 @@ function processFile(fullPath: string, contentRoot: string): Post | null {
     };
 }
 
-export async function buildSiteData(contentRoot: string): Promise<iSiteDataSerializable> {
-    const siteData: iSiteData = {
+export async function buildSiteData(contentRoot: string): Promise<SiteDataSerializable> {
+    const siteData: SiteData = {
         counts: { published: 0, unpublished: 0, total: 0 },
         posts: new Map(),
         sortedPostUrls: [],

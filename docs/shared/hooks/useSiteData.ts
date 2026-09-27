@@ -1,4 +1,4 @@
-import type { iSiteData, iSiteDataSerializable } from './useBuildSiteData'; // 引入你的型別
+import type { SiteData, SiteDataSerializable } from './useBuildSiteData'; // 引入你的型別
 import { useData } from 'vitepress';
 import { computed } from 'vue';
 
@@ -8,9 +8,9 @@ import { computed } from 'vue';
  */
 export function useSiteData() {
     const { theme } = useData();
-    const serializableSiteData = computed(() => (theme.value as { siteData?: iSiteDataSerializable }).siteData);
+    const serializableSiteData = computed(() => (theme.value as { siteData?: SiteDataSerializable }).siteData);
 
-    return computed<iSiteData | undefined>(() => {
+    return computed<SiteData | undefined>(() => {
         if (!serializableSiteData.value) {
             return undefined;
         }

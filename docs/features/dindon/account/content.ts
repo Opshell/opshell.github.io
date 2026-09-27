@@ -3,7 +3,7 @@
 
 import { CONTACT_EMAIL } from '../constants';
 
-export interface iPartialItem {
+export interface PartialItem {
     title: string;
     /** 在 App 裡的路徑；要寫信處理的留 null */
     inApp: string | null;
@@ -13,7 +13,7 @@ export interface iPartialItem {
 }
 
 /** 只想刪一部分：每一項都能單獨處理，帳戶、方案與額度都保留 */
-export const partialItems: iPartialItem[] = [
+export const partialItems: PartialItem[] = [
     {
         title: '上傳的大頭貼',
         inApp: '選單 → 個人資料 → 刪掉上傳的照片',

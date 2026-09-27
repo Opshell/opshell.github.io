@@ -1,12 +1,12 @@
 <script setup lang="ts">
     // 原生 <select> 加上跟 ElInput 一樣的外殼；箭頭用 CSS 畫，不依賴瀏覽器預設樣式
-    interface iOption {
+    interface Option {
         label: string;
         value: string | number;
         disabled?: boolean;
     }
     const { options, placeholder = '', disabled = false } = defineProps<{
-        options: iOption[];
+        options: Option[];
         placeholder?: string;
         disabled?: boolean;
     }>();

@@ -2,7 +2,7 @@
     import { ref } from 'vue';
 
     // 元件展示框：標題、說明、可互動的示範區、props 表、用法程式碼（可收合）
-    interface iProp {
+    interface Prop {
         name: string;
         type: string;
         default?: string;
@@ -13,7 +13,7 @@
         title: string;
         description?: string;
         code?: string;
-        props?: iProp[];
+        props?: Prop[];
     }>();
     const showCode = ref(false);
 </script>

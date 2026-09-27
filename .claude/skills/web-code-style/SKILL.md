@@ -8,7 +8,7 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
 **通用規則以〈前端開發規範〉為準**（`docs/pages/article/code-sea/developer/前端開發規範.md`，網址 `/article/code-sea/developer/前端開發規範.html`）。
 這個倉庫適用：核心四章（目錄與檔名、CSS、SFC、TS 基本）＋條件章「五、Zod 資料層」（frontmatter、叮咚後台、同步進來的 JSON）；
 沒有 TanStack、router、Pinia、vee-validate。規範沒寫到的、或這個倉庫的例外，才寫在下面。
-舊程式正分批改成規範的寫法（變體 `--`、型別去前綴…），進度見 `docs/devlog/規範討論.md`；**新寫的程式直接照規範**。
+舊程式正分批改成規範的寫法（變體 `--`…），進度見 `docs/devlog/規範討論.md`；**新寫的程式直接照規範**。
 
 規則來源：`eslint.config.js`（antfu 9.x，ESLint 10）、`.stylelintrc.mjs`（standard-scss 17 + order）、既有程式。
 改完跑 `pnpm check`（lint → stylelint → typecheck → build），三個工具都要乾淨。跟 antfu 預設刻意相反、已在設定裡關掉的：單行 `if`、頂層 `const` 箭頭函式、`<td>{{ x }}</td>` 這種單行元素、事件名 kebab-case。
@@ -18,7 +18,7 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
 - 4 空格、單引號、**每句結尾分號**、**沒有尾逗號**（陣列、物件、參數的最後一項後面不加逗號）。
 - `if` 單行不加大括號，多行才加：`if (!token) throw new AdminApiError(401, '請先登入');`。
   大括號 `1tbs`，`} else {` 同一行。單行最多兩個語句。
-- 型別不加前綴（規範四章）：`Props`、`Point`、`Reward`、`SiteData`。舊程式裡的 `iXxx`／`tXxx` 分批改名中，新程式不要再加。
+- 型別不加前綴（規範四章）：`Props`、`LandingPoint`、`Reward`、`SiteData`（2026-09-28 全倉庫去掉 `i`／`t` 前綴）。
 - import 順序：`import type` 最前面，再套件（`vue`、`vitepress`），再自己的（`../api`、`../constants`）。同一組內按字母。
 - `console.log` 是 warning；正式程式不留。
 - 不用 `any` 逃避型別；真的要接第三方鬆散型別時（markdown-it、three）用 `as any` 並註明原因。

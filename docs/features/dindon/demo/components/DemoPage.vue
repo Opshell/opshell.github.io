@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import type { Component } from 'vue';
-    import type { iDemoItem, iDemoStep } from '../types';
+    import type { DemoItem, DemoStep } from '../types';
     import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue';
     import { ACCOUNT_PATH, CONTACT_EMAIL, PRIVACY_PATH } from '../../constants';
     import { countByStatus, demoIndex, findItem, isOpenable, MEDIA_BASE, openableItems } from '../catalog';
@@ -19,9 +19,9 @@
         39: defineAsyncComponent(() => import('./diagrams/BackupDiagram.vue'))
     };
 
-    const sectionOf = (item: iDemoItem) => demoIndex.sections.find(section => section.items.includes(item))!;
+    const sectionOf = (item: DemoItem) => demoIndex.sections.find(section => section.items.includes(item))!;
     const clock = (seconds = 0) => `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, '0')}`;
-    const thumbOf = (item: iDemoItem) => `${MEDIA_BASE}${item.poster!.replace(/\.\w+$/, '.thumb.webp')}`;
+    const thumbOf = (item: DemoItem) => `${MEDIA_BASE}${item.poster!.replace(/\.\w+$/, '.thumb.webp')}`;
 
     const stats = {
         ready: countByStatus('ready'),
@@ -32,7 +32,7 @@
     // #region [P] 對話框：點目錄的卡片打開，網址帶 #編號-名稱 可以直接分享某一支
     const dialogRef = ref<HTMLDialogElement>();
     const playerRef = ref<InstanceType<typeof DemoPlayer>>();
-    const current = shallowRef<iDemoItem>();
+    const current = shallowRef<DemoItem>();
     const time = ref(0);
     const autoplay = ref(true);
 
@@ -44,13 +44,13 @@
     const listedSteps = computed(() => (current.value?.steps ?? [])
         .filter(step => step.label || step.type === 'back'));
     const activeStep = computed(() => listedSteps.value.findLastIndex(step => step.t - 0.1 <= time.value));
-    const stepText = (step: iDemoStep) => {
+    const stepText = (step: DemoStep) => {
         if (step.type === 'type') return `輸入「${step.label}」`;
         if (step.type === 'back') return step.label ?? '按返回鍵';
         return step.label!;
     };
 
-    function open(item: iDemoItem) {
+    function open(item: DemoItem) {
         current.value = item;
         time.value = 0;
         history.replaceState(history.state, '', `#${item.id}`);
@@ -73,7 +73,7 @@
     function onBackdrop(event: MouseEvent) {
         if (event.target === dialogRef.value) close();
     }
-    function seekTo(step: iDemoStep) {
+    function seekTo(step: DemoStep) {
         // 早一點點開始，看得到手指移過去
         playerRef.value?.seek(step.t - 0.6);
         playerRef.value?.play();
