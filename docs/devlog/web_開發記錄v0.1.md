@@ -529,3 +529,52 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 驗證：`pnpm check` 全綠；無頭 Edge 看目錄 45 張卡片、分類導覽 9 項、沒有橫向捲動，42 點開自動播放、紅框與步驟清單正常。
 
 留給使用者決定：0.6.6 還沒上架，但演示頁開頭已經寫「App 0.6.6」，也看得到預算、小精靈這些新功能（前端要求現在同步）。宣傳頁要不要介紹「每日預算＋小精靈」「存錢目標」，等上架再說。
+
+---
+
+# 2026-09-27～28：評估報告、開發規則、前端開發規範 v5 與部落格跟進
+
+**使用者**（依序）：
+1. `/claude-api prompt-audit`，code review 整個部落格專案，給一份評估報告
+2. 報告先存進 devlog，之後再討論；先談開發規則
+3. scoped 保留規則；顏色新式寫法、舊的也改；想談的是待辦第 6 步的規範，剩下的加進待辦並註明 web
+4. 規範只留一份……之後工作或專案都以它為通用準則，這樣的前提來設計，開始吧
+5. 開始寫
+6. 手寫 interface 統一成 Zod 衍生的型別（不加前綴）；Pinia 只放客戶端狀態
+7. OK（照 ② → ④ → ⑤ 繼續）
+
+## 做了什麼
+
+| commit | 內容 |
+|---|---|
+| `c68d4a2` | `docs/devlog/評估報告-2026-09-27.md`：skill 與 CLAUDE.md 的 9 處事實過期、專案評分與 8 個問題 |
+| `e3d6df8` | 全倉庫拿掉 scoped（17 支）；刪掉 ExpandLayout 197 行從沒生效的規則、沒人用的 ArticleMate.vue；修兩組撞名、兩處會被丟掉的 `::v-deep`／`:deep` |
+| `2455b90` | 顏色全部改新式寫法，stylelint 開 `color-function-notation: modern` |
+| `9b01f6d` | `docs/devlog/規範討論.md`：四輪討論（地基、資料層、伺服端資料、落地）的決定 |
+| `20e08d0` | 前端開發規範 v5.0.0 定稿（`developer/前端開發規範.md`）；深色模式表格偶數列看不見的全站 bug |
+| `8da5e53` | 兩項待定定案，舊的兩份刪掉，放進發文排程，CLAUDE.md 與 skill 指向規範 |
+| `ba181ec`、`b16526b`、`98b70c1`、`b8f5fe3`、`840da2e`、`a69e720`、`08471e1` | 部落格照規範跟進五批（細節與驗證方式在 `規範討論.md` 最後一節） |
+
+## 判斷
+
+- **規範定位**：使用者定為跨專案通用準則，所以衝突時在規範裡定一個答案。結構拆成核心章＋條件章：部落格有 Zod 資料層，沒有 TanStack／router／Pinia。
+- **範例一定要實際跑過**：在暫存專案裝 Zod 4、TanStack v5、vee-validate、type-fest，寫完整範例、16 個測試，文章嵌入的程式碼跟原始檔逐字一致。
+- **後台沒辦法登入也要驗**：複製後端倉庫（不動原倉庫）加測試產生真實回應，再用假登入＋請求攔截在瀏覽器渲染。
+
+## 踩到的坑（都寫進規範或 skill）
+
+- Zod 4 的 `.pipe()` 要求後者的輸入型別能被前者輸出滿足：核心 Schema 放 `.default()` 會型別錯誤（舊版規範範例在 Zod 4 編譯不過）。
+- Raw 的列舉寫 `z.string()`，pipe 到核心 Schema 會型別錯誤。
+- `@vee-validate/zod` 只支援 Zod 3；vee-validate 5 還在 beta → 自寫 `toFormSchema()`。
+- type-fest 與執行層的 key 轉換在 `userID`、`ai_calls_30d` 上結果不同 → 執行層改成一致、camelCase 設 `splitOnNumbers: false`。
+- `scoped` 拿掉時：`fade` 轉場名稱全站共用、兩個元件同名 `.hud-container`、`@keyframes scan` 重名、`::v-deep` 失效。
+- 變體改 `--` 時腳本把 `is-reverse` 掛到錯的基底（`__container--reverse`），計算後樣式比對抓到。
+- frontmatter：`categories: demo`（字串）原本被默默歸成「雜談」；`image: ''` 跟 `null` 語意不同，改寫時差點改到行為，站台資料比對抓到。
+- 後台：方案型別少了 `lite`；後端沒資料時送 `models: null`，舊版「用量報表」整頁空白。
+- `git add -A docs/features` 又把使用者沒進版控的 `design-system/README.md` 帶進暫存區，提交前發現移出。
+
+## 留給使用者
+
+- `拷貝` 那份 v4.0 規範（未進版控）要不要刪。
+- 評估報告剩下的：主題 JS 1.6 MB（Tres、Sandpack 全站載入）、演示影片搬 R2、草稿加 noindex、測試、Windows 路徑。
+- 後台已上線：登入後六個分頁各點一次；若看到「回應格式不符」，訊息會寫是哪支 API、哪個欄位。
