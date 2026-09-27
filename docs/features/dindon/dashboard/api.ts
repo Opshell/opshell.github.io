@@ -4,7 +4,7 @@
 // 後端回的格式對不上就丟 ApiSchemaError，錯誤訊息會指出是哪支 API、哪個欄位。
 
 import type { z } from 'zod';
-import type { BatchReviewFeedbackInput, CreateFeedbackIssueInput, ReviewFeedbackInput, SavePromoCodeInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
+import type { BatchReviewFeedbackInput, CreateFeedbackIssueInput, ReviewFeedbackInput, SaveFeatureCandidateInput, SavePromoCodeInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
 import { parseResponse } from '@shared/utils/zod';
 import { apiBase } from '../apiBase';
 import {
@@ -14,6 +14,7 @@ import {
     CreateFeedbackIssuePayload,
     GetDeviceDetailParser,
     GetDeviceListParser,
+    GetFeatureCandidateListParser,
     GetFeedbackIssueListParser,
     GetFeedbackListParser,
     GetFeedbackParser,
@@ -23,6 +24,8 @@ import {
     GetUsageByDeviceParser,
     GetUsageReportParser,
     ReviewFeedbackPayload,
+    SaveFeatureCandidateParser,
+    SaveFeatureCandidatePayload,
     SavePromoCodeParser,
     SavePromoCodePayload,
     UpdateDeviceParser,
@@ -191,6 +194,15 @@ export const adminApi = {
         call(SavePromoCodeParser, token, 'POST', '/v1/admin/promo-codes', SavePromoCodePayload.parse(body)),
     /** code 不能改，所以 body 裡不要帶 */
     updatePromoCode: async (token: string, code: string, body: SavePromoCodeInput) =>
-        call(SavePromoCodeParser, token, 'PATCH', `/v1/admin/promo-codes/${encodeURIComponent(code)}`, SavePromoCodePayload.parse(body))
+        call(SavePromoCodeParser, token, 'PATCH', `/v1/admin/promo-codes/${encodeURIComponent(code)}`, SavePromoCodePayload.parse(body)),
+    // #endregion
+
+    // #region [P] 新功能投票的候選（沒有刪除：不要了就改成「不做了」）
+    listFeatureCandidates: async (token: string) => call(GetFeatureCandidateListParser, token, 'GET', '/v1/admin/features'),
+    createFeatureCandidate: async (token: string, body: SaveFeatureCandidateInput) =>
+        call(SaveFeatureCandidateParser, token, 'POST', '/v1/admin/features', SaveFeatureCandidatePayload.parse(body)),
+    /** 從「投票中」改成別的狀態，投的人那一票會還給他（票數留著） */
+    updateFeatureCandidate: async (token: string, id: number, body: SaveFeatureCandidateInput) =>
+        call(SaveFeatureCandidateParser, token, 'PATCH', `/v1/admin/features/${id}`, SaveFeatureCandidatePayload.parse(body))
     // #endregion
 };

@@ -628,3 +628,73 @@ export const SavePromoCodePayload = z
 export type SavePromoCodeInput = z.input<typeof SavePromoCodePayload>;
 
 // #endregion
+
+// #region [P] 新功能投票的候選（api.md 第 8 節「新功能投票的候選」、規則第 19 節，溝通板 #0061）
+
+export const FeatureCandidateStatusSchema = z.enum(['voting', 'in_progress', 'shipped', 'dropped']);
+export type FeatureCandidateStatus = z.infer<typeof FeatureCandidateStatusSchema>;
+
+export const FeatureCandidateSchema = z.object({
+    id: z.number().int(),
+    title: z.string(),
+    /** 可能是空字串，可能有換行 */
+    description: z.string(),
+    status: FeatureCandidateStatusSchema,
+    /** 不含被停用裝置的票。看不到是誰投的，後台也一樣 */
+    votes: z.number().int(),
+    createdBy: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string()
+});
+export type FeatureCandidate = z.infer<typeof FeatureCandidateSchema>;
+
+const FeatureCandidateParser = z
+    .object({
+        id: z.number(),
+        title: z.string(),
+        description: z.string().nullish(),
+        status: FeatureCandidateStatusSchema,
+        votes: z.number(),
+        created_by: z.string(),
+        created_at: z.string(),
+        updated_at: z.string()
+    })
+    .transform(data => ({ ...data, description: data.description ?? '' }))
+    .transform(snakeToCamel)
+    .pipe(FeatureCandidateSchema);
+
+/** 順序後端排好了（投票中、票多的在前），照著顯示 */
+export const GetFeatureCandidateListParser = z
+    .object({ max_votes: z.number(), features: nullableList(FeatureCandidateParser) })
+    .transform(data => ({ maxVotes: data.max_votes, features: data.features }));
+
+export type FeatureCandidateList = z.output<typeof GetFeatureCandidateListParser>;
+
+/** 建立與修改共用的回應 */
+export const SaveFeatureCandidateParser = z.object({ feature: FeatureCandidateParser }).transform(data => data.feature);
+
+/** 後端的上限（api.md），表單先擋。後端照字元數算（Go 的 rune），emoji 算一個字，不能用 .length */
+export const FEATURE_TITLE_MAX = 40;
+export const FEATURE_DESCRIPTION_MAX = 300;
+export const countChars = (value: string) => [...value].length;
+
+const FeatureTitleInput = z
+    .string()
+    .trim()
+    .min(1, '標題不能空白')
+    .refine(value => countChars(value) <= FEATURE_TITLE_MAX, `標題最多 ${FEATURE_TITLE_MAX} 字`)
+    .refine(value => !/[\r\n]/.test(value), '標題不能換行');
+
+const FeatureDescriptionInput = z
+    .string()
+    .trim()
+    .refine(value => countChars(value) <= FEATURE_DESCRIPTION_MAX, `說明最多 ${FEATURE_DESCRIPTION_MAX} 字`);
+
+/** 建立與修改共用，都是選填、只送有給的。標題不能換行；說明可以。控制字元由後端擋，它的錯誤訊息可以直接顯示 */
+export const SaveFeatureCandidatePayload = z
+    .object({ title: FeatureTitleInput, description: FeatureDescriptionInput, status: FeatureCandidateStatusSchema })
+    .partial();
+
+export type SaveFeatureCandidateInput = z.input<typeof SaveFeatureCandidatePayload>;
+
+// #endregion

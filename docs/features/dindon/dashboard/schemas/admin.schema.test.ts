@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GetDeviceListParser, GetUsageReportParser, UpdateDevicePayload } from './admin.schema';
+import { GetDeviceListParser, GetFeatureCandidateListParser, GetUsageReportParser, SaveFeatureCandidatePayload, UpdateDevicePayload } from './admin.schema';
 
 // 後端是 Go：nil 的 slice、map 會送 null，沒設的指標欄位可能整個不送。這裡測的都是這類邊界
 
@@ -86,5 +86,38 @@ describe('用量報表', () => {
     it('逐日的 features 是 null 當成空物件', () => {
         const [day] = GetUsageReportParser.parse({ ...usageReport, daily: [{ ...usageReport.daily[0], features: null }] }).daily;
         expect(day.features).toEqual({});
+    });
+});
+
+describe('新功能投票的候選', () => {
+    const raw = { id: 4, title: '匯出 CSV', description: '把帳目匯出成試算表\n可以選日期範圍', status: 'voting', votes: 12, created_by: 'admin@example.com', created_at: '2026-09-27T10:00:00Z', updated_at: '2026-09-27T10:00:00Z' };
+
+    it('轉成 camelCase；說明的換行保留，null 當成空字串', () => {
+        const list = GetFeatureCandidateListParser.parse({ max_votes: 3, features: [raw, { ...raw, id: 5, description: null }] });
+        expect(list.maxVotes).toBe(3);
+        expect(list.features[0]).toMatchObject({ createdBy: 'admin@example.com', description: '把帳目匯出成試算表\n可以選日期範圍' });
+        expect(list.features[1].description).toBe('');
+    });
+
+    it('features 是 null 當成空清單；不認得的狀態要擋', () => {
+        expect(GetFeatureCandidateListParser.parse({ max_votes: 3, features: null }).features).toEqual([]);
+        expect(() => GetFeatureCandidateListParser.parse({ max_votes: 3, features: [{ ...raw, status: 'archived' }] })).toThrow();
+    });
+
+    it('字數照字元算，跟後端的 rune 一致：emoji 算一個字', () => {
+        expect(SaveFeatureCandidatePayload.safeParse({ title: '🎉'.repeat(40) }).success).toBe(true);
+        expect(SaveFeatureCandidatePayload.safeParse({ title: '字'.repeat(41) }).success).toBe(false);
+        expect(SaveFeatureCandidatePayload.safeParse({ description: '字'.repeat(300) }).success).toBe(true);
+        expect(SaveFeatureCandidatePayload.safeParse({ description: '字'.repeat(301) }).success).toBe(false);
+    });
+
+    it('標題不能空白、不能換行；說明可以換行；前後空白去掉', () => {
+        expect(SaveFeatureCandidatePayload.safeParse({ title: '   ' }).success).toBe(false);
+        expect(SaveFeatureCandidatePayload.safeParse({ title: '第一行\n第二行' }).success).toBe(false);
+        expect(SaveFeatureCandidatePayload.parse({ title: ' 匯出 ', description: '第一行\n第二行 ' })).toEqual({ title: '匯出', description: '第一行\n第二行' });
+    });
+
+    it('只給狀態也行（只送改過的欄位）', () => {
+        expect(SaveFeatureCandidatePayload.parse({ status: 'dropped' })).toEqual({ status: 'dropped' });
     });
 });

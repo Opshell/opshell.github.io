@@ -2,6 +2,7 @@
     import { nextTick, onMounted, ref, watch } from 'vue';
     import { useGoogleAuth } from '../../useGoogleAuth';
     import DeviceManager from './DeviceManager.vue';
+    import FeatureVotePanel from './FeatureVotePanel.vue';
     import FeedbackPanel from './FeedbackPanel.vue';
     import OverviewPanel from './OverviewPanel.vue';
     import PromoPanel from './PromoPanel.vue';
@@ -18,7 +19,8 @@
         { key: 'feedback', label: '回報' },
         { key: 'usage', label: '用量報表' },
         { key: 'watch', label: '用量監看' },
-        { key: 'promo', label: '優惠碼' }
+        { key: 'promo', label: '優惠碼' },
+        { key: 'features', label: '功能投票' }
     ] as const;
     type Tab = typeof TABS[number]['key'];
     const tab = ref<Tab>('overview');
@@ -102,7 +104,8 @@
             <FeedbackPanel v-else-if="tab === 'feedback'" />
             <UsageReport v-else-if="tab === 'usage'" />
             <UsageWatch v-else-if="tab === 'watch'" />
-            <PromoPanel v-else />
+            <PromoPanel v-else-if="tab === 'promo'" />
+            <FeatureVotePanel v-else />
         </template>
     </div>
 </template>

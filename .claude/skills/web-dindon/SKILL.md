@@ -49,7 +49,8 @@ features/dindon/
     ├── useMergeCandidates.ts  format.ts（formatInt、formatDateTime、PLAN_LABELS）
     ├── charts/             ← BarChart、ColumnChart、ticks.ts（自己畫的 SVG，沒用圖表套件）
     └── components/         ← DashboardApp（分頁殼）、OverviewPanel、DeviceManager、DeviceDetail、
-                               FeedbackPanel、FeedbackTriage、MergePicker、PromoPanel、UsageReport、UsageWatch
+                               FeedbackPanel、FeedbackTriage、MergePicker、PromoPanel、UsageReport、UsageWatch、
+                               FeatureVotePanel（新功能投票的候選，#0061）
 ```
 
 截圖在 `docs/public/images/dindon/*.webp`（icon、home、stats、badges、items、voice、statement、event）。
@@ -119,6 +120,10 @@ pnpm dindon:demos --prune           # 順便刪 R2 上不在清單裡的舊檔
 3. 要看畫面：預覽站開 `/dindon/dashboard/?api=http://localhost:4173/fake`，用 CDP 在頁面載入前放一個假的 `window.google.accounts.id`
    （`useGoogleAuth` 看到它就不載真的 Google 腳本），呼叫 callback 給一個假 JWT 登入；再用 `Fetch.enable` 攔 `*/fake/*` 回那些 JSON。
    同網域，沒有 CORS 問題。2026-09-28 用這個方法驗過六個分頁與兩個詳情頁，順便抓到舊版在 `models: null` 時「用量報表」整頁空白。
+4. 要驗**寫入**（新增、修改、狀態改變的副作用）：在後端複本的測試裡用 `SERVE_PORT` 開一個真的 gin 伺服器
+   （`setupDB` 的記憶體 SQLite、灌種子資料、加 CORS 標頭、`c.Set("adminActor", …)` 跳過登入），只掛要驗的那幾支 handler，
+   預覽站開 `?api=http://localhost:<port>`，一樣用假登入。這樣後端自己的檢查（例如零寬字元回 400）也驗得到。
+   2026-09-28 用這個方法驗功能投票分頁。預覽伺服器要在建置**之後**才啟動，不然新檔案一律 404。
 
 ## 文案數字要對得上
 
