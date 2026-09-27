@@ -1,9 +1,11 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 import { globby } from 'globby';
 
-const ROOT = path.resolve('c:/wamp64/www/opshell.github.io');
+// 倉庫根目錄：從腳本位置往上一層，不管在哪台電腦、從哪裡執行都一樣
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TARGET_GLOB = 'docs/**/*.md';
 
 function replaceEmptyArraysInFrontmatter(source) {

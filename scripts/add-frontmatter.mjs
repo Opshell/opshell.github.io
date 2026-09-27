@@ -1,10 +1,12 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 import { globby } from 'globby';
 import matter from 'gray-matter';
 
-const ROOT = path.resolve('c:/wamp64/www/opshell.github.io');
+// 倉庫根目錄：從腳本位置往上一層，不管在哪台電腦、從哪裡執行都一樣
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TARGET_GLOB = 'docs/pages/article/**/*.md';
 
 function formatDateYYYYMMDD(date) {
@@ -48,6 +50,9 @@ async function processFile(filePath) {
     const raw = await fs.readFile(filePath, 'utf8');
     const parsed = matter(raw);
     const data = { ...parsed.data };
+
+    // 專區首頁（layout: page，例如 article/ai/index.md）不是文章：補了 isPublished: false 會被當成草稿加上 noindex
+    if (data.layout === 'page') return { filePath, updated: false };
 
     // title
     if (!data.title || String(data.title).trim() === '') {
