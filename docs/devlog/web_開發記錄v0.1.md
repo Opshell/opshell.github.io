@@ -684,3 +684,40 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 - 別台電腦上如果有這個倉庫的 clone，要重新 clone，或 `git fetch && git reset --hard origin/main`，**不能直接 pull**。
 - GitHub 上舊的 commit 用舊網址可能還打得開一陣子，要等 GitHub 自己清理。
 - 其他小精靈寫的內容裡如果有官網的舊編號，查 `commit-map.txt`（工作區開了通知單）。
+
+# 2026-09-28：三張單（#0057 隱私權政策、#0062 Become a tester、#0061 後台功能投票）
+
+**使用者**：好，接著處理（溝通板上指名給網頁的 #0057、#0061、#0062）。
+
+## 做了什麼
+
+| commit | 單 | 內容 |
+|---|---|---|
+| `1b07b70` | #0057 | `pnpm dindon:privacy`：9/27 版、適用 v0.6.6（備份內容與分區清除、通知統計不隨系統備份、小精靈提醒與新功能投票） |
+| `45385b6` | #0062 | 封測第二步改成按「Become a tester」、加一段「英文頁面是 Google 固定的，不是連錯」的提示（`JoinStep.note`）；示意動畫第 3 幕改英文 |
+| `3cf5aa4` | #0061 | 後台新分頁「功能投票」（`FeatureVotePanel.vue`）：列表、新增、修改、改狀態前確認；schema 與 5 個測試 |
+
+三張單都回覆、狀態改成已處理（工作區 `a288993`），結案由開單的人做。
+
+## 判斷
+
+- **字數照字元算**：後端用 `utf8.RuneCountInString`，JS 的 `.length` 會把 emoji 算成 2。`countChars = [...value].length`，Schema 用 `refine`。
+- **控制字元不在前端擋**：後端的錯誤訊息本來就是中文、可以直接顯示，規則只維護一份。
+- **改狀態的確認用行內確認**：跟裝置詳情的凍結一樣，不用瀏覽器的 `confirm()`。
+- **只送改過的欄位**：後端的操作紀錄只記真的變了的欄位，前端也不要送沒改的。
+- **狀態 class 用 `--`**：資料決定的分類不是互動狀態；`in_progress` 轉成 `in-progress` 才符合 BEM 檢查。
+
+## 驗證
+
+- 後台：後端**暫存複本**的測試用 `SERVE_PORT` 開真的 gin 伺服器（記憶體 SQLite、種子 3 個候選 3 票），預覽站 `?api=` 接它，假登入後實際操作：
+  列表、41 字前端擋、新增（emoji＋換行）、2 票的候選改開發中（確認出現、確定後仍 2 票）、零寬字元後端 400 且訊息顯示；沒有 JS 錯誤。
+- 宣傳頁：用 Web Animations API 把動畫停在第 3 幕按下前／後，桌機與手機寬度截圖。
+- 正式站：隱私權政策是 v0.6.6 版、宣傳頁有「Become a tester」；CI 綠燈。
+
+## 踩到的坑
+
+- 動畫凍結：改 `animation-delay` 再暫停，停的位置會受之前已經跑的時間影響；改用 `getAnimations().forEach(a => { a.pause(); a.currentTime = … })` 才準。
+- `.small` 為了長 email 設了 `word-break: break-all`，英文連結會斷在字中間（「Google Pl / ay」），連結另外設回 `normal`。
+- 模板裡中文句子分兩行寫，瀏覽器會在中間補一個空格，要寫成同一行。
+- 預覽伺服器跟 `pkill` 放在同一個指令裡啟動會跟著被收掉；用背景工作單獨啟動，而且要在建置之後。
+- 無頭瀏覽器會快取舊的 HTML，截圖前 `Network.setCacheDisabled`。
