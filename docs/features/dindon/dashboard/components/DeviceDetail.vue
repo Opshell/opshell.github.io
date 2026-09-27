@@ -331,12 +331,12 @@
                     <ul><li v-for="line in changeSummary" :key="line">{{ line }}</li></ul>
                     <div class="dd-detail__actions">
                         <button type="button" class="dd-admin__btn" :disabled="busy" @click="submitPatch">確認送出</button>
-                        <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = null">返回</button>
+                        <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = null">返回</button>
                     </div>
                 </div>
                 <div v-else class="dd-detail__actions">
                     <button type="button" class="dd-admin__btn" :disabled="!changeSummary.length || !!formError || busy" @click="confirming = 'patch'">送出變更…</button>
-                    <button v-if="changeSummary.length" type="button" class="dd-admin__btn is-ghost" @click="resetForm">還原</button>
+                    <button v-if="changeSummary.length" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="resetForm">還原</button>
                 </div>
             </section>
             <!-- #endregion -->
@@ -349,11 +349,11 @@
                     要停掉這台裝置是下面另一顆按鈕，分開按。
                 </p>
                 <div v-if="confirming === 'reject-pending'" class="dd-detail__actions">
-                    <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click="rejectPending">確定：#{{ deviceId }} 的待審全部不採計</button>
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = null">取消</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="busy" @click="rejectPending">確定：#{{ deviceId }} 的待審全部不採計</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = null">取消</button>
                 </div>
                 <div v-else class="dd-detail__actions">
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = 'reject-pending'">這台的待審全部不採計…</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = 'reject-pending'">這台的待審全部不採計…</button>
                 </div>
             </section>
             <!-- #endregion -->
@@ -367,13 +367,13 @@
                         : '凍結後這台裝置打任何 API 都會收到 403「這台裝置已停用」，AI 功能停用，也不能用換機恢復把權益搬走。資料都會留著，隨時可以解凍。' }}
                 </p>
                 <div v-if="confirming === 'freeze'" class="dd-detail__actions">
-                    <button type="button" class="dd-admin__btn" :class="{ 'is-danger': !device.frozen }" :disabled="busy" @click="toggleFreeze">
+                    <button type="button" class="dd-admin__btn" :class="{ 'dd-admin__btn--danger': !device.frozen }" :disabled="busy" @click="toggleFreeze">
                         確定{{ device.frozen ? '解凍' : '凍結' }} #{{ deviceId }}
                     </button>
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = null">取消</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = null">取消</button>
                 </div>
                 <div v-else class="dd-detail__actions">
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = 'freeze'">{{ device.frozen ? '解凍…' : '凍結這台裝置…' }}</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = 'freeze'">{{ device.frozen ? '解凍…' : '凍結這台裝置…' }}</button>
                 </div>
             </section>
             <!-- #endregion -->
@@ -428,11 +428,11 @@
                 </fieldset>
 
                 <div class="dd-detail__actions">
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy || !device.nickname" @click="clearNickname">清掉暱稱</button>
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy || !device.title" @click="clearTitle">清掉稱號</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy || !device.nickname" @click="clearNickname">清掉暱稱</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy || !device.title" @click="clearTitle">清掉稱號</button>
                     <button
                         type="button"
-                        class="dd-admin__btn is-ghost"
+                        class="dd-admin__btn dd-admin__btn--ghost"
                         :disabled="busy || !device.avatar || device.avatar.kind === 'preset'"
                         @click="clearAvatar"
                     >
@@ -476,7 +476,7 @@
             <!-- #endregion -->
 
             <!-- #region [P] 清除身分（隱私權的刪除請求） -->
-            <section v-if="device.linked || device.email" class="dd-detail__card is-danger">
+            <section v-if="device.linked || device.email" class="dd-detail__card dd-detail__card--danger">
                 <h3>清除身分</h3>
                 <p class="dd-detail__muted">
                     處理寫信來的刪除請求：清空這台裝置的 email、Google 綁定、購買憑證、暱稱、大頭貼、
@@ -495,7 +495,7 @@
                 </label>
                 <div class="dd-detail__actions">
                     <button type="button" class="dd-admin__btn" :disabled="!canErase || busy" @click="eraseIdentity(false)">清除身分，保留使用</button>
-                    <button type="button" class="dd-admin__btn is-danger" :disabled="!canErase || busy" @click="eraseIdentity(true)">清除身分並停用</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="!canErase || busy" @click="eraseIdentity(true)">清除身分並停用</button>
                 </div>
             </section>
             <!-- #endregion -->
@@ -565,7 +565,7 @@
             border-radius: 12px;
 
             h3 { font-size: var(--font-size-m); }
-            &.is-danger { border-color: var(--vp-c-danger-1); }
+            &--danger { border-color: var(--vp-c-danger-1); }
         }
         &__field {
             @include setFlex(flex-start, center, 8px 14px);

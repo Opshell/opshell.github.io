@@ -342,7 +342,7 @@
                 <input v-model="grouped" type="checkbox" />
                 同一台的摺起來
             </label>
-            <button v-if="!triage" type="button" class="dd-admin__btn is-ghost" :disabled="loading" @click="load()">重新整理</button>
+            <button v-if="!triage" type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load()">重新整理</button>
             <span v-if="!triage" class="dd-overview__muted">共 {{ formatInt(total) }} 則</span>
             <button
                 v-if="!triage"
@@ -364,13 +364,13 @@
                 </select>
             </label>
             <template v-if="confirming === 'checked'">
-                <button type="button" class="dd-admin__btn" :class="{ 'is-danger': batchStatus === 'rejected' }" :disabled="busy" @click="reviewChecked">
+                <button type="button" class="dd-admin__btn" :class="{ 'dd-admin__btn--danger': batchStatus === 'rejected' }" :disabled="busy" @click="reviewChecked">
                     確定把 {{ formatInt(checked.size) }} 則改成「{{ STATUS_LABELS[batchStatus] }}」
                 </button>
-                <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = null">取消</button>
+                <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = null">取消</button>
             </template>
             <button v-else type="button" class="dd-admin__btn" :disabled="busy" @click="confirming = 'checked'">套用…</button>
-            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="checked = new Set()">清除勾選</button>
+            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="checked = new Set()">清除勾選</button>
             <span class="dd-overview__muted">每則各記一筆操作紀錄；一次最多 200 則</span>
         </div>
         <!-- #endregion -->
@@ -384,7 +384,7 @@
                 <table class="dd-table dd-feedback__table">
                     <thead>
                         <tr>
-                            <th scope="col" class="is-check">
+                            <th scope="col" class="check">
                                 <input
                                     type="checkbox"
                                     :checked="allOnPageChecked"
@@ -406,13 +406,13 @@
                         <template v-for="group in (grouped ? groups : [])" :key="`g-${group.deviceId}`">
                             <tr
                                 v-if="group.reports.length > 1"
-                                class="is-group"
+                                class="group"
                                 tabindex="0"
                                 :aria-expanded="!isFolded(group)"
                                 @click="toggleExpanded(group.deviceId)"
                                 @keydown.enter="toggleExpanded(group.deviceId)"
                             >
-                                <td class="is-check" @click.stop>
+                                <td class="check" @click.stop>
                                     <input
                                         type="checkbox"
                                         :checked="groupAllChecked(group)"
@@ -428,12 +428,12 @@
                                     </span>
                                     <template v-if="group.pending">
                                         <template v-if="confirmingDevice === group.deviceId">
-                                            <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click.stop="rejectDevice(group.deviceId, group.name)">
+                                            <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="busy" @click.stop="rejectDevice(group.deviceId, group.name)">
                                                 確定：{{ group.name }} 的待審全部不採計
                                             </button>
-                                            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click.stop="confirmingDevice = null">取消</button>
+                                            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click.stop="confirmingDevice = null">取消</button>
                                         </template>
-                                        <button v-else type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click.stop="confirmingDevice = group.deviceId">
+                                        <button v-else type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click.stop="confirmingDevice = group.deviceId">
                                             這台的待審全部不採計…
                                         </button>
                                     </template>
@@ -442,12 +442,12 @@
                             <tr
                                 v-for="report in (isFolded(group) ? [] : group.reports)"
                                 :key="report.id"
-                                :class="{ 'is-selected': report.id === selectedId, 'is-child': group.reports.length > 1 }"
+                                :class="{ 'is-selected': report.id === selectedId, 'child': group.reports.length > 1 }"
                                 tabindex="0"
                                 @click="openReport(report.id)"
                                 @keydown.enter="openReport(report.id)"
                             >
-                                <td class="is-check" @click.stop>
+                                <td class="check" @click.stop>
                                     <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
                                 </td>
                                 <td>#{{ report.id }}</td>
@@ -458,7 +458,7 @@
                                         {{ STATUS_LABELS[report.status] }}
                                     </span>
                                 </td>
-                                <td class="is-summary">{{ report.content_purged_at ? '（內容已清除）' : report.description }}</td>
+                                <td class="summary">{{ report.content_purged_at ? '（內容已清除）' : report.description }}</td>
                                 <td>{{ formatRelative(report.created_at) }}</td>
                             </tr>
                         </template>
@@ -471,7 +471,7 @@
                             @click="openReport(report.id)"
                             @keydown.enter="openReport(report.id)"
                         >
-                            <td class="is-check" @click.stop>
+                            <td class="check" @click.stop>
                                 <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
                             </td>
                             <td>#{{ report.id }}</td>
@@ -482,7 +482,7 @@
                                     {{ STATUS_LABELS[report.status] }}
                                 </span>
                             </td>
-                            <td class="is-summary">{{ report.content_purged_at ? '（內容已清除）' : report.description }}</td>
+                            <td class="summary">{{ report.content_purged_at ? '（內容已清除）' : report.description }}</td>
                             <td>{{ formatRelative(report.created_at) }}</td>
                         </tr>
                         <tr v-if="!loading && reports.length === 0">
@@ -492,9 +492,9 @@
                 </table>
 
                 <div class="dd-devices__pager">
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="page <= 1 || loading" @click="load(page - 1)">上一頁</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="page <= 1 || loading" @click="load(page - 1)">上一頁</button>
                     <span>第 {{ page }} / {{ pageCount }} 頁</span>
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="page >= pageCount || loading" @click="load(page + 1)">下一頁</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="page >= pageCount || loading" @click="load(page + 1)">下一頁</button>
                 </div>
             </div>
 
@@ -542,7 +542,7 @@
                                 :key="s"
                                 type="button"
                                 class="dd-admin__btn"
-                                :class="{ 'is-ghost': detail.status !== s }"
+                                :class="{ 'dd-admin__btn--ghost': detail.status !== s }"
                                 :disabled="busy || detail.status === s"
                                 @click="review(s)"
                             >
@@ -558,18 +558,18 @@
                             凍結是另一件事、分開按。
                         </p>
                         <div v-if="confirmingDevice === detail.device_id" class="dd-detail__actions">
-                            <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click="rejectDetailDevice">
+                            <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="busy" @click="rejectDetailDevice">
                                 確定：{{ detail.device_name || `#${detail.device_id}` }} 的待審全部不採計
                             </button>
-                            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirmingDevice = null">取消</button>
+                            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirmingDevice = null">取消</button>
                         </div>
                         <div v-else-if="confirming === 'freeze'" class="dd-detail__actions">
-                            <button type="button" class="dd-admin__btn is-danger" :disabled="busy" @click="freezeDetailDevice">確定凍結 #{{ detail.device_id }}</button>
-                            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = null">取消</button>
+                            <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="busy" @click="freezeDetailDevice">確定凍結 #{{ detail.device_id }}</button>
+                            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = null">取消</button>
                         </div>
                         <div v-else class="dd-detail__actions">
-                            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirmingDevice = detail.device_id">這台的待審全部不採計…</button>
-                            <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = 'freeze'">凍結這台裝置…</button>
+                            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirmingDevice = detail.device_id">這台的待審全部不採計…</button>
+                            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = 'freeze'">凍結這台裝置…</button>
                         </div>
                     </section>
 
@@ -584,7 +584,7 @@
                         <template v-if="detail.issue_id">
                             <p>已經合併到：<strong>{{ detailIssueTitle }}</strong></p>
                             <div class="dd-detail__actions">
-                                <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="detachIssue">拆開（不算同一件）</button>
+                                <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="detachIssue">拆開（不算同一件）</button>
                             </div>
                         </template>
 
@@ -600,22 +600,22 @@
             <h3>問題（合併後的）</h3>
             <p class="sub">權重 1～100。改了之後所有人的分數與名次立刻跟著變。</p>
             <div class="dd-feedback__scroll">
-                <table class="dd-table is-static">
+                <table class="dd-table dd-table--static">
                     <thead>
                         <tr>
                             <th scope="col">問題</th>
-                            <th scope="col" class="is-num">回報</th>
-                            <th scope="col" class="is-num">採計</th>
-                            <th scope="col" class="is-num">權重</th>
+                            <th scope="col" class="num">回報</th>
+                            <th scope="col" class="num">採計</th>
+                            <th scope="col" class="num">權重</th>
                             <th scope="col">建立</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="issue in issues" :key="issue.id">
                             <th scope="row">{{ issue.title }}</th>
-                            <td class="is-num">{{ formatInt(issue.reports) }}</td>
-                            <td class="is-num">{{ formatInt(issue.accepted) }}</td>
-                            <td class="is-num">
+                            <td class="num">{{ formatInt(issue.reports) }}</td>
+                            <td class="num">{{ formatInt(issue.accepted) }}</td>
+                            <td class="num">
                                 <input
                                     type="number"
                                     min="1"
@@ -673,13 +673,13 @@
                 accent-color: var(--vp-c-brand-1);
                 cursor: pointer;
             }
-            .is-check {
+            .check {
                 width: 32px;
                 padding-right: 0;
             }
 
             // 同一台的群組列：底色稍深、粗體，按鈕放在同一列的右邊
-            tr.is-group {
+            tr.group {
                 background: var(--vp-c-bg-soft) !important;
                 font-weight: 600;
 
@@ -698,7 +698,7 @@
             }
 
             // 群組底下的回報縮一點，看得出是同一台的
-            tr.is-child td:nth-child(2) { padding-left: 28px; }
+            tr.child td:nth-child(2) { padding-left: 28px; }
         }
         &__toolbar {
             @include setFlex(flex-start, center, 12px);
@@ -716,7 +716,7 @@
         }
 
         // 列表上的內容只露一行，點進去看全部
-        .is-summary {
+        .summary {
             max-width: 22em;
             text-overflow: ellipsis;
             overflow: hidden;

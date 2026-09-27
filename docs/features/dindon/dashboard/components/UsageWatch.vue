@@ -95,7 +95,7 @@
                 <input v-model="onlyFlagged" type="checkbox" />
                 只看有提示的（{{ flagged.length }}）
             </label>
-            <button type="button" class="dd-admin__btn is-ghost" :disabled="loading" @click="load">重新整理</button>
+            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
             <span class="dd-watch__muted">{{ rows.length }} 台有用量 · 估計成本 {{ formatUsd(totalCost) }}</span>
         </div>
 
@@ -117,11 +117,11 @@
                 <thead>
                     <tr>
                         <th scope="col">裝置</th>
-                        <th scope="col" class="is-num">次數</th>
-                        <th scope="col" class="is-num">今天</th>
+                        <th scope="col" class="num">次數</th>
+                        <th scope="col" class="num">今天</th>
                         <th scope="col">最密集的一小時</th>
-                        <th scope="col" class="is-num">不是單據</th>
-                        <th scope="col" class="is-num">估計成本</th>
+                        <th scope="col" class="num">不是單據</th>
+                        <th scope="col" class="num">估計成本</th>
                         <th scope="col">提示</th>
                         <th scope="col">處理</th>
                     </tr>
@@ -136,14 +136,14 @@
                                 註冊 {{ formatRelative(row.device_created_at) }} · {{ row.active_days }} 天有用 · {{ featureText(row) }}
                             </p>
                         </td>
-                        <td class="is-num">{{ formatInt(row.requests) }}</td>
-                        <td class="is-num">{{ formatInt(row.today) }}</td>
+                        <td class="num">{{ formatInt(row.requests) }}</td>
+                        <td class="num">{{ formatInt(row.today) }}</td>
                         <td>{{ row.peak_hour ? `${formatInt(row.peak_hour)} 次 · ${row.peak_hour_at?.slice(5) ?? ''}` : '—' }}</td>
-                        <td class="is-num">
+                        <td class="num">
                             {{ formatInt(row.rejected) }}
                             <span v-if="row.rejected" class="dd-watch__muted">（{{ Math.round(rejectedRatio(row) * 100) }}%）</span>
                         </td>
-                        <td class="is-num">{{ formatUsd(row.cost_usd) }}</td>
+                        <td class="num">{{ formatUsd(row.cost_usd) }}</td>
                         <td>
                             <!-- v-for 產生的標籤之間沒有空白，不會自己換行；用 flex-wrap 讓它們在欄內排成兩行 -->
                             <div class="dd-watch__flags">
@@ -163,12 +163,12 @@
                                 <p class="dd-watch__confirm">
                                     {{ row.frozen ? `解凍 #${row.device_id}？` : `停用 #${row.device_id}？他的 App 會整個不能用 AI。` }}
                                 </p>
-                                <button type="button" class="dd-admin__btn" :class="{ 'is-danger': !row.frozen }" :disabled="busy" @click="setFrozen(row, !row.frozen)">
+                                <button type="button" class="dd-admin__btn" :class="{ 'dd-admin__btn--danger': !row.frozen }" :disabled="busy" @click="setFrozen(row, !row.frozen)">
                                     確定{{ row.frozen ? '解凍' : '停用' }}
                                 </button>
-                                <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = null">取消</button>
+                                <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = null">取消</button>
                             </template>
-                            <button v-else type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="confirming = row.device_id">
+                            <button v-else type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = row.device_id">
                                 {{ row.frozen ? '解凍…' : '停用…' }}
                             </button>
                         </td>

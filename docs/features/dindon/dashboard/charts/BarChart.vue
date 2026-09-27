@@ -76,7 +76,7 @@
                     <!-- 數字貼在條尾後面；軌道右邊預留了它的位置，條長才能照同一個比例畫 -->
                     <span class="total" :style="{ left: `calc(${(totals[rowIndex] / max) * 100}% + 8px)` }">{{ format(totals[rowIndex]) }}{{ unit }}</span>
 
-                    <span v-if="activeTip && activeTip.row === row.label" class="dd-chart-tip is-bar" role="tooltip">
+                    <span v-if="activeTip && activeTip.row === row.label" class="dd-chart-tip dd-chart-tip--bar" role="tooltip">
                         <strong>{{ format(activeTip.value) }}{{ unit }}</strong>
                         <span class="key"><i :style="{ background: activeTip.series.color }" />{{ activeTip.series.label }}</span>
                         <span v-if="series.length > 1">佔 {{ (activeTip.share * 100).toFixed(0) }}%</span>

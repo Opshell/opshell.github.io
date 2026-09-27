@@ -237,7 +237,7 @@
                 <input v-if="isNew" v-model="form.code" type="text" placeholder="留空＝自動產生 10 碼" autocomplete="off" />
                 <template v-else>
                     <strong class="dd-promo__code">{{ editing }}</strong>
-                    <button type="button" class="dd-admin__btn is-ghost" @click="copyCode(editing!)">複製</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="copyCode(editing!)">複製</button>
                     <span class="dd-promo__muted">建好之後不能改碼</span>
                 </template>
             </fieldset>
@@ -293,17 +293,17 @@
 
             <label class="dd-promo__field">
                 <span>備註</span>
-                <input v-model="form.note" type="text" class="is-wide" placeholder="會顯示在使用者的權益清單上，例如「開發者社群活動」" />
+                <input v-model="form.note" type="text" class="wide" placeholder="會顯示在使用者的權益清單上，例如「開發者社群活動」" />
             </label>
 
             <p v-if="formError" class="dd-admin__error">{{ formError }}</p>
 
             <div class="dd-promo__actions">
                 <button type="submit" class="dd-admin__btn" :disabled="!!formError || busy">{{ isNew ? '建立' : '儲存變更' }}</button>
-                <button v-if="!isNew" type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="toggleActive">
+                <button v-if="!isNew" type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="toggleActive">
                     {{ form.active ? '停用這組碼' : '重新啟用' }}
                 </button>
-                <button type="button" class="dd-admin__btn is-ghost" :disabled="busy" @click="editing = null">關閉</button>
+                <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="editing = null">關閉</button>
             </div>
         </form>
         <!-- #endregion -->
@@ -316,7 +316,7 @@
                     <tr>
                         <th scope="col">裝置</th>
                         <th scope="col">名稱</th>
-                        <th scope="col" class="is-num">點數</th>
+                        <th scope="col" class="num">點數</th>
                         <th scope="col">權益</th>
                         <th scope="col">時間</th>
                     </tr>
@@ -325,7 +325,7 @@
                     <tr v-for="row in redemptions" :key="`${row.device_id}-${row.created_at}`">
                         <td>#{{ row.device_id }}</td>
                         <td>{{ row.device_name }}</td>
-                        <td class="is-num">{{ row.tokens ? formatInt(row.tokens) : '—' }}</td>
+                        <td class="num">{{ row.tokens ? formatInt(row.tokens) : '—' }}</td>
                         <td>{{ row.perk_id ? `#${row.perk_id}` : '—' }}</td>
                         <td>{{ formatDateTime(row.created_at) }}</td>
                     </tr>
@@ -463,7 +463,7 @@
             color: var(--vp-c-text-1);
             font-size: var(--font-size-s);
 
-            &.is-wide { width: min(420px, 100%); }
+            &.wide { width: min(420px, 100%); }
         }
         input[type=checkbox] { cursor: pointer; }
     }

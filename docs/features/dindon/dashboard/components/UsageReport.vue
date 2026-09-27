@@ -67,7 +67,7 @@
                     <option :value="365">近 1 年</option>
                 </select>
             </label>
-            <button type="button" class="dd-admin__btn is-ghost" :disabled="loading" @click="load">重新整理</button>
+            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
             <span v-if="report" class="dd-usage__range">{{ formatDateTime(report.from) }} ～ {{ formatDateTime(report.to) }}</span>
             <span v-if="loading" class="dd-usage__range">載入中…</span>
         </div>
@@ -85,39 +85,39 @@
             <h2 class="dd-usage__title">各功能</h2>
             <p class="dd-usage__desc">「每點額度值」三個功能應該差不多；哪個明顯偏高，代表它的點數訂便宜了。延遲與成本看 P95，不看平均。</p>
             <div class="dd-usage__scroll">
-                <table class="dd-table is-static">
+                <table class="dd-table dd-table--static">
                     <thead>
                         <tr>
                             <th scope="col">功能</th>
-                            <th scope="col" class="is-num">請求</th>
-                            <th scope="col" class="is-num">成功</th>
-                            <th scope="col" class="is-num">拒絕</th>
-                            <th scope="col" class="is-num">失敗</th>
-                            <th scope="col" class="is-num">付費牆</th>
-                            <th scope="col" class="is-num">每日上限</th>
-                            <th scope="col" class="is-num">裝置</th>
-                            <th scope="col" class="is-num">加問率</th>
-                            <th scope="col" class="is-num">延遲 P50／P95</th>
-                            <th scope="col" class="is-num">每次成本 P95</th>
-                            <th scope="col" class="is-num">每點額度值</th>
-                            <th scope="col" class="is-num">總成本</th>
+                            <th scope="col" class="num">請求</th>
+                            <th scope="col" class="num">成功</th>
+                            <th scope="col" class="num">拒絕</th>
+                            <th scope="col" class="num">失敗</th>
+                            <th scope="col" class="num">付費牆</th>
+                            <th scope="col" class="num">每日上限</th>
+                            <th scope="col" class="num">裝置</th>
+                            <th scope="col" class="num">加問率</th>
+                            <th scope="col" class="num">延遲 P50／P95</th>
+                            <th scope="col" class="num">每次成本 P95</th>
+                            <th scope="col" class="num">每點額度值</th>
+                            <th scope="col" class="num">總成本</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="f in features" :key="f.feature">
                             <th scope="row">{{ FEATURE_LABELS[f.feature] ?? f.feature }}</th>
-                            <td class="is-num">{{ formatInt(f.requests) }}</td>
-                            <td class="is-num">{{ formatInt(f.ok) }}</td>
-                            <td class="is-num">{{ formatInt(f.rejected) }}</td>
-                            <td class="is-num">{{ formatInt(f.failed) }}</td>
-                            <td class="is-num">{{ formatInt(f.quota_exceeded) }}</td>
-                            <td class="is-num">{{ formatInt(f.daily_limited) }}</td>
-                            <td class="is-num">{{ formatInt(f.unique_devices) }}</td>
-                            <td class="is-num">{{ formatPercent(f.hedge_rate) }}</td>
-                            <td class="is-num">{{ formatMs(f.latency_ms.p50) }}／{{ formatMs(f.latency_ms.p95) }}</td>
-                            <td class="is-num">{{ formatUsd(f.cost_usd_per_request.p95) }}</td>
-                            <td class="is-num is-key">{{ formatUsd(f.cost_usd_per_quota_point) }}</td>
-                            <td class="is-num">{{ formatUsd(f.total_cost_usd) }}</td>
+                            <td class="num">{{ formatInt(f.requests) }}</td>
+                            <td class="num">{{ formatInt(f.ok) }}</td>
+                            <td class="num">{{ formatInt(f.rejected) }}</td>
+                            <td class="num">{{ formatInt(f.failed) }}</td>
+                            <td class="num">{{ formatInt(f.quota_exceeded) }}</td>
+                            <td class="num">{{ formatInt(f.daily_limited) }}</td>
+                            <td class="num">{{ formatInt(f.unique_devices) }}</td>
+                            <td class="num">{{ formatPercent(f.hedge_rate) }}</td>
+                            <td class="num">{{ formatMs(f.latency_ms.p50) }}／{{ formatMs(f.latency_ms.p95) }}</td>
+                            <td class="num">{{ formatUsd(f.cost_usd_per_request.p95) }}</td>
+                            <td class="num key">{{ formatUsd(f.cost_usd_per_quota_point) }}</td>
+                            <td class="num">{{ formatUsd(f.total_cost_usd) }}</td>
                         </tr>
                         <tr v-if="!features.length">
                             <td colspan="13" class="dd-table__empty">這段期間沒有 AI 請求</td>
@@ -129,25 +129,25 @@
             <h2 class="dd-usage__title">每台裝置的用量分布</h2>
             <p class="dd-usage__desc">免費額度看「每台額度點數」的 P50；訂閱價看「每台成本」的 P95（重度使用者）。</p>
             <div class="dd-usage__scroll">
-                <table class="dd-table is-static">
+                <table class="dd-table dd-table--static">
                     <thead>
                         <tr>
                             <th scope="col" />
-                            <th scope="col" class="is-num">平均</th>
-                            <th scope="col" class="is-num">P50</th>
-                            <th scope="col" class="is-num">P90</th>
-                            <th scope="col" class="is-num">P95</th>
-                            <th scope="col" class="is-num">最大</th>
+                            <th scope="col" class="num">平均</th>
+                            <th scope="col" class="num">P50</th>
+                            <th scope="col" class="num">P90</th>
+                            <th scope="col" class="num">P95</th>
+                            <th scope="col" class="num">最大</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="row in distRows" :key="row.label">
                             <th scope="row">{{ row.label }}</th>
-                            <td class="is-num">{{ row.fmt(row.dist.avg) }}</td>
-                            <td class="is-num">{{ row.fmt(row.dist.p50) }}</td>
-                            <td class="is-num">{{ row.fmt(row.dist.p90) }}</td>
-                            <td class="is-num is-key">{{ row.fmt(row.dist.p95) }}</td>
-                            <td class="is-num">{{ row.fmt(row.dist.max) }}</td>
+                            <td class="num">{{ row.fmt(row.dist.avg) }}</td>
+                            <td class="num">{{ row.fmt(row.dist.p50) }}</td>
+                            <td class="num">{{ row.fmt(row.dist.p90) }}</td>
+                            <td class="num key">{{ row.fmt(row.dist.p95) }}</td>
+                            <td class="num">{{ row.fmt(row.dist.max) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -155,17 +155,17 @@
 
             <h2 class="dd-usage__title">模型</h2>
             <div class="dd-usage__scroll">
-                <table class="dd-table is-static">
+                <table class="dd-table dd-table--static">
                     <thead>
                         <tr>
                             <th scope="col">模型</th>
-                            <th scope="col" class="is-num">呼叫</th>
-                            <th scope="col" class="is-num">成功</th>
-                            <th scope="col" class="is-num">錯誤</th>
-                            <th scope="col" class="is-num">被取消</th>
-                            <th scope="col" class="is-num">輸入 token</th>
-                            <th scope="col" class="is-num">輸出 token</th>
-                            <th scope="col" class="is-num">成本</th>
+                            <th scope="col" class="num">呼叫</th>
+                            <th scope="col" class="num">成功</th>
+                            <th scope="col" class="num">錯誤</th>
+                            <th scope="col" class="num">被取消</th>
+                            <th scope="col" class="num">輸入 token</th>
+                            <th scope="col" class="num">輸出 token</th>
+                            <th scope="col" class="num">成本</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -174,13 +174,13 @@
                                 {{ m.model }}
                                 <span v-if="!m.price_known" class="dd-usage__warn">⚠ 價目表沒有這個模型，成本算成 0</span>
                             </th>
-                            <td class="is-num">{{ formatInt(m.calls) }}</td>
-                            <td class="is-num">{{ formatInt(m.ok) }}</td>
-                            <td class="is-num">{{ formatInt(m.errors) }}</td>
-                            <td class="is-num">{{ formatInt(m.canceled) }}</td>
-                            <td class="is-num">{{ formatInt(m.prompt_tokens) }}</td>
-                            <td class="is-num">{{ formatInt(m.output_tokens + m.thoughts_tokens) }}</td>
-                            <td class="is-num">{{ formatUsd(m.cost_usd) }}</td>
+                            <td class="num">{{ formatInt(m.calls) }}</td>
+                            <td class="num">{{ formatInt(m.ok) }}</td>
+                            <td class="num">{{ formatInt(m.errors) }}</td>
+                            <td class="num">{{ formatInt(m.canceled) }}</td>
+                            <td class="num">{{ formatInt(m.prompt_tokens) }}</td>
+                            <td class="num">{{ formatInt(m.output_tokens + m.thoughts_tokens) }}</td>
+                            <td class="num">{{ formatUsd(m.cost_usd) }}</td>
                         </tr>
                         <tr v-if="!report.models.length">
                             <td colspan="8" class="dd-table__empty">這段期間沒有呼叫 Gemini</td>
@@ -266,14 +266,14 @@
         }
 
         // 報表表格不能點，拿掉列表那套游標與 hover
-        .dd-table.is-static {
+        .dd-table--static {
             tbody tr {
                 cursor: default;
 
                 &:hover { background: transparent !important; }
             }
             tbody th { font-weight: 600; }
-            .is-key { font-weight: 700; }
+            .key { font-weight: 700; }
         }
     }
 </style>

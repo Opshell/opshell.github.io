@@ -61,7 +61,7 @@
             <div v-if="isSignedIn" class="dd-admin__who">
                 <img v-if="profile?.picture" :src="profile.picture" alt="" referrerpolicy="no-referrer" />
                 <span>{{ profile?.email ?? '管理員' }}</span>
-                <button type="button" class="dd-admin__btn is-ghost" @click="auth.signOut()">登出</button>
+                <button type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="auth.signOut()">登出</button>
             </div>
         </header>
 
@@ -182,12 +182,12 @@
                 outline: 2px solid var(--vp-c-brand-1);
                 outline-offset: 2px;
             }
-            &.is-ghost {
+            &--ghost {
                 background: transparent;
                 border-color: var(--vp-c-divider);
                 color: var(--vp-c-text-1);
             }
-            &.is-danger {
+            &--danger {
                 background: var(--vp-c-danger-1);
                 border-color: var(--vp-c-danger-1);
             }

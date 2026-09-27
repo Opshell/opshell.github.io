@@ -211,7 +211,7 @@
                             <span>我確認要{{ chosen.title }}，而且知道這個動作無法復原。</span>
                         </label>
 
-                        <button type="button" class="dd-account__btn is-danger" :disabled="!agreed || busy" @click="submit">
+                        <button type="button" class="dd-account__btn dd-account__btn--danger" :disabled="!agreed || busy" @click="submit">
                             {{ busy ? '處理中…' : `確認${chosen.title}` }}
                         </button>
 
@@ -450,7 +450,7 @@
             text-decoration: none;
             cursor: pointer;
 
-            &.is-danger {
+            &--danger {
                 background: var(--dd-danger);
                 color: var(--dd-on-primary);
             }

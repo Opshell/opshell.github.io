@@ -252,7 +252,7 @@
             <div class="dd-triage__keys" aria-hidden="true">
                 <kbd>1</kbd> bug<kbd>2</kbd>建議<kbd>3</kbd>不採計<kbd>S</kbd>跳過<kbd>U</kbd>復原<kbd>Esc</kbd>離開
             </div>
-            <button type="button" class="dd-admin__btn is-ghost" @click="emit('close', done > 0)">離開</button>
+            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="emit('close', done > 0)">離開</button>
         </header>
 
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
@@ -298,19 +298,19 @@
                         :key="d.status"
                         type="button"
                         class="dd-admin__btn"
-                        :class="{ 'is-ghost': d.status === 'rejected' }"
+                        :class="{ 'dd-admin__btn--ghost': d.status === 'rejected' }"
                         :disabled="busy"
                         @click="decide(d.status)"
                     >
                         <kbd aria-hidden="true">{{ d.key }}</kbd>{{ d.label }}
                     </button>
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy || !canPrev" @click="step(-1)">
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy || !canPrev" @click="step(-1)">
                         <kbd aria-hidden="true">←</kbd>上一則
                     </button>
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy || !canNext" @click="step(1)">
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy || !canNext" @click="step(1)">
                         <kbd aria-hidden="true">S</kbd>跳過
                     </button>
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="busy || !lastAction" @click="undo">
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy || !lastAction" @click="undo">
                         <kbd aria-hidden="true">U</kbd>復原
                     </button>
                 </div>

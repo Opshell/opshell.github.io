@@ -177,7 +177,7 @@
                     <option :value="90">近 90 天</option>
                 </select>
             </label>
-            <button type="button" class="dd-admin__btn is-ghost" :disabled="loading" @click="load">重新整理</button>
+            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
             <span v-if="loading" class="dd-overview__muted">載入中…</span>
         </div>
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
@@ -193,29 +193,29 @@
             </ul>
 
             <div class="dd-overview__grid">
-                <article v-if="hasDaily" class="dd-overview__card is-wide">
+                <article v-if="hasDaily" class="dd-overview__card dd-overview__card--wide">
                     <h3>每日 AI 請求</h3>
                     <p class="sub">近 {{ days }} 天。橙色是沒做成的（Gemini 出錯、額度不足、撞到每日上限）</p>
                     <ColumnChart :points="dailyPoints" :series="outcomeSeries" unit=" 次" />
                     <details>
                         <summary>看數字</summary>
-                        <table class="dd-table is-static">
+                        <table class="dd-table dd-table--static">
                             <thead>
                                 <tr>
                                     <th scope="col">日期</th>
-                                    <th v-for="s in outcomeSeries" :key="s.key" scope="col" class="is-num">{{ s.label }}</th>
-                                    <th scope="col" class="is-num">用過的裝置</th>
-                                    <th scope="col" class="is-num">成本</th>
+                                    <th v-for="s in outcomeSeries" :key="s.key" scope="col" class="num">{{ s.label }}</th>
+                                    <th scope="col" class="num">用過的裝置</th>
+                                    <th scope="col" class="num">成本</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="day in (report.daily ?? [])" :key="day.date">
                                     <td>{{ day.date }}</td>
-                                    <td class="is-num">{{ formatInt(day.ok) }}</td>
-                                    <td class="is-num">{{ formatInt(day.rejected) }}</td>
-                                    <td class="is-num">{{ formatInt(day.failed) }}</td>
-                                    <td class="is-num">{{ formatInt(day.unique_devices) }}</td>
-                                    <td class="is-num">{{ formatUsd(day.cost_usd) }}</td>
+                                    <td class="num">{{ formatInt(day.ok) }}</td>
+                                    <td class="num">{{ formatInt(day.rejected) }}</td>
+                                    <td class="num">{{ formatInt(day.failed) }}</td>
+                                    <td class="num">{{ formatInt(day.unique_devices) }}</td>
+                                    <td class="num">{{ formatUsd(day.cost_usd) }}</td>
                                 </tr>
                                 <tr v-if="!(report.daily ?? []).length">
                                     <td colspan="6" class="dd-table__empty">這段期間沒有 AI 請求</td>
@@ -231,10 +231,10 @@
                     <ColumnChart :points="newDevicePoints" :series="newDeviceSeries" unit=" 台" />
                     <details>
                         <summary>看數字</summary>
-                        <table class="dd-table is-static">
-                            <thead><tr><th scope="col">日期</th><th scope="col" class="is-num">新裝置</th></tr></thead>
+                        <table class="dd-table dd-table--static">
+                            <thead><tr><th scope="col">日期</th><th scope="col" class="num">新裝置</th></tr></thead>
                             <tbody>
-                                <tr v-for="p in newDevicePoints" :key="p.full"><td>{{ p.full }}</td><td class="is-num">{{ formatInt(p.values.count) }}</td></tr>
+                                <tr v-for="p in newDevicePoints" :key="p.full"><td>{{ p.full }}</td><td class="num">{{ formatInt(p.values.count) }}</td></tr>
                             </tbody>
                         </table>
                     </details>
@@ -246,9 +246,9 @@
                     <BarChart :rows="recencyRows" :series="singleSeries" unit=" 台" />
                     <details>
                         <summary>看數字</summary>
-                        <table class="dd-table is-static">
+                        <table class="dd-table dd-table--static">
                             <tbody>
-                                <tr v-for="r in recencyRows" :key="r.label"><th scope="row">{{ r.label }}</th><td class="is-num">{{ formatInt(r.values.count) }} 台</td></tr>
+                                <tr v-for="r in recencyRows" :key="r.label"><th scope="row">{{ r.label }}</th><td class="num">{{ formatInt(r.values.count) }} 台</td></tr>
                             </tbody>
                         </table>
                     </details>
@@ -261,17 +261,17 @@
                     <p v-else class="dd-overview__muted">這段期間沒有 AI 請求</p>
                     <details>
                         <summary>看數字</summary>
-                        <table class="dd-table is-static">
+                        <table class="dd-table dd-table--static">
                             <thead>
                                 <tr>
                                     <th scope="col">功能</th>
-                                    <th v-for="s in outcomeSeries" :key="s.key" scope="col" class="is-num">{{ s.label }}</th>
+                                    <th v-for="s in outcomeSeries" :key="s.key" scope="col" class="num">{{ s.label }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="r in outcomeRows" :key="r.label">
                                     <th scope="row">{{ r.label }}</th>
-                                    <td v-for="s in outcomeSeries" :key="s.key" class="is-num">{{ formatInt(r.values[s.key]) }}</td>
+                                    <td v-for="s in outcomeSeries" :key="s.key" class="num">{{ formatInt(r.values[s.key]) }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -285,9 +285,9 @@
                     <p v-else class="dd-overview__muted">這段期間沒有 AI 請求</p>
                     <details>
                         <summary>看數字</summary>
-                        <table class="dd-table is-static">
+                        <table class="dd-table dd-table--static">
                             <tbody>
-                                <tr v-for="r in costRows" :key="r.label"><th scope="row">{{ r.label }}</th><td class="is-num">{{ formatUsd(r.values.cost) }}</td></tr>
+                                <tr v-for="r in costRows" :key="r.label"><th scope="row">{{ r.label }}</th><td class="num">{{ formatUsd(r.values.cost) }}</td></tr>
                             </tbody>
                         </table>
                     </details>
@@ -367,7 +367,7 @@
             border: 1px solid var(--vp-c-divider);
             border-radius: 12px;
 
-            &.is-wide { grid-column: 1 / -1; }
+            &--wide { grid-column: 1 / -1; }
             h3 { font-size: var(--font-size-m); }
             .sub {
                 margin-top: -8px !important;
@@ -435,7 +435,7 @@
         }
 
         // 橫條的提示框放在那一列的上方靠左
-        &.is-bar {
+        &--bar {
             left: 0;
             transform: none;
         }

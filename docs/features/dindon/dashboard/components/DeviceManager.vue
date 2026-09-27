@@ -75,7 +75,7 @@
                 <option value="frozen">已凍結</option>
             </select>
             <button type="submit" class="dd-admin__btn" :disabled="!!queryError || loading">搜尋</button>
-            <button v-if="query" type="button" class="dd-admin__btn is-ghost" @click="clearSearch">清除</button>
+            <button v-if="query" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="clearSearch">清除</button>
             <span class="dd-devices__count">共 {{ formatInt(total) }} 台</span>
         </form>
         <p v-if="queryError" class="dd-admin__error">{{ queryError }}</p>
@@ -90,10 +90,10 @@
                             <th scope="col">名字</th>
                             <th scope="col">狀態</th>
                             <th scope="col">方案</th>
-                            <th scope="col" class="is-num">額度</th>
+                            <th scope="col" class="num">額度</th>
                             <th scope="col">Beta</th>
                             <th scope="col">Google</th>
-                            <th scope="col" class="is-num">近 30 天 AI</th>
+                            <th scope="col" class="num">近 30 天 AI</th>
                             <th scope="col">最近使用</th>
                         </tr>
                     </thead>
@@ -107,17 +107,17 @@
                             @keydown.enter="selectedId = device.id"
                         >
                             <td>#{{ device.id }}</td>
-                            <td class="is-summary">{{ device.display_name || '—' }}</td>
+                            <td class="summary">{{ device.display_name || '—' }}</td>
                             <td>
                                 <span class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
                                     {{ device.frozen ? '❄ 已凍結' : '● 啟用' }}
                                 </span>
                             </td>
                             <td>{{ PLAN_LABELS[device.plan_tier] ?? device.plan_tier }}</td>
-                            <td class="is-num">{{ formatInt(device.tokens) }}</td>
+                            <td class="num">{{ formatInt(device.tokens) }}</td>
                             <td>{{ device.beta_tester_since ?? '—' }}</td>
                             <td>{{ device.linked ? maskEmail(device.email) || '已綁定' : '—' }}</td>
-                            <td class="is-num">{{ formatInt(device.ai_calls_30d) }}</td>
+                            <td class="num">{{ formatInt(device.ai_calls_30d) }}</td>
                             <td>{{ formatRelative(device.last_ai_at) }}</td>
                         </tr>
                         <tr v-if="!loading && devices.length === 0">
@@ -127,9 +127,9 @@
                 </table>
 
                 <div class="dd-devices__pager">
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="page <= 1 || loading" @click="load(page - 1)">上一頁</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="page <= 1 || loading" @click="load(page - 1)">上一頁</button>
                     <span>第 {{ page }} / {{ pageCount }} 頁</span>
-                    <button type="button" class="dd-admin__btn is-ghost" :disabled="page >= pageCount || loading" @click="load(page + 1)">下一頁</button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="page >= pageCount || loading" @click="load(page + 1)">下一頁</button>
                     <span v-if="loading" class="dd-devices__loading">載入中…</span>
                 </div>
             </div>
@@ -213,7 +213,7 @@
             font-weight: 600;
         }
         tr { background: transparent !important; }
-        .is-num { text-align: right; }
+        .num { text-align: right; }
         tbody tr {
             cursor: pointer;
 
