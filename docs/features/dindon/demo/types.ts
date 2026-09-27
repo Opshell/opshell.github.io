@@ -56,5 +56,7 @@ export interface DemoIndex {
     appVersion: string;
     generatedAt: string;
     video: { width: number; height: number; format: string };
+    /** 影片與封面放在哪（R2），pnpm dindon:demos 上傳後寫進來；檔名帶內容雜湊 */
+    mediaBase?: string;
     sections: DemoSection[];
 }

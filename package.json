@@ -14,6 +14,7 @@
     "@types/fs-extra": "11.0.4",
     "@types/markdown-it-container": "4.0.1",
     "@types/three": "^0.186.0",
+    "aws4fetch": "^1.0.20",
     "eslint": "10.11.0",
     "globby": "16.2.4",
     "gray-matter": "4.0.3",
