@@ -320,6 +320,14 @@ export default defineConfig({
             ['meta', { name: 'twitter:description', content: description }],
             ['meta', { name: 'twitter:image', content: image }]
         );
+
+        // 草稿照樣建成網頁（網址打得開），但不給搜尋引擎收錄；sitemap 與站內搜尋本來就只收已發佈的。
+        // 只看 article/：其他頁面（叮咚、履歷…）不設 isPublished，設了會被當成文章。
+        // article/ 裡的專區首頁（layout: page，例如 /article/ai/）也不設，但它要被收錄
+        const { isPublished, layout } = pageData.frontmatter;
+        if (pageData.relativePath.startsWith('article/') && isPublished !== true && layout !== 'page') {
+            pageData.frontmatter.head.push(['meta', { name: 'robots', content: 'noindex, nofollow' }]);
+        }
     },
     transformHead({ assets }) {
         // adjust the regex accordingly to match your font
