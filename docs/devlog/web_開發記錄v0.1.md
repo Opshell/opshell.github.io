@@ -445,7 +445,7 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 
 | commit | 內容 |
 |---|---|
-| `5e99747` | `/dindon/demo/`：目錄（41 項、8 類）＋播放對話框＋三張圖解；`pnpm dindon:demos` 同步腳本；導覽列加入口；skill `web-dindon` 補第五頁 |
+| `9b20ccf` | `/dindon/demo/`：目錄（41 項、8 類）＋播放對話框＋三張圖解；`pnpm dindon:demos` 同步腳本；導覽列加入口；skill `web-dindon` 補第五頁 |
 
 - **目錄**：卡片左邊是手機形狀的縮圖（封面 540 寬一張 80 KB，同步腳本縮成 240 寬 webp，32 張共 248 KB）；三星的標「必看」；`phone` 的虛線框寫「準備中：要用真的手機錄」。
 - **播放器**：影片上疊手指（黃色半透明圓＋實心點，平面風格）、滑動與拖曳畫軌跡、說明泡泡；控制列有暫停、0.5 倍速、重播，進度條上一步一個刻度。右側步驟清單會跟著亮，點了跳過去。
@@ -488,8 +488,8 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 
 | commit | 內容 |
 |---|---|
-| `de5a6cb` | 重播鈕；演示的紅框與拖曳時間；素材整批重錄 |
-| `a832287` | 宣傳頁：測試連結、兩步驟引導＋示意動畫、演示頁入口 |
+| `bdac5a8` | 重播鈕；演示的紅框與拖曳時間；素材整批重錄 |
+| `b13b258` | 宣傳頁：測試連結、兩步驟引導＋示意動畫、演示頁入口 |
 
 - **重播鈕歪掉**：兩個原因疊在一起。影片中間的大圓鈕沒有把圖示置中（播放三角形也一樣歪，只是比較不明顯）；
   重播圖示本身的圓心在 (12, 13)，不在 24×24 的正中間。補上置中、換成圓心在正中間的線條圖示。
@@ -522,7 +522,7 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 
 溝通板上指名給網頁的有兩張：
 
-- **#0060**（做了，`ebfee3a`）：`pnpm dindon:demos` 整批同步，36 支 ready、共 45 項。新分類「預算與小精靈」（42～44）照 `index.json` 的順序自動排在「記帳的細節」與「成就感」之間，
+- **#0060**（做了，`8edc06e`）：`pnpm dindon:demos` 整批同步，36 支 ready、共 45 項。新分類「預算與小精靈」（42～44）照 `index.json` 的順序自動排在「記帳的細節」與「成就感」之間，
   45 分區清除進「資料與隱私」；17、18、40 換成重錄的版本。頁面程式不用改，只改了 md 裡寫死的「一共 41 項」。
 - **#0057**（等）：隱私權政策改版，前端要求 **0.6.6 上架後**才同步（線上 App 還是 0.6.5，先改會對不上），前端上架時會回單。
 
@@ -547,13 +547,13 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 
 | commit | 內容 |
 |---|---|
-| `c68d4a2` | `docs/devlog/評估報告-2026-09-27.md`：skill 與 CLAUDE.md 的 9 處事實過期、專案評分與 8 個問題 |
-| `e3d6df8` | 全倉庫拿掉 scoped（17 支）；刪掉 ExpandLayout 197 行從沒生效的規則、沒人用的 ArticleMate.vue；修兩組撞名、兩處會被丟掉的 `::v-deep`／`:deep` |
-| `2455b90` | 顏色全部改新式寫法，stylelint 開 `color-function-notation: modern` |
-| `9b01f6d` | `docs/devlog/規範討論.md`：四輪討論（地基、資料層、伺服端資料、落地）的決定 |
-| `20e08d0` | 前端開發規範 v5.0.0 定稿（`developer/前端開發規範.md`）；深色模式表格偶數列看不見的全站 bug |
-| `8da5e53` | 兩項待定定案，舊的兩份刪掉，放進發文排程，CLAUDE.md 與 skill 指向規範 |
-| `ba181ec`、`b16526b`、`98b70c1`、`b8f5fe3`、`840da2e`、`a69e720`、`08471e1` | 部落格照規範跟進五批（細節與驗證方式在 `規範討論.md` 最後一節） |
+| `88b4514` | `docs/devlog/評估報告-2026-09-27.md`：skill 與 CLAUDE.md 的 9 處事實過期、專案評分與 8 個問題 |
+| `fade09b` | 全倉庫拿掉 scoped（17 支）；刪掉 ExpandLayout 197 行從沒生效的規則、沒人用的 ArticleMate.vue；修兩組撞名、兩處會被丟掉的 `::v-deep`／`:deep` |
+| `8473aed` | 顏色全部改新式寫法，stylelint 開 `color-function-notation: modern` |
+| `266a979` | `docs/devlog/規範討論.md`：四輪討論（地基、資料層、伺服端資料、落地）的決定 |
+| `d6230e7` | 前端開發規範 v5.0.0 定稿（`developer/前端開發規範.md`）；深色模式表格偶數列看不見的全站 bug |
+| `c5cca58` | 兩項待定定案，舊的兩份刪掉，放進發文排程，CLAUDE.md 與 skill 指向規範 |
+| `2aaaa1e`、`6ef5940`、`9a3efbb`、`9969f6b`、`6601816`、`41cbe2e`、`8609c3e` | 部落格照規範跟進五批（細節與驗證方式在 `規範討論.md` 最後一節） |
 
 ## 判斷
 
@@ -587,11 +587,11 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 
 | commit | 內容 | 驗證 |
 |---|---|---|
-| `fef7a67` | 主題 JS 1,665 KB → 135 KB：拿掉全域 `app.use(Tres)`（只註冊 TresCanvas，GalaxyBack 自己 import）；Sandbox 改 `defineAsyncComponent` | 首頁、星系頁、標籤頁、兩篇沙盒文章在瀏覽器實測；沙盒照常編譯出 Hello world |
-| `8d7281d` | `article/` 底下沒發佈的頁面加 `robots noindex, nofollow` | 262 頁文章＝82 發佈＋180 未發佈；加到 179 頁（AI 專區首頁是 `layout: page`，照常收錄），已發佈 0 頁 |
-| `da85d5c` | 四支 frontmatter 腳本的根目錄改成相對於腳本；`add-frontmatter` 跳過專區首頁 | 在暫存 worktree 實跑四支 |
-| `87f5607` | Vitest 3、31 個測試（`utils/zod`、文章 frontmatter、叮咚後台、演示疊層），`pnpm check` 與 CI 都跑 | 故意改壞三處，對應的測試都紅 |
-| `3aec8de` | `pnpm dindon:demos` 改傳 R2（檔名帶雜湊、傳完才寫 demos.json、`--dry`、`--prune`），網頁讀 `mediaBase` | 假的 S3 伺服器：首次傳 108 個、再跑全跳過、`--prune` 只刪舊檔、請求都有簽章 |
+| `268d52f` | 主題 JS 1,665 KB → 135 KB：拿掉全域 `app.use(Tres)`（只註冊 TresCanvas，GalaxyBack 自己 import）；Sandbox 改 `defineAsyncComponent` | 首頁、星系頁、標籤頁、兩篇沙盒文章在瀏覽器實測；沙盒照常編譯出 Hello world |
+| `f471b7e` | `article/` 底下沒發佈的頁面加 `robots noindex, nofollow` | 262 頁文章＝82 發佈＋180 未發佈；加到 179 頁（AI 專區首頁是 `layout: page`，照常收錄），已發佈 0 頁 |
+| `96608a1` | 四支 frontmatter 腳本的根目錄改成相對於腳本；`add-frontmatter` 跳過專區首頁 | 在暫存 worktree 實跑四支 |
+| `14dd78b` | Vitest 3、31 個測試（`utils/zod`、文章 frontmatter、叮咚後台、演示疊層），`pnpm check` 與 CI 都跑 | 故意改壞三處，對應的測試都紅 |
+| `8407876` | `pnpm dindon:demos` 改傳 R2（檔名帶雜湊、傳完才寫 demos.json、`--dry`、`--prune`），網頁讀 `mediaBase` | 假的 S3 伺服器：首次傳 108 個、再跑全跳過、`--prune` 只刪舊檔、請求都有簽章 |
 | 工作區 `cdab8d1` | 開單 #0063 問前端：App 倉庫的演示素材要不要繼續進 git | |
 
 ## 判斷
@@ -623,7 +623,7 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 
 ## 做了什麼
 
-- `db94f71`：腳本改用儲體 `dindon-demo`、檔案放根目錄、讀 `.env.local` 的 `R2_DINDON_*`；實際上傳 108 個檔案；刪掉倉庫的 44.7 MB 副本；`catalog.ts` 不再退回 public。
+- `b61db3c`：腳本改用儲體 `dindon-demo`、檔案放根目錄、讀 `.env.local` 的 `R2_DINDON_*`；實際上傳 108 個檔案；刪掉倉庫的 44.7 MB 副本；`catalog.ts` 不再退回 public。
 - `.gitignore` 補 `.env.*`：使用者建的是 `.env.local`，原本只排除 `.env`，差點會被 `git add` 帶進去（沒有提交過）。
 - 工作區 `8ddbf88`：#0063 回覆並結案（前端已停止提交素材、清掉 App 倉庫歷史）。
 
@@ -645,3 +645,42 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 
 `Upload-Script` 權杖發行於 2026-01-21，跟相簿的第一個 commit（01-20）同一天，`.env` 也是那時加進 `.gitignore` 的：當時打算寫上傳腳本，最後沒寫。
 這台 Mac 上沒有 `photos/raw`、`photos/thumbs`，原圖可能只剩 R2 上那份（或在舊的 Windows 電腦上）。
+
+# 2026-09-28：改寫 git 歷史，清掉演示影片（force push）
+
+**使用者**：先把相簿的事情記到待辦.md，然後開新的文件記錄剛剛整個 R2 的儲體建置步驟和流程，接著動手處理 force push。
+
+## 做了什麼
+
+- 相簿自動上傳列進工作區 `docs/ops/待辦.md` 第 10 項（使用者的檔案，沒有 commit）。
+- `docs/devlog/R2-儲體建置與流程.md`：儲體、網域、權杖、腳本運作、日常流程、驗證、搬家順序、踩過的坑。
+- 改寫 `main` 的歷史，從 2026-09-25 以後的 30 個 commit 裡拿掉 `docs/public/images/dindon/demos/`，force push（`57eebca` → `a44f1af`）。
+
+## 做法與驗證
+
+1. 完整鏡像備份：`~/WWW/DinDon-backups/2026-09-28-web-before-filter/opshell.github.io.git`（所有分支），對照表 `commit-map.txt`（舊 → 新，完整 40 碼）。
+2. 在暫存區另外 clone 一份鏡像來改寫，不動工作目錄。
+3. **先試了 `git filter-repo`，放棄**：它會拿掉 GPG 簽章，GitHub 網頁上產生的 commit 都有簽章，所以從第一個 commit 開始 382 個編號**全部**會變，
+   連不含演示的 4 個舊分支也變。改用 `git filter-branch --index-filter … -- 5e99747^..main`，只改寫範圍內的 30 個；
+   範圍內沒有帶簽章的 commit，訊息裡也沒有互相引用編號。
+4. 驗證：最後一個 commit 的樹跟改寫前**完全相同**（網站內容不變）；30 個 commit 逐一比對，除了演示資料夾以外沒有任何差異；
+   其他 4 個分支編號不變；整個倉庫找不到演示的檔案。
+5. `--force-with-lease=main:57eebca`：遠端如果不是預期的版本就拒絕，不會蓋掉別人推的東西。
+6. 工作目錄 `fetch` 後 `reset --hard origin/main`（使用者沒進版控的三個檔案不受影響），清掉 reflog 並 gc。
+7. 文件裡引用到的舊編號照對照表替換 45 處：官網 4 個開發記錄，工作區是網頁 Claude 自己寫的段落與共用的 `beta-todo.md`。
+   替換後的編號都查得到。
+
+## 結果
+
+- 只 clone `main`：**136 MB → 75 MB**。剩下的大多是字型（Noto Sans TC 的 ttf 與 woff2）和 `resource/opshell-OK.ai`（18 MB）。
+- CI 綠燈，網站內容不變。
+
+## 踩到的坑
+
+- zsh 會把 `$NEW:refs/...` 的 `:r` 當成變數修飾符，推送的參數被吃掉一截（沒推出任何東西）。變數後面接冒號要寫成 `${NEW}:`。
+
+## 留給使用者
+
+- 別台電腦上如果有這個倉庫的 clone，要重新 clone，或 `git fetch && git reset --hard origin/main`，**不能直接 pull**。
+- GitHub 上舊的 commit 用舊網址可能還打得開一陣子，要等 GitHub 自己清理。
+- 其他小精靈寫的內容裡如果有官網的舊編號，查 `commit-map.txt`（工作區開了通知單）。
