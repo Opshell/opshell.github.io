@@ -1,8 +1,6 @@
 import type { Component } from 'vue';
-import Tres from '@tresjs/core';
 import mediumZoom from 'medium-zoom';
 import { Theme, useRoute } from 'vitepress';
-import { Sandbox } from 'vitepress-plugin-sandpack';
 
 import DefaultTheme from 'vitepress/theme-without-fonts';
 
@@ -10,8 +8,6 @@ import ExpandLayout from './layout/ExpandLayout.vue';
 import LayoutResume from './layout/Resume.vue';
 
 // https://vitepress.dev/guide/custom-theme
-
-import 'vitepress-plugin-sandpack/dist/style.css';
 
 // [-] 字體引用
 import './fonts/font.css';
@@ -23,6 +19,16 @@ import './scss/style.scss';
 import 'virtual:svg-icons-register';
 
 const elComponents = import.meta.glob('../../shared/components/el/*.vue', { eager: true });
+
+// `::: sandbox` 建置時變成 <Sandbox>，只有兩篇文章用到。Sandpack 很大，不放進每頁都下載的主題 JS，用到才載入。
+// 不用 defineClientComponent：它不會把插槽傳下去，Sandbox 的程式碼就在插槽裡
+const Sandbox = defineAsyncComponent(async () => {
+    const [{ Sandbox }] = await Promise.all([
+        import('vitepress-plugin-sandpack'),
+        import('vitepress-plugin-sandpack/dist/style.css')
+    ]);
+    return Sandbox;
+});
 
 // 這些頁面不載入第三方的計數腳本：它們手上有 Google 的登入憑證（後台是管理員、帳號頁是使用者本人），
 // 不讓外部腳本跑在同一頁。
@@ -80,6 +86,6 @@ export default {
         }
         app.component('resume', LayoutResume);
         app.component('Sandbox', Sandbox);
-        app.use(Tres);
+        // 不全域 app.use(Tres)：它只註冊 TresCanvas，而星系頁的 GalaxyBack 自己 import，而且整支延後載入
     }
 } satisfies Theme;
