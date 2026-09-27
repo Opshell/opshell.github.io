@@ -11,7 +11,7 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
 跟進進度見 `docs/devlog/規範討論.md`。
 
 規則來源：`eslint.config.js`（antfu 9.x，ESLint 10）、`.stylelintrc.mjs`（standard-scss 17 + order）、既有程式。
-改完跑 `pnpm check`（lint → stylelint → typecheck → build），三個工具都要乾淨。跟 antfu 預設刻意相反、已在設定裡關掉的：單行 `if`、頂層 `const` 箭頭函式、`<td>{{ x }}</td>` 這種單行元素、事件名 kebab-case。
+改完跑 `pnpm check`（lint → stylelint → typecheck → test → build），每一項都要乾淨。跟 antfu 預設刻意相反、已在設定裡關掉的：單行 `if`、頂層 `const` 箭頭函式、`<td>{{ x }}</td>` 這種單行元素、事件名 kebab-case。
 
 ## TypeScript
 

@@ -46,13 +46,15 @@ alias：`@`＝`docs/`、`@features`、`@shared`、`@components`、`@hooks`、`@u
 | `pnpm docs:preview` | 用建置結果起伺服器。要看網址行為（結尾斜線、404、SSR 輸出）用這個，dev 模式在無頭瀏覽器裡是空白的 |
 | `pnpm dindon:privacy` | 從 App 的 `privacy_policy.md` 重新產生 `/dindon/privacy/`（[[web-dindon]]） |
 | `pnpm new-post "標題"` | 新文章骨架（[[web-blog-post]]） |
-| `pnpm check` | **改完必跑**：lint → stylelint → typecheck → build，CI 跑的就是這四個 |
+| `pnpm check` | **改完必跑**：lint → stylelint → typecheck → test → build，CI 跑的就是這五個 |
 | `pnpm lint`／`pnpm lint:fix` | ESLint 10 ＋ antfu 9，全倉庫要 0 error 0 warning。文章的 md 不 lint（`ignores`） |
 | `pnpm lint:style`／`pnpm lint:style:fix` | stylelint 17，`docs/**/*.{scss,vue}` |
 | `pnpm typecheck` | `vue-tsc --noEmit`。VitePress 內部元件的 import 由 `tsconfig` 的 `paths` 指到 `docs/types/shims/`，不進去檢查 |
+| `pnpm test`／`pnpm test:watch` | Vitest 3（不是 5：5 要 Vite 6，VitePress 1.6 還在 Vite 5）。只測純邏輯，`*.test.ts` 放在被測檔案旁邊 |
 
 Node 24、pnpm 10.28（`packageManager` 鎖住）。`ignoreDeadLinks: true`，壞連結不會讓建置失敗，要自己點。
-沒有測試框架（2026-09-22 拿掉沒用到的 vitest），要寫測試那天再裝。
+測試只寫純邏輯：Zod 解析（`utils/zod.ts`、文章 frontmatter、叮咚後台）與演示疊層的時間計算。
+新寫的測試先把被測的程式故意改壞，確認測試會紅，再改回來。
 
 ## 5. 頁面怎麼組
 

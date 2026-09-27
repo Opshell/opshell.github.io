@@ -29,6 +29,7 @@
     },
     "include": [
         ".eslintrc-auto-import.json",
+        "vitest.config.ts",
 
         "docs/.vitepress/*.mts",
         "docs/.vitepress/theme/*.ts",
