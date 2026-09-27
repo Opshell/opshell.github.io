@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { PromoCode, PromoPayload, PromoRedemption } from '../api';
+    import type { PromoCode, PromoRedemption, SavePromoCodeInput } from '../schemas/admin.schema';
     import { computed, onMounted, reactive, ref } from 'vue';
     import { adminApi } from '../api';
     import { formatDateTime, formatInt, PLAN_LABELS } from '../format';
@@ -68,18 +68,18 @@
     }
 
     const rewardText = (promo: PromoCode) => [
-        promo.plan_tier ? `${PLAN_LABELS[promo.plan_tier] ?? promo.plan_tier} ${[promo.months ? `${promo.months} 個月` : '', promo.days ? `${promo.days} 天` : ''].filter(Boolean).join(' ')}` : '',
+        promo.planTier ? `${PLAN_LABELS[promo.planTier] ?? promo.planTier} ${[promo.months ? `${promo.months} 個月` : '', promo.days ? `${promo.days} 天` : ''].filter(Boolean).join(' ')}` : '',
         promo.tokens ? `${formatInt(promo.tokens)} 點` : ''
     ].filter(Boolean).join('＋');
 
     const seatsText = (promo: PromoCode) =>
-        promo.max_redemptions === null ? `${formatInt(promo.redeemed)} / 不限` : `${formatInt(promo.redeemed)} / ${formatInt(promo.max_redemptions)}`;
+        promo.maxRedemptions === null ? `${formatInt(promo.redeemed)} / 不限` : `${formatInt(promo.redeemed)} / ${formatInt(promo.maxRedemptions)}`;
 
     /** 用完了、過期了，即使 active 還是 true 也兌換不到 */
     function stateOf(promo: PromoCode): { label: string; kind: string } {
         if (!promo.active) return { label: '已停用', kind: 'is-frozen' };
-        if (promo.expires_at && new Date(promo.expires_at).getTime() < Date.now()) return { label: '已過期', kind: 'is-frozen' };
-        if (promo.max_redemptions !== null && promo.redeemed >= promo.max_redemptions) return { label: '名額用完', kind: 'is-frozen' };
+        if (promo.expiresAt && new Date(promo.expiresAt).getTime() < Date.now()) return { label: '已過期', kind: 'is-frozen' };
+        if (promo.maxRedemptions !== null && promo.redeemed >= promo.maxRedemptions) return { label: '名額用完', kind: 'is-frozen' };
         return { label: '● 可兌換', kind: 'is-active' };
     }
 
@@ -95,14 +95,14 @@
         return '';
     });
 
-    function payload(): PromoPayload {
-        const body: PromoPayload = {
-            plan_tier: form.givesPlan ? form.planTier : '',
+    function payload(): SavePromoCodeInput {
+        const body: SavePromoCodeInput = {
+            planTier: form.givesPlan ? form.planTier : '',
             months: form.givesPlan ? Number(form.months) : 0,
             days: form.givesPlan ? Number(form.days) : 0,
             tokens: form.givesTokens ? Number(form.tokens) : 0,
-            max_redemptions: form.unlimitedSeats ? null : Number(form.seats),
-            expires_at: form.unlimitedExpiry ? null : new Date(form.expiresAt).toISOString(),
+            maxRedemptions: form.unlimitedSeats ? null : Number(form.seats),
+            expiresAt: form.unlimitedExpiry ? null : new Date(form.expiresAt).toISOString(),
             note: form.note.trim()
         };
         if (isNew.value) {
@@ -140,16 +140,16 @@
         editing.value = promo.code;
         Object.assign(form, {
             code: promo.code,
-            givesPlan: !!promo.plan_tier,
-            planTier: promo.plan_tier || 'pro',
+            givesPlan: !!promo.planTier,
+            planTier: promo.planTier || 'pro',
             months: promo.months,
             days: promo.days,
             givesTokens: promo.tokens > 0,
             tokens: promo.tokens || 100,
-            unlimitedSeats: promo.max_redemptions === null,
-            seats: promo.max_redemptions ?? 50,
-            unlimitedExpiry: !promo.expires_at,
-            expiresAt: promo.expires_at ? toLocalInput(promo.expires_at) : '',
+            unlimitedSeats: promo.maxRedemptions === null,
+            seats: promo.maxRedemptions ?? 50,
+            unlimitedExpiry: !promo.expiresAt,
+            expiresAt: promo.expiresAt ? toLocalInput(promo.expiresAt) : '',
             note: promo.note,
             active: promo.active
         });
@@ -322,12 +322,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="row in redemptions" :key="`${row.device_id}-${row.created_at}`">
-                        <td>#{{ row.device_id }}</td>
-                        <td>{{ row.device_name }}</td>
+                    <tr v-for="row in redemptions" :key="`${row.deviceId}-${row.createdAt}`">
+                        <td>#{{ row.deviceId }}</td>
+                        <td>{{ row.deviceName }}</td>
                         <td class="num">{{ row.tokens ? formatInt(row.tokens) : '—' }}</td>
-                        <td>{{ row.perk_id ? `#${row.perk_id}` : '—' }}</td>
-                        <td>{{ formatDateTime(row.created_at) }}</td>
+                        <td>{{ row.perkId ? `#${row.perkId}` : '—' }}</td>
+                        <td>{{ formatDateTime(row.createdAt) }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -360,7 +360,7 @@
                         <td><strong class="dd-promo__code">{{ promo.code }}</strong></td>
                         <td>{{ rewardText(promo) }}</td>
                         <td>{{ seatsText(promo) }}</td>
-                        <td>{{ promo.expires_at ? formatDateTime(promo.expires_at) : '不限' }}</td>
+                        <td>{{ promo.expiresAt ? formatDateTime(promo.expiresAt) : '不限' }}</td>
                         <td><span class="dd-status" :class="stateOf(promo).kind">{{ stateOf(promo).label }}</span></td>
                         <td>{{ promo.note || '—' }}</td>
                     </tr>

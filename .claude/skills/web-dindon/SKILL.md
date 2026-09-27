@@ -42,7 +42,9 @@ features/dindon/
 │   ├── hooks/useDemoOverlay.ts ← 依影片秒數算手指位置與說明泡泡（步驟格式見 App 倉庫 store/demos/README.md）
 │   └── components/         ← DemoPage（目錄＋對話框）、DemoPlayer（外框、影片、疊圖、控制列）、diagrams/（第 4、10、39 項的圖解）
 └── dashboard/
-    ├── api.ts              ← /v1/admin/*，型別註明 api.md 第幾節；AdminApiError(status, message).needsLogin
+    ├── schemas/admin.schema.ts ← 所有後台 API 的 Zod 資料層（前端開發規範五章）：Raw 照後端 Go 結構（snake_case，Go 的 nil slice/map 送 null），
+    │                         Parser 補空陣列、轉 camelCase；Payload 從 camelCase 轉回 snake_case。元件拿到的一律是 camelCase
+    ├── api.ts              ← /v1/admin/*，每支都經 parseResponse；格式對不上丟 ApiSchemaError（畫面顯示端點與欄位，明細在 console）；AdminApiError(status, message).needsLogin
     ├── useAdminCall.ts     ← 帶 token 呼叫；401 就 markExpired 回登入畫面；errorMessage()
     ├── useMergeCandidates.ts  format.ts（formatInt、formatDateTime、PLAN_LABELS）
     ├── charts/             ← BarChart、ColumnChart、ticks.ts（自己畫的 SVG，沒用圖表套件）
@@ -100,6 +102,17 @@ pnpm dindon:demos                   # 預設讀 ../DinDon/DinDon_Android/store/d
 - **對話框裡的元件要用 `defineAsyncComponent` 載入**：VitePress 第一次載入用「精簡版」頁面程式，會把靜態 HTML 清成空字串
   （假設伺服器已經渲染過）。只在瀏覽器端才渲染的東西（對話框、`v-if` 打開的內容）如果整塊是靜態的，打開會是空的；
   拆成獨立檔案就不會被精簡。檢查方法：`grep -o 've("",[0-9]*)' docs/.vitepress/dist/assets/<頁面>.lean.js`。
+
+## 後台的 schema 怎麼驗證（沒有管理員帳號也能驗）
+
+改了 `schemas/admin.schema.ts` 或後端改了回應格式時：
+
+1. 把後端倉庫**複製到暫存資料夾**（不要動後端倉庫），在複本的 `controllers/` 加一支測試：用 `setupDB`／`newDevice` 灌資料，
+   把每支後台 API 的回應寫成 JSON（空資料庫一份、各種資料一份）。
+2. 用 esbuild 打包一支小腳本（會讀 tsconfig 的 paths），拿 Parser 逐一 `safeParse` 那些 JSON。
+3. 要看畫面：預覽站開 `/dindon/dashboard/?api=http://localhost:4173/fake`，用 CDP 在頁面載入前放一個假的 `window.google.accounts.id`
+   （`useGoogleAuth` 看到它就不載真的 Google 腳本），呼叫 callback 給一個假 JWT 登入；再用 `Fetch.enable` 攔 `*/fake/*` 回那些 JSON。
+   同網域，沒有 CORS 問題。2026-09-28 用這個方法驗過六個分頁與兩個詳情頁，順便抓到舊版在 `models: null` 時「用量報表」整頁空白。
 
 ## 文案數字要對得上
 

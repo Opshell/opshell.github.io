@@ -1,7 +1,8 @@
 <script setup lang="ts">
-    import type { FeedbackFilter, FeedbackIssue, FeedbackKind, FeedbackReport, FeedbackStats, FeedbackStatus } from '../api';
+    import type { FeedbackFilter, FeedbackKind } from '../api';
     import type { BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
+    import type { FeedbackIssue, FeedbackReport, FeedbackStats, FeedbackStatus } from '../schemas/admin.schema';
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { adminApi } from '../api';
     import ColumnChart from '../charts/ColumnChart.vue';
@@ -69,7 +70,7 @@
     /** 正在確認「這台的待審全部不採計」的裝置 id（列表的群組列與單則側欄都會用） */
     const confirmingDevice = ref<number | null>(null);
 
-    async function batch(body: { report_ids: number[] } | { device_id: number }, status: FeedbackStatus, label: string) {
+    async function batch(body: { reportIds: number[] } | { deviceId: number }, status: FeedbackStatus, label: string) {
         busy.value = true;
         error.value = '';
         notice.value = '';
@@ -78,7 +79,7 @@
             notice.value = updated ? `${label}：${formatInt(updated)} 則改成「${STATUS_LABELS[status]}」` : `${label}：沒有要改的`;
             await load(); // 狀態變了，列表、統計、問題的件數都要重抓
             if (selectedId.value !== null && detail.value) { // 正在看的那一則可能也在裡面；截圖不會變，不用重抓
-                detail.value = (await call(token => adminApi.getFeedback(token, selectedId.value!))).report;
+                detail.value = await call(token => adminApi.getFeedback(token, selectedId.value!));
             }
         } catch (e) {
             error.value = errorMessage(e);
@@ -88,14 +89,14 @@
             confirmingDevice.value = null;
         }
     }
-    const reviewChecked = () => batch({ report_ids: [...checked.value] }, batchStatus.value, '勾選的回報');
-    const rejectDevice = (deviceId: number, name: string) => batch({ device_id: deviceId }, 'rejected', `${name} 的待審`);
+    const reviewChecked = () => batch({ reportIds: [...checked.value] }, batchStatus.value, '勾選的回報');
+    const rejectDevice = (deviceId: number, name: string) => batch({ deviceId }, 'rejected', `${name} 的待審`);
     /** 側欄那顆：正在看的那一則的裝置（模板裡的事件處理拿不到 detail 非 null 的收窄，所以包一層） */
     const rejectDetailDevice = () => {
-        if (detail.value) rejectDevice(detail.value.device_id, detail.value.device_name || `#${detail.value.device_id}`);
+        if (detail.value) rejectDevice(detail.value.deviceId, detail.value.deviceName || `#${detail.value.deviceId}`);
     };
     const freezeDetailDevice = () => {
-        if (detail.value) void freezeDevice(detail.value.device_id);
+        if (detail.value) void freezeDevice(detail.value.deviceId);
     };
 
     /** 凍結是另一件事：這裡只是讓「看到垃圾回報」到「停掉那台」不用換分頁。解凍到裝置頁 */
@@ -128,10 +129,10 @@
     const groups = computed<Group[]>(() => {
         const map = new Map<number, Group>();
         for (const report of reports.value) {
-            let group = map.get(report.device_id);
+            let group = map.get(report.deviceId);
             if (!group) {
-                group = { deviceId: report.device_id, name: report.device_name || `#${report.device_id}`, reports: [], pending: 0 };
-                map.set(report.device_id, group);
+                group = { deviceId: report.deviceId, name: report.deviceName || `#${report.deviceId}`, reports: [], pending: 0 };
+                map.set(report.deviceId, group);
             }
             group.reports.push(report);
             if (report.status === 'pending') group.pending++;
@@ -186,9 +187,9 @@
         notice.value = '';
         try {
             const result = await call(token => adminApi.getFeedback(token, id));
-            detail.value = result.report;
+            detail.value = result;
             // 截圖要帶登入憑證，不能直接 <img src>：取回來再轉成 blob URL
-            for (const position of result.report.screenshots ?? []) {
+            for (const position of result.screenshots) {
                 const blob = await call(token => adminApi.feedbackScreenshot(token, id, position));
                 if (selectedId.value !== id) return URL.revokeObjectURL(URL.createObjectURL(blob)); // 期間又換了一則
                 shots.value.push({ position, url: URL.createObjectURL(blob) });
@@ -208,15 +209,15 @@
     // #endregion
 
     // #region [P] 審核與合併
-    async function mutate(action: (token: string) => Promise<{ report: FeedbackReport }>, message: string) {
+    async function mutate(action: (token: string) => Promise<FeedbackReport>, message: string) {
         busy.value = true;
         error.value = '';
         notice.value = '';
         try {
             const result = await call(action);
-            detail.value = result.report;
-            const index = reports.value.findIndex(r => r.id === result.report.id);
-            if (index !== -1) reports.value[index] = { ...reports.value[index], ...result.report };
+            detail.value = result;
+            const index = reports.value.findIndex(r => r.id === result.id);
+            if (index !== -1) reports.value[index] = { ...reports.value[index], ...result };
             notice.value = message;
             // 統計與問題的件數會跟著變
             const [statsResult, issueList] = await call(token => Promise.all([adminApi.feedbackStats(token), adminApi.listIssues(token)]));
@@ -234,11 +235,11 @@
     /** 正在看的這一則掛在哪個問題上（模板裡的箭頭函式拿不到 detail 非 null 的收窄，所以算在這） */
     const detailIssueTitle = computed(() => {
         const current = detail.value;
-        if (!current?.issue_id) return '';
-        return issues.value.find(i => i.id === current.issue_id)?.title ?? `#${current.issue_id}`;
+        if (!current?.issueId) return '';
+        return issues.value.find(i => i.id === current.issueId)?.title ?? `#${current.issueId}`;
     });
     const detachIssue = () =>
-        mutate(token => adminApi.reviewFeedback(token, selectedId.value!, { issue_id: null }), '已從問題上拿下來');
+        mutate(token => adminApi.reviewFeedback(token, selectedId.value!, { issueId: null }), '已從問題上拿下來');
 
     /** 快速審核裡合併過：只重抓問題清單（一次 API），列表與統計等離開時再一起抓 */
     async function reloadIssues() {
@@ -280,18 +281,18 @@
         const s = stats.value;
         if (!s) return [];
         return [
-            { label: '待審', value: formatInt(s.by_status.pending ?? 0), hint: '還沒判的回報' },
-            { label: '採計為 bug', value: formatInt(s.by_status.accepted_bug ?? 0), hint: '' },
-            { label: '採計為建議', value: formatInt(s.by_status.accepted_suggestion ?? 0), hint: '' },
-            { label: '不採計', value: formatInt(s.by_status.rejected ?? 0), hint: '' },
+            { label: '待審', value: formatInt(s.byStatus.pending ?? 0), hint: '還沒判的回報' },
+            { label: '採計為 bug', value: formatInt(s.byStatus.accepted_bug ?? 0), hint: '' },
+            { label: '採計為建議', value: formatInt(s.byStatus.accepted_suggestion ?? 0), hint: '' },
+            { label: '不採計', value: formatInt(s.byStatus.rejected ?? 0), hint: '' },
             { label: '參與人數', value: formatInt(s.participants), hint: '送出過回報的裝置' },
-            { label: '待合併', value: formatInt(s.accepted_without_issue), hint: '採計了、還沒歸到問題' }
+            { label: '待合併', value: formatInt(s.acceptedWithoutIssue), hint: '採計了、還沒歸到問題' }
         ];
     });
 
     const perDaySeries: BarSeries[] = [{ key: 'count', label: '回報', color: 'var(--dd-series-1)' }];
     const perDayPoints = computed<ColumnPoint[]>(() => {
-        const counts = new Map((stats.value?.per_day ?? []).map(d => [d.date, d.count]));
+        const counts = new Map((stats.value?.perDay ?? []).map(d => [d.date, d.count]));
         const taipei = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' });
         const points: ColumnPoint[] = [];
         for (let i = 13; i >= 0; i--) {
@@ -348,10 +349,10 @@
                 v-if="!triage"
                 type="button"
                 class="dd-admin__btn"
-                :disabled="loading || !(stats?.by_status.pending ?? 0)"
+                :disabled="loading || !(stats?.byStatus.pending ?? 0)"
                 @click="triage = true"
             >
-                快速審核{{ stats?.by_status.pending ? `（${formatInt(stats.by_status.pending)} 則待審）` : '' }}
+                快速審核{{ stats?.byStatus.pending ? `（${formatInt(stats.byStatus.pending)} 則待審）` : '' }}
             </button>
         </div>
         <!-- #region [P] 批次：勾了才出現 -->
@@ -451,15 +452,15 @@
                                     <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
                                 </td>
                                 <td>#{{ report.id }}</td>
-                                <td>{{ report.device_name || `#${report.device_id}` }}</td>
+                                <td>{{ report.deviceName || `#${report.deviceId}` }}</td>
                                 <td>{{ KIND_LABELS[report.kind] ?? report.kind }}</td>
                                 <td>
                                     <span class="dd-status" :class="report.status === 'pending' ? 'is-pending' : report.status === 'rejected' ? 'is-frozen' : 'is-active'">
                                         {{ STATUS_LABELS[report.status] }}
                                     </span>
                                 </td>
-                                <td class="summary">{{ report.content_purged_at ? '（內容已清除）' : report.description }}</td>
-                                <td>{{ formatRelative(report.created_at) }}</td>
+                                <td class="summary">{{ report.contentPurgedAt ? '（內容已清除）' : report.description }}</td>
+                                <td>{{ formatRelative(report.createdAt) }}</td>
                             </tr>
                         </template>
                         <!-- 不摺疊：照後端的順序一則一列 -->
@@ -475,15 +476,15 @@
                                 <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
                             </td>
                             <td>#{{ report.id }}</td>
-                            <td>{{ report.device_name || `#${report.device_id}` }}</td>
+                            <td>{{ report.deviceName || `#${report.deviceId}` }}</td>
                             <td>{{ KIND_LABELS[report.kind] ?? report.kind }}</td>
                             <td>
                                 <span class="dd-status" :class="report.status === 'pending' ? 'is-pending' : report.status === 'rejected' ? 'is-frozen' : 'is-active'">
                                     {{ STATUS_LABELS[report.status] }}
                                 </span>
                             </td>
-                            <td class="summary">{{ report.content_purged_at ? '（內容已清除）' : report.description }}</td>
-                            <td>{{ formatRelative(report.created_at) }}</td>
+                            <td class="summary">{{ report.contentPurgedAt ? '（內容已清除）' : report.description }}</td>
+                            <td>{{ formatRelative(report.createdAt) }}</td>
                         </tr>
                         <tr v-if="!loading && reports.length === 0">
                             <td colspan="7" class="dd-table__empty">沒有符合的回報</td>
@@ -508,17 +509,17 @@
                 <p v-if="!detail" class="dd-detail__muted">載入中…</p>
                 <template v-else>
                     <dl class="dd-detail__info">
-                        <div><dt>裝置</dt><dd>{{ detail.device_name || '未命名' }}（#{{ detail.device_id }}）</dd></div>
+                        <div><dt>裝置</dt><dd>{{ detail.deviceName || '未命名' }}（#{{ detail.deviceId }}）</dd></div>
                         <div><dt>類型</dt><dd>{{ KIND_LABELS[detail.kind] ?? detail.kind }}</dd></div>
-                        <div><dt>App 版本</dt><dd>{{ detail.app_version || '—' }}</dd></div>
-                        <div><dt>手機</dt><dd>{{ detail.device_model || '—' }}（Android {{ detail.android_version || '?' }}）</dd></div>
-                        <div><dt>送出</dt><dd>{{ formatDateTime(detail.created_at) }}</dd></div>
-                        <div><dt>審核</dt><dd>{{ detail.reviewed_by ? `${detail.reviewed_by}（${formatDateTime(detail.reviewed_at)}）` : '還沒審' }}</dd></div>
+                        <div><dt>App 版本</dt><dd>{{ detail.appVersion || '—' }}</dd></div>
+                        <div><dt>手機</dt><dd>{{ detail.deviceModel || '—' }}（Android {{ detail.androidVersion || '?' }}）</dd></div>
+                        <div><dt>送出</dt><dd>{{ formatDateTime(detail.createdAt) }}</dd></div>
+                        <div><dt>審核</dt><dd>{{ detail.reviewedBy ? `${detail.reviewedBy}（${formatDateTime(detail.reviewedAt)}）` : '還沒審' }}</dd></div>
                     </dl>
 
                     <section class="dd-detail__card">
                         <h3>內容</h3>
-                        <p v-if="detail.content_purged_at" class="dd-detail__muted">內容已於 {{ formatDateTime(detail.content_purged_at) }} 清除，只留下計數。</p>
+                        <p v-if="detail.contentPurgedAt" class="dd-detail__muted">內容已於 {{ formatDateTime(detail.contentPurgedAt) }} 清除，只留下計數。</p>
                         <p v-else class="dd-feedback__desc">{{ detail.description }}</p>
 
                         <div v-if="shots.length" class="dd-feedback__shots">
@@ -557,18 +558,18 @@
                             同一台一直送垃圾回報的話，這裡一次處理：只動還在「待審」的，已經採計的不會翻掉，一次最多 200 則。
                             凍結是另一件事、分開按。
                         </p>
-                        <div v-if="confirmingDevice === detail.device_id" class="dd-detail__actions">
+                        <div v-if="confirmingDevice === detail.deviceId" class="dd-detail__actions">
                             <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="busy" @click="rejectDetailDevice">
-                                確定：{{ detail.device_name || `#${detail.device_id}` }} 的待審全部不採計
+                                確定：{{ detail.deviceName || `#${detail.deviceId}` }} 的待審全部不採計
                             </button>
                             <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirmingDevice = null">取消</button>
                         </div>
                         <div v-else-if="confirming === 'freeze'" class="dd-detail__actions">
-                            <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="busy" @click="freezeDetailDevice">確定凍結 #{{ detail.device_id }}</button>
+                            <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="busy" @click="freezeDetailDevice">確定凍結 #{{ detail.deviceId }}</button>
                             <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = null">取消</button>
                         </div>
                         <div v-else class="dd-detail__actions">
-                            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirmingDevice = detail.device_id">這台的待審全部不採計…</button>
+                            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirmingDevice = detail.deviceId">這台的待審全部不採計…</button>
                             <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = 'freeze'">凍結這台裝置…</button>
                         </div>
                     </section>
@@ -581,7 +582,7 @@
                             沒合併的採計回報算 1 分。
                         </p>
 
-                        <template v-if="detail.issue_id">
+                        <template v-if="detail.issueId">
                             <p>已經合併到：<strong>{{ detailIssueTitle }}</strong></p>
                             <div class="dd-detail__actions">
                                 <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="detachIssue">拆開（不算同一件）</button>
@@ -626,7 +627,7 @@
                                     @change="saveWeight(issue, Number(($event.target as HTMLInputElement).value))"
                                 />
                             </td>
-                            <td>{{ formatDateTime(issue.created_at) }}</td>
+                            <td>{{ formatDateTime(issue.createdAt) }}</td>
                         </tr>
                         <tr v-if="!issues.length">
                             <td colspan="5" class="dd-table__empty">還沒有合併過的問題</td>

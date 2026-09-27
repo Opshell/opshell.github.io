@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { Dist, UsageReport } from '../api';
+    import type { Dist, UsageReport } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
     import { FEATURE_LABELS, FEATURE_ORDER, formatDateTime, formatInt, formatMs, formatPercent, formatUsd } from '../format';
@@ -34,11 +34,11 @@
         const sum = (pick: (f: UsageReport['features'][number]) => number) => features.value.reduce((acc, f) => acc + pick(f), 0);
         return [
             { label: 'AI 請求', value: formatInt(sum(f => f.requests)), hint: `成功 ${formatInt(sum(f => f.ok))}` },
-            { label: '活躍裝置', value: formatInt(r.devices.active_devices), hint: '期間內至少用過一次 AI' },
-            { label: 'Gemini 成本', value: formatUsd(sum(f => f.total_cost_usd)), hint: '依後端價目表估算' },
-            { label: 'Beta 免扣點', value: formatInt(sum(f => f.quota_waived)), hint: '原本會扣的請求數' },
-            { label: '撞到付費牆', value: formatInt(r.devices.devices_hit_quota), hint: '台裝置' },
-            { label: '撞到每日上限', value: formatInt(r.devices.devices_hit_daily_limit), hint: '台裝置' }
+            { label: '活躍裝置', value: formatInt(r.devices.activeDevices), hint: '期間內至少用過一次 AI' },
+            { label: 'Gemini 成本', value: formatUsd(sum(f => f.totalCostUsd)), hint: '依後端價目表估算' },
+            { label: 'Beta 免扣點', value: formatInt(sum(f => f.quotaWaived)), hint: '原本會扣的請求數' },
+            { label: '撞到付費牆', value: formatInt(r.devices.devicesHitQuota), hint: '台裝置' },
+            { label: '撞到每日上限', value: formatInt(r.devices.devicesHitDailyLimit), hint: '台裝置' }
         ];
     });
 
@@ -46,9 +46,9 @@
         const d = report.value?.devices;
         if (!d) return [];
         return [
-            { label: '每台請求數', dist: d.requests_per_device, fmt: formatInt },
-            { label: '每台額度點數', dist: d.quota_charged_per_device, fmt: formatInt },
-            { label: '每台成本', dist: d.cost_usd_per_device, fmt: formatUsd }
+            { label: '每台請求數', dist: d.requestsPerDevice, fmt: formatInt },
+            { label: '每台額度點數', dist: d.quotaChargedPerDevice, fmt: formatInt },
+            { label: '每台成本', dist: d.costUsdPerDevice, fmt: formatUsd }
         ] satisfies { label: string; dist: Dist; fmt: (v: number) => string }[];
     });
 
@@ -110,14 +110,14 @@
                             <td class="num">{{ formatInt(f.ok) }}</td>
                             <td class="num">{{ formatInt(f.rejected) }}</td>
                             <td class="num">{{ formatInt(f.failed) }}</td>
-                            <td class="num">{{ formatInt(f.quota_exceeded) }}</td>
-                            <td class="num">{{ formatInt(f.daily_limited) }}</td>
-                            <td class="num">{{ formatInt(f.unique_devices) }}</td>
-                            <td class="num">{{ formatPercent(f.hedge_rate) }}</td>
-                            <td class="num">{{ formatMs(f.latency_ms.p50) }}／{{ formatMs(f.latency_ms.p95) }}</td>
-                            <td class="num">{{ formatUsd(f.cost_usd_per_request.p95) }}</td>
-                            <td class="num key">{{ formatUsd(f.cost_usd_per_quota_point) }}</td>
-                            <td class="num">{{ formatUsd(f.total_cost_usd) }}</td>
+                            <td class="num">{{ formatInt(f.quotaExceeded) }}</td>
+                            <td class="num">{{ formatInt(f.dailyLimited) }}</td>
+                            <td class="num">{{ formatInt(f.uniqueDevices) }}</td>
+                            <td class="num">{{ formatPercent(f.hedgeRate) }}</td>
+                            <td class="num">{{ formatMs(f.latencyMs.p50) }}／{{ formatMs(f.latencyMs.p95) }}</td>
+                            <td class="num">{{ formatUsd(f.costUsdPerRequest.p95) }}</td>
+                            <td class="num key">{{ formatUsd(f.costUsdPerQuotaPoint) }}</td>
+                            <td class="num">{{ formatUsd(f.totalCostUsd) }}</td>
                         </tr>
                         <tr v-if="!features.length">
                             <td colspan="13" class="dd-table__empty">這段期間沒有 AI 請求</td>
@@ -172,15 +172,15 @@
                         <tr v-for="m in report.models" :key="m.model">
                             <th scope="row">
                                 {{ m.model }}
-                                <span v-if="!m.price_known" class="dd-usage__warn">⚠ 價目表沒有這個模型，成本算成 0</span>
+                                <span v-if="!m.priceKnown" class="dd-usage__warn">⚠ 價目表沒有這個模型，成本算成 0</span>
                             </th>
                             <td class="num">{{ formatInt(m.calls) }}</td>
                             <td class="num">{{ formatInt(m.ok) }}</td>
                             <td class="num">{{ formatInt(m.errors) }}</td>
                             <td class="num">{{ formatInt(m.canceled) }}</td>
-                            <td class="num">{{ formatInt(m.prompt_tokens) }}</td>
-                            <td class="num">{{ formatInt(m.output_tokens + m.thoughts_tokens) }}</td>
-                            <td class="num">{{ formatUsd(m.cost_usd) }}</td>
+                            <td class="num">{{ formatInt(m.promptTokens) }}</td>
+                            <td class="num">{{ formatInt(m.outputTokens + m.thoughtsTokens) }}</td>
+                            <td class="num">{{ formatUsd(m.costUsd) }}</td>
                         </tr>
                         <tr v-if="!report.models.length">
                             <td colspan="8" class="dd-table__empty">這段期間沒有呼叫 Gemini</td>

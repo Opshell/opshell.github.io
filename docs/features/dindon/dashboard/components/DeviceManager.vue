@@ -1,5 +1,6 @@
 <script setup lang="ts">
-    import type { AdminDevice, DeviceStatus } from '../api';
+    import type { DeviceStatus } from '../api';
+    import type { AdminDevice } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
     import { formatInt, formatRelative, maskEmail, PLAN_LABELS } from '../format';
@@ -107,18 +108,18 @@
                             @keydown.enter="selectedId = device.id"
                         >
                             <td>#{{ device.id }}</td>
-                            <td class="summary">{{ device.display_name || '—' }}</td>
+                            <td class="summary">{{ device.displayName || '—' }}</td>
                             <td>
                                 <span class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
                                     {{ device.frozen ? '❄ 已凍結' : '● 啟用' }}
                                 </span>
                             </td>
-                            <td>{{ PLAN_LABELS[device.plan_tier] ?? device.plan_tier }}</td>
+                            <td>{{ PLAN_LABELS[device.planTier] ?? device.planTier }}</td>
                             <td class="num">{{ formatInt(device.tokens) }}</td>
-                            <td>{{ device.beta_tester_since ?? '—' }}</td>
+                            <td>{{ device.betaTesterSince ?? '—' }}</td>
                             <td>{{ device.linked ? maskEmail(device.email) || '已綁定' : '—' }}</td>
-                            <td class="num">{{ formatInt(device.ai_calls_30d) }}</td>
-                            <td>{{ formatRelative(device.last_ai_at) }}</td>
+                            <td class="num">{{ formatInt(device.aiCalls30d) }}</td>
+                            <td>{{ formatRelative(device.lastAiAt) }}</td>
                         </tr>
                         <tr v-if="!loading && devices.length === 0">
                             <td colspan="9" class="dd-table__empty">沒有符合的裝置</td>

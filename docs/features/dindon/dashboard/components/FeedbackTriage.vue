@@ -1,5 +1,6 @@
 <script setup lang="ts">
-    import type { FeedbackIssue, FeedbackKind, FeedbackReport, FeedbackStatus } from '../api';
+    import type { FeedbackKind } from '../api';
+    import type { FeedbackIssue, FeedbackReport, FeedbackStatus } from '../schemas/admin.schema';
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { adminApi, AdminApiError } from '../api';
     import { formatDateTime, KIND_LABELS } from '../format';
@@ -105,7 +106,7 @@
         if (!report || log.value || logLoading.value) return;
         logLoading.value = true;
         try {
-            log.value = (await call(token => adminApi.getFeedback(token, report.id))).report.log || '（這一則沒有附除錯紀錄）';
+            log.value = (await call(token => adminApi.getFeedback(token, report.id))).log || '（這一則沒有附除錯紀錄）';
         } catch (e) {
             error.value = errorMessage(e);
         } finally {
@@ -173,8 +174,8 @@
             lastAction.value = null;
             done.value = Math.max(done.value - 1, 0);
             if (last.from === 'pending') {
-                queue.value.splice(index.value, 0, result.report);
-                await show(result.report);
+                queue.value.splice(index.value, 0, result);
+                await show(result);
             }
         } catch (e) {
             error.value = errorMessage(e);
@@ -189,7 +190,7 @@
      */
     function onMerged(issueId: number) {
         const report = current.value;
-        if (report) queue.value[index.value] = { ...report, issue_id: issueId };
+        if (report) queue.value[index.value] = { ...report, issueId };
         emit('issues-changed');
     }
     // #endregion
@@ -267,14 +268,14 @@
                 <span class="dd-status is-pending">待審</span>
                 <strong>#{{ current.id }}</strong>
                 <span>{{ KIND_LABELS[current.kind] ?? current.kind }}</span>
-                <span>{{ current.device_name || `裝置 #${current.device_id}` }}</span>
-                <span class="dd-triage__muted">{{ current.app_version || '?' }} · {{ current.device_model || '?' }} · Android {{ current.android_version || '?' }}</span>
-                <span class="dd-triage__muted">{{ formatDateTime(current.created_at) }}</span>
+                <span>{{ current.deviceName || `裝置 #${current.deviceId}` }}</span>
+                <span class="dd-triage__muted">{{ current.appVersion || '?' }} · {{ current.deviceModel || '?' }} · Android {{ current.androidVersion || '?' }}</span>
+                <span class="dd-triage__muted">{{ formatDateTime(current.createdAt) }}</span>
             </header>
 
             <div class="dd-triage__body">
                 <div class="dd-triage__text">
-                    <p v-if="current.content_purged_at" class="dd-triage__muted">內容已清除，只留下計數。</p>
+                    <p v-if="current.contentPurgedAt" class="dd-triage__muted">內容已清除，只留下計數。</p>
                     <p v-else class="dd-feedback__desc">{{ current.description }}</p>
 
                     <details @toggle="loadLog">
@@ -316,8 +317,8 @@
                 </div>
 
                 <div class="dd-triage__merge">
-                    <p v-if="current.issue_id" class="dd-triage__muted">
-                        已經合併到「{{ issues.find(i => i.id === current!.issue_id)?.title ?? `#${current.issue_id}` }}」
+                    <p v-if="current.issueId" class="dd-triage__muted">
+                        已經合併到「{{ issues.find(i => i.id === current!.issueId)?.title ?? `#${current.issueId}` }}」
                     </p>
                     <MergePicker v-else :key="current.id" :report="current" :issues="issues" @merged="onMerged" />
                 </div>

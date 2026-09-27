@@ -1,7 +1,7 @@
 <script setup lang="ts">
-    import type { AdminDevice, UsageReport } from '../api';
     import type { BarRow, BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
+    import type { AdminDevice, UsageReport } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
     import BarChart from '../charts/BarChart.vue';
@@ -64,10 +64,10 @@
         const since = now - days.value * DAY_MS;
         const features = report.value?.features ?? [];
         return [
-            { label: '裝置總數', value: formatInt(deviceTotal.value), hint: `期間新增 ${formatInt(list.filter(d => new Date(d.created_at).getTime() >= since).length)} 台` },
-            { label: '近 7 天用過 AI', value: formatInt(list.filter(d => d.last_ai_at && now - new Date(d.last_ai_at).getTime() <= 7 * DAY_MS).length), hint: '台裝置' },
+            { label: '裝置總數', value: formatInt(deviceTotal.value), hint: `期間新增 ${formatInt(list.filter(d => new Date(d.createdAt).getTime() >= since).length)} 台` },
+            { label: '近 7 天用過 AI', value: formatInt(list.filter(d => d.lastAiAt && now - new Date(d.lastAiAt).getTime() <= 7 * DAY_MS).length), hint: '台裝置' },
             { label: 'AI 請求', value: formatInt(features.reduce((sum, f) => sum + f.requests, 0)), hint: `近 ${days.value} 天` },
-            { label: 'Gemini 成本', value: formatUsd(features.reduce((sum, f) => sum + f.total_cost_usd, 0)), hint: `近 ${days.value} 天，依價目表估算` },
+            { label: 'Gemini 成本', value: formatUsd(features.reduce((sum, f) => sum + f.totalCostUsd, 0)), hint: `近 ${days.value} 天，依價目表估算` },
             { label: '綁定 Google', value: formatInt(list.filter(d => d.linked).length), hint: '台裝置' },
             { label: '已凍結', value: formatInt(list.filter(d => d.frozen).length), hint: '台裝置' }
         ];
@@ -94,7 +94,7 @@
     const newDevicePoints = computed<ColumnPoint[]>(() => {
         const counts = new Map<string, number>();
         for (const d of devices.value) {
-            const key = dayKey(new Date(d.created_at));
+            const key = dayKey(new Date(d.createdAt));
             counts.set(key, (counts.get(key) ?? 0) + 1);
         }
         return eachDay(key => ({ count: counts.get(key) ?? 0 }));
@@ -120,12 +120,12 @@
         const now = Date.now();
         const buckets = { today: 0, week: 0, month: 0, older: 0, never: 0 };
         for (const d of devices.value) {
-            if (!d.last_ai_at) {
+            if (!d.lastAiAt) {
                 buckets.never++;
-            } else if (dayKey(new Date(d.last_ai_at)) === today) {
+            } else if (dayKey(new Date(d.lastAiAt)) === today) {
                 buckets.today++;
             } else {
-                const age = now - new Date(d.last_ai_at).getTime();
+                const age = now - new Date(d.lastAiAt).getTime();
                 if (age <= 7 * DAY_MS) buckets.week++;
                 else if (age <= 30 * DAY_MS) buckets.month++;
                 else buckets.older++;
@@ -153,11 +153,11 @@
         .sort((a, b) => FEATURE_ORDER.indexOf(a.feature) - FEATURE_ORDER.indexOf(b.feature)));
     const outcomeRows = computed<BarRow[]>(() => sortedFeatures.value.map(f => ({
         label: FEATURE_LABELS[f.feature] ?? f.feature,
-        values: { ok: f.ok, rejected: f.rejected, failed: f.failed + f.quota_exceeded + f.daily_limited }
+        values: { ok: f.ok, rejected: f.rejected, failed: f.failed + f.quotaExceeded + f.dailyLimited }
     })));
     const costRows = computed<BarRow[]>(() => sortedFeatures.value.map(f => ({
         label: FEATURE_LABELS[f.feature] ?? f.feature,
-        values: { cost: f.total_cost_usd }
+        values: { cost: f.totalCostUsd }
     })));
     const costSeries: BarSeries[] = [{ key: 'cost', label: 'Gemini 成本', color: 'var(--dd-series-1)' }];
     // #endregion
@@ -214,8 +214,8 @@
                                     <td class="num">{{ formatInt(day.ok) }}</td>
                                     <td class="num">{{ formatInt(day.rejected) }}</td>
                                     <td class="num">{{ formatInt(day.failed) }}</td>
-                                    <td class="num">{{ formatInt(day.unique_devices) }}</td>
-                                    <td class="num">{{ formatUsd(day.cost_usd) }}</td>
+                                    <td class="num">{{ formatInt(day.uniqueDevices) }}</td>
+                                    <td class="num">{{ formatUsd(day.costUsd) }}</td>
                                 </tr>
                                 <tr v-if="!(report.daily ?? []).length">
                                     <td colspan="6" class="dd-table__empty">這段期間沒有 AI 請求</td>

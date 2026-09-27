@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { DeviceUsage, UsageFlag } from '../api';
+    import type { DeviceUsage, UsageFlag } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
     import { FEATURE_LABELS, formatInt, formatRelative, formatUsd } from '../format';
@@ -33,11 +33,11 @@
 
     const flagged = computed(() => rows.value.filter(r => r.flags?.length));
     const shown = computed(() => (onlyFlagged.value ? flagged.value : rows.value));
-    const totalCost = computed(() => rows.value.reduce((sum, r) => sum + r.cost_usd, 0));
+    const totalCost = computed(() => rows.value.reduce((sum, r) => sum + r.costUsd, 0));
 
     const rejectedRatio = (r: DeviceUsage) => (r.requests ? r.rejected / r.requests : 0);
     const featureText = (r: DeviceUsage) =>
-        Object.entries(r.by_feature ?? {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${FEATURE_LABELS[k] ?? k} ${formatInt(v)}`).join('、');
+        Object.entries(r.byFeature ?? {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${FEATURE_LABELS[k] ?? k} ${formatInt(v)}`).join('、');
 
     async function load() {
         loading.value = true;
@@ -58,12 +58,12 @@
         error.value = '';
         notice.value = '';
         try {
-            const result = await call(token => adminApi.updateDevice(token, row.device_id, { frozen }));
-            row.frozen = result.device.frozen;
-            row.frozen_at = result.device.frozen_at;
+            const result = await call(token => adminApi.updateDevice(token, row.deviceId, { frozen }));
+            row.frozen = result.frozen;
+            row.frozenAt = result.frozenAt;
             notice.value = frozen
-                ? `已停用 #${row.device_id}（${row.name}）。他的 App 現在不能用 AI，隨時可以解凍`
-                : `已解凍 #${row.device_id}（${row.name}）`;
+                ? `已停用 #${row.deviceId}（${row.name}）。他的 App 現在不能用 AI，隨時可以解凍`
+                : `已解凍 #${row.deviceId}（${row.name}）`;
         } catch (e) {
             error.value = errorMessage(e);
         } finally {
@@ -127,23 +127,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="row in shown" :key="row.device_id" :class="{ 'is-flagged': row.flags?.length }">
+                    <tr v-for="row in shown" :key="row.deviceId" :class="{ 'is-flagged': row.flags?.length }">
                         <td>
                             <strong>{{ row.name }}</strong>
-                            <span class="dd-watch__muted"> #{{ row.device_id }}</span>
+                            <span class="dd-watch__muted"> #{{ row.deviceId }}</span>
                             <span v-if="row.frozen" class="dd-status is-frozen">❄ 已停用</span>
                             <p class="dd-watch__sub">
-                                註冊 {{ formatRelative(row.device_created_at) }} · {{ row.active_days }} 天有用 · {{ featureText(row) }}
+                                註冊 {{ formatRelative(row.deviceCreatedAt) }} · {{ row.activeDays }} 天有用 · {{ featureText(row) }}
                             </p>
                         </td>
                         <td class="num">{{ formatInt(row.requests) }}</td>
                         <td class="num">{{ formatInt(row.today) }}</td>
-                        <td>{{ row.peak_hour ? `${formatInt(row.peak_hour)} 次 · ${row.peak_hour_at?.slice(5) ?? ''}` : '—' }}</td>
+                        <td>{{ row.peakHour ? `${formatInt(row.peakHour)} 次 · ${row.peakHourAt?.slice(5) ?? ''}` : '—' }}</td>
                         <td class="num">
                             {{ formatInt(row.rejected) }}
                             <span v-if="row.rejected" class="dd-watch__muted">（{{ Math.round(rejectedRatio(row) * 100) }}%）</span>
                         </td>
-                        <td class="num">{{ formatUsd(row.cost_usd) }}</td>
+                        <td class="num">{{ formatUsd(row.costUsd) }}</td>
                         <td>
                             <!-- v-for 產生的標籤之間沒有空白，不會自己換行；用 flex-wrap 讓它們在欄內排成兩行 -->
                             <div class="dd-watch__flags">
@@ -159,16 +159,16 @@
                             </div>
                         </td>
                         <td class="dd-watch__action">
-                            <template v-if="confirming === row.device_id">
+                            <template v-if="confirming === row.deviceId">
                                 <p class="dd-watch__confirm">
-                                    {{ row.frozen ? `解凍 #${row.device_id}？` : `停用 #${row.device_id}？他的 App 會整個不能用 AI。` }}
+                                    {{ row.frozen ? `解凍 #${row.deviceId}？` : `停用 #${row.deviceId}？他的 App 會整個不能用 AI。` }}
                                 </p>
                                 <button type="button" class="dd-admin__btn" :class="{ 'dd-admin__btn--danger': !row.frozen }" :disabled="busy" @click="setFrozen(row, !row.frozen)">
                                     確定{{ row.frozen ? '解凍' : '停用' }}
                                 </button>
                                 <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = null">取消</button>
                             </template>
-                            <button v-else type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = row.device_id">
+                            <button v-else type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = row.deviceId">
                                 {{ row.frozen ? '解凍…' : '停用…' }}
                             </button>
                         </td>

@@ -1,3 +1,4 @@
+import { ApiSchemaError } from '@shared/utils/zod';
 import { useGoogleAuth } from '../useGoogleAuth';
 import { AdminApiError } from './api';
 
@@ -20,4 +21,8 @@ export function useAdminCall() {
     };
 }
 
-export const errorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
+export function errorMessage(error: unknown): string {
+    // 後端回的格式跟 schemas/admin.schema.ts 對不上：畫面顯示哪支 API、哪個欄位，完整明細印在 console
+    if (error instanceof ApiSchemaError) console.error(error.zodError);
+    return error instanceof Error ? error.message : String(error);
+}

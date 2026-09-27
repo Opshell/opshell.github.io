@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { FeedbackIssue, FeedbackReport } from '../api';
+    import type { FeedbackIssue, FeedbackReport } from '../schemas/admin.schema';
     import { computed, onMounted, ref, watch } from 'vue';
     import { adminApi, AdminApiError } from '../api';
     import { KIND_LABELS } from '../format';
@@ -32,15 +32,15 @@
         return match ? others.value.find(r => r.id === Number(match[1])) ?? null : null;
     });
     /** 選了一則還沒合併過的回報，就會開新問題，要有標題 */
-    const needsTitle = computed(() => !!pickedReport.value && !pickedReport.value.issue_id);
+    const needsTitle = computed(() => !!pickedReport.value && !pickedReport.value.issueId);
 
     const short = (text: string, length = 28) => (text.length > length ? `${text.slice(0, length)}…` : text);
     const issueTitle = (id: number | null | undefined) => issues.find(i => i.id === id)?.title ?? `#${id}`;
 
     // 開新問題時的預設標題：用比較早的那一則的描述，通常寫得比較完整
     watch(pickedReport, (target) => {
-        if (!target || target.issue_id) return;
-        const earlier = new Date(target.created_at) < new Date(report.created_at) ? target : report;
+        if (!target || target.issueId) return;
+        const earlier = new Date(target.createdAt) < new Date(report.createdAt) ? target : report;
         title.value = short(earlier.description.replace(/\s+/g, ' ').trim(), 24);
     });
 
@@ -53,15 +53,15 @@
             if (pick.value.startsWith('issue:')) {
                 issueId = Number(pick.value.slice(6));
                 await call(token => adminApi.addReportsToIssue(token, issueId, [report.id]));
-            } else if (pickedReport.value?.issue_id) {
-                issueId = pickedReport.value.issue_id;
+            } else if (pickedReport.value?.issueId) {
+                issueId = pickedReport.value.issueId;
                 await call(token => adminApi.addReportsToIssue(token, issueId, [report.id]));
             } else if (pickedReport.value) {
                 if (!title.value.trim()) throw new Error('幫這件事取個名字');
                 const created = await call(token => adminApi.createIssue(token, {
                     title: title.value.trim(),
                     weight: 1,
-                    report_ids: [pickedReport.value!.id, report.id]
+                    reportIds: [pickedReport.value!.id, report.id]
                 }));
                 issueId = created.id;
             } else {
@@ -95,7 +95,7 @@
                 </optgroup>
                 <optgroup v-if="others.length" label="其他回報">
                     <option v-for="r in others" :key="`r${r.id}`" :value="`report:${r.id}`">
-                        #{{ r.id }} {{ KIND_LABELS[r.kind] ?? r.kind }}・{{ short(r.description) }}{{ r.issue_id ? `（已在「${issueTitle(r.issue_id)}」）` : '' }}
+                        #{{ r.id }} {{ KIND_LABELS[r.kind] ?? r.kind }}・{{ short(r.description) }}{{ r.issueId ? `（已在「${issueTitle(r.issueId)}」）` : '' }}
                     </option>
                 </optgroup>
             </select>

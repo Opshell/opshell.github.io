@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { AdminDevice, AuditEntry, DevicePatch, Perk, PlanTier } from '../api';
+    import type { AdminDevice, AuditEntry, Perk, PlanTier, UpdateDeviceInput } from '../schemas/admin.schema';
     import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
     import { adminApi, MAX_TOKENS } from '../api';
     import {
@@ -24,7 +24,7 @@
     const audit = ref<AuditEntry[]>([]);
     // beta 貢獻活動的東西（api.md 第 8 節「裝置頁多的東西」）
     const perks = ref<Perk[]>([]);
-    const realPlan = ref<{ plan_tier: string; plan_source: string } | null>(null);
+    const realPlan = ref<{ planTier: PlanTier; planSource: 'subscription' | 'perk' | 'free' } | null>(null);
     const referrals = ref<{ pending: number; qualified: number } | null>(null);
     const referralCode = ref('');
 
@@ -70,22 +70,22 @@
         if (!device.value) return;
         tokensMode.value = 'keep';
         tokensValue.value = 0;
-        plan.value = device.value.plan_tier;
-        hasBeta.value = device.value.beta_tester_since !== null;
-        betaDate.value = device.value.beta_tester_since ?? todayInTaipei();
+        plan.value = device.value.planTier;
+        hasBeta.value = device.value.betaTesterSince !== null;
+        betaDate.value = device.value.betaTesterSince ?? todayInTaipei();
         confirming.value = null;
     }
 
     /** 只送真的有變的欄位；後端也會忽略沒變的，但畫面上的確認摘要要準 */
-    const patch = computed<DevicePatch>(() => {
+    const patch = computed<UpdateDeviceInput>(() => {
         const current = device.value;
         if (!current) return {};
-        const result: DevicePatch = {};
+        const result: UpdateDeviceInput = {};
         if (tokensMode.value === 'set' && tokensValue.value !== current.tokens) result.tokens = tokensValue.value;
-        if (tokensMode.value === 'delta' && tokensValue.value !== 0) result.tokens_delta = tokensValue.value;
-        if (plan.value !== current.plan_tier) result.plan_tier = plan.value;
+        if (tokensMode.value === 'delta' && tokensValue.value !== 0) result.tokensDelta = tokensValue.value;
+        if (plan.value !== current.planTier) result.planTier = plan.value;
         const nextBeta = hasBeta.value ? betaDate.value : null;
-        if (nextBeta !== current.beta_tester_since) result.beta_tester_since = nextBeta;
+        if (nextBeta !== current.betaTesterSince) result.betaTesterSince = nextBeta;
         return result;
     });
 
@@ -106,9 +106,9 @@
         if (!current) return [];
         const lines: string[] = [];
         if (p.tokens !== undefined) lines.push(`額度 ${current.tokens} → ${p.tokens}`);
-        if (p.tokens_delta !== undefined) lines.push(`額度 ${current.tokens} → ${current.tokens + p.tokens_delta}（${p.tokens_delta > 0 ? '+' : ''}${p.tokens_delta}）`);
-        if (p.plan_tier !== undefined) lines.push(`方案 ${PLAN_LABELS[current.plan_tier]} → ${PLAN_LABELS[p.plan_tier]}`);
-        if (p.beta_tester_since !== undefined) lines.push(p.beta_tester_since === null ? 'beta 資格 取消' : `beta 資格 ${current.beta_tester_since ?? '無'} → ${p.beta_tester_since}`);
+        if (p.tokensDelta !== undefined) lines.push(`額度 ${current.tokens} → ${current.tokens + p.tokensDelta}（${p.tokensDelta > 0 ? '+' : ''}${p.tokensDelta}）`);
+        if (p.planTier !== undefined) lines.push(`方案 ${PLAN_LABELS[current.planTier]} → ${PLAN_LABELS[p.planTier]}`);
+        if (p.betaTesterSince !== undefined) lines.push(p.betaTesterSince === null ? 'beta 資格 取消' : `beta 資格 ${current.betaTesterSince ?? '無'} → ${p.betaTesterSince}`);
         return lines;
     });
     // #endregion
@@ -127,7 +127,7 @@
             perks.value = result.perks ?? [];
             realPlan.value = result.plan ?? null;
             referrals.value = result.referrals ?? null;
-            referralCode.value = result.referral_code ?? '';
+            referralCode.value = result.referralCode ?? '';
             resetForm();
             resetEventForm();
             loadAvatar(result.device);
@@ -139,13 +139,13 @@
     }
 
     /** 所有寫入共用：送出 → 重新載入（拿到新的操作紀錄）→ 通知列表更新那一列 */
-    async function mutate(action: (token: string) => Promise<{ device: AdminDevice }>, doneMessage: string) {
+    async function mutate(action: (token: string) => Promise<AdminDevice>, doneMessage: string) {
         busy.value = true;
         error.value = '';
         notice.value = '';
         try {
             const result = await call(action);
-            emit('updated', result.device);
+            emit('updated', result);
             await load();
             notice.value = doneMessage;
         } catch (e) {
@@ -166,7 +166,7 @@
         error.value = '';
         notice.value = '';
         try {
-            const { updated } = await call(token => adminApi.batchReviewFeedback(token, { device_id: deviceId, status: 'rejected' }));
+            const { updated } = await call(token => adminApi.batchReviewFeedback(token, { deviceId, status: 'rejected' }));
             await load(); // 操作紀錄多了幾筆
             notice.value = updated ? `已把 ${formatInt(updated)} 則待審改成「不採計」` : '這台沒有待審的回報';
         } catch (e) {
@@ -193,24 +193,24 @@
 
     function resetEventForm() {
         if (!device.value) return;
-        bonusBugs.value = device.value.bonus_bugs ?? 0;
-        bonusSuggestions.value = device.value.bonus_suggestions ?? 0;
-        ironDate.value = device.value.iron_achieved_on ?? '';
+        bonusBugs.value = device.value.bonusBugs ?? 0;
+        bonusSuggestions.value = device.value.bonusSuggestions ?? 0;
+        ironDate.value = device.value.ironAchievedOn ?? '';
     }
 
     const bonusChanged = computed(() =>
-        !!device.value && (bonusBugs.value !== (device.value.bonus_bugs ?? 0) || bonusSuggestions.value !== (device.value.bonus_suggestions ?? 0)));
+        !!device.value && (bonusBugs.value !== (device.value.bonusBugs ?? 0) || bonusSuggestions.value !== (device.value.bonusSuggestions ?? 0)));
     const bonusError = computed(() => {
         const bad = (n: number) => !Number.isInteger(n) || n < 0 || n > 1000;
         return bad(bonusBugs.value) || bad(bonusSuggestions.value) ? '手動加的件數要是 0～1000 的整數' : '';
     });
 
     const saveBonus = () => mutate(
-        token => adminApi.updateDevice(token, deviceId, { bonus_bugs: bonusBugs.value, bonus_suggestions: bonusSuggestions.value }),
+        token => adminApi.updateDevice(token, deviceId, { bonusBugs: bonusBugs.value, bonusSuggestions: bonusSuggestions.value }),
         '已更新手動加的件數，分數與名次會跟著變'
     );
     const saveIron = () => mutate(
-        token => adminApi.updateDevice(token, deviceId, { iron_achieved_on: ironDate.value || null }),
+        token => adminApi.updateDevice(token, deviceId, { ironAchievedOn: ironDate.value || null }),
         ironDate.value ? `已把鐵人達成日設成 ${ironDate.value}` : '已取消鐵人'
     );
     const clearNickname = () => mutate(
@@ -286,15 +286,15 @@
 
         <template v-if="device">
             <dl class="dd-detail__info">
-                <div><dt>方案</dt><dd>{{ PLAN_LABELS[device.plan_tier] ?? device.plan_tier }}</dd></div>
+                <div><dt>方案</dt><dd>{{ PLAN_LABELS[device.planTier] ?? device.planTier }}</dd></div>
                 <div><dt>剩餘額度</dt><dd>{{ formatInt(device.tokens) }}</dd></div>
-                <div><dt>Beta 資格</dt><dd>{{ device.beta_tester_since ?? '無' }}</dd></div>
+                <div><dt>Beta 資格</dt><dd>{{ device.betaTesterSince ?? '無' }}</dd></div>
                 <div><dt>Google</dt><dd>{{ device.linked ? device.email ?? '已綁定' : '未綁定' }}</dd></div>
-                <div><dt>訂閱到期</dt><dd>{{ formatDateTime(device.subscription_expires_at) }}</dd></div>
-                <div><dt>近 30 天 AI</dt><dd>{{ formatInt(device.ai_calls_30d) }} 次</dd></div>
-                <div><dt>最近使用</dt><dd>{{ formatRelative(device.last_ai_at) }}</dd></div>
-                <div><dt>建立</dt><dd>{{ formatDateTime(device.created_at) }}</dd></div>
-                <div v-if="device.frozen"><dt>凍結於</dt><dd>{{ formatDateTime(device.frozen_at) }}</dd></div>
+                <div><dt>訂閱到期</dt><dd>{{ formatDateTime(device.subscriptionExpiresAt) }}</dd></div>
+                <div><dt>近 30 天 AI</dt><dd>{{ formatInt(device.aiCalls30d) }} 次</dd></div>
+                <div><dt>最近使用</dt><dd>{{ formatRelative(device.lastAiAt) }}</dd></div>
+                <div><dt>建立</dt><dd>{{ formatDateTime(device.createdAt) }}</dd></div>
+                <div v-if="device.frozen"><dt>凍結於</dt><dd>{{ formatDateTime(device.frozenAt) }}</dd></div>
             </dl>
 
             <!-- #region [P] 調整 -->
@@ -382,12 +382,12 @@
             <section class="dd-detail__card">
                 <h3>Beta 貢獻活動</h3>
                 <dl class="dd-detail__info">
-                    <div><dt>排行榜名字</dt><dd>{{ device.display_name || '—' }}</dd></div>
+                    <div><dt>排行榜名字</dt><dd>{{ device.displayName || '—' }}</dd></div>
                     <div><dt>採計件數</dt><dd>bug {{ formatInt(device.bugs ?? 0) }} · 建議 {{ formatInt(device.suggestions ?? 0) }}</dd></div>
-                    <div><dt>鐵人</dt><dd>{{ device.iron_achieved_on ?? '還沒達成' }}</dd></div>
+                    <div><dt>鐵人</dt><dd>{{ device.ironAchievedOn ?? '還沒達成' }}</dd></div>
                     <div v-if="realPlan">
                         <dt>現在實際方案</dt>
-                        <dd>{{ PLAN_LABELS[realPlan.plan_tier] ?? realPlan.plan_tier }}（{{ PLAN_SOURCE_LABELS[realPlan.plan_source] ?? realPlan.plan_source }}）</dd>
+                        <dd>{{ PLAN_LABELS[realPlan.planTier] ?? realPlan.planTier }}（{{ PLAN_SOURCE_LABELS[realPlan.planSource] ?? realPlan.planSource }}）</dd>
                     </div>
                     <div>
                         <dt>稱號</dt>
@@ -422,7 +422,7 @@
                 <fieldset class="dd-detail__field">
                     <legend>鐵人達成日</legend>
                     <input v-model="ironDate" type="date" aria-label="鐵人達成日" />
-                    <button type="button" class="dd-admin__btn" :disabled="busy || ironDate === (device.iron_achieved_on ?? '')" @click="saveIron">
+                    <button type="button" class="dd-admin__btn" :disabled="busy || ironDate === (device.ironAchievedOn ?? '')" @click="saveIron">
                         {{ ironDate ? '儲存' : '取消鐵人' }}
                     </button>
                 </fieldset>
@@ -456,11 +456,11 @@
                             </span>
                         </p>
                         <p class="dd-detail__muted">
-                            {{ PLAN_LABELS[perk.plan_tier] ?? perk.plan_tier }} ·
+                            {{ PLAN_LABELS[perk.planTier] ?? perk.planTier }} ·
                             {{ perkLength(perk.months, perk.days) }} ·
                             {{ PERK_SOURCE_LABELS[perk.source] ?? perk.source }}
                         </p>
-                        <p class="dd-detail__muted">{{ perk.starts_on ? `${perk.starts_on} → ${perk.ends_on ?? '?'}` : '等正式版上線日定下來' }}</p>
+                        <p class="dd-detail__muted">{{ perk.startsOn ? `${perk.startsOn} → ${perk.endsOn ?? '?'}` : '等正式版上線日定下來' }}</p>
                     </li>
                 </ul>
             </section>
@@ -505,7 +505,7 @@
                 <p v-if="!audit.length" class="dd-detail__muted">還沒有任何後台操作</p>
                 <ol v-else class="dd-detail__audit">
                     <li v-for="(entry, index) in audit" :key="index">
-                        <p class="meta">{{ formatDateTime(entry.created_at) }} · {{ ACTION_LABELS[entry.action] ?? entry.action }} · {{ entry.actor }}</p>
+                        <p class="meta">{{ formatDateTime(entry.createdAt) }} · {{ ACTION_LABELS[entry.action] ?? entry.action }} · {{ entry.actor }}</p>
                         <p v-for="line in auditChanges(entry)" :key="line">{{ line }}</p>
                     </li>
                 </ol>
