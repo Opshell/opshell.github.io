@@ -119,7 +119,7 @@
                     <li v-for="item in partialItems" :key="item.title">
                         <h3>{{ item.title }}</h3>
                         <p v-if="item.inApp" class="path"><span aria-hidden="true">📱</span>{{ item.inApp }}</p>
-                        <p v-else class="path is-mail"><span aria-hidden="true">✉️</span>寫信處理</p>
+                        <p v-else class="path path--mail"><span aria-hidden="true">✉️</span>寫信處理</p>
                         <p>{{ item.what }}</p>
                         <p class="keeps">{{ item.keeps }}</p>
                     </li>

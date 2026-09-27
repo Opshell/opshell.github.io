@@ -10,13 +10,13 @@
     -->
     <div class="dindon-join">
         <ol class="dindon-join__steps">
-            <li v-for="(step, index) in joinSteps" :key="step.title" class="dindon-join__step" :class="`is-step-${index + 1}`">
+            <li v-for="(step, index) in joinSteps" :key="step.title" class="dindon-join__step" :class="`dindon-join__step--${index + 1}`">
                 <span class="dindon-join__no" aria-hidden="true">{{ index + 1 }}</span>
                 <div class="dindon-join__body">
                     <h3>{{ step.title }}</h3>
                     <p>{{ step.text }}</p>
                     <p v-if="step.caution" class="caution">{{ step.caution }}</p>
-                    <a class="dindon-join__btn" :class="{ 'is-primary': index === 0 }" :href="step.href" target="_blank" rel="noopener">
+                    <a class="dindon-join__btn" :class="{ 'dindon-join__btn--primary': index === 0 }" :href="step.href" target="_blank" rel="noopener">
                         {{ step.action }}<span class="arrow" aria-hidden="true">→</span>
                     </a>
                 </div>
@@ -26,14 +26,14 @@
         <div class="dindon-join__demo" aria-hidden="true">
             <div class="dindon-join__phone">
                 <!-- 1. 群組頁：按「申請加入群組」 -->
-                <div class="scene is-group">
+                <div class="scene scene--group">
                     <p class="bar">Google 群組</p>
                     <p class="heading">叮咚記帳 Beta 測試</p>
                     <p class="small">dindon-beta@googlegroups.com</p>
-                    <span class="mock-btn is-btn-join"><span class="before">申請加入群組</span><span class="after">已送出申請</span></span>
+                    <span class="mock-btn mock-btn--join"><span class="before">申請加入群組</span><span class="after">已送出申請</span></span>
                 </div>
                 <!-- 2. 核准信 -->
-                <div class="scene is-mail">
+                <div class="scene scene--mail">
                     <p class="bar">Gmail</p>
                     <div class="mail">
                         <p class="mail-title">✉️ 你已獲准加入群組</p>
@@ -41,15 +41,15 @@
                     </div>
                 </div>
                 <!-- 3. 測試連結：按「成為測試人員」 -->
-                <div class="scene is-optin">
+                <div class="scene scene--optin">
                     <p class="bar">Google Play 測試</p>
                     <img class="icon" src="/images/dindon/icon.webp" alt="" loading="lazy" />
                     <p class="heading">成為叮咚記帳的測試人員</p>
-                    <span class="mock-btn is-btn-optin"><span class="before">成為測試人員</span><span class="after">你已成為測試人員</span></span>
+                    <span class="mock-btn mock-btn--optin"><span class="before">成為測試人員</span><span class="after">你已成為測試人員</span></span>
                     <p class="small link">在 Google Play 下載</p>
                 </div>
                 <!-- 4. Play 商店：安裝 -->
-                <div class="scene is-play">
+                <div class="scene scene--play">
                     <p class="bar">Play 商店</p>
                     <div class="app">
                         <img class="icon" src="/images/dindon/icon.webp" alt="" loading="lazy" />
@@ -58,7 +58,7 @@
                             <p class="small">搶先體驗版</p>
                         </div>
                     </div>
-                    <span class="mock-btn is-btn-install"><span class="before">安裝</span><span class="after">開啟</span></span>
+                    <span class="mock-btn mock-btn--install"><span class="before">安裝</span><span class="after">開啟</span></span>
                     <span class="progress"><span /></span>
                 </div>
 
@@ -100,7 +100,7 @@
             border-radius: var(--dd-radius);
             animation: dd-join-step-1 var(--join-duration) linear infinite;
 
-            &.is-step-2 { animation-name: dd-join-step-2; }
+            &--2 { animation-name: dd-join-step-2; }
         }
         &__no {
             flex-shrink: 0;
@@ -140,7 +140,7 @@
                 outline: 3px solid var(--dd-primary);
                 outline-offset: 3px;
             }
-            &.is-primary {
+            &--primary {
                 background: var(--dd-primary);
                 border-color: var(--dd-primary);
                 color: var(--dd-on-primary);
@@ -246,16 +246,16 @@
                     animation: dd-join-progress var(--join-duration) linear infinite;
                 }
             }
-            .is-group { animation: dd-join-scene-1 var(--join-duration) linear infinite; }
-            .is-mail { animation: dd-join-scene-2 var(--join-duration) linear infinite; }
-            .is-optin { animation: dd-join-scene-3 var(--join-duration) linear infinite; }
-            .is-play { animation: dd-join-scene-4 var(--join-duration) linear infinite; }
-            .is-btn-join .before { animation: dd-join-join-before var(--join-duration) linear infinite; }
-            .is-btn-join .after { animation: dd-join-join-after var(--join-duration) linear infinite; }
-            .is-btn-optin .before { animation: dd-join-optin-before var(--join-duration) linear infinite; }
-            .is-btn-optin .after { animation: dd-join-optin-after var(--join-duration) linear infinite; }
-            .is-btn-install .before { animation: dd-join-install-before var(--join-duration) linear infinite; }
-            .is-btn-install .after { animation: dd-join-install-after var(--join-duration) linear infinite; }
+            .scene--group { animation: dd-join-scene-1 var(--join-duration) linear infinite; }
+            .scene--mail { animation: dd-join-scene-2 var(--join-duration) linear infinite; }
+            .scene--optin { animation: dd-join-scene-3 var(--join-duration) linear infinite; }
+            .scene--play { animation: dd-join-scene-4 var(--join-duration) linear infinite; }
+            .mock-btn--join .before { animation: dd-join-join-before var(--join-duration) linear infinite; }
+            .mock-btn--join .after { animation: dd-join-join-after var(--join-duration) linear infinite; }
+            .mock-btn--optin .before { animation: dd-join-optin-before var(--join-duration) linear infinite; }
+            .mock-btn--optin .after { animation: dd-join-optin-after var(--join-duration) linear infinite; }
+            .mock-btn--install .before { animation: dd-join-install-before var(--join-duration) linear infinite; }
+            .mock-btn--install .after { animation: dd-join-install-after var(--join-duration) linear infinite; }
 
             // 手指：和播放器同一種畫法（黃色半透明圓＋實心點）
             .finger {
@@ -287,7 +287,7 @@
         // 減少動態效果：不播，手機停在第一個畫面，步驟卡都不特別標示
         @media (prefers-reduced-motion: reduce) {
             &__step, &__phone *, &__phone .scene { animation: none !important; }
-            &__phone .is-group { opacity: 1; }
+            &__phone .scene--group { opacity: 1; }
             &__phone .finger { display: none; }
         }
     }

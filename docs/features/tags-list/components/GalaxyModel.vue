@@ -707,7 +707,7 @@
                     <div
                         v-if="activeLabelNode"
                         class="galaxy-hud is-active"
-                        :class="{ 'is-star': activeLabelNode.type === 'star' }"
+                        :class="{ 'galaxy-hud--star': activeLabelNode.type === 'star' }"
                     >
                         <div class="sci-fi-box">
                             <div class="corner top-left"></div>
@@ -799,7 +799,7 @@
             transform: translateX(-50%); // 確保文字水平置中
         }
 
-        &.is-star {
+        &--star {
             .label-text {
                 border-color: rgb(253 184 19 / 30%);
                 color: #FDB813;

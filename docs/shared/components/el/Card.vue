@@ -8,7 +8,7 @@
 </script>
 
 <template>
-    <div class="el-card" :class="[`el-card--${padding}`, { 'is-hoverable': hoverable }]">
+    <div class="el-card" :class="[`el-card--${padding}`, { 'el-card--hoverable': hoverable }]">
         <header v-if="$slots.header" class="el-card__header"><slot name="header" /></header>
         <div class="el-card__body"><slot /></div>
         <footer v-if="$slots.footer" class="el-card__footer"><slot name="footer" /></footer>
@@ -41,7 +41,7 @@
         &__footer { border-top: 1px solid var(--vp-c-divider); }
         &__body { padding: var(--el-card-padding); }
 
-        &.is-hoverable {
+        &--hoverable {
             cursor: pointer;
 
             &:hover {

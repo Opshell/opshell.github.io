@@ -32,7 +32,7 @@
     <div class="redact-diagram">
         <div v-for="example in examples" :key="example.source" class="example">
             <p class="label">📱 手機收到的{{ example.source }}</p>
-            <p class="bubble is-source">
+            <p class="bubble bubble--source">
                 <template v-for="(piece, index) in example.pieces" :key="index">
                     <mark v-if="piece.redact">{{ piece.text }}</mark>
                     <template v-else>{{ piece.text }}</template>
@@ -42,7 +42,7 @@
             <p class="arrow" aria-hidden="true">↓ 在手機上先抹掉</p>
 
             <p class="label">☁️ 送去 AI 分類的</p>
-            <p class="bubble is-sent">
+            <p class="bubble bubble--sent">
                 <template v-for="(piece, index) in example.pieces" :key="index">
                     <span v-if="piece.redact" class="chip">{{ piece.redact }}</span>
                     <template v-else>{{ piece.text }}</template>

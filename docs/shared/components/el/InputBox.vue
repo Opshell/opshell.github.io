@@ -8,7 +8,7 @@
 </script>
 
 <template>
-    <label class="el-input-box" :class="{ 'is-row': type === 'row' }">
+    <label class="el-input-box" :class="{ 'el-input-box--row': type === 'row' }">
         <span v-if="fieldName" class="el-input-box__label">{{ fieldName }}</span>
         <div class="el-input-box__slot"><slot /></div>
         <span v-if="remark" class="el-input-box__remark">{{ remark }}</span>
@@ -31,7 +31,7 @@
             font-size: var(--font-size-xs);
         }
 
-        &.is-row {
+        &--row {
             flex-flow: row wrap;
             gap: 12px;
             align-items: center;

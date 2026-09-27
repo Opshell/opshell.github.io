@@ -142,14 +142,14 @@
                             :id="item.id"
                             :type="isOpenable(item) ? 'button' : undefined"
                             class="dindon-demo__card"
-                            :class="`is-${item.status}`"
+                            :class="`dindon-demo__card--${item.status}`"
                             :tabindex="isOpenable(item) ? undefined : -1"
                             @click="isOpenable(item) && open(item)"
                         >
                             <span class="thumb" aria-hidden="true">
                                 <img v-if="item.status === 'ready'" :src="thumbOf(item)" alt="" loading="lazy" width="120" height="267" />
                                 <span v-else-if="item.status === 'diagram'" class="thumb-icon">圖解</span>
-                                <span v-else class="thumb-icon is-muted">準備中</span>
+                                <span v-else class="thumb-icon thumb-icon--muted">準備中</span>
                                 <span v-if="item.status === 'ready'" class="thumb-play">▶</span>
                             </span>
                             <span class="body">
@@ -220,7 +220,7 @@
                             <span class="dir">← 上一個</span>
                             <span class="name">{{ prevItem.title }}</span>
                         </button>
-                        <button v-if="nextItem" type="button" class="is-next" @click="open(nextItem)">
+                        <button v-if="nextItem" type="button" class="next" @click="open(nextItem)">
                             <span class="dir">下一個 →</span>
                             <span class="name">{{ nextItem.title }}</span>
                         </button>
@@ -333,7 +333,7 @@
                 }
             }
             &:focus-visible { outline: 3px solid var(--dd-primary); }
-            &.is-phone, &.is-todo {
+            &--phone, &--todo {
                 background: transparent;
                 border-style: dashed;
 
@@ -356,11 +356,11 @@
                     object-fit: cover;
                 }
             }
-            &.is-diagram .thumb, &.is-phone .thumb, &.is-todo .thumb {
+            &--diagram .thumb, &--phone .thumb, &--todo .thumb {
                 background: var(--dd-sunken);
                 border-color: var(--dd-sunken);
             }
-            &.is-phone .thumb, &.is-todo .thumb { background: transparent; }
+            &--phone .thumb, &--todo .thumb { background: transparent; }
             .thumb-icon {
                 color: var(--dd-accent-border);
                 font-size: var(--font-size-s);
@@ -368,7 +368,7 @@
                 writing-mode: vertical-rl;
                 letter-spacing: .3em;
 
-                &.is-muted { color: var(--dd-muted); }
+                &--muted { color: var(--dd-muted); }
             }
             .thumb-play {
                 position: absolute;
@@ -587,7 +587,7 @@
                 }
                 &:focus-visible { outline: 3px solid var(--dd-primary); }
             }
-            .is-next {
+            .next {
                 grid-column: 2;
                 align-items: flex-end;
                 text-align: right;

@@ -11,7 +11,7 @@
             <p class="receipt-title">電子發票證明聯</p>
             <p class="receipt-period">115年09-10月</p>
             <p class="receipt-no">AB-12345678</p>
-            <p class="receipt-time"><span class="is-date">2026-09-24</span> <span class="is-time">12:47:08</span></p>
+            <p class="receipt-time"><span class="date">2026-09-24</span> <span class="time">12:47:08</span></p>
             <div class="receipt-qrs" aria-hidden="true">
                 <span class="qr" />
                 <span class="qr" />
@@ -19,27 +19,27 @@
         </div>
 
         <div class="lanes">
-            <div class="lane is-qr">
+            <div class="lane lane--qr">
                 <p class="lane-title">▦ 掃 QR 碼</p>
                 <dl>
-                    <div class="is-pick">
+                    <div class="pick">
                         <dt>日期</dt>
                         <dd>2026-09-24 ✓</dd>
                     </div>
-                    <div class="is-none">
+                    <div class="none">
                         <dt>時間</dt>
                         <dd>QR 裡沒有這一欄</dd>
                     </div>
                 </dl>
             </div>
-            <div class="lane is-ai">
+            <div class="lane lane--ai">
                 <p class="lane-title">✦ AI 讀紙上的字</p>
                 <dl>
                     <div>
                         <dt>日期</dt>
                         <dd>2026-09-24（拿來對答案）</dd>
                     </div>
-                    <div class="is-pick">
+                    <div class="pick">
                         <dt>時間</dt>
                         <dd>12:47 ✓</dd>
                     </div>
@@ -49,7 +49,7 @@
 
         <p class="result">
             <span class="result-label">記下來的時間</span>
-            <strong><span class="is-date">2026-09-24</span> <span class="is-time">12:47</span></strong>
+            <strong><span class="date">2026-09-24</span> <span class="time">12:47</span></strong>
         </p>
 
         <ul class="notes">
@@ -81,7 +81,7 @@
             font-size: var(--font-size-m);
             font-weight: 800;
         }
-        .receipt-time .is-time {
+        .receipt-time .time {
             padding: 0 2px;
             border-radius: 3px;
             animation: invoice-ai 6s ease infinite;
@@ -114,8 +114,8 @@
             border-radius: 12px;
             font-size: var(--font-size-xs);
 
-            &.is-qr .lane-title { color: var(--dd-accent-border); }
-            &.is-ai .lane-title { color: var(--dd-primary); }
+            &--qr .lane-title { color: var(--dd-accent-border); }
+            &--ai .lane-title { color: var(--dd-primary); }
             dl {
                 @include setFlex(flex-start, stretch, 6px, column);
                 margin: 6px 0 0;
@@ -125,8 +125,8 @@
                 margin: 0;
                 font-weight: 600;
             }
-            .is-pick dd { font-weight: 800; }
-            .is-none dd {
+            .pick dd { font-weight: 800; }
+            .none dd {
                 color: var(--dd-muted);
                 font-weight: 400;
             }
@@ -143,8 +143,8 @@
 
             .result-label { font-size: var(--font-size-xs); }
             strong { font-size: var(--font-size-m); }
-            .is-date { color: #A87400; }
-            .is-time { color: #1D59BB; }
+            .date { color: #A87400; }
+            .time { color: #1D59BB; }
         }
     }
 
@@ -160,6 +160,6 @@
         100% { background: transparent; }
     }
     @media (prefers-reduced-motion: reduce) {
-        .invoice-diagram .receipt-qrs, .invoice-diagram .receipt-time .is-time { animation: none; }
+        .invoice-diagram .receipt-qrs, .invoice-diagram .receipt-time .time { animation: none; }
     }
 </style>

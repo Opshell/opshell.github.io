@@ -28,9 +28,9 @@
         <!-- #region [P] hero：付完錢，就等於記完帳 -->
         <section class="dindon-landing__hero">
             <!-- 背景的平面圓塊，速度不同做出景深 -->
-            <span class="dindon-landing__deco is-a" data-parallax=".35" data-parallax-scroll aria-hidden="true" />
-            <span class="dindon-landing__deco is-b" data-parallax=".2" data-parallax-scroll aria-hidden="true" />
-            <span class="dindon-landing__deco is-c" data-parallax="-.15" data-parallax-scroll aria-hidden="true" />
+            <span class="dindon-landing__deco dindon-landing__deco--a" data-parallax=".35" data-parallax-scroll aria-hidden="true" />
+            <span class="dindon-landing__deco dindon-landing__deco--b" data-parallax=".2" data-parallax-scroll aria-hidden="true" />
+            <span class="dindon-landing__deco dindon-landing__deco--c" data-parallax="-.15" data-parallax-scroll aria-hidden="true" />
 
             <div class="dindon-landing__container dindon-landing__hero-inner">
                 <div class="dindon-landing__hero-copy">
@@ -49,8 +49,8 @@
 
                     <div class="dindon-landing__actions">
                         <!-- 先到下面看兩步驟：直接連去群組的話，很多人會漏掉第二步的測試連結 -->
-                        <a class="dindon-landing__btn is-primary" href="#beta">加入封閉測試<span class="arrow is-down" aria-hidden="true">↓</span></a>
-                        <a class="dindon-landing__btn" href="#why">看看怎麼做到<span class="arrow is-down" aria-hidden="true">↓</span></a>
+                        <a class="dindon-landing__btn dindon-landing__btn--primary" href="#beta">加入封閉測試<span class="arrow arrow--down" aria-hidden="true">↓</span></a>
+                        <a class="dindon-landing__btn" href="#why">看看怎麼做到<span class="arrow arrow--down" aria-hidden="true">↓</span></a>
                     </div>
                     <p class="dindon-landing__note">僅限 Android 7.0 以上 · 封測限額 {{ BETA_SEATS }} 名 · 即將在 Google Play 上架</p>
                 </div>
@@ -58,20 +58,20 @@
                 <div class="dindon-landing__hero-shot">
                     <div class="dindon-landing__hero-stage">
                         <div data-parallax=".12" data-parallax-scroll>
-                            <div class="dindon-landing__phone is-cropped">
+                            <div class="dindon-landing__phone dindon-landing__phone--cropped">
                                 <img src="/images/dindon/home.webp" alt="叮咚記帳首頁：今日花費、本月累積與今天的每一筆帳" loading="eager" />
                             </div>
                         </div>
 
                         <!-- 和圖示的鈴鐺同一組時間：鈴一響，通知跳出來，接著記成一筆帳 -->
-                        <div class="dindon-landing__chip is-notify" data-parallax="-.08" data-parallax-scroll aria-hidden="true">
+                        <div class="dindon-landing__chip dindon-landing__chip--notify" data-parallax="-.08" data-parallax-scroll aria-hidden="true">
                             <span class="chip-icon">💳</span>
                             <span>
                                 <span class="chip-title">刷卡消費 NT$120</span>
                                 <span class="chip-text">全家便利商店 · 剛剛</span>
                             </span>
                         </div>
-                        <div class="dindon-landing__chip is-recorded" data-parallax="-.2" data-parallax-scroll aria-hidden="true">
+                        <div class="dindon-landing__chip dindon-landing__chip--recorded" data-parallax="-.2" data-parallax-scroll aria-hidden="true">
                             <span class="chip-icon">✓</span>
                             <span>
                                 <span class="chip-title">已自動記帳</span>
@@ -108,7 +108,7 @@
         <!-- #endregion -->
 
         <!-- #region [P] 就算沒有通知 -->
-        <section class="dindon-landing__section is-sunken">
+        <section class="dindon-landing__section dindon-landing__section--sunken">
             <div class="dindon-landing__container">
                 <h2 class="dindon-landing__title" data-reveal>就算沒有通知</h2>
                 <p class="dindon-landing__subtitle" data-reveal :style="delay(1)">付現、沒發通知的消費，一樣不用打字。</p>
@@ -121,7 +121,7 @@
                     </li>
                 </ul>
 
-                <p class="dindon-landing__links is-center">
+                <p class="dindon-landing__links dindon-landing__links--center">
                     <a class="dindon-landing__link" :href="DEMO_PATH" data-reveal>每個功能的動態演示<span class="arrow" aria-hidden="true">→</span></a>
                 </p>
             </div>
@@ -146,10 +146,10 @@
                 </div>
 
                 <div class="dindon-landing__phones">
-                    <div class="dindon-landing__phone is-back" data-parallax=".06">
+                    <div class="dindon-landing__phone dindon-landing__phone--back" data-parallax=".06">
                         <img src="/images/dindon/statement.webp" alt="帳單截圖記帳：信用卡帳單的每一列都讀出來，勾選後一次記好" loading="lazy" />
                     </div>
-                    <div class="dindon-landing__phone is-front" data-parallax="-.08">
+                    <div class="dindon-landing__phone dindon-landing__phone--front" data-parallax="-.08">
                         <img src="/images/dindon/items.webp" alt="拍照記帳的結果：店家、分類與每個品項的金額" loading="lazy" />
                     </div>
                 </div>
@@ -158,7 +158,7 @@
         <!-- #endregion -->
 
         <!-- #region [P] 最懶人的記帳體驗（每一點都要和隱私權政策對得上） -->
-        <section class="dindon-landing__section is-sunken">
+        <section class="dindon-landing__section dindon-landing__section--sunken">
             <div class="dindon-landing__container dindon-landing__split">
                 <div class="dindon-landing__split-copy">
                     <h2 class="dindon-landing__title" data-reveal>最懶人的記帳體驗</h2>
@@ -190,7 +190,7 @@
 
         <!-- #region [P] 有成就感的記帳 -->
         <section class="dindon-landing__section">
-            <div class="dindon-landing__container dindon-landing__split is-reverse">
+            <div class="dindon-landing__container dindon-landing__split dindon-landing__split--reverse">
                 <div class="dindon-landing__split-copy">
                     <h2 class="dindon-landing__title" data-reveal>有成就感的記帳</h2>
                     <p class="dindon-landing__big" data-reveal :style="delay(1)">
@@ -213,7 +213,7 @@
         <!-- #endregion -->
 
         <!-- #region [P] 封測招募 -->
-        <section id="beta" class="dindon-landing__section is-sunken">
+        <section id="beta" class="dindon-landing__section dindon-landing__section--sunken">
             <div class="dindon-landing__container">
                 <!-- 加入方式放整個寬度：兩步驟並排，一眼看出「要做兩件事」 -->
                 <div class="dindon-landing__join">
@@ -242,7 +242,7 @@
 
                 <div class="dindon-landing__beta">
                     <div class="beta-copy">
-                        <figure class="dindon-landing__figure is-event" data-reveal>
+                        <figure class="dindon-landing__figure dindon-landing__figure--event" data-reveal>
                             <div class="dindon-landing__phone" data-parallax="-.05">
                                 <img src="/images/dindon/event.webp" alt="Beta 貢獻活動的排行榜：前三名、自己的名次與每個人的回報件數" loading="lazy" />
                             </div>
@@ -266,7 +266,7 @@
                                 </dl>
                             </li>
                         </ul>
-                        <p class="dindon-landing__note is-fine" data-reveal>
+                        <p class="dindon-landing__note dindon-landing__note--fine" data-reveal>
                             名次不並列：同分時先達到這個分數的人排前面。名次獎與全勤另外算，一筆接一筆排，從正式版上線那天開始算；實際發放以活動結束時公布為準。活動結束後，打卡、名次和紀念徽章的紀錄都會留著。換手機也拿得回來：記得在 App 裡綁定 Google 帳號。
                         </p>
                     </div>
@@ -362,21 +362,21 @@
             border-radius: 50%;
             pointer-events: none;
 
-            &.is-a {
+            &--a {
                 top: -160px;
                 right: -140px;
                 background: rgb(255 255 255 / 16%);
                 width: 460px;
                 height: 460px;
             }
-            &.is-b {
+            &--b {
                 bottom: -70px;
                 left: 4%;
                 background: rgb(168 116 0 / 9%);
                 width: 200px;
                 height: 200px;
             }
-            &.is-c {
+            &--c {
                 top: 22%;
                 left: 46%;
                 background: rgb(255 255 255 / 22%);
@@ -455,14 +455,14 @@
                     translate: 0 -2px;
 
                     .arrow { transform: translateX(4px); }
-                    .arrow.is-down { transform: translateY(3px); }
+                    .arrow--down { transform: translateY(3px); }
                 }
             }
             &:focus-visible {
                 outline: 3px solid var(--dd-primary);
                 outline-offset: 3px;
             }
-            &.is-primary {
+            &--primary {
                 background: var(--dd-primary);
                 border-color: var(--dd-primary);
                 color: var(--dd-on-primary);
@@ -473,7 +473,7 @@
             font-size: var(--font-size-s);
 
             .email { white-space: nowrap; }
-            &.is-fine { margin-top: 12px !important; }
+            &--fine { margin-top: 12px !important; }
         }
         &__hero &__note { color: color-mix(in srgb, var(--dd-text) 72%, transparent); }
 
@@ -528,7 +528,7 @@
             // 貼著手機上緣，像系統跳出的通知橫幅。放右上：只蓋到搜尋、日曆那排圖示，
             // 左上的頭像與稱號（截圖裡最新的東西）要露出來。兩張卡都在右邊，由上往下就是
             // 「通知跳出來 → 旁邊那一筆記好了」
-            &.is-notify {
+            &--notify {
                 top: 18px;
                 right: -56px;
                 @include setRWD(1024px) { right: -16px; }
@@ -537,7 +537,7 @@
                     right: -8px;
                 }
             }
-            &.is-recorded {
+            &--recorded {
                 top: 176px;
                 right: -56px;
                 animation-name: dd-chip-recorded;
@@ -580,7 +580,7 @@
             }
 
             // 首頁截圖只取上半，手機從底邊「長出來」
-            &.is-cropped {
+            &--cropped {
                 max-width: 360px;
                 border-bottom: 0;
                 border-radius: 40px 40px 0 0;
@@ -596,7 +596,7 @@
             padding: 96px 0;
             @include setRWD(768px) { padding: 64px 0; }
 
-            &.is-sunken { background: var(--dd-sunken); }
+            &--sunken { background: var(--dd-sunken); }
         }
         &__eyebrow {
             margin-bottom: 8px !important;
@@ -627,7 +627,7 @@
             strong { color: var(--dd-primary); }
         }
 
-        // 左文右圖；is-reverse 左圖右文。窄螢幕都變成上文下圖
+        // 左文右圖；--reverse 左圖右文。窄螢幕都變成上文下圖
         &__split {
             display: grid;
             grid-template-columns: 1.1fr .9fr;
@@ -638,7 +638,7 @@
                 gap: 40px;
             }
 
-            &.is-reverse {
+            &--reverse {
                 grid-template-columns: .9fr 1.1fr;
                 @include setRWD(768px) { grid-template-columns: 1fr; }
 
@@ -658,7 +658,7 @@
             }
 
             // 封測區左欄的排行榜：比其他手機小一點，是佐證不是主角
-            &.is-event {
+            &--event {
                 margin-top: 36px;
 
                 .dindon-landing__phone { max-width: 250px; }
@@ -675,7 +675,7 @@
             margin-top: 24px;
 
             .dindon-landing__link { margin-top: 18px; }
-            &.is-center { justify-content: center; }
+            &--center { justify-content: center; }
         }
         &__link {
             display: inline-block;
@@ -845,12 +845,12 @@
                 grid-area: 1 / 1;
                 max-width: 250px;
 
-                &.is-back {
+                &--back {
                     margin-right: 120px;
                     opacity: .9;
                     @include setRWD(500px) { margin-right: 90px; }
                 }
-                &.is-front {
+                &--front {
                     margin-top: 60px;
                     margin-left: 120px;
                     box-shadow: -8px 10px 30px rgb(27 24 21 / 12%);

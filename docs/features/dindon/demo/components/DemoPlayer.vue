@@ -163,7 +163,7 @@
                             v-if="bubble"
                             :key="bubble.text"
                             class="bubble"
-                            :class="[`is-${bubble.kind}`, { 'is-below': !bubble.above }]"
+                            :class="[`bubble--${bubble.kind}`, { 'bubble--below': !bubble.above }]"
                             :style="{ '--bx': bubble.x, 'left': `${bubble.x * 100}%`, 'top': `${bubble.y * 100}%` }"
                         >
                             <span v-if="bubble.kind === 'type'" class="bubble-icon">⌨</span>
@@ -174,7 +174,7 @@
                 </div>
 
                 <button v-if="ended || !playing && time === 0" type="button" class="demo-player__big" :aria-label="ended ? '再看一次' : '播放'" @click="ended ? replay() : play()">
-                    <svg v-if="ended" class="is-stroke" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.5" /><path d="M4 3.5v5h5" /></svg>
+                    <svg v-if="ended" class="stroke" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.5" /><path d="M4 3.5v5h5" /></svg>
                     <svg v-else viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7Z" /></svg>
                 </button>
             </div>
@@ -208,9 +208,9 @@
             </div>
 
             <span class="time">{{ clock(time) }} / {{ clock(duration) }}</span>
-            <button type="button" class="control is-text" :class="{ 'is-on': slow }" :aria-pressed="slow" title="慢速播放" @click="toggleSpeed">0.5×</button>
+            <button type="button" class="control control--text" :class="{ 'is-on': slow }" :aria-pressed="slow" title="慢速播放" @click="toggleSpeed">0.5×</button>
             <button type="button" class="control" aria-label="從頭播放" @click="replay">
-                <svg class="is-stroke" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.5" /><path d="M4 3.5v5h5" /></svg>
+                <svg class="stroke" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.5" /><path d="M4 3.5v5h5" /></svg>
             </button>
         </div>
     </div>
@@ -315,8 +315,8 @@
                 transform: translate(calc(var(--bx) * -100%), calc(-100% - 11%));
                 animation: demo-bubble-in .25s var(--dd-ease-out, ease-out) both;
 
-                &.is-below { transform: translate(calc(var(--bx) * -100%), 30%); }
-                &.is-caption {
+                &--below { transform: translate(calc(var(--bx) * -100%), 30%); }
+                &--caption {
                     background: var(--dd-accent);
                     color: #1B1815;
                 }
@@ -344,7 +344,7 @@
                 @include setSize(30px, 30px);
                 fill: currentcolor;
             }
-            svg.is-stroke {
+            svg.stroke {
                 fill: none;
                 stroke: currentcolor;
                 stroke-width: 2.4;
@@ -373,14 +373,14 @@
                     @include setSize(18px, 18px);
                     fill: currentcolor;
                 }
-                svg.is-stroke {
+                svg.stroke {
                     fill: none;
                     stroke: currentcolor;
                     stroke-width: 2.4;
                     stroke-linecap: round;
                     stroke-linejoin: round;
                 }
-                &.is-text {
+                &--text {
                     width: auto;
                     padding: 0 10px;
                     border-radius: 17px;

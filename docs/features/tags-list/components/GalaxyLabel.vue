@@ -58,7 +58,7 @@
             <div
                 v-if="activeLabelNode"
                 class="galaxy-label is-active"
-                :class="{ 'is-star': activeLabelNode.type === 'star' }"
+                :class="{ 'galaxy-label--star': activeLabelNode.type === 'star' }"
             >
                 <div class="sci-fi-box">
                     <div class="corner top-left" />
@@ -176,7 +176,7 @@
             }
         }
 
-        &.is-star {
+        &--star {
             .label-text {
                 border-color: rgb(253 184 19 / 30%);
                 color: $hud-secondary;
