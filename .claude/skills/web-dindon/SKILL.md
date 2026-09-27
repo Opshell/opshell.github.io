@@ -98,11 +98,11 @@ pnpm dindon:demos --prune           # 順便刪 R2 上不在清單裡的舊檔
 ```
 
 - 前端 Claude 錄影、產 `index.json`（規格在那邊的 `README.md`），錄好會在溝通板回覆。網頁重跑腳本、commit `demo/demos.json`。
-- 影片、封面、縮圖（`*.thumb.webp`）傳到 R2 的 `opshell-gallery/dindon/demos/`（`image.opshell.me`），**不進這個倉庫**
+- 影片、封面、縮圖（`*.thumb.webp`）傳到 R2 自己的儲體 `dindon-demo`（`https://dindon-demo.opshell.me/`，檔案放根目錄），**不進這個倉庫**
   （2026-09-28 之前進 `docs/public/`，倉庫 74 MB 裡占 50 MB）。檔名帶內容雜湊，重錄後網址會變，所以快取一年。
   `demos.json` 的 `mediaBase` 指到 R2，`catalog.ts` 讀它。
-- 上傳要 R2 的 API Token，放在倉庫根目錄的 `.env`（格式在腳本開頭）。**這是使用者的金鑰，不要讀出來、不要印出來**；
-  沒有 `.env` 就請使用者自己跑。
+- 上傳要 R2 的 API 權杖（只套用到 `dindon-demo`），放在倉庫根目錄的 `.env.local`，變數是 `R2_DINDON_*`（格式在腳本開頭）。
+  **這是使用者的金鑰，不要讀出值、不要印出來**；要確認就只看變數名稱。腳本自己讀檔，可以直接跑。
 - 手指、紅框、泡泡的時間參數在 `useDemoOverlay.ts` 頂端。drag 照 `pathMs` 走、紅框照 `box` 畫（兩者都是錄影時實測的）；泡泡的位置規則在 `bubbleAbove()`。
 - 圖解要跟 App 實際行為一致：第 4 項的前後對照是拿 `NotificationParser.deIdentify` 真的跑出來的，App 改規則要跟著改。
 - **對話框裡的元件要用 `defineAsyncComponent` 載入**：VitePress 第一次載入用「精簡版」頁面程式，會把靜態 HTML 清成空字串

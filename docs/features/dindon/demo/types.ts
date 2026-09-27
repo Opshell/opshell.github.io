@@ -57,6 +57,6 @@ export interface DemoIndex {
     generatedAt: string;
     video: { width: number; height: number; format: string };
     /** 影片與封面放在哪（R2），pnpm dindon:demos 上傳後寫進來；檔名帶內容雜湊 */
-    mediaBase?: string;
+    mediaBase: string;
     sections: DemoSection[];
 }

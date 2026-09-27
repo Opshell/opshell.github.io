@@ -3,8 +3,8 @@ import demos from './demos.json';
 
 export const demoIndex = demos as DemoIndex;
 
-/** 影片與封面的位置：R2（pnpm dindon:demos 上傳）。還沒上傳過的舊目錄沒有 mediaBase，退回 public 底下 */
-export const MEDIA_BASE = demoIndex.mediaBase ?? '/images/dindon/demos/';
+/** 影片與封面的位置：R2 的 dindon-demo 儲體（pnpm dindon:demos 上傳） */
+export const MEDIA_BASE = demoIndex.mediaBase;
 
 /** 點得開的：錄好的影片，和網頁自己畫的圖解 */
 export const isOpenable = (item: DemoItem) => item.status === 'ready' || item.status === 'diagram';

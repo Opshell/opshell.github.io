@@ -26,8 +26,8 @@
                     "summary": "行動支付和銀行常常各推一則通知，App 認得出是同一筆，只記一次。",
                     "stars": 3,
                     "status": "ready",
-                    "video": "02-dedupe.mp4",
-                    "poster": "02-dedupe.jpg",
+                    "video": "02-dedupe.cc1ede89.mp4",
+                    "poster": "02-dedupe.89d8b2cf.jpg",
                     "duration": 17.25,
                     "steps": [
                         {
@@ -54,8 +54,8 @@
                     "summary": "自動記錯分類，點進去改一次，之後同一家店就照你改的記。",
                     "stars": 3,
                     "status": "ready",
-                    "video": "03-remember-category.mp4",
-                    "poster": "03-remember-category.jpg",
+                    "video": "03-remember-category.9ec8d6ed.mp4",
+                    "poster": "03-remember-category.daaa6612.jpg",
                     "duration": 17.06,
                     "steps": [
                         {
@@ -124,8 +124,8 @@
                     "summary": "每個 App 最近送了幾則通知、有沒有被讀到，一眼看出卡在哪。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "05-capture-diagnostics.mp4",
-                    "poster": "05-capture-diagnostics.jpg",
+                    "video": "05-capture-diagnostics.019a559c.mp4",
+                    "poster": "05-capture-diagnostics.dde31957.jpg",
                     "duration": 21.78,
                     "steps": [
                         {
@@ -190,8 +190,8 @@
                     "summary": "認得出三星、小米、OPPO、vivo、華為，把這支手機的省電開關排在最前面。",
                     "stars": 1,
                     "status": "ready",
-                    "video": "06-vendor-power.mp4",
-                    "poster": "06-vendor-power.jpg",
+                    "video": "06-vendor-power.056b14fc.mp4",
+                    "poster": "06-vendor-power.bd8649ad.jpg",
                     "duration": 17.67,
                     "steps": [
                         {
@@ -255,8 +255,8 @@
                     "summary": "退款通知不會記成一筆支出，而是收入。",
                     "stars": 1,
                     "status": "ready",
-                    "video": "07-refund.mp4",
-                    "poster": "07-refund.jpg",
+                    "video": "07-refund.e34d543a.mp4",
+                    "poster": "07-refund.d14ea686.jpg",
                     "duration": 13.66,
                     "steps": [
                         {
@@ -324,8 +324,8 @@
                     "summary": "記好回到首頁時，新的那一筆描一圈黃色邊框再淡掉，一眼找到。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "13-new-outline.mp4",
-                    "poster": "13-new-outline.jpg",
+                    "video": "13-new-outline.c6ee8ced.mp4",
+                    "poster": "13-new-outline.2d23338e.jpg",
                     "duration": 16.9,
                     "steps": [
                         {
@@ -432,8 +432,8 @@
                     "summary": "信用卡 App 的明細截一張圖，讀成一張可勾選的清單，一次存進去。",
                     "stars": 3,
                     "status": "ready",
-                    "video": "14-statement.mp4",
-                    "poster": "14-statement.jpg",
+                    "video": "14-statement.c444eb8a.mp4",
+                    "poster": "14-statement.15fed189.jpg",
                     "duration": 28.31,
                     "steps": [
                         {
@@ -520,8 +520,8 @@
                     "summary": "同店、同金額、時間接近的會問要合併還是新增；發票號碼相同就是同一張，直接擋下。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "15-duplicate.mp4",
-                    "poster": "15-duplicate.jpg",
+                    "video": "15-duplicate.b94ce95a.mp4",
+                    "poster": "15-duplicate.9db29beb.jpg",
                     "duration": 24.95,
                     "steps": [
                         {
@@ -737,8 +737,8 @@
                     "summary": "記帳鈕按住會長出弧形選單，手指滑到哪一段、放開就進哪一種記帳。",
                     "stars": 3,
                     "status": "ready",
-                    "video": "16-record-fan.mp4",
-                    "poster": "16-record-fan.jpg",
+                    "video": "16-record-fan.f88f3868.mp4",
+                    "poster": "16-record-fan.7f0ca1a5.jpg",
                     "duration": 14.67,
                     "steps": [
                         {
@@ -841,8 +841,8 @@
                     "summary": "日期記錯了直接拖過去；連一筆帳都沒有的那天也會長出空位讓你放。",
                     "stars": 3,
                     "status": "ready",
-                    "video": "17-drag-to-day.mp4",
-                    "poster": "17-drag-to-day.jpg",
+                    "video": "17-drag-to-day.bfd434a9.mp4",
+                    "poster": "17-drag-to-day.2d8d80a2.jpg",
                     "duration": 13.96,
                     "steps": [
                         {
@@ -961,8 +961,8 @@
                     "summary": "左滑露出合併與刪除。合併時可以指定留哪一筆，其他筆只補它缺的欄位。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "18-swipe-actions.mp4",
-                    "poster": "18-swipe-actions.jpg",
+                    "video": "18-swipe-actions.df0291a0.mp4",
+                    "poster": "18-swipe-actions.148bb4b2.jpg",
                     "duration": 14.51,
                     "steps": [
                         {
@@ -1058,8 +1058,8 @@
                     "summary": "點「本月累積」在日曆上挑起始日，本月累積就從那天開始算。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "19-cycle-start.mp4",
-                    "poster": "19-cycle-start.jpg",
+                    "video": "19-cycle-start.5e4911ab.mp4",
+                    "poster": "19-cycle-start.5292ea83.jpg",
                     "duration": 10.1,
                     "steps": [
                         {
@@ -1110,8 +1110,8 @@
                     "summary": "挑日期區間的日曆上，每天花多少用深淺標出來；一趟旅程花多少一眼看出。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "20-date-range-heatmap.mp4",
-                    "poster": "20-date-range-heatmap.jpg",
+                    "video": "20-date-range-heatmap.7087dd3b.mp4",
+                    "poster": "20-date-range-heatmap.de3b2a68.jpg",
                     "duration": 12.53,
                     "steps": [
                         {
@@ -1180,8 +1180,8 @@
                     "summary": "「上個月在超商花了多少」自動換成篩選條件；關鍵字搜尋離線也能用。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "21-search.mp4",
-                    "poster": "21-search.jpg",
+                    "video": "21-search.18e79377.mp4",
+                    "poster": "21-search.c1a7eec4.jpg",
                     "duration": 9.58,
                     "steps": [
                         {
@@ -1221,8 +1221,8 @@
                     "summary": "不用開 App 首頁，直接進語音、拍照、手動記帳。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "22-widget-shortcut.mp4",
-                    "poster": "22-widget-shortcut.jpg",
+                    "video": "22-widget-shortcut.24f9e427.mp4",
+                    "poster": "22-widget-shortcut.f3da60fa.jpg",
                     "duration": 18.52,
                     "steps": [
                         {
@@ -1291,8 +1291,8 @@
                     "summary": "每一塊是一灘液體，佔比越大越活潑；相鄰的會黏在一起、冒泡往外浮。",
                     "stars": 3,
                     "status": "ready",
-                    "video": "23-liquid-pie.mp4",
-                    "poster": "23-liquid-pie.jpg",
+                    "video": "23-liquid-pie.2f0c21b4.mp4",
+                    "poster": "23-liquid-pie.64511afa.jpg",
                     "duration": 11.59,
                     "steps": [
                         {
@@ -1331,8 +1331,8 @@
                     "summary": "點一塊看金額、佔比、筆數；再點進去看子分類；點空白處回到區間總額。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "24-pie-drill.mp4",
-                    "poster": "24-pie-drill.jpg",
+                    "video": "24-pie-drill.0d03ef50.mp4",
+                    "poster": "24-pie-drill.87d543a3.jpg",
                     "duration": 16.9,
                     "steps": [
                         {
@@ -1389,8 +1389,8 @@
                     "summary": "房租這類大額先不計入，列表一列一列移到「未計入統計」。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "25-hide-category.mp4",
-                    "poster": "25-hide-category.jpg",
+                    "video": "25-hide-category.96f6e892.mp4",
+                    "poster": "25-hide-category.c9a17380.jpg",
                     "duration": 13.81,
                     "steps": [
                         {
@@ -1442,8 +1442,8 @@
                     "summary": "分類下鑽到標籤層，標籤也能各自藏起來。",
                     "stars": 1,
                     "status": "ready",
-                    "video": "26-tag-layer.mp4",
-                    "poster": "26-tag-layer.jpg",
+                    "video": "26-tag-layer.640d4f07.mp4",
+                    "poster": "26-tag-layer.737c4c02.jpg",
                     "duration": 15.3,
                     "steps": [
                         {
@@ -1493,8 +1493,8 @@
                     "summary": "輸入很寬容：自動去掉 #、去空白、忽略大小寫重複。",
                     "stars": 1,
                     "status": "ready",
-                    "video": "27-tags.mp4",
-                    "poster": "27-tags.jpg",
+                    "video": "27-tags.ce22e5f0.mp4",
+                    "poster": "27-tags.6bab94bc.jpg",
                     "duration": 12.42,
                     "steps": [
                         {
@@ -1565,8 +1565,8 @@
                     "summary": "房租、薪水、訂閱設一次，到期自己記一筆。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "29-recurring.mp4",
-                    "poster": "29-recurring.jpg",
+                    "video": "29-recurring.e18cee9a.mp4",
+                    "poster": "29-recurring.f13e2559.jpg",
                     "duration": 24.41,
                     "steps": [
                         {
@@ -1700,8 +1700,8 @@
                     "summary": "",
                     "stars": 1,
                     "status": "ready",
-                    "video": "30-category-manage.mp4",
-                    "poster": "30-category-manage.jpg",
+                    "video": "30-category-manage.8dbdf7f4.mp4",
+                    "poster": "30-category-manage.29795d16.jpg",
                     "duration": 15.97,
                     "steps": [
                         {
@@ -1847,8 +1847,8 @@
                     "summary": "點首頁的「今日花費」設定每天想花多少，首頁直接顯示還剩多少；付款通知一進來、花到你設的百分比，小精靈就跳一則提醒。固定收支不算進去。",
                     "stars": 3,
                     "status": "ready",
-                    "video": "42-budget-nudge.mp4",
-                    "poster": "42-budget-nudge.jpg",
+                    "video": "42-budget-nudge.4f6f8c7c.mp4",
+                    "poster": "42-budget-nudge.3079fd8b.jpg",
                     "duration": 21.63,
                     "steps": [
                         {
@@ -1927,8 +1927,8 @@
                     "summary": "叮咚精靈溫暖、勇敢的小白鼠熱血、精算貓頭鷹冷靜又有一點毒舌。小白鼠是封測紀念，貓頭鷹要任 4 顆徽章升到金級才解鎖。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "43-sprites.mp4",
-                    "poster": "43-sprites.jpg",
+                    "video": "43-sprites.4c4b557a.mp4",
+                    "poster": "43-sprites.05c4df53.jpg",
                     "duration": 20.05,
                     "steps": [
                         {
@@ -1998,8 +1998,8 @@
                     "summary": "訂一個想買的東西與金額，從那天起每天「預算 − 實際花費」累積成進度，超支的那天扣回來，達成時小精靈會慶祝。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "44-saving-goal.mp4",
-                    "poster": "44-saving-goal.jpg",
+                    "video": "44-saving-goal.185d579f.mp4",
+                    "poster": "44-saving-goal.324c2e1e.jpg",
                     "duration": 32.07,
                     "steps": [
                         {
@@ -2108,8 +2108,8 @@
                     "summary": "八種徽章從銅升到七彩，點開看每一階的門檻；升級後第一次進來會播升級動畫。",
                     "stars": 3,
                     "status": "ready",
-                    "video": "31-badge-wall.mp4",
-                    "poster": "31-badge-wall.jpg",
+                    "video": "31-badge-wall.14f50a27.mp4",
+                    "poster": "31-badge-wall.8d4fab1e.jpg",
                     "duration": 12.12,
                     "steps": [
                         {
@@ -2170,8 +2170,8 @@
                     "summary": "前綴、介詞、後綴自己組一行稱號，顯示在首頁與排行榜。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "32-title.mp4",
-                    "poster": "32-title.jpg",
+                    "video": "32-title.6d983231.mp4",
+                    "poster": "32-title.12d2889e.jpg",
                     "duration": 15.44,
                     "steps": [
                         {
@@ -2244,8 +2244,8 @@
                     "summary": "連續天數用月曆看，左右滑換月。",
                     "stars": 1,
                     "status": "ready",
-                    "video": "33-streak.mp4",
-                    "poster": "33-streak.jpg",
+                    "video": "33-streak.637e85fa.mp4",
+                    "poster": "33-streak.5a2379bd.jpg",
                     "duration": 18.43,
                     "steps": [
                         {
@@ -2302,8 +2302,8 @@
                     "summary": "前三名坐席次、第一名戴皇冠；鐵人進度一天一格。（只在封測期間）",
                     "stars": 1,
                     "status": "ready",
-                    "video": "34-event.mp4",
-                    "poster": "34-event.jpg",
+                    "video": "34-event.f0ef5466.mp4",
+                    "poster": "34-event.a9c85e69.jpg",
                     "duration": 13.09,
                     "steps": [
                         {
@@ -2369,8 +2369,8 @@
                     "summary": "鈴鐺晃一下、硬幣鈴錘跟著蕩，接著首頁的紙由上往下灑出來。",
                     "stars": 2,
                     "status": "ready",
-                    "video": "35-opening.mp4",
-                    "poster": "35-opening.jpg",
+                    "video": "35-opening.ec466501.mp4",
+                    "poster": "35-opening.1031c741.jpg",
                     "duration": 9.9,
                     "steps": [
                         {
@@ -2387,8 +2387,8 @@
                     "summary": "黃色頁首與底部功能列上下伸縮，中間的紙左右滑，層層錯開。",
                     "stars": 1,
                     "status": "ready",
-                    "video": "36-page-transition.mp4",
-                    "poster": "36-page-transition.jpg",
+                    "video": "36-page-transition.9211eec1.mp4",
+                    "poster": "36-page-transition.58983fad.jpg",
                     "duration": 15.45,
                     "steps": [
                         {
@@ -2438,8 +2438,8 @@
                     "summary": "不跟手機走也行；圖表、分類色都有深淺兩套。",
                     "stars": 1,
                     "status": "ready",
-                    "video": "37-dark-mode.mp4",
-                    "poster": "37-dark-mode.jpg",
+                    "video": "37-dark-mode.245f7549.mp4",
+                    "poster": "37-dark-mode.a053fa50.jpg",
                     "duration": 13.87,
                     "steps": [
                         {
@@ -2509,8 +2509,8 @@
                     "summary": "沒開通知存取權、相機權限時，那一項變警告色並寫出缺什麼。",
                     "stars": 1,
                     "status": "ready",
-                    "video": "38-menu-attention.mp4",
-                    "poster": "38-menu-attention.jpg",
+                    "video": "38-menu-attention.effcbce3.mp4",
+                    "poster": "38-menu-attention.49c1ae59.jpg",
                     "duration": 11.78,
                     "steps": [
                         {
@@ -2554,8 +2554,8 @@
                     "summary": "隨時匯出完整備份，之後也能匯入還原。",
                     "stars": 1,
                     "status": "ready",
-                    "video": "40-export.mp4",
-                    "poster": "40-export.jpg",
+                    "video": "40-export.f4ab4007.mp4",
+                    "poster": "40-export.7a58c713.jpg",
                     "duration": 14.37,
                     "steps": [
                         {
@@ -2619,8 +2619,8 @@
                     "summary": "下次打開首頁直接問，不用自己找回報頁。",
                     "stars": 1,
                     "status": "ready",
-                    "video": "41-crash-report.mp4",
-                    "poster": "41-crash-report.jpg",
+                    "video": "41-crash-report.e402b0dd.mp4",
+                    "poster": "41-crash-report.017a6939.jpg",
                     "duration": 14.17,
                     "steps": [
                         {
@@ -2655,8 +2655,8 @@
                     "summary": "只清帳目、只清自訂內容、只還原設定、只重置成就，按之前先說清楚會刪什麼、留什麼；也保留一鍵全清。",
                     "stars": 1,
                     "status": "ready",
-                    "video": "45-clear-data.mp4",
-                    "poster": "45-clear-data.jpg",
+                    "video": "45-clear-data.78044f99.mp4",
+                    "poster": "45-clear-data.7c0c2954.jpg",
                     "duration": 23.72,
                     "steps": [
                         {
@@ -2728,5 +2728,6 @@
             ]
         }
     ],
-    "generatedAt": "2026-09-27T20:52:55+0800"
+    "generatedAt": "2026-09-27T20:52:55+0800",
+    "mediaBase": "https://dindon-demo.opshell.me/"
 }

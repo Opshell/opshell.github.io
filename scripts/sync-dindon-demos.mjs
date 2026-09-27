@@ -10,7 +10,7 @@ import sharp from 'sharp';
 //
 // 素材由前端 Claude 在 DinDon_Android/store/demos/ 產生，規格見那裡的 README.md（溝通板 #0055）。
 // 影片不進這個倉庫：每重錄一次就多一份幾十 MB 的 git 歷史（2026-09-28 搬出來之前倉庫 74 MB，演示占 50 MB）。
-// 跟相簿一樣放 R2（bucket opshell-gallery，網域 image.opshell.me），倉庫只留目錄 demos.json。
+// 放 R2 自己的儲體 dindon-demo（網域 dindon-demo.opshell.me），跟相簿分開：金鑰只能碰這個儲體，倉庫只留目錄 demos.json。
 //
 // - 檔名加上內容的雜湊（02-dedupe.1a2b3c4d.mp4）：重錄後網址就變，可以放心讓瀏覽器與 CDN 長期快取
 // - R2 上已經有同名檔案就不重傳（同名＝同內容）
@@ -22,10 +22,10 @@ import sharp from 'sharp';
 //   --prune  順便刪掉 R2 上已經不在清單裡的舊檔（預設留著：還開著舊頁面的人不會突然看不到影片）
 // 素材路徑預設是本機的 ~/WWW/DinDon/DinDon_Android/store/demos。
 //
-// 上傳要 R2 的 API Token（Object Read & Write），寫在倉庫根目錄的 .env（已 gitignore，不會進版控）：
-//   R2_ENDPOINT=https://<帳號 ID>.r2.cloudflarestorage.com
-//   R2_ACCESS_KEY_ID=…
-//   R2_SECRET_ACCESS_KEY=…
+// 上傳要 R2 的 API 權杖（物件讀取和寫入，只套用到 dindon-demo），寫在倉庫根目錄的 .env.local（已 gitignore）：
+//   R2_DINDON_ENDPOINT=https://<帳號 ID>.r2.cloudflarestorage.com（不含儲體名稱）
+//   R2_DINDON_ACCESS_KEY_ID=…
+//   R2_DINDON_SECRET_ACCESS_KEY=…
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -36,19 +36,22 @@ const sourceArg = args.find(arg => !arg.startsWith('--'));
 const source = path.resolve(sourceArg ?? path.join(root, '..', 'DinDon', 'DinDon_Android', 'store', 'demos'));
 const indexTarget = path.join(root, 'docs', 'features', 'dindon', 'demo', 'demos.json');
 
-const BUCKET = 'opshell-gallery';
-const PREFIX = 'dindon/demos/';
-const PUBLIC_BASE = `https://image.opshell.me/${PREFIX}`;
+const BUCKET = 'dindon-demo';
+/** 整個儲體都是演示，檔案直接放根目錄 */
+const PREFIX = '';
+const PUBLIC_BASE = 'https://dindon-demo.opshell.me/';
 
 /** 目錄卡片上顯示約 110px 寬，給兩倍 */
 const THUMB_WIDTH = 240;
 
 const CONTENT_TYPES = { '.mp4': 'video/mp4', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
 
-try {
-    process.loadEnvFile(path.join(root, '.env'));
-} catch {
-    // 沒有 .env：--dry 照樣能跑，要上傳時下面會擋
+for (const file of ['.env.local', '.env']) {
+    try {
+        process.loadEnvFile(path.join(root, file));
+    } catch {
+        // 沒有這個檔：--dry 照樣能跑，要上傳時下面會擋
+    }
 }
 
 const indexSource = path.join(source, 'index.json');
@@ -96,9 +99,13 @@ for (const item of ready) {
 
 // #region R2（S3 相容 API）
 
-const { R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY } = process.env;
+const {
+    R2_DINDON_ENDPOINT: R2_ENDPOINT,
+    R2_DINDON_ACCESS_KEY_ID: R2_ACCESS_KEY_ID,
+    R2_DINDON_SECRET_ACCESS_KEY: R2_SECRET_ACCESS_KEY
+} = process.env;
 if (!dry && !(R2_ENDPOINT && R2_ACCESS_KEY_ID && R2_SECRET_ACCESS_KEY)) {
-    console.error('缺少 R2 的金鑰：在倉庫根目錄的 .env 設 R2_ENDPOINT、R2_ACCESS_KEY_ID、R2_SECRET_ACCESS_KEY（格式見這支腳本開頭）。\n只想看會傳哪些檔案：加 --dry');
+    console.error('缺少 R2 的金鑰：在倉庫根目錄的 .env.local 設 R2_DINDON_ENDPOINT、R2_DINDON_ACCESS_KEY_ID、R2_DINDON_SECRET_ACCESS_KEY（格式見這支腳本開頭）。\n只想看會傳哪些檔案：加 --dry');
     process.exit(1);
 }
 
