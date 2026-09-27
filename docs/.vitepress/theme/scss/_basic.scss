@@ -372,18 +372,19 @@ html {
 
     table tr {
         padding: 0;
-        border-top: 1px solid #dfe2e5;
+        border-top: 1px solid var(--vp-c-divider);
         margin: 0;
     }
 
+    // 顏色跟著深淺色走：寫死 #fafafa 的話，深色模式的偶數列是淺底配淺字，整列看不見
     table tr:nth-child(2n),
     thead {
-        background-color: #fafafa;
+        background-color: var(--vp-c-bg-soft);
     }
 
     table tr th {
         padding: 6px 13px;
-        border: 1px solid #dfe2e5;
+        border: 1px solid var(--vp-c-divider);
         border-bottom: 0;
         margin: 0;
         font-weight: bold;
@@ -392,7 +393,7 @@ html {
 
     table tr td {
         padding: 6px 13px;
-        border: 1px solid #dfe2e5;
+        border: 1px solid var(--vp-c-divider);
         margin: 0;
         text-align: left;
     }
