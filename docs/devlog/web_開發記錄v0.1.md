@@ -615,3 +615,33 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
   跑完告訴網頁 Claude，會檢查網址、刪 `docs/public/images/dindon/demos/`、在 #0063 回覆。
 - 已在 git 歷史裡的 50 MB 要改寫歷史（force push）才會消失，要不要做另外決定。
 - 新單：#0061（後台管理新功能投票的候選，後端 → 網頁）、#0062（Play 加入測試頁是英文，第二步說明與動畫改「Become a tester」，上架 → 網頁）。
+
+# 2026-09-28：演示影片切換到 R2（`dindon-demo`）；相簿上傳方式查核
+
+**使用者**：`.env` 裡面有資料了，網域是 dindon-demo.opshell.me。（另開了獨立儲體 `dindon-demo`，問放這裡是不是更好。）
+題外話：相簿目前是不是沒有上傳照片的功能？沒看到 token，也不確定當初是不是整包拖拉上傳。
+
+## 做了什麼
+
+- `db94f71`：腳本改用儲體 `dindon-demo`、檔案放根目錄、讀 `.env.local` 的 `R2_DINDON_*`；實際上傳 108 個檔案；刪掉倉庫的 44.7 MB 副本；`catalog.ts` 不再退回 public。
+- `.gitignore` 補 `.env.*`：使用者建的是 `.env.local`，原本只排除 `.env`，差點會被 `git add` 帶進去（沒有提交過）。
+- 工作區 `8ddbf88`：#0063 回覆並結案（前端已停止提交素材、清掉 App 倉庫歷史）。
+
+## 驗證
+
+- 108 個檔案經公開網域都 200、大小與原檔一致、Range 回 206、CDN 快取命中。
+- 本機建置後在瀏覽器：36 張縮圖從 R2 載入，點開影片從 R2 播放，時間會走，疊層正常。正式站也確認指向 R2。
+
+## 踩到的坑
+
+- 本機 `vitepress preview` 在建置途中啟動，記住的是舊檔案清單，新的 JS 一律 404，看起來像「頁面沒 hydrate」。重啟預覽就好，不是網站的問題。
+
+## 相簿怎麼上傳（查核結果）
+
+倉庫裡**沒有**上傳照片的程式，歷史裡也從來沒有過（`package.json` 從沒裝過 S3 相關套件）。現有流程：
+
+1. 照片放 `photos/raw/<相簿>/`，跑 `pnpm gallery-thumb`（`generate-gallery.mjs`）：產生 `photos/thumbs/` 與 `photos/data.json`
+2. `raw/`、`thumbs/` **手動**傳到 R2 的 `opshell-gallery`（Cloudflare 後台拖拉，或 S3 Browser）；只有 `data.json` 進 git
+
+`Upload-Script` 權杖發行於 2026-01-21，跟相簿的第一個 commit（01-20）同一天，`.env` 也是那時加進 `.gitignore` 的：當時打算寫上傳腳本，最後沒寫。
+這台 Mac 上沒有 `photos/raw`、`photos/thumbs`，原圖可能只剩 R2 上那份（或在舊的 Windows 電腦上）。
