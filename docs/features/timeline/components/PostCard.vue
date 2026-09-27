@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { Post } from '@shared/hooks/useBuildSiteData';
+    import type { Post } from '@shared/schemas/post.schema';
     import { computed } from 'vue';
     import DateBadge from './DateBadge.vue';
 

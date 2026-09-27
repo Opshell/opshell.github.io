@@ -49,9 +49,12 @@ isPublished: false              # true 才是「已發布」
 ---
 ```
 
+- **已發佈文章的 frontmatter 建置時會驗證**（`docs/shared/schemas/post.schema.ts`，Zod）：`title` 必填、`createdAt` 要是合法的 YYYY-MM-DD，
+  寫錯 `pnpm docs:build` 會失敗並印出檔名與哪個欄位不對。`createdAt` 沒加引號被 YAML 讀成日期、`tags` 有 `- null`、`categories` 寫成單一字串都會自動整理。
+  未發佈的草稿不驗證。
 - **`isPublished: true` 的效果**：進 `siteData.posts`（時間軸、標籤列、右側「已發布文章」計數）、進側欄、進 sitemap（`changefreq` 預設 yearly、`priority` 0.6，可在 frontmatter `sitemap:` 覆寫）。
   `false` 的文章直接打網址還是看得到，只是沒有入口，計數在「填坑中」。
-- `tags:` 不要留 `- null` 或空項（既有的有一些是 `add-frontmatter` 補的殘留）；沒有標籤就整個欄位留空。
+- `tags:` 不要留 `- null` 或空項（驗證時會濾掉，但乾淨一點好讀）；沒有標籤就整個欄位留空。
 - `categories` 目前用得最多的是 `未分類`、`typescript-thirty-days`、`vitepress-thirty-days`、`使用實例`、`Git`、`portfolio`。新文章盡量對到既有的，不要再生新分類。
 - 沒有 `layout`：文章一律用自製的文章版型（`articleLayout.vue`），不要設 `layout: doc`。
 - 整批修 frontmatter 有腳本：`pnpm add-frontmatter`（補齊欄位）、`pnpm fix-tags`、`pnpm fix-empty-frontmatter`、`pnpm fix-createdAt`。

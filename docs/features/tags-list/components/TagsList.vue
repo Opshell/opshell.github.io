@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import type { TagSummary } from '@shared/data/tagSummeries';
-    import type { Post } from '@shared/hooks/useBuildSiteData';
+    import type { Post } from '@shared/schemas/post.schema';
     import { tagSummaries } from '@shared/data/tagSummeries';
     import { useSiteData } from '@shared/hooks/useSiteData';
     import { computed, onMounted, ref, watch } from 'vue';

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { Post } from '@shared/hooks/useBuildSiteData';
+    import type { Post } from '@shared/schemas/post.schema';
     import { useSiteData } from '@shared/hooks/useSiteData';
     import { computed, ref } from 'vue';
 

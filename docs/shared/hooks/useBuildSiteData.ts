@@ -1,6 +1,9 @@
+import type { Post } from '../schemas/post.schema';
 import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
+import { z } from 'zod';
+import { PostFrontmatterParser } from '../schemas/post.schema';
 
 interface Tags {
     [key: string]: {
@@ -24,17 +27,7 @@ export interface Classification {
     category: string;
 }
 
-// [-] 單篇文章的結構 SSoT
-export interface Post {
-    url: string;
-    title: string;
-    date: string;
-    image: string;
-    category: string[];
-    tags: string[];
-    excerpt: string;
-    // ... 之後可擴充其他需要的 frontmatter 欄位
-}
+// 單篇文章的結構（Post）定義在 schemas/post.schema.ts，由 Zod 驗證後產生
 
 // [-] Tag 索引的結構
 export interface TagIndex {
@@ -76,27 +69,8 @@ function getFrontMatter(filePath: string) {
     return data;
 }
 
-/**
- * createdAt 沒加引號時（createdAt: 2026-01-08），YAML 會把它讀成 Date 物件，傳到瀏覽器後就壞掉了，
- * new Date() 轉不回來，標籤頁的熱圖會整頁掛掉。一律轉成 YYYY-MM-DD 字串；轉不了就給空字串（各頁會跳過沒日期的文章）。
- */
-function normalizeDate(value: unknown): string {
-    if (value instanceof Date) return Number.isNaN(value.getTime()) ? '' : value.toISOString().slice(0, 10);
-    if (typeof value !== 'string' || !value.trim()) return '';
-    return Number.isNaN(new Date(value).getTime()) ? '' : value.trim();
-}
-
-/** frontmatter 的清單欄位：不是陣列就當空、去掉 null 與空白、去重 */
-function cleanList(value: unknown, fallback: string[]): string[] {
-    if (!Array.isArray(value)) return fallback;
-    const items = value.filter((v): v is string => typeof v === 'string' && v.trim() !== '').map(v => v.trim());
-    return items.length ? [...new Set(items)] : fallback;
-}
-
-function getExcerpt(content: string, description?: string): string {
-    // 如果有手動寫 description，直接回傳 (優先權最高)
-    if (description) return description;
-
+/** 從內文截出摘要。frontmatter 有 description 的話 Parser 會優先用它 */
+function getExcerpt(content: string): string {
     let text = content;
 
     // 先移除 Frontmatter (YAML 設定檔)
@@ -173,16 +147,13 @@ function processFile(fullPath: string, contentRoot: string): Post | null {
     // 產生 URL
     const url = `/${urlPath.replace(/\.md$/, '.html')}`;
 
-    return {
-        url,
-        title: frontmatter.title as string,
-        image: frontmatter.image as string ?? '/images/no_image.svg',
-        category: cleanList(frontmatter.categories, ['雜談']),
-        date: normalizeDate(frontmatter.createdAt),
-        // frontmatter 常有 `- null` 或空字串（早期腳本補的），不濾掉會出現一個叫「#」的標籤
-        tags: cleanList(frontmatter.tags, []),
-        excerpt: getExcerpt(content, frontmatter.description as string)
-    };
+    // frontmatter 的髒活（Date 物件、`- null`、空字串）與驗證都在 PostFrontmatterParser；
+    // 已發佈的文章格式不對就讓建置失敗並指出檔名，不讓壞資料進到瀏覽器（2026-09-25 Belief 標籤整頁空白就是這樣來的）
+    const result = PostFrontmatterParser.safeParse({ ...frontmatter, url, excerpt: getExcerpt(content) });
+    if (!result.success) {
+        throw new Error(`文章 frontmatter 格式不對：${relativePath}\n${z.prettifyError(result.error)}`);
+    }
+    return result.data;
 }
 
 export async function buildSiteData(contentRoot: string): Promise<SiteDataSerializable> {
