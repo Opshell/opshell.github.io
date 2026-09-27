@@ -215,7 +215,8 @@ export default {
         'declaration-block-single-line-max-declarations': 1, // 單行 CSS block 的最參數數量。
         'at-rule-empty-line-before': 'never', // at(@) 規則之前必須始終有一個空行。
         // 'selector-class-pattern': '^[a-z][a-zA-Z0-9]+$', // 類選擇器的命名模式。
-        'selector-class-pattern': null, // 類選擇器的命名模式。
+        // 前端開發規範二章：小寫 kebab-case 加上 BEM 的 __element、--modifier；覆蓋第三方的 class 用 stylelint-disable-next-line 放行
+        'selector-class-pattern': ['^[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$', { resolveNestedSelectors: true }],
         'property-no-vendor-prefix': null, // 禁止屬性的供應商前綴。
         'value-no-vendor-prefix': null, // 禁止值的供應商前綴。
         'selector-attribute-quotes': 'never', // 不用給屬性選擇器的引號。

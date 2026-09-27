@@ -109,6 +109,7 @@
 
 <style lang="scss">
     // 這個網站的 body 是黑底，只有文章版型自己鋪了背景；page 版型要自己補，不然淺色模式是黑底深字
+    /* stylelint-disable-next-line selector-class-pattern -- .Layout 是 VitePress 的版型 class */
     .Layout.dindon-dashboard { background: var(--vp-c-bg); }
 
     // 後台沿用網站的 VitePress 色彩變數，跟著網站的淺色／深色切換。

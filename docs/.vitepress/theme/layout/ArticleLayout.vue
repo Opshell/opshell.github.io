@@ -1,10 +1,10 @@
 <script setup lang="ts">
     import {
         ArticleMeta,
-        ArticleTOC,
+        ArticleToc,
         AsideWidget,
         SeriesSidebar,
-        useTOC
+        useToc
     } from '@features/layout';
     import { useSiteData } from '@hooks/useSiteData';
     import { defaultWindow, useScroll } from '@vueuse/core';
@@ -21,8 +21,8 @@
     const siteData = useSiteData();
 
     const contentDom = ref<HTMLElement>();
-    // 把 ref 丟進去 useTOC
-    const { headers, activeAnchor } = useTOC(contentDom);
+    // 把 ref 丟進去 useToc
+    const { headers, activeAnchor } = useToc(contentDom);
 
     // --- Focus Mode ---
     const isFocusMode = ref(false);
@@ -190,7 +190,7 @@
 
             <aside class="article-layout__container-right">
                 <div class="sticky-content">
-                    <ArticleTOC
+                    <ArticleToc
                         :headers="headers"
                         :active-anchor="activeAnchor"
                     />

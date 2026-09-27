@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { Header } from '../hooks/useTOC';
+    import type { Header } from '../hooks/useToc';
     import { nextTick, ref, watch } from 'vue';
 
     const props = defineProps<{

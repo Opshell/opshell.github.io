@@ -3,7 +3,7 @@ import SkillBox from './components/SkillBox.vue';
 import WorkExperience from './components/WorkExperience.vue';
 
 export * from './period';
-export * from './work-experience.data';
+export * from './workExperience.data';
 
 export {
     Skill,

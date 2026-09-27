@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { iWork } from '../work-experience.data';
+    import type { iWork } from '../workExperience.data';
     import { computed, ref, watch } from 'vue';
     import { formatMonths, monthsOf } from '../period';
 

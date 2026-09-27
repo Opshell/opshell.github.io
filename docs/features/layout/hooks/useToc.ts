@@ -41,10 +41,10 @@ function getAbsoluteTop(element: HTMLElement | null): number {
     return offsetTop;
 }
 
-/** [-] useTOC Composable
+/** [-] useToc Composable
  * @param contentRef 文章內容的容器 Ref (通常是 <article> 或 .vp-doc)
  */
-export function useTOC(contentRef: Ref<HTMLElement | undefined>) {
+export function useToc(contentRef: Ref<HTMLElement | undefined>) {
     const { page } = useData();
     const headers = shallowRef<Header[]>([]);
     const activeAnchor = ref<string>('');

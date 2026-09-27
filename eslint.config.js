@@ -67,6 +67,11 @@ export default antfu(
             'jsdoc/multiline-blocks': 'off' // 註解標題可以在第一行
         }
     },
+    { // 檔名（前端開發規範一章）：只檢查檔名，資料夾名稱不管
+        files: ['**/*.ts'],
+        ignores: ['**/*.d.ts', 'scripts/**'],
+        rules: { 'unicorn/filename-case': ['error', { case: 'camelCase', checkDirectories: false }] }
+    },
     { // Node 腳本：印東西是它的工作
         files: ['scripts/**'],
         rules: { 'no-console': 'off' }
@@ -78,6 +83,9 @@ export default antfu(
             'vue/singleline-html-element-content-newline': 'off', // <td>{{ x }}</td> 這種一行就好
             'style/indent': 'off', // 跟 vue/script-indent 衝突
             'vue/require-valid-default-prop': 'off', // Vue 3.5 可解構 props，[] 就好
+            // 前端開發規範：.vue 檔名 PascalCase；不用 scoped（寫到子元件內部的選擇器會安靜失效），樣式包在唯一的頂層 class
+            'unicorn/filename-case': ['error', { case: 'pascalCase', checkDirectories: false }],
+            'vue/enforce-style-attribute': ['error', { allow: ['plain'] }],
             'vue/operator-linebreak': ['error', 'before'],
             'vue/html-closing-bracket-newline': ['error', {
                 singleline: 'never',
