@@ -82,6 +82,8 @@ export interface JoinStep {
     text: string;
     action: string;
     href: string;
+    /** 容易讓人以為出錯、其實正常的地方 */
+    note?: string;
     /** 容易做錯的地方 */
     caution?: string;
 }
@@ -96,9 +98,11 @@ export const joinSteps: JoinStep[] = [
     },
     {
         title: '成為測試人員，下載安裝',
-        text: '收到核准信之後，打開測試連結，按「成為測試人員」，再點「在 Google Play 下載」，照一般 App 安裝。',
+        text: '收到核准信之後，打開測試連結，按藍色的「Become a tester」（成為測試人員）。下一頁再點裡面的 Google Play 連結，進到 Play 商店照一般 App 安裝。',
         action: '打開測試連結',
         href: PLAY_OPTIN_URL,
+        // Google 的測試頁只有英文：帳號語言、加 ?hl=zh-TW 都沒用（板 #0062，使用者實測）
+        note: '測試連結打開是英文頁面，這是 Google 的固定頁面，不是連錯。到了 Play 商店就會照手機語言顯示中文。',
         caution: '還沒被核准就打開，會加入不了——先做第 1 步。'
     }
 ];

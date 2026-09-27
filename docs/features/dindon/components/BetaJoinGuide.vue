@@ -15,6 +15,7 @@
                 <div class="dindon-join__body">
                     <h3>{{ step.title }}</h3>
                     <p>{{ step.text }}</p>
+                    <p v-if="step.note" class="note">{{ step.note }}</p>
                     <p v-if="step.caution" class="caution">{{ step.caution }}</p>
                     <a class="dindon-join__btn" :class="{ 'dindon-join__btn--primary': index === 0 }" :href="step.href" target="_blank" rel="noopener">
                         {{ step.action }}<span class="arrow" aria-hidden="true">→</span>
@@ -40,13 +41,13 @@
                         <p class="small">叮咚記帳 Beta 測試</p>
                     </div>
                 </div>
-                <!-- 3. 測試連結：按「成為測試人員」 -->
+                <!-- 3. 測試連結：Google 的固定頁面只有英文，按鈕照實際的「Become a tester」（板 #0062） -->
                 <div class="scene scene--optin">
-                    <p class="bar">Google Play 測試</p>
+                    <p class="bar">Google Play Testing</p>
                     <img class="icon" src="/images/dindon/icon.webp" alt="" loading="lazy" />
-                    <p class="heading">成為叮咚記帳的測試人員</p>
-                    <span class="mock-btn mock-btn--optin"><span class="before">成為測試人員</span><span class="after">你已成為測試人員</span></span>
-                    <p class="small link">在 Google Play 下載</p>
+                    <p class="heading">You're invited to test 叮咚記帳</p>
+                    <span class="mock-btn mock-btn--optin"><span class="before">Become a tester</span><span class="after">You're a tester</span></span>
+                    <p class="small link">Download it on Google Play</p>
                 </div>
                 <!-- 4. Play 商店：安裝 -->
                 <div class="scene scene--play">
@@ -116,6 +117,10 @@
 
             h3 { font-size: var(--font-size-m); }
             p { font-size: var(--font-size-s); }
+            .note {
+                padding-left: 10px;
+                border-left: 3px solid var(--dd-accent);
+            }
             .caution {
                 color: var(--dd-accent-border);
                 font-weight: 700;
@@ -212,6 +217,7 @@
             .link {
                 color: #1D59BB;
                 font-weight: 700;
+                word-break: normal; // .small 為了長 email 設了 break-all，英文連結會斷在字中間
                 animation: dd-join-optin-after var(--join-duration) linear infinite;
                 opacity: 0;
             }
