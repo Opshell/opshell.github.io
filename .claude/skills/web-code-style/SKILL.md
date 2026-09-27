@@ -1,9 +1,14 @@
 ---
 name: web-code-style
-description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vue 內多縮一層、單引號分號無尾逗號、iProps 前綴、區塊__元素 加 is-狀態 的 class、不用 scoped 而用頂層 class 包、CSS 屬性順序、setFlex／setRWD mixin、註解寫為什麼。寫或改任何 .vue、.ts、.scss 時用。
+description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vue 內多縮一層、單引號分號無尾逗號、型別不加前綴、BEM 的 __元素 --規格 is-狀態、不用 scoped 而用頂層 class 包、CSS 屬性順序、setFlex／setRWD mixin、註解寫為什麼。寫或改任何 .vue、.ts、.scss 時用。
 ---
 
 # 這個網站的程式風格
+
+**通用規則以〈前端開發規範〉為準**（`docs/pages/article/code-sea/developer/前端開發規範.md`，網址 `/article/code-sea/developer/前端開發規範.html`）。
+這個倉庫適用：核心四章（目錄與檔名、CSS、SFC、TS 基本）＋條件章「五、Zod 資料層」（frontmatter、叮咚後台、同步進來的 JSON）；
+沒有 TanStack、router、Pinia、vee-validate。規範沒寫到的、或這個倉庫的例外，才寫在下面。
+舊程式正分批改成規範的寫法（變體 `--`、型別去前綴…），進度見 `docs/devlog/規範討論.md`；**新寫的程式直接照規範**。
 
 規則來源：`eslint.config.js`（antfu 9.x，ESLint 10）、`.stylelintrc.mjs`（standard-scss 17 + order）、既有程式。
 改完跑 `pnpm check`（lint → stylelint → typecheck → build），三個工具都要乾淨。跟 antfu 預設刻意相反、已在設定裡關掉的：單行 `if`、頂層 `const` 箭頭函式、`<td>{{ x }}</td>` 這種單行元素、事件名 kebab-case。
@@ -13,7 +18,7 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
 - 4 空格、單引號、**每句結尾分號**、**沒有尾逗號**（陣列、物件、參數的最後一項後面不加逗號）。
 - `if` 單行不加大括號，多行才加：`if (!token) throw new AdminApiError(401, '請先登入');`。
   大括號 `1tbs`，`} else {` 同一行。單行最多兩個語句。
-- interface 用 `i` 前綴：`iProps`、`iPoint`、`iReward`、`iSiteData`。API 回應的型別（`AdminDevice`、`Perk`）沒有前綴，那是照 `api.md` 的物件名稱。
+- 型別不加前綴（規範四章）：`Props`、`Point`、`Reward`、`SiteData`。舊程式裡的 `iXxx`／`tXxx` 分批改名中，新程式不要再加。
 - import 順序：`import type` 最前面，再套件（`vue`、`vitepress`），再自己的（`../api`、`../constants`）。同一組內按字母。
 - `console.log` 是 warning；正式程式不留。
 - 不用 `any` 逃避型別；真的要接第三方鬆散型別時（markdown-it、three）用 `as any` 並註明原因。
@@ -30,11 +35,11 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
     import { adminApi } from '../api';
 
     // 這個元件在做什麼、為什麼這樣設計（一兩句，中文）
-    interface iProps {
+    interface Props {
         title?: string
         size?: number
     }
-    withDefaults(defineProps<iProps>(), { title: '', size: 24 });
+    withDefaults(defineProps<Props>(), { title: '', size: 24 });
 
     const loading = ref(false);
     const error = ref('');
@@ -75,7 +80,7 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
 ```
 
 - `<script setup lang="ts">`，內容**再縮一層**（`vue/script-indent` baseIndent 1）；`<style>` 內容同樣多縮一層。`<template>` 也是。
-- props 用 `withDefaults(defineProps<iProps>(), {...})`；Vue 3.5 可以直接給 `[]`，不用 `() => []`。
+- props 用 `withDefaults(defineProps<Props>(), {...})`；Vue 3.5 可以直接給 `[]`，不用 `() => []`。
 - 標籤：void 與元件一律自閉合 `<img />`、`<DinDonBell />`；多行標籤的 `>` 換到下一行；運算子斷行放行首（`&&` 在下一行開頭）。
 - 讀取狀態的模式固定是 `loading`／`error`／`notice` 三個 `ref` 加 `try / catch / finally`。錯誤訊息是給人看的中文。
 - 送出前先在前端驗一遍（`formError` computed），訊息比後端那句好懂，但後端才是真正的把關。
@@ -87,7 +92,8 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
 
 - 一個元件一個頂層 class，叮咚的元件用 `dd-` 或 `dindon-` 前綴：`dindon-landing`、`dd-promo`、`dindon-privacy`。
 - 子元素 `頂層__元素`：`dindon-landing__hero`、`dd-promo__form`。再往下的小東西可以用單字 class（`.icon`、`.name`）但要包在父層的 SCSS 裡。
-- 狀態 `is-xxx`：`is-primary`、`is-active`、`is-frozen`、`is-visible`、`is-motion`。變體 `is-a`／`is-b`。
+- 規格 `--xxx`（props 決定、建立後不變）：`&--primary`、`&--sm`。狀態 `is-xxx`（互動中會變）：`is-active`、`is-frozen`、`is-visible`、`is-motion`。
+  舊程式有些規格也寫成 `is-`（`is-primary`、`is-a`），分批改中。
 - 資料屬性驅動的行為用 `data-xxx`：`data-reveal`、`data-parallax=".35"`。
 
 ## SCSS

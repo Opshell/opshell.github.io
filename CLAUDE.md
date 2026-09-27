@@ -1,6 +1,6 @@
 # opshell.github.io（Opshell's Blog ＋ 叮咚記帳官網）
 
-VitePress 1.3 的部落格：Vue 3.5、TypeScript、SCSS、pnpm。網址 `https://opshell.github.io`，
+VitePress 1.6 的部落格：Vue 3.5、TypeScript、SCSS、pnpm。網址 `https://opshell.github.io`，
 設了自訂網域，實際一律轉到 `https://opshell.me`。叮咚記帳（DinDon）的宣傳頁、後台、隱私權政策、
 刪除帳號頁都掛在 `/dindon/` 底下。
 
@@ -66,10 +66,10 @@ Node 24、pnpm 10.28（`packageManager` 鎖住）。`ignoreDeadLinks: true`，�
 
 ## 6. 程式風格
 
-從 `eslint.config.js`、`.stylelintrc.mjs` 與既有程式歸納，全文在 [[web-code-style]]。最常踩的：
-4 空格、`.vue` 的 `<script>` 與 `<style>` 內容再多縮一層、單引號、有分號、**沒有尾逗號**、
-interface 用 `i` 前綴（`iProps`、`iPoint`）、`.vue` 檔名一律 PascalCase、class 用 `區塊__元素` 加 `is-狀態`、
-`<style lang="scss">` 不加 `scoped` 而是整段包在頂層 class 裡、CSS 屬性照 stylelint-order 的順序、註解用中文寫「為什麼」。
+**通用規則以〈前端開發規範〉為準**：`docs/pages/article/code-sea/developer/前端開發規範.md`（公開網址 `/article/code-sea/developer/前端開發規範.html`）。
+這個倉庫適用核心四章＋條件章「五、Zod 資料層」，沒有 TanStack、router、Pinia、vee-validate。規則只寫在那裡，這裡不抄；
+本倉庫的做法與例外在 [[web-code-style]]。最常踩的：4 空格、`.vue` 的 `<script>` 與 `<style>` 內容再多縮一層、單引號、有分號、
+**沒有尾逗號**、型別不加前綴、`.vue` 檔名 PascalCase、BEM 的 `__元素`／`--規格`／`is-狀態`、不加 `scoped`、註解用中文寫「為什麼」。
 
 ## 7. 叮咚記帳的部分
 
