@@ -89,14 +89,20 @@ pnpm dindon:privacy /別的路徑.md    # 原稿在別處
 - 網頁專屬的部分（標題、刪除入口的提示框、樣式）在 `scripts/sync-dindon-privacy.mjs` 裡，要改這些就改腳本。
 - 產出要 commit（CI 拿不到另一個倉庫）。commit 訊息 `chore(dindon): 隱私權政策同步到 M/D 版`。
 
-## 功能演示：素材從 App 倉庫複製
+## 功能演示：素材從 App 倉庫傳到 R2
 
 ```bash
-pnpm dindon:demos                   # 預設讀 ../DinDon/DinDon_Android/store/demos
+pnpm dindon:demos --dry             # 只列出要傳的檔案
+pnpm dindon:demos                   # 預設讀 ../DinDon/DinDon_Android/store/demos，傳到 R2
+pnpm dindon:demos --prune           # 順便刪 R2 上不在清單裡的舊檔
 ```
 
-- 前端 Claude 錄影、產 `index.json`（規格在那邊的 `README.md`），錄好會在溝通板回覆。網頁只要重跑腳本、commit：
-  影片與封面進 `docs/public/images/dindon/demos/`、順便縮出 `*.thumb.webp` 給目錄用、舊檔自動刪掉，`index.json` 複製成 `demo/demos.json`。
+- 前端 Claude 錄影、產 `index.json`（規格在那邊的 `README.md`），錄好會在溝通板回覆。網頁重跑腳本、commit `demo/demos.json`。
+- 影片、封面、縮圖（`*.thumb.webp`）傳到 R2 的 `opshell-gallery/dindon/demos/`（`image.opshell.me`），**不進這個倉庫**
+  （2026-09-28 之前進 `docs/public/`，倉庫 74 MB 裡占 50 MB）。檔名帶內容雜湊，重錄後網址會變，所以快取一年。
+  `demos.json` 的 `mediaBase` 指到 R2，`catalog.ts` 讀它。
+- 上傳要 R2 的 API Token，放在倉庫根目錄的 `.env`（格式在腳本開頭）。**這是使用者的金鑰，不要讀出來、不要印出來**；
+  沒有 `.env` 就請使用者自己跑。
 - 手指、紅框、泡泡的時間參數在 `useDemoOverlay.ts` 頂端。drag 照 `pathMs` 走、紅框照 `box` 畫（兩者都是錄影時實測的）；泡泡的位置規則在 `bubbleAbove()`。
 - 圖解要跟 App 實際行為一致：第 4 項的前後對照是拿 `NotificationParser.deIdentify` 真的跑出來的，App 改規則要跟著改。
 - **對話框裡的元件要用 `defineAsyncComponent` 載入**：VitePress 第一次載入用「精簡版」頁面程式，會把靜態 HTML 清成空字串

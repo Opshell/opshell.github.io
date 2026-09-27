@@ -578,3 +578,40 @@ markdown 頁面裡的 `<ElXxx>` 從來沒被 unplugin-vue-components 解析到�
 - `拷貝` 那份 v4.0 規範（未進版控）要不要刪。
 - 評估報告剩下的：主題 JS 1.6 MB（Tres、Sandpack 全站載入）、演示影片搬 R2、草稿加 noindex、測試、Windows 路徑。
 - 後台已上線：登入後六個分頁各點一次；若看到「回應格式不符」，訊息會寫是哪支 API、哪個欄位。
+
+# 2026-09-28：評估報告剩下的五項（效能、noindex、Windows 路徑、測試、演示影片搬 R2）
+
+**使用者**：每頁都載入 1.6 MB 的主題 JS、演示影片搬到 R2、草稿頁加 noindex、測試、腳本裡的 Windows 路徑，這些問題你都能處理嗎？可以的話一起處理，需要開單可以直接開。
+
+## 做了什麼
+
+| commit | 內容 | 驗證 |
+|---|---|---|
+| `fef7a67` | 主題 JS 1,665 KB → 135 KB：拿掉全域 `app.use(Tres)`（只註冊 TresCanvas，GalaxyBack 自己 import）；Sandbox 改 `defineAsyncComponent` | 首頁、星系頁、標籤頁、兩篇沙盒文章在瀏覽器實測；沙盒照常編譯出 Hello world |
+| `8d7281d` | `article/` 底下沒發佈的頁面加 `robots noindex, nofollow` | 262 頁文章＝82 發佈＋180 未發佈；加到 179 頁（AI 專區首頁是 `layout: page`，照常收錄），已發佈 0 頁 |
+| `da85d5c` | 四支 frontmatter 腳本的根目錄改成相對於腳本；`add-frontmatter` 跳過專區首頁 | 在暫存 worktree 實跑四支 |
+| `87f5607` | Vitest 3、31 個測試（`utils/zod`、文章 frontmatter、叮咚後台、演示疊層），`pnpm check` 與 CI 都跑 | 故意改壞三處，對應的測試都紅 |
+| `3aec8de` | `pnpm dindon:demos` 改傳 R2（檔名帶雜湊、傳完才寫 demos.json、`--dry`、`--prune`），網頁讀 `mediaBase` | 假的 S3 伺服器：首次傳 108 個、再跑全跳過、`--prune` 只刪舊檔、請求都有簽章 |
+| 工作區 `cdab8d1` | 開單 #0063 問前端：App 倉庫的演示素材要不要繼續進 git | |
+
+## 判斷
+
+- **Sandbox 不用 `defineClientComponent`**：VitePress 那個包裝不把插槽傳下去，而 `::: sandbox` 的程式碼就在插槽裡。
+- **noindex 的條件是「沒發佈，而且不是 `layout: page`」**：只看 `isPublished` 會把 AI 專區首頁擋掉；只看「明確寫 false」又會漏掉兩篇沒寫的草稿（其中一篇是從別的網站複製的參考筆記）。
+- **Vitest 用 3 不用 5**：5 要 Vite 6，VitePress 1.6 還在 Vite 5。
+- **演示檔名加內容雜湊**：重錄後網址就變，可以快取一年，不會有人看到舊影片；R2 上同名就是同內容，不用重傳。
+- **切換分兩步**：腳本先上線，但 `demos.json` 沒有 `mediaBase` 時照舊讀 `docs/public`；使用者上傳後再刪倉庫裡的副本，網站不會有空窗。
+
+## 踩到的坑
+
+- `add-frontmatter` 在 Mac 上從來沒跑成功過（寫死 `c:/wamp64`）；修好路徑之後才發現它會把 `article/ai/index.md` 當文章，補上 `isPublished: false`、刪掉註解。
+- 想把上次產生的後端回應複製進倉庫當測試資料，被權限擋下（來源是後端倉庫的複本）。改成依 `admin.schema.ts` 手寫最小資料。
+- vitest 5 裝得起來，一跑就 `ERR_PACKAGE_PATH_NOT_EXPORTED`（`vite/module-runner`），原因是被解析到 VitePress 的 Vite 5。
+
+## 留給使用者
+
+- **R2 金鑰**：Cloudflare → R2 → Manage R2 API Tokens 建一把 Object Read & Write（限 `opshell-gallery`），
+  在官網倉庫根目錄建 `.env` 放 `R2_ENDPOINT`、`R2_ACCESS_KEY_ID`、`R2_SECRET_ACCESS_KEY`，跑 `pnpm dindon:demos`。
+  跑完告訴網頁 Claude，會檢查網址、刪 `docs/public/images/dindon/demos/`、在 #0063 回覆。
+- 已在 git 歷史裡的 50 MB 要改寫歷史（force push）才會消失，要不要做另外決定。
+- 新單：#0061（後台管理新功能投票的候選，後端 → 網頁）、#0062（Play 加入測試頁是英文，第二步說明與動畫改「Become a tester」，上架 → 網頁）。
