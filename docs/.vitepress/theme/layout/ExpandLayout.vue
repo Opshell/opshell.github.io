@@ -119,40 +119,42 @@
 
     <Layout v-else :class="[frontmatter.class]">
         <template #doc-before>
-            <div class="article-meta-header">
-                <div class="meta-row">
-                    <div class="meta-item author">
-                        <ElSvgIcon name="person" class="icon" />
-                        <span>{{ frontmatter.author || 'Opshell' }}</span>
+            <div class="page-doc-meta">
+                <div class="article-meta-header">
+                    <div class="meta-row">
+                        <div class="meta-item author">
+                            <ElSvgIcon name="person" class="icon" />
+                            <span>{{ frontmatter.author || 'Opshell' }}</span>
+                        </div>
+
+                        <div v-if="lastUpdated || frontmatter.createdAt" class="meta-item date">
+                            <ElSvgIcon name="calendar_month" class="icon" />
+                            <span v-if="frontmatter.createdAt">{{ frontmatter.createdAt }}</span>
+                            <span v-else>{{ lastUpdated }}</span>
+                        </div>
+
+                        <div class="meta-item views">
+                            <ElSvgIcon name="visibility" class="icon" />
+                            <span id="busuanzi_value_page_pv">--</span>
+                        </div>
                     </div>
 
-                    <div v-if="lastUpdated || frontmatter.createdAt" class="meta-item date">
-                        <ElSvgIcon name="calendar_month" class="icon" />
-                        <span v-if="frontmatter.createdAt">{{ frontmatter.createdAt }}</span>
-                        <span v-else>{{ lastUpdated }}</span>
-                    </div>
-
-                    <div class="meta-item views">
-                        <ElSvgIcon name="visibility" class="icon" />
-                        <span id="busuanzi_value_page_pv">--</span>
+                    <div v-if="frontmatter.tags" class="tags-row">
+                        <a
+                            v-for="tag in frontmatter.tags"
+                            :key="tag"
+                            class="tag-pill"
+                            :href="`/tags-list.html?tag=${tag}&page=1`"
+                        >
+                            <ElSvgIcon name="tag" class="icon" />
+                            {{ tag }}
+                        </a>
                     </div>
                 </div>
 
-                <div v-if="frontmatter.tags" class="tags-row">
-                    <a
-                        v-for="tag in frontmatter.tags"
-                        :key="tag"
-                        class="tag-pill"
-                        :href="`/tags-list.html?tag=${tag}&page=1`"
-                    >
-                        <ElSvgIcon name="tag" class="icon" />
-                        {{ tag }}
-                    </a>
+                <div v-if="frontmatter.image" class="banner-block">
+                    <img :src="frontmatter.image" :alt="`${frontmatter.title}_image`" />
                 </div>
-            </div>
-
-            <div v-if="frontmatter.image" class="banner-block">
-                <img :src="frontmatter.image" :alt="`${frontmatter.title}_image`" />
             </div>
         </template>
 
@@ -161,7 +163,7 @@
         </template>
 
         <template #aside-ads-before>
-            <div class="aside-widget">
+            <div class="page-aside-widget">
                 <div class="widget-header">
                     <ElSvgIcon name="analytics" class="icon" />
                     <span class="title">Blog Stats</span>
@@ -188,7 +190,7 @@
         </template>
 
         <template #aside-ads-after>
-            <div class="aside-widget">
+            <div class="page-aside-widget">
                 <div class="widget-header">
                     <ElSvgIcon name="tag" class="icon" />
                     <span class="title">Topics</span>
@@ -234,110 +236,92 @@
     .VPSwitchAppearance .check { transform: none !important; }
 </style>
 
-<style lang="scss" scoped>
-    // 框架調整
-    // 範例：將原本的 Sidebar 和 Content 左右互換
-    .VPContent {
-        // VitePress 預設通常是 Flex 或 Grid
-        display: flex;
-        flex-direction: row-reverse; // 這樣內容就會跑到左邊，Sidebar 跑到右邊
-    }
+<style lang="scss">
+    .page-doc-meta {
+        // --- 1. Article Meta Header (Clean Style) ---
+        .article-meta-header {
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--vp-c-divider);
+            margin-bottom: 2rem;
+        }
 
-    // 範例：利用 Grid Area 重新定義版面
-    // 這需要你去查閱 VitePress 預設的 class name
-    .VPDoc {
-        display: grid;
-        grid-template-areas:
-            "header header"
-            "content aside"; // 把目錄(Aside)放到右邊
-    }
-</style>
-
-<style lang="scss" scoped>
-    // --- 1. Article Meta Header (Clean Style) ---
-    .article-meta-header {
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid var(--vp-c-divider);
-        margin-bottom: 2rem;
-    }
-
-    .meta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.5rem;
-        align-items: center;
-        margin-bottom: 1rem;
-        color: var(--vp-c-text-2);
-        font-size: 0.9rem;
-
-        .meta-item {
+        .meta-row {
             display: flex;
-            gap: 6px;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--vp-c-text-2);
+            font-size: 0.9rem;
+
+            .meta-item {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+
+                .icon {
+                    width: 16px;
+                    height: 16px;
+                    fill: currentColor;
+                    opacity: 0.8;
+                }
+
+                // Font fix for numbers/dates
+                &.date, &.views {
+                    font-family: var(--vp-font-family-mono);
+                }
+            }
+        }
+
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag-pill {
+            display: inline-flex;
+            gap: 4px;
             align-items: center;
 
+            // Dynamic Color Mix
+            background-color: color-mix(in srgb, var(--vp-c-brand) 10%, transparent);
+            padding: 3px 10px;
+            border-radius: 20px; // Pill shape
+            color: var(--vp-c-brand-dark);
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+
             .icon {
-                width: 16px;
-                height: 16px;
+                width: 12px;
+                height: 12px;
                 fill: currentColor;
-                opacity: 0.8;
             }
 
-            // Font fix for numbers/dates
-            &.date, &.views {
-                font-family: var(--vp-font-family-mono);
+            &:hover {
+                background-color: var(--vp-c-brand);
+                color: white;
+                transform: translateY(-1px);
+            }
+        }
+
+        .banner-block {
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 12px rgb(0,0,0,5%);
+            overflow: hidden;
+
+            img {
+                display: block;
+                width: 100%;
+                height: auto;
             }
         }
     }
 
-    .tags-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .tag-pill {
-        display: inline-flex;
-        gap: 4px;
-        align-items: center;
-
-        // Dynamic Color Mix
-        background-color: color-mix(in srgb, var(--vp-c-brand) 10%, transparent);
-        padding: 3px 10px;
-        border-radius: 20px; // Pill shape
-        color: var(--vp-c-brand-dark);
-        font-size: 0.8rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s ease;
-
-        .icon {
-            width: 12px;
-            height: 12px;
-            fill: currentColor;
-        }
-
-        &:hover {
-            background-color: var(--vp-c-brand);
-            color: white;
-            transform: translateY(-1px);
-        }
-    }
-
-    .banner-block {
-        border-radius: 12px;
-        margin: 1.5rem 0;
-        box-shadow: 0 4px 12px rgb(0,0,0,5%);
-        overflow: hidden;
-
-        img {
-            display: block;
-            width: 100%;
-            height: auto;
-        }
-    }
-
-    // --- 2. Aside Widgets (Card Style) ---
-    .aside-widget {
+    .page-aside-widget {
         background: var(--vp-c-bg-soft);
         padding: 1.2rem;
         border: 1px solid var(--vp-c-bg-soft); // subtle border
@@ -363,71 +347,73 @@
                 font-weight: 700;
             }
         }
-    }
 
-    // Blog Stats List
-    .stats-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.8rem;
-        padding: 0;
-        margin: 0;
-        list-style: none;
+        // --- 2. Aside Widgets (Card Style) ---
 
-        .stat-item {
+        // Blog Stats List
+        .stats-list {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.85rem;
+            flex-direction: column;
+            gap: 0.8rem;
+            padding: 0;
+            margin: 0;
+            list-style: none;
 
-            .label { color: var(--vp-c-text-2); }
-            .value {
-                color: var(--vp-c-brand);
-                font-family: var(--vp-font-family-mono);
-                font-weight: 600;
-            }
-        }
-    }
+            .stat-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 0.85rem;
 
-    // Aside Tags Cloud (Minimal Text Link)
-    .aside-tags-cloud {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px 12px;
-
-        .mini-tag {
-            display: flex;
-            align-items: center;
-            color: var(--vp-c-text-2);
-            font-size: 0.8rem;
-            text-decoration: none;
-            transition: color 0.2s;
-
-            &:hover {
-                color: var(--vp-c-brand);
-                .count {
-                    background: var(--vp-c-brand);
-                    color: white;
+                .label { color: var(--vp-c-text-2); }
+                .value {
+                    color: var(--vp-c-brand);
+                    font-family: var(--vp-font-family-mono);
+                    font-weight: 600;
                 }
             }
+        }
 
-            .name { margin-right: 4px; }
+        // Aside Tags Cloud (Minimal Text Link)
+        .aside-tags-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 12px;
 
-            .count {
-                background: var(--vp-c-bg-alt);
-                min-width: 18px;
-                padding: 0 6px;
-                border-radius: 8px;
-                color: var(--vp-c-text-3);
-                font-size: 0.7rem;
-                text-align: center;
-                transition: all 0.2s;
-            }
+            .mini-tag {
+                display: flex;
+                align-items: center;
+                color: var(--vp-c-text-2);
+                font-size: 0.8rem;
+                text-decoration: none;
+                transition: color 0.2s;
 
-            &.more {
-                color: var(--vp-c-text-3);
-                font-style: italic;
-                &:hover { color: var(--vp-c-brand); }
+                &:hover {
+                    color: var(--vp-c-brand);
+                    .count {
+                        background: var(--vp-c-brand);
+                        color: white;
+                    }
+                }
+
+                .name { margin-right: 4px; }
+
+                .count {
+                    background: var(--vp-c-bg-alt);
+                    min-width: 18px;
+                    padding: 0 6px;
+                    border-radius: 8px;
+                    color: var(--vp-c-text-3);
+                    font-size: 0.7rem;
+                    text-align: center;
+                    transition: all 0.2s;
+                }
+
+                &.more {
+                    color: var(--vp-c-text-3);
+                    font-style: italic;
+                    &:hover { color: var(--vp-c-brand); }
+                }
             }
         }
     }

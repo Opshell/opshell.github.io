@@ -43,7 +43,7 @@
     </section>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
     $hud-primary: #00f0ff;
     $hud-bg: rgb(0, 10, 20, 85%);
     $hud-border: rgb(0, 240, 255, 50%);
@@ -187,14 +187,30 @@
                 top: 0; left: 0;
                 background: rgb(0, 240, 255, 50%); width: 100%; height: 2px;
                 pointer-events: none;
-                animation: scan 3s linear infinite;
+                animation: hud-scan 3s linear infinite;
                 opacity: 0.3;
             }
+        }
+
+        // Vue Transition
+        .cyber-slide-enter-active,
+        .cyber-slide-leave-active {
+            max-height: 500px; // 給個足夠的高度
+            transition: all 0.3s ease-out;
+            opacity: 1;
+        }
+
+        .cyber-slide-enter-from,
+        .cyber-slide-leave-to {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
         }
     }
 
     // 動畫
-    @keyframes scan {
+    @keyframes hud-scan {
         0% {
             top: 0;
             opacity: 0;
@@ -204,21 +220,5 @@
             top: 100%;
             opacity: 0;
         }
-    }
-
-    // Vue Transition
-    .cyber-slide-enter-active,
-    .cyber-slide-leave-active {
-        max-height: 500px; // 給個足夠的高度
-        transition: all 0.3s ease-out;
-        opacity: 1;
-    }
-
-    .cyber-slide-enter-from,
-    .cyber-slide-leave-to {
-        max-height: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-        opacity: 0;
     }
 </style>

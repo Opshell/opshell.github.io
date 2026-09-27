@@ -139,7 +139,7 @@
     </Transition>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
     .gallery-lightbox {
         position: fixed;
         inset: 0;
@@ -225,47 +225,50 @@
                 }
             }
         }
-    }
 
-    .fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
-    .fade-enter-from, .fade-leave-to { opacity: 0; }
+        &.fade-enter-active, &.fade-leave-active { transition: opacity 0.3s; }
 
-    .lb-img {
-        max-width: 100%;
-        max-height: 90vh;
-        object-fit: contain;
-        transition: opacity 0.5s ease; // 淡入效果
+        &.fade-enter-from, &.fade-leave-to { opacity: 0; }
 
-        // 讓兩張圖絕對定位重疊
-        &.placeholder {
-            position: absolute; // 關鍵：疊在同一位置
-            filter: blur(10px); // 模糊處理，讓馬賽克不那麼明顯
-            opacity: 1;
-            z-index: 1;
-        }
+        .lb-img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            transition: opacity 0.5s ease; // 淡入效果
 
-        &.raw {
-            position: relative; // 撐開空間
-            z-index: 2;
+            // 讓兩張圖絕對定位重疊
+            &.placeholder {
+                position: absolute; // 關鍵：疊在同一位置
+                filter: blur(10px); // 模糊處理，讓馬賽克不那麼明顯
+                opacity: 1;
+                z-index: 1;
+            }
 
-            // 如果想做淡入效果，可以預設 opacity: 0
-            // opacity: 0;
-            // &.visible { opacity: 1; }
-        }
+            &.raw {
+                position: relative; // 撐開空間
+                z-index: 2;
 
-        // 當大圖載入後，隱藏模糊圖
-        &.placeholder.hidden {
-            opacity: 0;
+                // 如果想做淡入效果，可以預設 opacity: 0
+                // opacity: 0;
+                // &.visible { opacity: 1; }
+            }
+
+            // 當大圖載入後，隱藏模糊圖
+            &.placeholder.hidden {
+                opacity: 0;
+            }
         }
     }
 </style>
 
 <style lang="scss">
-    // 圖說放在 EXIF 上面，比機身資訊大一號
-    .gallery-lightbox .lb-caption {
-        margin: 0 0 .5rem;
-        color: #fff;
-        font-size: var(--font-size-m);
-        line-height: 1.5;
+    .gallery-lightbox {
+        // 圖說放在 EXIF 上面，比機身資訊大一號
+        & .lb-caption {
+            margin: 0 0 .5rem;
+            color: #fff;
+            font-size: var(--font-size-m);
+            line-height: 1.5;
+        }
     }
 </style>

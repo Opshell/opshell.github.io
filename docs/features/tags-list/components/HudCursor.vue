@@ -191,7 +191,7 @@
     </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
     .custom-cursor {
         position: fixed;
         top: 0; left: 0;
@@ -199,21 +199,22 @@
         pointer-events: none;
         z-index: 9999;
         mix-blend-mode: screen;
-    }
-    .cursor-svg {
-        position: absolute;
-        top: -100px; left: -100px;
-        width: 200px; height: 200px;
-        overflow: visible;
-        filter: drop-shadow(0 0 2px rgb(0, 240, 255, 50%));
 
-        .rotator {
-            transform-origin: 50% 50% !important;
-            transform-box: fill-box;
+        .cursor-svg {
+            position: absolute;
+            top: -100px; left: -100px;
+            width: 200px; height: 200px;
+            overflow: visible;
+            filter: drop-shadow(0 0 2px rgb(0, 240, 255, 50%));
 
-            /* 確保 CSS transition 不會跟 GSAP 打架
-            這裡不需要寫 transition，全權交給 GSAP 控制
-            */
+            .rotator {
+                transform-origin: 50% 50% !important;
+                transform-box: fill-box;
+
+                /* 確保 CSS transition 不會跟 GSAP 打架
+                這裡不需要寫 transition，全權交給 GSAP 控制
+                */
+            }
         }
     }
 </style>

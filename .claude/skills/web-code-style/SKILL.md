@@ -92,7 +92,13 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
 
 ## SCSS
 
-- `<style lang="scss">` **不加 `scoped`**，靠頂層 class 包住整段。要蓋 VitePress 的樣式時也在頂層 class 底下寫 `.vp-doc strong {…}`。
+- `<style lang="scss">` **不加 `scoped`**，整段包在元件的頂層 class 裡（`.heatmap-container { … }`，根元素自己的宣告直接寫在裡面）。
+  原因：`scoped` 只套得到自己寫的元素和子元件的最外層，寫錯選擇器會**安靜失效**——ExpandLayout 曾有 197 行 `.VPContent` 規則從來沒生效過。
+  要蓋 VitePress 的樣式時也在頂層 class 底下寫 `.vp-doc strong {…}`。
+  - 頂層 class 要全站唯一；兩個元件都叫 `.hud-container` 就會互相套用。
+  - `<Transition>` 的 class 也收進頂層：轉場的是根元素本身就寫 `&.fade-enter-active`，是子元素就照常巢狀。不要在最外層寫 `.fade-enter-active`，會套到全站同名的轉場。
+  - `@keyframes` 名稱是全域的，加元件前綴（`hud-scan`、`demo-bubble-in`）。
+  - 不要用 `:deep()`、`::v-deep()`：沒有 `scoped` 時它們不會被轉換，整條規則會被瀏覽器丟掉。
 - `mixin.scss` 已經全域 `@use … as *`，元件裡直接 `@include setFlex(...)`、`@include setRWD(500px) {…}`、`@include setSize(w, h)`，不用再 `@use`。
   `useBreakPoint('sm')` 也能用（檔頭已經有 `@use 'sass:map'`）。
 - 顏色與字級用 CSS 變數，不寫死：

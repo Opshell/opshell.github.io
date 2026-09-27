@@ -184,7 +184,7 @@
     </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
     .design-system {
         &__page {
             width: 100%;
@@ -295,7 +295,7 @@
                 }
             }
 
-            ::v-deep(.section) {
+            .section {
                 margin-bottom: 4rem;
                 .title { // h3
                     padding-bottom: 0.5rem;

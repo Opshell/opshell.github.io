@@ -119,120 +119,121 @@
     </div>
 </template>
 
-<style lang="scss" scoped>
-    // 空方塊的顏色：卡片本身是 bg-soft，方塊用同色就看不見了，改用淡淡的文字色，深淺色模式都看得到
+<style lang="scss">
     .heatmap-container {
         --heatmap-empty: color-mix(in srgb, var(--vp-c-text-3) 18%, transparent);
         display: flex;
         flex-direction: column;
         gap: 1rem;
-    }
 
-    .heatmap-header {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-        color: var(--vp-c-text-2);
-        font-size: 0.9rem;
+        // 空方塊的顏色：卡片本身是 bg-soft，方塊用同色就看不見了，改用淡淡的文字色，深淺色模式都看得到
 
-        .year-control {
-            padding: 2px 8px;
-            cursor: pointer;
-            user-select: none;
-            &:hover {
-                background: var(--vp-c-bg-soft);
-                border-radius: 4px;
-                color: var(--vp-c-brand);
-            }
-            &.disabled {
-                pointer-events: none;
-                opacity: 0.3;
-            }
-        }
-
-        .current-year {
-            color: var(--vp-c-text-1);
-            font-weight: 600;
-        }
-
-        .legend {
+        .heatmap-header {
             display: flex;
-            gap: 4px;
+            gap: 1rem;
             align-items: center;
-            margin-left: auto;
-            font-size: 0.75rem;
+            color: var(--vp-c-text-2);
+            font-size: 0.9rem;
 
-            .cell {
-                width: 10px;
-                height: 10px;
-                border-radius: 2px;
+            .year-control {
+                padding: 2px 8px;
+                cursor: pointer;
+                user-select: none;
+                &:hover {
+                    background: var(--vp-c-bg-soft);
+                    border-radius: 4px;
+                    color: var(--vp-c-brand);
+                }
+                &.disabled {
+                    pointer-events: none;
+                    opacity: 0.3;
+                }
             }
-            .level-0 { background: var(--heatmap-empty); }
-            .level-2 { background: color-mix(in srgb, var(--vp-c-brand) 55%, transparent); }
-            .level-3 { background: var(--vp-c-brand); }
-        }
-    }
 
-    .heatmap-scroller {
-        padding-bottom: 4px;
-        overflow-x: auto;
-        &::-webkit-scrollbar { height: 4px; }
-        &::-webkit-scrollbar-thumb {
-            background: var(--vp-c-divider);
+            .current-year {
+                color: var(--vp-c-text-1);
+                font-weight: 600;
+            }
+
+            .legend {
+                display: flex;
+                gap: 4px;
+                align-items: center;
+                margin-left: auto;
+                font-size: 0.75rem;
+
+                .cell {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 2px;
+                }
+                .level-0 { background: var(--heatmap-empty); }
+                .level-2 { background: color-mix(in srgb, var(--vp-c-brand) 55%, transparent); }
+                .level-3 { background: var(--vp-c-brand); }
+            }
+        }
+
+        .heatmap-scroller {
+            padding-bottom: 4px;
+            overflow-x: auto;
+            &::-webkit-scrollbar { height: 4px; }
+            &::-webkit-scrollbar-thumb {
+                background: var(--vp-c-divider);
+                border-radius: 4px;
+            }
+        }
+
+        .heatmap-grid {
+            display: flex;
+            gap: 3px;
+            width: max-content;
+        }
+
+        .heatmap-column {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .heatmap-cell {
+            background: var(--heatmap-empty);
+            width: 11px;
+            height: 11px;
+            border: 1px solid transparent;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.1s;
+
+            &.not-current-year {
+                pointer-events: none;
+                opacity: 0.1;
+            }
+
+            &:hover {
+                border-color: var(--vp-c-text-2);
+                transform: scale(1.2);
+                z-index: 2;
+            }
+
+            // 選中狀態
+            &.is-selected {
+                border-color: var(--vp-c-text-1);
+                box-shadow: 0 0 0 2px var(--vp-c-bg), 0 0 0 3px var(--vp-c-brand);
+                z-index: 3;
+            }
+
+            &.level-1 { background: color-mix(in srgb, var(--vp-c-brand) 25%, transparent); }
+            &.level-2 { background: color-mix(in srgb, var(--vp-c-brand) 55%, transparent); }
+            &.level-3 { background: var(--vp-c-brand); }
+        }
+
+        .selection-info {
+            align-self: flex-start;
+            background: var(--vp-c-bg-soft);
+            padding: 4px 12px;
             border-radius: 4px;
+            color: var(--vp-c-brand);
+            font-size: 0.85rem;
         }
-    }
-
-    .heatmap-grid {
-        display: flex;
-        gap: 3px;
-        width: max-content;
-    }
-
-    .heatmap-column {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-    }
-
-    .heatmap-cell {
-        background: var(--heatmap-empty);
-        width: 11px;
-        height: 11px;
-        border: 1px solid transparent;
-        border-radius: 2px;
-        cursor: pointer;
-        transition: all 0.1s;
-
-        &.not-current-year {
-            pointer-events: none;
-            opacity: 0.1;
-        }
-
-        &:hover {
-            border-color: var(--vp-c-text-2);
-            transform: scale(1.2);
-            z-index: 2;
-        }
-
-        // 選中狀態
-        &.is-selected {
-            border-color: var(--vp-c-text-1);
-            box-shadow: 0 0 0 2px var(--vp-c-bg), 0 0 0 3px var(--vp-c-brand);
-            z-index: 3;
-        }
-
-        &.level-1 { background: color-mix(in srgb, var(--vp-c-brand) 25%, transparent); }
-        &.level-2 { background: color-mix(in srgb, var(--vp-c-brand) 55%, transparent); }
-        &.level-3 { background: var(--vp-c-brand); }
-    }
-
-    .selection-info {
-        align-self: flex-start;
-        background: var(--vp-c-bg-soft);
-        padding: 4px 12px;
-        border-radius: 4px;
-        color: var(--vp-c-brand);
-        font-size: 0.85rem;
     }
 </style>

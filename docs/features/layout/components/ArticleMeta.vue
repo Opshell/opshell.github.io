@@ -44,59 +44,59 @@
 <style lang="scss">
     .article-meta {
         margin-bottom: 2.5rem;
-    }
 
-    .article-meta-header {
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid var(--vp-c-divider);
-        margin-bottom: 2rem;
-    }
+        .article-meta-header {
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--vp-c-divider);
+            margin-bottom: 2rem;
+        }
 
-    .meta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.5rem;
-        align-items: center;
-        margin-bottom: 1rem;
-        color: var(--vp-c-text-2);
-        font-size: 0.9rem;
-
-        .meta-item {
+        .meta-row {
             display: flex;
-            gap: 6px;
+            flex-wrap: wrap;
+            gap: 1.5rem;
             align-items: center;
-            .icon {
-                @include setSize(26px, 26px);
-                transform: translateY(-1px);
-            }
-            .text {
-                color: var(--color-gray-600);
-                font-size: var(--font-size-s);
-            }
+            margin-bottom: 1rem;
+            color: var(--vp-c-text-2);
+            font-size: 0.9rem;
 
-            // Font fix for numbers/dates
-            &.date, &.views {
-                font-family: var(--vp-font-family-mono);
+            .meta-item {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+                .icon {
+                    @include setSize(26px, 26px);
+                    transform: translateY(-1px);
+                }
+                .text {
+                    color: var(--color-gray-600);
+                    font-size: var(--font-size-s);
+                }
+
+                // Font fix for numbers/dates
+                &.date, &.views {
+                    font-family: var(--vp-font-family-mono);
+                }
             }
         }
-    }
 
-    .tags-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
 
-    .banner-block {
-        border-radius: 12px;
-        margin: 1.5rem 0;
-        box-shadow: 0 4px 12px rgb(0,0,0,5%);
-        overflow: hidden;
+        .banner-block {
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 12px rgb(0,0,0,5%);
+            overflow: hidden;
 
-        img {
-            display: block;
-            width: 100%;
-            height: auto;
+            img {
+                display: block;
+                width: 100%;
+                height: auto;
+            }
         }
     }
 </style>

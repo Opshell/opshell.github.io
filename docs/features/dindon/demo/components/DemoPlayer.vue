@@ -216,7 +216,7 @@
     </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
     .demo-player {
         @include setFlex(flex-start, center, 14px, column);
         width: var(--demo-phone-width, 300px);

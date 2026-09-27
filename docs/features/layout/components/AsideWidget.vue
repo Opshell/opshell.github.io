@@ -167,149 +167,151 @@
     </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
     .widgets-container {
         display: flex;
         flex-direction: column;
         gap: 1rem;
-    }
 
-    .widget-card {
-        position: relative;
-        background: var(--vp-c-bg-soft);
-        padding: 1.25rem;
+        .widget-card {
+            position: relative;
+            background: var(--vp-c-bg-soft);
+            padding: 1.25rem;
 
-        // box-shadow: var(--card-shadow); // 如果有定義變數
-        border: 1px solid var(--vp-c-divider);
-        border-radius: 12px;
-        overflow: hidden;
+            // box-shadow: var(--card-shadow); // 如果有定義變數
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 12px;
+            overflow: hidden;
 
-        .w-title {
-            @include setFlex(space-between, center, 5px);
-            margin-bottom: 1rem;
-            color: var(--vp-c-text-2);
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-
-            .icon {
-                @include setSize(24px, 24px);
-            }
-            .text {
-                flex-grow: 1;
-                text-align: left;
-            }
-
-            // Carousel Dots
-            .dots {
-                display: flex; gap: 4px;
-                .dot {
-                    background: var(--vp-c-divider);
-                    width: 6px; height: 6px; border-radius: 50%;
-                    cursor: pointer;
-                    transition: background 0.3s;
-                    &.active { background: var(--vp-c-brand); }
-                }
-            }
-
-            // Tag Toggle Btn
-            .toggle-btn {
-                background: none; border: none;
-                color: var(--vp-c-text-3); cursor: pointer;
-                transition: color 0.2s;
-                &:hover { color: var(--vp-c-brand); }
-            }
-        }
-    }
-
-    .stat-content {
-        min-height: 60px; // 固定高度避免跳動
-    }
-
-    .stat-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-
-            // align-items: center; // 也可以置中看設計喜好
-
-            .val {
-                color: var(--vp-c-brand);
-                font-family: var(--vp-font-family-mono);
-                font-size: 1.5rem;
+            .w-title {
+                @include setFlex(space-between, center, 5px);
+                margin-bottom: 1rem;
+                color: var(--vp-c-text-2);
+                font-size: 1.25rem;
                 font-weight: 700;
-                line-height: 1.1;
-            }
-            .label {
-                margin-top: 4px;
-                color: var(--vp-c-text-3);
-                font-size: 0.7rem;
-                font-weight: 500;
+                letter-spacing: 1px;
                 text-transform: uppercase;
-            }
-        }
-    }
 
-    .tags-cloud {
-        display: flex; flex-wrap: wrap; gap: 8px 10px;
-        transition: max-height 0.3s ease; // 如果想做 slide down 動畫
+                .icon {
+                    @include setSize(24px, 24px);
+                }
+                .text {
+                    flex-grow: 1;
+                    text-align: left;
+                }
 
-        .tag-link {
-            display: flex; gap: 2px; align-items: center;
-            color: var(--vp-c-text-2);
-            font-size: 0.8rem; text-decoration: none;
-            transition: all 0.2s;
+                // Carousel Dots
+                .dots {
+                    display: flex; gap: 4px;
+                    .dot {
+                        background: var(--vp-c-divider);
+                        width: 6px; height: 6px; border-radius: 50%;
+                        cursor: pointer;
+                        transition: background 0.3s;
+                        &.active { background: var(--vp-c-brand); }
+                    }
+                }
 
-            .hash {
-                color: var(--vp-c-brand);
-                font-weight: 300;
-                opacity: 0.6;
-            }
-
-            .t-count {
-                background: var(--vp-c-bg-alt);
-                min-width: 1.4em;
-                padding: 0 5px; border-radius: 6px; margin-left: 2px;
-                color: var(--vp-c-text-3);
-                font-family: var(--vp-font-family-mono);
-                font-size: 0.65rem; text-align: center;
-            }
-
-            &:hover {
-                color: var(--vp-c-brand);
-                transform: translateY(-1px);
-                .t-count {
-                    background: var(--vp-c-brand);
-                    color: white;
+                // Tag Toggle Btn
+                .toggle-btn {
+                    background: none; border: none;
+                    color: var(--vp-c-text-3); cursor: pointer;
+                    transition: color 0.2s;
+                    &:hover { color: var(--vp-c-brand); }
                 }
             }
+        }
 
-            &.more-link {
-                border-bottom: 1px dashed transparent;
-                color: var(--vp-c-brand);
-                font-size: 0.75rem;
-                font-weight: 600;
-                &:hover { border-bottom-color: var(--vp-c-brand); }
+        .stat-content {
+            min-height: 60px; // 固定高度避免跳動
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+
+            .stat-item {
+                display: flex;
+                flex-direction: column;
+
+                // align-items: center; // 也可以置中看設計喜好
+
+                .val {
+                    color: var(--vp-c-brand);
+                    font-family: var(--vp-font-family-mono);
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    line-height: 1.1;
+                }
+                .label {
+                    margin-top: 4px;
+                    color: var(--vp-c-text-3);
+                    font-size: 0.7rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                }
             }
         }
-    }
 
-    // --- Transitions ---
-    .fade-slide-enter-active,
-    .fade-slide-leave-active {
-        transition: all 0.3s ease;
-    }
-    .fade-slide-enter-from {
-        transform: translateY(10px);
-        opacity: 0;
-    }
-    .fade-slide-leave-to {
-        transform: translateY(-10px);
-        opacity: 0;
+        .tags-cloud {
+            display: flex; flex-wrap: wrap; gap: 8px 10px;
+            transition: max-height 0.3s ease; // 如果想做 slide down 動畫
+
+            .tag-link {
+                display: flex; gap: 2px; align-items: center;
+                color: var(--vp-c-text-2);
+                font-size: 0.8rem; text-decoration: none;
+                transition: all 0.2s;
+
+                .hash {
+                    color: var(--vp-c-brand);
+                    font-weight: 300;
+                    opacity: 0.6;
+                }
+
+                .t-count {
+                    background: var(--vp-c-bg-alt);
+                    min-width: 1.4em;
+                    padding: 0 5px; border-radius: 6px; margin-left: 2px;
+                    color: var(--vp-c-text-3);
+                    font-family: var(--vp-font-family-mono);
+                    font-size: 0.65rem; text-align: center;
+                }
+
+                &:hover {
+                    color: var(--vp-c-brand);
+                    transform: translateY(-1px);
+                    .t-count {
+                        background: var(--vp-c-brand);
+                        color: white;
+                    }
+                }
+
+                &.more-link {
+                    border-bottom: 1px dashed transparent;
+                    color: var(--vp-c-brand);
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    &:hover { border-bottom-color: var(--vp-c-brand); }
+                }
+            }
+        }
+
+        // --- Transitions ---
+        .fade-slide-enter-active,
+        .fade-slide-leave-active {
+            transition: all 0.3s ease;
+        }
+
+        .fade-slide-enter-from {
+            transform: translateY(10px);
+            opacity: 0;
+        }
+
+        .fade-slide-leave-to {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
     }
 </style>

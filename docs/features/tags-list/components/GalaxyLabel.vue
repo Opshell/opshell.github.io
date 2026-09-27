@@ -57,7 +57,7 @@
         >
             <div
                 v-if="activeLabelNode"
-                class="hud-container is-active"
+                class="galaxy-label is-active"
                 :class="{ 'is-star': activeLabelNode.type === 'star' }"
             >
                 <div class="sci-fi-box">
@@ -78,20 +78,13 @@
     </TresGroup>
 </template>
 
-<style lang="scss" scoped>
-    // 混入 (Mixin) 定義 (假設這是在你的全域樣式檔案中)
-    @mixin setFlex($justify: center, $align: center) {
-        display: flex;
-        align-items: $align;
-        justify-content: $justify;
-    }
-
+<style lang="scss">
     // 變數定義 (假設這是在你的全域樣式檔案中)
     $font-size-xl: 14px;
     $hud-primary: #00f0ff;
     $hud-secondary: #FDB813;
 
-    .hud-container {
+    .galaxy-label {
         position: relative;
 
         // 將容器視為 3D 座標的絕對中心點 0x0
@@ -179,7 +172,7 @@
             .cursor {
                 margin-left: 2px;
                 color: $hud-primary;
-                animation: blink 1s step-end infinite;
+                animation: galaxy-label-blink 1s step-end infinite;
             }
         }
 
@@ -194,6 +187,22 @@
                 border-color: $hud-secondary;
                 filter: drop-shadow(0 0 4px $hud-secondary);
             }
+        }
+
+        // 混入 (Mixin) 定義 (假設這是在你的全域樣式檔案中)
+        @mixin setFlex($justify: center, $align: center) {
+            display: flex;
+            align-items: $align;
+            justify-content: $justify;
+        }
+
+        // 打字機 Transition (淡入效果)
+        .typing-enter-active {
+            transition: opacity 0.5s ease;
+        }
+
+        .typing-enter-from {
+            opacity: 0;
         }
     }
 
@@ -214,16 +223,8 @@
     }
 
     // 打字機遊標閃爍動畫
-    @keyframes blink {
+    @keyframes galaxy-label-blink {
         0%, 100% { opacity: 1; }
         50% { opacity: 0; }
-    }
-
-    // 打字機 Transition (淡入效果)
-    .typing-enter-active {
-        transition: opacity 0.5s ease;
-    }
-    .typing-enter-from {
-        opacity: 0;
     }
 </style>

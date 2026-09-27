@@ -156,7 +156,7 @@
     </section>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
     $bg-color: rgb(0, 10, 20, 85%);
 
     .cyber-hud-wrapper {
@@ -280,12 +280,12 @@
                 .scan-line {
                     position: absolute; top: 0; left: 0;
                     background: var(--hud-color); width: 100%; height: 2px; pointer-events: none;
-                    animation: scan 3s linear infinite; opacity: 0.3;
+                    animation: svg-hud-scan 3s linear infinite; opacity: 0.3;
                 }
             }
         }
     }
-    @keyframes scan {
+    @keyframes svg-hud-scan {
         0% {
             top: 0;
             opacity: 0;

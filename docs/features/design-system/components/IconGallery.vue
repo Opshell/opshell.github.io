@@ -50,70 +50,70 @@
     </div>
 </template>
 
-<style scoped lang="scss">
-.icon-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 1.5rem;
-    margin: 1.5rem 0;
-}
+<style lang="scss">
+    .icon-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1.5rem;
+        margin: 1.5rem 0;
 
-.icon-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: center;
-    padding: 1rem;
-    border: 1px solid var(--vp-c-bg-soft);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--vp-c-bg-soft);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
 
-    &:hover {
-        background-color: var(--vp-c-bg-soft);
-        color: var(--vp-c-brand);
-        transform: translateY(-2px);
+            &:hover {
+                background-color: var(--vp-c-bg-soft);
+                color: var(--vp-c-brand);
+                transform: translateY(-2px);
+            }
+        }
+
+        .icon-preview {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+        }
+
+        .copy-overlay {
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            background: rgb(0, 0, 0, 80%);
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+            transform: translateX(-50%);
+            transition: opacity 0.2s;
+            opacity: 0;
+            z-index: 10;
+
+            span {
+                color: white;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+
+            &.show {
+                opacity: 1;
+            }
+        }
+
+        .icon-name {
+            color: var(--vp-c-text-2);
+            font-size: 0.875rem;
+            text-align: center;
+            word-break: break-all;
+        }
     }
-}
-
-.icon-preview {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-}
-
-.copy-overlay {
-    position: absolute;
-    top: -50%;
-    left: 50%;
-    background: rgb(0, 0, 0, 80%);
-    padding: 4px 8px;
-    border-radius: 4px;
-    white-space: nowrap;
-    pointer-events: none;
-    transform: translateX(-50%);
-    transition: opacity 0.2s;
-    opacity: 0;
-    z-index: 10;
-
-    span {
-        color: white;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    &.show {
-        opacity: 1;
-    }
-}
-
-.icon-name {
-    color: var(--vp-c-text-2);
-    font-size: 0.875rem;
-    text-align: center;
-    word-break: break-all;
-}
 </style>

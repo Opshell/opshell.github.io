@@ -209,7 +209,6 @@
 </template>
 
 <style lang="scss">
-    // 全域樣式修正：讓 VPNav 乖乖聽話
     .article-layout {
         @include setFlex(flex-start, stretch, 20px, column);
         background-color: var(--vp-c-bg-alt); // 底色稍微灰一點，讓 Paper Card 跳出來
@@ -228,16 +227,18 @@
 
             .dark & { background-color: rgb(22, 22, 22, 80%) !important; }
         }
-    }
 
-    // 手機版遮罩
-    .mobile-nav-overlay {
-        position: fixed; top: 0; left: 0;
-        background: rgb(0,0,0,60%); width: 100%; height: 100%; z-index: 40;
+        // 全域樣式修正：讓 VPNav 乖乖聽話
+
+        // 手機版遮罩
+        .mobile-nav-overlay {
+            position: fixed; top: 0; left: 0;
+            background: rgb(0,0,0,60%); width: 100%; height: 100%; z-index: 40;
+        }
     }
 </style>
 
-<style lang="scss" scoped>
+<style lang="scss">
     .article-layout {
         .sticky-content {
             position: sticky;
@@ -335,41 +336,41 @@
             transition: opacity 0.5s ease, filter 0.5s ease; // 設定 0.5s 讓過渡很優雅
             opacity: 1; // 預設是不透明
         }
-    }
 
-    // Paper Card Style
-    .paper-card {
-        background: var(--vp-c-bg);
-        padding: 3rem 4rem;
-        border: 1px solid var(--vp-c-divider);
-        border-radius: 16px;
-        box-shadow: 0 4px 24px rgb(0,0,0,4%); // 浮起來的感覺
-        @media (width <= 768px) { padding: 1.5rem; }
-    }
-
-    .zen-mode-btn {
-        position: absolute;
-        top: 0;
-        right: -65px;
-        background: var(--vp-c-bg);
-        padding: .2rem;
-        border: 1px solid var(--vp-c-divider);
-        border-radius: .5rem;
-        color: var(--vp-c-text-2);
-        cursor: pointer;
-        transform: scale(1);
-        transition: .2s var(--cubic-FiSo); // 之前寫成 2.2s 加不存在的 --op-cubic-FiSo
-        z-index: 10;
-        @include setFlex();
-        @include setSize(35px, 35px);
-        &:hover {
-            box-shadow: 0 4px 12px rgb(0,0,0,10%);
-            color: var(--vp-c-brand);
-            transform: scale(1.2);
+        // Paper Card Style
+        .paper-card {
+            background: var(--vp-c-bg);
+            padding: 3rem 4rem;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgb(0,0,0,4%); // 浮起來的感覺
+            @media (width <= 768px) { padding: 1.5rem; }
         }
-        @media (width <= 1280px) {
-            top: 1rem;
-            right: 1rem;
+
+        .zen-mode-btn {
+            position: absolute;
+            top: 0;
+            right: -65px;
+            background: var(--vp-c-bg);
+            padding: .2rem;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: .5rem;
+            color: var(--vp-c-text-2);
+            cursor: pointer;
+            transform: scale(1);
+            transition: .2s var(--cubic-FiSo); // 之前寫成 2.2s 加不存在的 --op-cubic-FiSo
+            z-index: 10;
+            @include setFlex();
+            @include setSize(35px, 35px);
+            &:hover {
+                box-shadow: 0 4px 12px rgb(0,0,0,10%);
+                color: var(--vp-c-brand);
+                transform: scale(1.2);
+            }
+            @media (width <= 1280px) {
+                top: 1rem;
+                right: 1rem;
+            }
         }
     }
 

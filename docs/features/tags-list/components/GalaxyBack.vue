@@ -765,11 +765,6 @@
         }
     }
 
-    /* 這一行可以留著，雙重保險 */
-    :deep(.tres-canvas) {
-        pointer-events: auto;
-    }
-
     /* galaxyBack.vue */
     // 變數定義
     $hud-primary: #00f0ff;

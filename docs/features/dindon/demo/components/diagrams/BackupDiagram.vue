@@ -46,7 +46,7 @@
     </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
     .backup-diagram {
         @include setFlex(flex-start, stretch, 0, column);
 

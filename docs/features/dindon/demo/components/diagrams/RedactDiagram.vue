@@ -58,7 +58,7 @@
     </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
     .redact-diagram {
         .example {
             @include setFlex(flex-start, stretch, 6px, column);

@@ -706,7 +706,7 @@
                 <Transition name="hud-pop">
                     <div
                         v-if="activeLabelNode"
-                        class="hud-container is-active"
+                        class="galaxy-hud is-active"
                         :class="{ 'is-star': activeLabelNode.type === 'star' }"
                     >
                         <div class="sci-fi-box">
@@ -723,17 +723,8 @@
     </TresGroup>
 </template>
 
-<style lang="scss" scoped>
-    // 你的過渡動畫保持不變
-    .hud-pop-enter-active, .hud-pop-leave-active {
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .hud-pop-enter-from, .hud-pop-leave-to {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-
-    .hud-container {
+<style lang="scss">
+    .galaxy-hud {
         position: relative;
 
         // 將容器視為 3D 座標的絕對中心點 0x0
@@ -819,5 +810,16 @@
                 filter: drop-shadow(0 0 4px #FDB813);
             }
         }
+
+        // 你的過渡動畫保持不變
+        &.hud-pop-enter-active, &.hud-pop-leave-active {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        &.hud-pop-enter-from, &.hud-pop-leave-to {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+
     }
 </style>

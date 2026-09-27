@@ -59,7 +59,7 @@
     </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
     .invoice-diagram {
         .receipt {
             @include setFlex(flex-start, center, 2px, column);
