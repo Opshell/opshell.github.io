@@ -109,7 +109,8 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
 - 屬性順序照 `.stylelintrc.mjs` 的 `order/properties-order`：`content` → 定位（`position`、`inset`、`z-index`）→ `display`／flex／grid／`gap`／對齊 →
   `background` → `width`／`height` → `padding` → `border`／`border-radius` → `margin` → 文字（`color`、`font-*`、`line-height`、`text-*`）→ `transition`／`transform`／`opacity`。
   自訂屬性（`--xxx`）永遠在該區塊的最前面。
-- 顏色函式用現代寫法 `rgb(0 0 0 / 15%)`，不用 `rgba()`。
+- 顏色函式用現代寫法 `rgb(0 0 0 / 15%)`，不用逗號、不用 `rgba()`。stylelint 的 `color-function-notation: modern` 會擋，`--fix` 能自動轉；
+  但它不檢查 CSS 自訂屬性（`--x: …`）與 SCSS 變數裡的值，那裡要自己寫對。
 - 巢狀不超過三層；`&__元素` 與 `&.is-狀態` 用 `&` 接。
 - 動畫：只有位移、透明度、淡淡的陰影。曲線用變數（`var(--dd-ease-out)`、`$cubic-SiRo`）。
   要尊重 `prefers-reduced-motion`：動畫只在 `.is-motion` 這種由 JS 加上的 class 底下生效，沒有 JS 或使用者關閉動態時內容照常顯示。

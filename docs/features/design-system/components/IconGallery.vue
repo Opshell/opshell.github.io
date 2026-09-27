@@ -88,7 +88,7 @@
             position: absolute;
             top: -50%;
             left: 50%;
-            background: rgb(0, 0, 0, 80%);
+            background: rgb(0 0 0 / 80%);
             padding: 4px 8px;
             border-radius: 4px;
             white-space: nowrap;

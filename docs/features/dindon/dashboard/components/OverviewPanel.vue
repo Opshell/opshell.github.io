@@ -399,7 +399,7 @@
         padding: 6px 10px;
         border: 1px solid var(--vp-c-divider);
         border-radius: 8px;
-        box-shadow: 0 4px 14px rgb(0, 0, 0, 12%);
+        box-shadow: 0 4px 14px rgb(0 0 0 / 12%);
         color: var(--vp-c-text-2);
         font-size: var(--font-size-xs);
         white-space: nowrap;

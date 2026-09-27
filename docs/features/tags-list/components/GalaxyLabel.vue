@@ -157,16 +157,16 @@
         }
 
         .label-text {
-            background: rgb(0, 0, 0, 80%);
+            background: rgb(0 0 0 / 80%);
             padding: 6px 12px;
-            border: 1px solid rgb(0, 240, 255, 30%); // 加個微弱的邊框更有科技感
+            border: 1px solid rgb(0 240 255 / 30%); // 加個微弱的邊框更有科技感
             border-radius: 4px;
             color: #fff;
             font-family: 'Courier New', monospace;
             font-size: var(--font-size-xl);
             line-height: 1.35;
             white-space: pre-wrap; // 允許自動換行
-            text-shadow: 0 0 8px rgb(0, 240, 255, 80%);
+            text-shadow: 0 0 8px rgb(0 240 255 / 80%);
 
             // 打字機遊標
             .cursor {
@@ -178,9 +178,9 @@
 
         &.is-star {
             .label-text {
-                border-color: rgb(253, 184, 19, 30%);
+                border-color: rgb(253 184 19 / 30%);
                 color: $hud-secondary;
-                text-shadow: 0 0 5px rgb(253, 184, 19, 50%);
+                text-shadow: 0 0 5px rgb(253 184 19 / 50%);
                 .cursor { color: $hud-secondary; }
             }
             .sci-fi-box .corner {

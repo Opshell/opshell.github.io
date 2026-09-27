@@ -157,7 +157,7 @@
 </template>
 
 <style lang="scss">
-    $bg-color: rgb(0, 10, 20, 85%);
+    $bg-color: rgb(0 10 20 / 85%);
 
     .cyber-hud-wrapper {
         position: relative;
@@ -166,7 +166,7 @@
         color: var(--hud-color);
         pointer-events: auto;
         transition: .25s var(--cubic-FiSo);
-        filter: drop-shadow(0 0 4px rgb(0, 240, 255, 30%));
+        filter: drop-shadow(0 0 4px rgb(0 240 255 / 30%));
         &.side-right { margin-left: auto; }
         &.is-collapsed {
             max-width: 42px;
@@ -232,7 +232,7 @@
                     flex: 1; margin: 0; font-family: Orbitron, sans-serif;
                     font-size: 0.9rem; font-weight: 700; letter-spacing: 1.5px;
                     white-space: nowrap;
-                    text-transform: uppercase; text-shadow: 0 0 4px rgb(0, 240, 255, 50%);;
+                    text-transform: uppercase; text-shadow: 0 0 4px rgb(0 240 255 / 50%);;
                 }
                 .minimize-btn { background: var(--hud-color);
                     width: 12px; height: 2px;

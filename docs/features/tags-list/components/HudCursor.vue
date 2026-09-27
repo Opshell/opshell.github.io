@@ -205,7 +205,7 @@
             top: -100px; left: -100px;
             width: 200px; height: 200px;
             overflow: visible;
-            filter: drop-shadow(0 0 2px rgb(0, 240, 255, 50%));
+            filter: drop-shadow(0 0 2px rgb(0 240 255 / 50%));
 
             .rotator {
                 transform-origin: 50% 50% !important;

@@ -45,8 +45,8 @@
 
 <style lang="scss">
     $hud-primary: #00f0ff;
-    $hud-bg: rgb(0, 10, 20, 85%);
-    $hud-border: rgb(0, 240, 255, 50%);
+    $hud-bg: rgb(0 10 20 / 85%);
+    $hud-border: rgb(0 240 255 / 50%);
 
     .hud-panel {
         position: relative;
@@ -65,7 +65,7 @@
         margin-bottom: 1rem;
         transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         overflow: hidden;
-        filter: drop-shadow(0 0 2px rgb(0, 240, 255, 50%));
+        filter: drop-shadow(0 0 2px rgb(0 240 255 / 50%));
 
         // 右下切角邊框
         &::before {
@@ -116,15 +116,15 @@
 
         &__header {
             @include setFlex(space-between, center, 8px);
-            background: rgb(0, 240, 255, 10%);
+            background: rgb(0 240 255 / 10%);
             height: auto;
             padding: 5px 8px;
-            border-bottom: 1px solid rgb(0, 240, 255, 30%);
+            border-bottom: 1px solid rgb(0 240 255 / 30%);
             cursor: pointer;
             user-select: none;
 
             &:hover {
-                background: rgb(0, 240, 255, 20%);
+                background: rgb(0 240 255 / 20%);
                 .panel-title { text-shadow: 0 0 8px $hud-primary; }
             }
 
@@ -166,7 +166,7 @@
 
         &__content {
             position: relative;
-            background-image: radial-gradient(rgb(0,240,255,10%) 1px, transparent 0);
+            background-image: radial-gradient(rgb(0 240 255 / 10%) 1px, transparent 0);
             background-size: 12px 12px;
             padding: 15px;
             color: #fff;
@@ -185,7 +185,7 @@
             .scan-line {
                 position: absolute;
                 top: 0; left: 0;
-                background: rgb(0, 240, 255, 50%); width: 100%; height: 2px;
+                background: rgb(0 240 255 / 50%); width: 100%; height: 2px;
                 pointer-events: none;
                 animation: hud-scan 3s linear infinite;
                 opacity: 0.3;

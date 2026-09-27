@@ -104,7 +104,7 @@
             display: block;
             width: 100%;
             height: auto;
-            border: 1px solid rgb(0,0,0,5%); // 照片邊緣加上極細的框線增加真實感
+            border: 1px solid rgb(0 0 0 / 5%); // 照片邊緣加上極細的框線增加真實感
             transition: .5s ease;
             object-fit: cover;
         }

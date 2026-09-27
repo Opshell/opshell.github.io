@@ -68,7 +68,7 @@
             padding: 14px 16px 16px;
             border-radius: 4px;
             margin: 0 auto;
-            box-shadow: 0 2px 10px rgb(27, 24, 21, 12%);
+            box-shadow: 0 2px 10px rgb(27 24 21 / 12%);
             color: #1B1815;
             font-family: var(--vp-font-family-mono);
             font-size: var(--font-size-xs);

@@ -158,7 +158,7 @@
 
             &:hover {
                 border-color: var(--vp-c-brand);
-                box-shadow: 0 4px 12px rgb(0,0,0,5%);
+                box-shadow: 0 4px 12px rgb(0 0 0 / 5%);
 
                 // --- Hover 時觸發動畫 ---
                 .motion-ball {
@@ -212,7 +212,7 @@
                 border: 1px solid var(--vp-c-divider);
                 border-radius: 24px;
                 margin-bottom: 1rem;
-                box-shadow: inset 0 2px 4px rgb(0,0,0,2%);
+                box-shadow: inset 0 2px 4px rgb(0 0 0 / 2%);
             }
 
             .motion-ball {
@@ -228,7 +228,7 @@
 
                 &.main {
                     background: var(--color-primary-1);
-                    box-shadow: 0 2px 6px rgb(0,0,0,20%);
+                    box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
                     z-index: 2;
                 }
 

@@ -16,7 +16,7 @@
                     { name: 'Primary 1', var: '--color-primary-1', hex: '#f4b936' },
                     { name: 'Primary 2', var: '--color-primary-2', hex: '#d8a72b' },
                     { name: 'Primary 3', var: '--color-primary-3', hex: '#b99436' },
-                    { name: 'Primary soft', var: '--color-primary-soft', hex: 'rgb(185, 148, 54, 16%)', darkHex: '#c4882c' },
+                    { name: 'Primary soft', var: '--color-primary-soft', hex: 'rgb(185 148 54 / 16%)', darkHex: '#c4882c' },
 
                     { name: 'Adorn', var: '--color-adorn', hex: '#bd34fe' }
                 ];
@@ -129,7 +129,7 @@
                 height: 100%;
                 border: 1px solid var(--vp-c-divider);
                 border-radius: 8px;
-                box-shadow: 0 2px 4px rgb(0,0,0,5%);
+                box-shadow: 0 2px 4px rgb(0 0 0 / 5%);
             }
 
             .copy-overlay {
@@ -139,7 +139,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background: rgb(0, 0, 0, 60%);
+                background: rgb(0 0 0 / 60%);
                 width: 100%;
                 height: 100%;
                 border-radius: 8px;

@@ -620,7 +620,7 @@
         flex-wrap: wrap;
         gap: 4px 10px;
         padding: 8px 0 0;
-        border-top: 1px dashed rgb(0, 240, 255, 25%);
+        border-top: 1px dashed rgb(0 240 255 / 25%);
         margin: 8px 0 0;
         font-family: 'Courier New', monospace;
         font-size: 0.65rem;
@@ -633,10 +633,10 @@
             align-items: center;
         }
         kbd {
-            background: rgb(0, 240, 255, 12%);
+            background: rgb(0 240 255 / 12%);
             min-width: 1.4em;
             padding: 1px 4px;
-            border: 1px solid rgb(0, 240, 255, 40%);
+            border: 1px solid rgb(0 240 255 / 40%);
             border-radius: 2px;
             color: #00f0ff;
             font-family: inherit;
@@ -645,7 +645,7 @@
         }
     }
     .status-locked {
-        background: linear-gradient(90deg, rgb(0, 240, 255, 10%) 0%, transparent 100%);
+        background: linear-gradient(90deg, rgb(0 240 255 / 10%) 0%, transparent 100%);
         padding-left: 10px;
         border-left: 2px solid #00f0ff;
     }
@@ -661,7 +661,7 @@
     background: #000;
     width: 100%;
     height: 120px;
-    border: 1px solid rgb(0, 240, 255, 30%);
+    border: 1px solid rgb(0 240 255 / 30%);
     margin: 10px 0;
     overflow: hidden;
 
@@ -681,8 +681,8 @@
             0deg,
             transparent,
             transparent 2px,
-            rgb(0, 240, 255, 10%) 3px,
-            rgb(0, 240, 255, 10%) 3px
+            rgb(0 240 255 / 10%) 3px,
+            rgb(0 240 255 / 10%) 3px
         ); width: 100%; height: 100%;
         pointer-events: none;
     }
@@ -696,14 +696,14 @@
 
 /* Excerpt Styles */
 .target-excerpt {
-    background: rgb(0, 240, 255, 5%);
+    background: rgb(0 240 255 / 5%);
     padding: 8px 12px;
     border-left: 2px solid var(--hud-color);
     margin-bottom: 12px;
 
     p {
         margin: 0;
-        color: rgb(255, 255, 255, 85%);
+        color: rgb(255 255 255 / 85%);
         font-family: 'Courier New', monospace;
         font-size: 0.8rem;
         line-height: 1.4;
@@ -712,12 +712,12 @@
 
 /* Button override for Alert */
 .alert-btn {
-    border-color: rgb(255, 0, 85, 30%);
+    border-color: rgb(255 0 85 / 30%);
     color: #f05;
     &:hover:not(:disabled) {
-        background: rgb(255, 0, 85, 20%);
+        background: rgb(255 0 85 / 20%);
         border-color: #f05;
-        box-shadow: 0 0 10px rgb(255, 0, 85, 30%);
+        box-shadow: 0 0 10px rgb(255 0 85 / 30%);
         color: #fff;
     }
 }
@@ -768,8 +768,8 @@
     /* galaxyBack.vue */
     // 變數定義
     $hud-primary: #00f0ff;
-    $hud-bg: rgb(0, 10, 20, 75%);
-    $hud-border: rgb(0, 240, 255, 50%);
+    $hud-bg: rgb(0 10 20 / 75%);
+    $hud-border: rgb(0 240 255 / 50%);
     $font-tech: 'Courier New', monospace; // 建議換成 Rajdhani 或 Orbitron 等 Google Fonts
 
     .hud-overlay {
@@ -787,7 +787,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(rgb(18, 16, 16, 0%) 50%, rgb(0, 0, 0, 25%) 50%), linear-gradient(90deg, rgb(255, 0, 0, 6%), rgb(0, 255, 0, 2%), rgb(0, 0, 255, 6%));
+            background: linear-gradient(rgb(18 16 16 / 0%) 50%, rgb(0 0 0 / 25%) 50%), linear-gradient(90deg, rgb(255 0 0 / 6%), rgb(0 255 0 / 2%), rgb(0 0 255 / 6%));
             background-size: 100% 2px, 3px 100%;
             pointer-events: none;
             z-index: -1;
@@ -812,7 +812,7 @@
         border: 1px solid $hud-border;
 
         // 內發光邊框效果
-        box-shadow: inset 0 0 20px rgb(0, 240, 255, 10%);
+        box-shadow: inset 0 0 20px rgb(0 240 255 / 10%);
         color: #fff;
         pointer-events: auto;
 
@@ -820,7 +820,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
-            background: rgb(0, 240, 255, 10%);
+            background: rgb(0 240 255 / 10%);
             padding: 12px 16px;
             border-bottom: 1px solid $hud-border;
             color: $hud-primary;
@@ -853,10 +853,10 @@
         display: flex;
         justify-content: space-between;
         padding-bottom: 5px;
-        border-bottom: 1px dashed rgb(255,255,255,20%);
+        border-bottom: 1px dashed rgb(255 255 255 / 20%);
 
         .label {
-            color: rgb(255,255,255,60%);
+            color: rgb(255 255 255 / 60%);
             font-size: 0.8rem;
         }
         .value {
@@ -873,9 +873,9 @@
         margin-top: 5px;
 
         .tag-chip {
-            background: rgb(0, 240, 255, 10%);
+            background: rgb(0 240 255 / 10%);
             padding: 2px 6px;
-            border: 1px solid rgb(0, 240, 255, 30%);
+            border: 1px solid rgb(0 240 255 / 30%);
             border-radius: 2px;
             color: $hud-primary;
             font-size: 0.7rem;
@@ -901,9 +901,9 @@
         background: transparent;
         width: 100%;
         padding: 5px 10px;
-        border: 1px solid rgb(255,255,255,30%);
+        border: 1px solid rgb(255 255 255 / 30%);
         margin-bottom: 5px;
-        color: rgb(255,255,255,80%);
+        color: rgb(255 255 255 / 80%);
         font-family: inherit;
         font-size: 0.75rem;
         text-align: center;
@@ -911,9 +911,9 @@
         transition: all 0.2s;
 
         &:hover:not(:disabled) {
-            background: rgb(0, 240, 255, 20%);
+            background: rgb(0 240 255 / 20%);
             border-color: $hud-primary;
-            box-shadow: 0 0 10px rgb(0, 240, 255, 30%);
+            box-shadow: 0 0 10px rgb(0 240 255 / 30%);
             color: #fff;
         }
 
@@ -925,7 +925,7 @@
     }
 
     .btn-primary { // 模板上同時掛 hud-btn，這裡只寫差異
-        background: rgb(0, 240, 255, 10%);
+        background: rgb(0 240 255 / 10%);
         padding: 10px;
         border: 1px solid $hud-primary;
         color: $hud-primary;
@@ -942,7 +942,7 @@
     // 進度條容器
     .bar-container {
         position: relative;
-        background: rgb(255,255,255,10%);
+        background: rgb(255 255 255 / 10%);
         height: 4px;
         margin-top: 5px;
 
@@ -971,7 +971,7 @@
         transition: all 0.3s;
         z-index: 100;
 
-        &:hover { background: rgb(0, 240, 255, 20%); }
+        &:hover { background: rgb(0 240 255 / 20%); }
         &.is-active {
             background: #00f0ff;
             color: #000;
@@ -979,7 +979,7 @@
     }
     .text-glow {
         color: #fff;
-        text-shadow: 0 0 10px rgb(0, 240, 255, 80%);
+        text-shadow: 0 0 10px rgb(0 240 255 / 80%);
     }
 
     /* 動畫：HUD 登場 */
@@ -1002,15 +1002,15 @@
         flex-wrap: wrap;
         gap: 5px;
         padding-bottom: 8px;
-        border-bottom: 1px solid rgb(0, 240, 255, 30%);
+        border-bottom: 1px solid rgb(0 240 255 / 30%);
         margin-bottom: 10px;
 
         .tab-btn {
             background: transparent;
             clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%); // 傾斜切角
             padding: 4px 12px;
-            border: 1px solid rgb(0, 240, 255, 30%);
-            color: rgb(255, 255, 255, 60%);
+            border: 1px solid rgb(0 240 255 / 30%);
+            color: rgb(255 255 255 / 60%);
             font-family: Orbitron, 'Courier New', monospace;
             font-size: 0.75rem;
             text-transform: uppercase;
@@ -1018,14 +1018,14 @@
             transition: all 0.3s;
 
             &:hover {
-                background: rgb(0, 240, 255, 10%);
+                background: rgb(0 240 255 / 10%);
                 color: #00f0ff;
             }
 
             &.is-active {
-                background: rgb(0, 240, 255, 20%);
+                background: rgb(0 240 255 / 20%);
                 border-color: #00f0ff;
-                box-shadow: inset 0 0 8px rgb(0, 240, 255, 50%);
+                box-shadow: inset 0 0 8px rgb(0 240 255 / 50%);
                 color: #00f0ff;
                 text-shadow: 0 0 5px #00f0ff;
             }
@@ -1042,7 +1042,7 @@
         list-style: none;
 
         .post-item {
-            background: rgb(0, 0, 0, 40%);
+            background: rgb(0 0 0 / 40%);
             padding: 6px 10px;
             border-left: 2px solid transparent;
             cursor: pointer;
@@ -1067,13 +1067,13 @@
             // 鍵盤選到的（is-active）跟滑鼠 hover 長一樣
             &:hover,
             &.is-active {
-                background: rgb(0, 240, 255, 15%);
+                background: rgb(0 240 255 / 15%);
                 border-left-color: #00f0ff;
                 transform: translateX(5px); // Hover 時往右推，有選單感
 
                 .post-title {
                     color: #00f0ff;
-                    text-shadow: 0 0 5px rgb(0, 240, 255, 50%);
+                    text-shadow: 0 0 5px rgb(0 240 255 / 50%);
                 }
             }
         }
@@ -1093,7 +1093,7 @@
             .energy-label {
                 display: flex;
                 justify-content: space-between;
-                color: rgb(255, 255, 255, 80%);
+                color: rgb(255 255 255 / 80%);
                 font-family: 'Courier New', monospace;
                 font-size: 0.75rem;
                 text-transform: uppercase;
@@ -1111,7 +1111,7 @@
 
                 .block {
                     flex: 1;
-                    background: rgb(255, 255, 255, 10%); // 未啟用的暗色槽
+                    background: rgb(255 255 255 / 10%); // 未啟用的暗色槽
                     border-radius: 1px;
                     transition: all 0.5s ease;
                 }
@@ -1119,15 +1119,15 @@
                 // 根據層級套用不同顏色與發光
                 &.energy-normal .block.is-active {
                     background: #00f0ff;
-                    box-shadow: 0 0 5px rgb(0, 240, 255, 60%);
+                    box-shadow: 0 0 5px rgb(0 240 255 / 60%);
                 }
                 &.energy-warning .block.is-active {
                     background: #FDB813;
-                    box-shadow: 0 0 5px rgb(253, 184, 19, 60%);
+                    box-shadow: 0 0 5px rgb(253 184 19 / 60%);
                 }
                 &.energy-danger .block.is-active {
                     background: #f05;
-                    box-shadow: 0 0 5px rgb(255, 0, 85, 60%);
+                    box-shadow: 0 0 5px rgb(255 0 85 / 60%);
                 }
             }
         }

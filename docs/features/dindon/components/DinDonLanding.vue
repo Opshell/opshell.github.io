@@ -365,21 +365,21 @@
             &.is-a {
                 top: -160px;
                 right: -140px;
-                background: rgb(255, 255, 255, 16%);
+                background: rgb(255 255 255 / 16%);
                 width: 460px;
                 height: 460px;
             }
             &.is-b {
                 bottom: -70px;
                 left: 4%;
-                background: rgb(168, 116, 0, 9%);
+                background: rgb(168 116 0 / 9%);
                 width: 200px;
                 height: 200px;
             }
             &.is-c {
                 top: 22%;
                 left: 46%;
-                background: rgb(255, 255, 255, 22%);
+                background: rgb(255 255 255 / 22%);
                 width: 88px;
                 height: 88px;
             }
@@ -498,7 +498,7 @@
             background: #FEFDFC; // 兩個模式都是淺色，和手機截圖一致
             padding: 10px 16px 10px 10px;
             border-radius: 16px;
-            box-shadow: 0 6px 20px rgb(27, 24, 21, 10%);
+            box-shadow: 0 6px 20px rgb(27 24 21 / 10%);
             color: #1B1815;
             font-size: var(--font-size-s);
             line-height: 1.4;
@@ -773,7 +773,7 @@
             @media (hover: hover) {
                 &:hover {
                     translate: 0 -4px;
-                    box-shadow: 0 10px 24px rgb(27, 24, 21, 6%);
+                    box-shadow: 0 10px 24px rgb(27 24 21 / 6%);
 
                     .feature-icon { animation: dd-wiggle .6s ease-in-out; }
                 }
@@ -853,7 +853,7 @@
                 &.is-front {
                     margin-top: 60px;
                     margin-left: 120px;
-                    box-shadow: -8px 10px 30px rgb(27, 24, 21, 12%);
+                    box-shadow: -8px 10px 30px rgb(27 24 21 / 12%);
                     @include setRWD(500px) { margin-left: 90px; }
                 }
                 @include setRWD(500px) { max-width: 190px; }

@@ -180,38 +180,38 @@
 // :root {
 //     /* 首页导航 */
 //     .VPNavBar {
-//         background-color: rgba(255, 255, 255, 0%);
+//         background-color: rgb(255 255 255 / 0%);
 //         backdrop-filter: blur(10px);
 //     }
 
 //     /* 文档页导航两侧 */
 //     .VPNavBar:not(.home) {
-//         background-color: rgba(255, 255, 255, 0%);
+//         background-color: rgb(255 255 255 / 0%);
 //         backdrop-filter: blur(10px);
 //     }
 //     @media (width >= 960px) {
 //         /* 文档页导航两侧 */
 //         .VPNavBar:not(.home) {
-//             background-color: rgba(255, 255, 255, 0%);
+//             background-color: rgb(255 255 255 / 0%);
 //             backdrop-filter: blur(10px);
 //         }
 
 //         /* 首页下滑后导航两侧 */
 //         .VPNavBar:not(.has-sidebar, .home.top) {
-//             background-color: rgba(255, 255, 255, 0%);
+//             background-color: rgb(255 255 255 / 0%);
 //             backdrop-filter: blur(10px);
 //         }
 //     }
 //     @media (width >= 960px) {
 //         /* 文档页导航中间 */
 //         .VPNavBar:not(.home.top) .content-body {
-//             background-color: rgba(255, 255, 255, 0%);
+//             background-color: rgb(255 255 255 / 0%);
 //             backdrop-filter: blur(10px);
 //         }
 
 //         /* 首页下滑后导航中间 */
 //         .VPNavBar:not(.has-sidebar, .home.top) .content-body {
-//             background-color: rgba(255, 255, 255, 0%);
+//             background-color: rgb(255 255 255 / 0%);
 //             backdrop-filter: blur(10px);
 //         }
 //     }
@@ -221,27 +221,27 @@
 //     @media (width >= 960px) {
 //         /* 文档页分割线 */
 //         .VPNavBar:not(.home.top) .divider-line {
-//             background-color: rgba(255, 255, 255, 0%);
+//             background-color: rgb(255 255 255 / 0%);
 //             backdrop-filter: blur(10px);
 //         }
 
 //         /* 首页分割线 */
 //         .VPNavBar:not(.has-sidebar, .home.top) .divider {
-//             background-color: rgba(255, 255, 255, 0%);
+//             background-color: rgb(255 255 255 / 0%);
 //             backdrop-filter: blur(10px);
 //         }
 //     }
 
 //     /* 搜索框 VPNavBarSearchButton.vue */
 //     .DocSearch-Button {
-//         background-color: rgba(255, 255, 255, 0%);
+//         background-color: rgb(255 255 255 / 0%);
 //         backdrop-filter: blur(10px);
 //     }
 
 
 //     /* 移动端大纲栏 */
 //     .VPLocalNav {
-//         background-color: rgba(255, 255, 255, 0%);
+//         background-color: rgb(255 255 255 / 0%);
 //         backdrop-filter: blur(10px);
 
 //         /* 隐藏分割线 */

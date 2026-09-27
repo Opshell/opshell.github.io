@@ -264,7 +264,7 @@
         }
         &__meta {
             margin-top: 8px !important;
-            color: rgb(27, 24, 21, 72%);
+            color: rgb(27 24 21 / 72%);
             font-size: var(--font-size-s);
         }
         &__toc {
@@ -274,7 +274,7 @@
 
             a {
                 @include setFlex(center, center, 6px);
-                background: rgb(255, 253, 248, 55%);
+                background: rgb(255 253 248 / 55%);
                 padding: 4px 12px;
                 border-radius: 999px;
                 color: #1B1815;
@@ -286,7 +286,7 @@
                 }
             }
             .count {
-                color: rgb(27, 24, 21, 55%);
+                color: rgb(27 24 21 / 55%);
                 font-size: var(--font-size-xs);
             }
         }
@@ -375,7 +375,7 @@
                 right: 6px;
                 bottom: 6px;
                 @include setFlex(center, center);
-                background: rgb(27, 24, 21, 70%);
+                background: rgb(27 24 21 / 70%);
                 @include setSize(24px, 24px);
                 border-radius: 50%;
                 color: #FEFDFC;
@@ -474,7 +474,7 @@
         overflow: hidden;
 
         &::backdrop {
-            background: rgb(19, 17, 9, 72%);
+            background: rgb(19 17 9 / 72%);
             backdrop-filter: blur(4px);
         }
         &__inner {

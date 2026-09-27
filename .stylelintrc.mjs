@@ -220,7 +220,7 @@ export default {
         'value-no-vendor-prefix': null, // 禁止值的供應商前綴。
         'selector-attribute-quotes': 'never', // 不用給屬性選擇器的引號。
         'declaration-empty-line-before': 'never', // 在屬性之前不允許空行。
-        'color-function-notation': null, // 不限制色彩函數的表示法。
+        'color-function-notation': 'modern', // rgb(0 0 0 / 15%)，不用逗號也不用 rgba()（2026-09-27 全倉庫轉換）
         'scss/at-mixin-argumentless-call-parentheses': 'always', // 在 mixin 調用時，要求省略空參數的括號。
         'scss/at-mixin-pattern': null, // mixin 的命名模式。
         'scss/dollar-variable-pattern': null, // 變數的命名模式。

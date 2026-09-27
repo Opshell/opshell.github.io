@@ -223,14 +223,14 @@
             position: sticky;
             top: var(--vp-nav-height); // 配合 VitePress Header
             @include setFlex();
-            background: rgb(255, 255, 255, 80%); // 玻璃擬態
+            background: rgb(255 255 255 / 80%); // 玻璃擬態
             backdrop-filter: blur(12px);
             padding: 1rem 2rem;
             border-bottom: 1px solid var(--vp-c-divider);
             z-index: 10;
 
             .dark & {
-                background: rgb(30, 30, 30, 80%);
+                background: rgb(30 30 30 / 80%);
             }
 
             .tabs {
@@ -241,7 +241,7 @@
                 padding: 4px;
                 border-radius: 12px;
                 margin: 0 auto;
-                box-shadow: inset 0 1px 3px rgb(0,0,0,5%);
+                box-shadow: inset 0 1px 3px rgb(0 0 0 / 5%);
             }
             .tab {
                 &-button {
@@ -269,7 +269,7 @@
                     background: var(--vp-c-bg);
                     height: calc(100% - 8px);
                     border-radius: 8px;
-                    box-shadow: 0 2px 5px rgb(0,0,0,5%), 0 1px 1px rgb(0,0,0,5%);
+                    box-shadow: 0 2px 5px rgb(0 0 0 / 5%), 0 1px 1px rgb(0 0 0 / 5%);
                     transition: .3s var(--cubic-FiSo);
                     z-index: 1;
                 }

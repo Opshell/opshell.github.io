@@ -8,7 +8,7 @@
     --color-primary-1: #f4b936;
     --color-primary-2: #d8a72b;
     --color-primary-3: #b99436;
-    --color-primary-soft: rgb(185, 148, 54, 16%);
+    --color-primary-soft: rgb(185 148 54 / 16%);
 
     // 點綴色
     --color-adorn: #bd34fe;
@@ -88,7 +88,7 @@
     --view-width: 1200px;
     --gap: 1.5rem;
     --card-padding: 1.25rem;
-    --card-shadow: 1px 1px 10px 0 rgb(0, 0, 0, 10%);
+    --card-shadow: 1px 1px 10px 0 rgb(0 0 0 / 10%);
 
     // #endregion
 
@@ -114,13 +114,13 @@
     --vp-c-brand-1: #dc8419;
     --vp-c-brand-2: #cd8f42;
     --vp-c-brand-3: #c7975d;
-    --vp-c-brand-soft: rgb(234, 182, 119, 14%);
+    --vp-c-brand-soft: rgb(234 182 119 / 14%);
 
     // 調整藍色
     --vp-c-indigo-1: #2866b6;
     --vp-c-indigo-2: #3079d7;
     --vp-c-indigo-3: #508fe0;
-    --vp-c-indigo-soft: rgb(40, 103, 184, 14%);
+    --vp-c-indigo-soft: rgb(40 103 184 / 14%);
 
     // 把tip 改為品牌色 (Component: Custom Block)
     --vp-custom-block-tip-border: transparent;

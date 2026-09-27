@@ -786,24 +786,24 @@
             // 關鍵 3：因為父層高度是 0，改用像素或 rem 向上推移
             bottom: 50px; // 視你的星球大小與 sci-fi-box 大小調整
             left: 50%;
-            background: rgb(0, 0, 0, 80%);
+            background: rgb(0 0 0 / 80%);
             max-width: 400px;
             padding: 4px 10px;
-            border: 1px solid rgb(0, 240, 255, 30%); // 加個微弱的邊框更有科技感
+            border: 1px solid rgb(0 240 255 / 30%); // 加個微弱的邊框更有科技感
             border-radius: 4px;
             color: #fff;
             font-family: 'Courier New', monospace;
             font-size: var(--font-size-xl, 14px);
             white-space: nowrap;
-            text-shadow: 0 0 8px rgb(0, 240, 255, 80%);
+            text-shadow: 0 0 8px rgb(0 240 255 / 80%);
             transform: translateX(-50%); // 確保文字水平置中
         }
 
         &.is-star {
             .label-text {
-                border-color: rgb(253, 184, 19, 30%);
+                border-color: rgb(253 184 19 / 30%);
                 color: #FDB813;
-                text-shadow: 0 0 5px rgb(253, 184, 19, 50%);
+                text-shadow: 0 0 5px rgb(253 184 19 / 50%);
             }
             .sci-fi-box .corner {
                 border-color: #FDB813;
