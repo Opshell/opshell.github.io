@@ -44,7 +44,7 @@
                 <!-- 3. 測試連結：Google 的固定頁面只有英文，按鈕照實際的「Become a tester」（板 #0062） -->
                 <div class="scene scene--optin">
                     <p class="bar">Google Play Testing</p>
-                    <img class="icon" src="/images/dindon/icon.webp" alt="" loading="lazy" />
+                    <img class="icon" src="/images/dindon/icon.webp" alt="" loading="lazy" width="256" height="256" />
                     <p class="heading">You're invited to test 叮咚記帳</p>
                     <span class="mock-btn mock-btn--optin"><span class="before">Become a tester</span><span class="after">You're a tester</span></span>
                     <p class="small link">Download it on Google Play</p>
@@ -53,7 +53,7 @@
                 <div class="scene scene--play">
                     <p class="bar">Play 商店</p>
                     <div class="app">
-                        <img class="icon" src="/images/dindon/icon.webp" alt="" loading="lazy" />
+                        <img class="icon" src="/images/dindon/icon.webp" alt="" loading="lazy" width="256" height="256" />
                         <div>
                             <p class="heading">叮咚記帳</p>
                             <p class="small">搶先體驗版</p>
@@ -78,11 +78,9 @@
         gap: 28px;
         align-items: center;
         width: 100%;
-        @include setRWD(560px) {
-            grid-template-columns: 1fr;
 
-            .dindon-join__demo { order: -1; }
-        }
+        // 窄的時候動畫排在步驟後面：從社群點進來的人要先看到「怎麼加入」和按鈕，動畫是輔助
+        @include setRWD(560px) { grid-template-columns: 1fr; }
 
         // #region [P] 步驟卡：跟著手機的動畫輪流亮起來；寬的時候兩張並排
         &__steps {

@@ -301,7 +301,9 @@ export default defineConfig({
     // 圖片用 frontmatter 的 ogImage（絕對路徑，例如 /images/dindon/og-share.png），沒有就用站台預設那張。
     transformPageData(pageData) {
         const site = 'https://opshell.me';
-        const title = pageData.frontmatter.title ? `${pageData.frontmatter.title} | Opshell's Blog` : 'Opshell\'s Blog';
+        // 叮咚的頁面是產品頁，會被分享到 Threads 等社群：卡片標題不掛部落格名稱
+        const isProduct = pageData.relativePath.startsWith('dindon/');
+        const title = pageData.frontmatter.title ? (isProduct ? pageData.frontmatter.title : `${pageData.frontmatter.title} | Opshell's Blog`) : 'Opshell\'s Blog';
         const description = pageData.frontmatter.description || pageData.description || 'Opshell\'s work and life records.';
         const path = `/${pageData.relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '.html')}`;
         const image = `${site}${pageData.frontmatter.ogImage || '/images/og-default.jpg'}`;

@@ -59,7 +59,7 @@
                     <div class="dindon-landing__hero-stage">
                         <div data-parallax=".12" data-parallax-scroll>
                             <div class="dindon-landing__phone dindon-landing__phone--cropped">
-                                <img src="/images/dindon/home.webp" alt="叮咚記帳首頁：今日花費、本月累積與今天的每一筆帳" loading="eager" />
+                                <img src="/images/dindon/home.webp" alt="叮咚記帳首頁：今日花費、本月累積與今天的每一筆帳" loading="eager" width="720" height="933" />
                             </div>
                         </div>
 
@@ -147,10 +147,10 @@
 
                 <div class="dindon-landing__phones">
                     <div class="dindon-landing__phone dindon-landing__phone--back" data-parallax=".06">
-                        <img src="/images/dindon/statement.webp" alt="帳單截圖記帳：信用卡帳單的每一列都讀出來，勾選後一次記好" loading="lazy" />
+                        <img src="/images/dindon/statement.webp" alt="帳單截圖記帳：信用卡帳單的每一列都讀出來，勾選後一次記好" loading="lazy" width="720" height="1600" />
                     </div>
                     <div class="dindon-landing__phone dindon-landing__phone--front" data-parallax="-.08">
-                        <img src="/images/dindon/items.webp" alt="拍照記帳的結果：店家、分類與每個品項的金額" loading="lazy" />
+                        <img src="/images/dindon/items.webp" alt="拍照記帳的結果：店家、分類與每個品項的金額" loading="lazy" width="720" height="1600" />
                     </div>
                 </div>
             </div>
@@ -180,7 +180,7 @@
 
                 <figure class="dindon-landing__figure" data-reveal="right">
                     <div class="dindon-landing__phone" data-parallax=".06">
-                        <img src="/images/dindon/stats.webp" alt="花費統計：本月各分類的圓餅圖與金額" loading="lazy" />
+                        <img src="/images/dindon/stats.webp" alt="花費統計：本月各分類的圓餅圖與金額" loading="lazy" width="720" height="1600" />
                     </div>
                     <figcaption>打開統計，直觀知道錢去哪了</figcaption>
                 </figure>
@@ -204,7 +204,7 @@
 
                 <figure class="dindon-landing__figure" data-reveal>
                     <div class="dindon-landing__phone" data-parallax="-.06">
-                        <img src="/images/dindon/badges.webp" alt="徽章牆：勤勞記帳、自動駕駛等成就徽章，從銅級升到七彩級" loading="lazy" />
+                        <img src="/images/dindon/badges.webp" alt="徽章牆：勤勞記帳、自動駕駛等成就徽章，從銅級升到七彩級" loading="lazy" width="720" height="1600" />
                     </div>
                     <figcaption>徽章牆</figcaption>
                 </figure>
@@ -244,7 +244,7 @@
                     <div class="beta-copy">
                         <figure class="dindon-landing__figure dindon-landing__figure--event" data-reveal>
                             <div class="dindon-landing__phone" data-parallax="-.05">
-                                <img src="/images/dindon/event.webp" alt="Beta 貢獻活動的排行榜：前三名、自己的名次與每個人的回報件數" loading="lazy" />
+                                <img src="/images/dindon/event.webp" alt="Beta 貢獻活動的排行榜：前三名、自己的名次與每個人的回報件數" loading="lazy" width="720" height="1600" />
                             </div>
                             <figcaption>App 裡的排行榜（畫面中的名字為示範資料）</figcaption>
                         </figure>
