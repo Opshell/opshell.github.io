@@ -48,7 +48,8 @@ features/dindon/
     ├── useAdminCall.ts     ← 帶 token 呼叫；401 就 markExpired 回登入畫面；errorMessage()
     ├── useMergeCandidates.ts  format.ts（formatInt、formatDateTime、PLAN_LABELS）
     ├── charts/             ← BarChart、ColumnChart、ticks.ts（自己畫的 SVG，沒用圖表套件）
-    └── components/         ← DashboardApp（分頁殼）、OverviewPanel、DeviceManager、DeviceDetail、
+    ├── usePulse.ts         ← 「現在要處理什麼」：待審回報、待合併、用量提示、投票領先。側欄數字與總覽第一排共用，每 5 分鐘更新
+    └── components/         ← DashboardApp（側欄外框；頁面 frontmatter 關掉部落格的 navbar 與 footer）、OverviewPanel、DeviceManager、DeviceDetail、
                                FeedbackPanel、FeedbackTriage、MergePicker、PromoPanel、UsageReport、UsageWatch、
                                FeatureVotePanel（新功能投票的候選，#0061）
 ```

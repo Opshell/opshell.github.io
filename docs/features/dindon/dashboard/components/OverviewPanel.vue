@@ -8,6 +8,9 @@
     import ColumnChart from '../charts/ColumnChart.vue';
     import { FEATURE_LABELS, FEATURE_ORDER, formatInt, formatUsd } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import { PULSE_USAGE_DAYS, usePulse } from '../usePulse';
+
+    const emit = defineEmits<{ navigate: [tab: 'feedback' | 'watch' | 'features'] }>();
 
     // 後台的第一頁：打開就看得到「有多少人、在不在用、有沒有出問題、花了多少錢」。
     // 裝置的數字來自裝置列表（全部抓回來在瀏覽器算），AI 的數字來自用量報表；兩者都跟著上方的期間走。
@@ -55,6 +58,44 @@
     const dayKey = (date: Date) => taipeiDate.format(date); // YYYY-MM-DD
     const weekday = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', weekday: 'short' });
     const DAY_MS = 86_400_000;
+    // #endregion
+
+    // #region [P] 需要處理：打開後台第一眼要看到的。數字跟側欄共用（usePulse），點了就跳到那個分頁
+    const pulse = usePulse();
+    type Tone = 'attention' | 'done' | 'info';
+    interface Todo { key: string; label: string; value: string; hint: string; tone: Tone; to: 'feedback' | 'watch' | 'features' }
+
+    const countTone = (count: number | null): Tone => (count === null ? 'info' : count > 0 ? 'attention' : 'done');
+    const countText = (count: number | null) => (count === null ? '—' : formatInt(count));
+
+    const todos = computed<Todo[]>(() => {
+        const pending = pulse.pendingReports.value;
+        const merge = pulse.toMerge.value;
+        const flagged = pulse.flaggedDevices.value;
+        const leading = pulse.leadingFeature.value;
+        const voting = pulse.voting.value;
+        return [
+            { key: 'pending', label: '待審回報', value: countText(pending), hint: pending ? '還沒判的 bug 與建議' : '都審完了', tone: countTone(pending), to: 'feedback' },
+            { key: 'merge', label: '待合併', value: countText(merge), hint: merge ? '採計了、還沒歸到問題' : '都歸好了', tone: countTone(merge), to: 'feedback' },
+            {
+                key: 'flagged',
+                label: '用量提示',
+                value: countText(flagged?.length ?? null),
+                hint: flagged?.length ? flagged.slice(0, 2).map(row => row.name).join('、') + (flagged.length > 2 ? ' 等' : '') : `近 ${PULSE_USAGE_DAYS} 天沒有`,
+                tone: countTone(flagged?.length ?? null),
+                to: 'watch'
+            },
+            { key: 'today', label: '今天用 AI', value: countText(pulse.activeToday.value), hint: '台裝置', tone: 'info', to: 'watch' },
+            {
+                key: 'vote',
+                label: '投票領先',
+                value: leading ? `${formatInt(leading.votes)} 票` : '—',
+                hint: leading ? leading.title : voting ? '沒有投票中的候選' : '',
+                tone: 'info',
+                to: 'features'
+            }
+        ];
+    });
     // #endregion
 
     // #region [P] 數字卡片
@@ -167,6 +208,19 @@
 
 <template>
     <section class="dd-overview" :class="{ 'is-loading': loading }">
+        <!-- #region [P] 需要處理 -->
+        <ul class="dd-overview__todos" aria-label="需要處理">
+            <li v-for="todo in todos" :key="todo.key">
+                <button type="button" class="dd-overview__todo" :class="`dd-overview__todo--${todo.tone}`" @click="emit('navigate', todo.to)">
+                    <span class="label">{{ todo.label }}</span>
+                    <span class="value">{{ todo.value }}</span>
+                    <span class="hint">{{ todo.hint }}</span>
+                </button>
+            </li>
+        </ul>
+        <p v-for="message in pulse.errors.value" :key="message" class="dd-admin__error" role="alert">待辦數字有一項抓不到：{{ message }}</p>
+        <!-- #endregion -->
+
         <!-- 篩選列：一排、放在所有圖表上面，底下每張圖都跟著它 -->
         <div class="dd-overview__filters">
             <label>
@@ -324,6 +378,81 @@
             color: var(--vp-c-text-2);
             font-size: var(--font-size-s);
         }
+
+        // #region [P] 需要處理：有待辦的用醒目色、處理完的打勾、純資訊的中性
+        &__todos {
+            display: grid;
+
+            // auto-fit：寬的時候五張撐滿一排；手機一排兩張，不要五張疊成一長條
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            padding: 0;
+            margin: 0 0 24px;
+            list-style: none;
+        }
+        &__todo {
+            @include setFlex(flex-start, flex-start, 2px, column);
+            position: relative;
+            background: var(--vp-c-bg-soft);
+            width: 100%;
+            height: 100%;
+            padding: 14px 16px 14px 20px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            color: var(--vp-c-text-1);
+            text-align: left;
+            cursor: pointer;
+            transition: border-color .15s, transform .15s;
+
+            // 左邊一條色帶當狀態：不靠顏色也有文字（「都審完了」）
+            &::before {
+                content: '';
+                position: absolute;
+                top: 12px;
+                bottom: 12px;
+                left: 8px;
+                background: var(--vp-c-divider);
+                width: 4px;
+                border-radius: 2px;
+            }
+            &:hover {
+                border-color: var(--vp-c-divider);
+                transform: translateY(-1px);
+            }
+            &:focus-visible {
+                outline: 2px solid var(--vp-c-brand-1);
+                outline-offset: 2px;
+            }
+            .label {
+                color: var(--vp-c-text-2);
+                font-size: var(--font-size-s);
+            }
+            .value {
+                font-size: var(--font-size-xl);
+                font-weight: 800;
+                font-variant-numeric: normal;
+                line-height: 1.3;
+            }
+            .hint {
+                max-width: 100%;
+                color: var(--vp-c-text-2);
+                font-size: var(--font-size-xs);
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+
+            // 待辦用黃不用紅：是該去處理，不是出事了（紅色留給錯誤訊息）
+            &--attention {
+                background: var(--vp-c-warning-soft);
+
+                &::before { background: var(--vp-c-warning-1); }
+            }
+            &--done::before { background: var(--vp-c-green-1); }
+            &--info::before { background: var(--vp-c-text-3); }
+        }
+
+        // #endregion
 
         // 數字卡片：大數字用比例字寬，不用等寬（等寬數字放大後會鬆散）
         &__tiles {
