@@ -59,7 +59,8 @@
     "fix-createdAt": "node scripts/fix-createdAt-format.mjs",
     "gallery-thumb": "node scripts/generate-gallery.mjs",
     "dindon:privacy": "node scripts/sync-dindon-privacy.mjs",
-    "dindon:demos": "node scripts/sync-dindon-demos.mjs"
+    "dindon:demos": "node scripts/sync-dindon-demos.mjs",
+    "dindon:promo": "node scripts/sync-dindon-promo.mjs"
   },
   "dependencies": {
     "@giscus/vue": "3.1.1",
