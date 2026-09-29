@@ -16,6 +16,7 @@
     import { useLandingMotion } from '../hooks/useLandingMotion';
     import BetaJoinGuide from './BetaJoinGuide.vue';
     import DinDonBell from './DinDonBell.vue';
+    import PromoVideo from './PromoVideo.vue';
 
     const rootRef = ref<HTMLElement>();
     useLandingMotion(rootRef);
@@ -26,7 +27,7 @@
 <template>
     <div ref="rootRef" class="dindon-landing">
         <!-- #region [P] hero：付完錢，就等於記完帳 -->
-        <section class="dindon-landing__hero">
+        <section class="dindon-landing__hero" data-loop>
             <!-- 背景的平面圓塊，速度不同做出景深 -->
             <span class="dindon-landing__deco dindon-landing__deco--a" data-parallax=".35" data-parallax-scroll aria-hidden="true" />
             <span class="dindon-landing__deco dindon-landing__deco--b" data-parallax=".2" data-parallax-scroll aria-hidden="true" />
@@ -84,6 +85,14 @@
         </section>
         <!-- #endregion -->
 
+        <!-- #region [P] 18 秒看懂：宣傳短片 -->
+        <section id="video" class="dindon-landing__section dindon-landing__section--sunken">
+            <div class="dindon-landing__container">
+                <PromoVideo />
+            </div>
+        </section>
+        <!-- #endregion -->
+
         <!-- #region [P] 電子發票的痛點 -->
         <section id="why" class="dindon-landing__section">
             <div class="dindon-landing__container">
@@ -99,7 +108,7 @@
                     </li>
                 </ul>
 
-                <p class="dindon-landing__answer" data-reveal>
+                <p class="dindon-landing__answer" data-reveal data-loop>
                     <DinDonBell :size="44" class="bell" />
                     <span>叮咚記帳看的是<strong>付款通知</strong>：通知跳出來的那一秒，帳就記好了。</span>
                 </p>
@@ -229,7 +238,7 @@
                     <p class="dindon-landing__join-lead" data-reveal :style="delay(3)">
                         <strong>要兩個步驟</strong>：先加入封測群組，被核准之後再打開測試連結。只做第一步的話，Play 商店還找不到測試版。
                     </p>
-                    <BetaJoinGuide data-reveal :style="delay(4)" />
+                    <BetaJoinGuide data-reveal data-loop :style="delay(4)" />
                     <div>
                         <p class="dindon-landing__note">
                             裝好之後，每天打開一次、連續 14 天，中途退出測試要重新算。遇到問題或有想法，在 App 裡回報。
@@ -345,6 +354,11 @@
             transform: none;
             opacity: 1;
         }
+
+        // 循環動畫捲出畫面時暫停（useLandingMotion 加 is-paused），整塊一起停才不會彼此錯開
+        [data-loop].is-paused,
+        [data-loop].is-paused *,
+        [data-loop].is-paused *::after { animation-play-state: paused !important; }
 
         // #endregion
 

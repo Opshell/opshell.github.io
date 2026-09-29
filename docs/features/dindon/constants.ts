@@ -145,3 +145,21 @@ export const betaRewards: Reward[] = [
     },
     { tag: '+1 個月', title: '全勤小鐵人', condition: '封測期間連續 14 天打開叮咚記帳自動打卡（沒有網路的那天不會補打）', reward: '名次獎之外，再加「進階」方案 1 個月' }
 ];
+
+/** 宣傳短片的一段：at 是這段開始的秒數（點了從這裡播），文字和影片裡的字幕對得上 */
+export interface PromoChapter {
+    at: number;
+    title: string;
+    text: string;
+}
+
+/**
+ * 「18 秒看懂」旁邊的章節。秒數是從 4:5 版量出來的（工作區 docs/marketing/promo-video/，重錄了要重量）。
+ * 影片本身有字，這份清單也是看不到影片的人（讀螢幕、省流量沒播）的文字版。
+ */
+export const promoChapters: PromoChapter[] = [
+    { at: 0, title: '你上次記帳，是什麼時候？', text: '收據越積越多，沒記的帳一筆一筆堆上來。' },
+    { at: 3.6, title: '付款的那一刻，帳就記好了', text: '付款通知一跳，首頁就多一筆。你動的手指：0 根。' },
+    { at: 9.4, title: '付現金、沒通知？', text: '拍一張、說一句、截一張，一樣記好。' },
+    { at: 12.9, title: '你負責花錢，我負責記帳', text: '免註冊、無廣告，帳只存在你的手機。' }
+];

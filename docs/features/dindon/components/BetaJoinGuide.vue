@@ -72,7 +72,7 @@
                     <span class="progress"><span /></span>
                 </div>
 
-                <span class="finger" />
+                <span class="finger-track"><span class="finger" /></span>
             </div>
             <p class="dindon-join__caption">示意動畫</p>
         </div>
@@ -100,15 +100,25 @@
             @include setRWD(900px) { grid-template-columns: 1fr; }
         }
         &__step {
+            position: relative;
             display: flex;
             gap: 14px;
             background: var(--dd-surface);
             padding: 16px;
             border: 2px solid var(--dd-border);
             border-radius: var(--dd-radius);
-            animation: dd-join-step-1 var(--join-duration) linear infinite;
 
-            &--2 { animation-name: dd-join-step-2; }
+            // 亮起來的黃框疊在上面、只動透明度：直接換 border-color 每一格都要重畫
+            &::after {
+                content: '';
+                position: absolute;
+                inset: -2px;
+                border: 2px solid var(--dd-accent);
+                border-radius: inherit;
+                pointer-events: none;
+                animation: dd-join-step-1 var(--join-duration) linear infinite;
+            }
+            &--2::after { animation-name: dd-join-step-2; }
         }
         &__no {
             flex-shrink: 0;
@@ -277,6 +287,7 @@
                     display: block;
                     background: #1D59BB;
                     height: 100%;
+                    transform-origin: left;
                     animation: dd-join-progress var(--join-duration) linear infinite;
                 }
             }
@@ -292,12 +303,22 @@
             .mock-btn--install .after { animation: dd-join-install-after var(--join-duration) linear infinite; }
 
             // 手指：和播放器同一種畫法（黃色半透明圓＋實心點）
+            // 位置由外層的 track 用 transform 移（track 和手機畫面一樣大，translate 的 % 就是畫面的 %），
+            // 手指自己只管按下去的縮放與透明度。不動 top/left：那會讓整頁每一格都重新排版
+            .finger-track {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                animation: dd-join-finger-move var(--join-duration) var(--dd-ease-out) infinite;
+            }
             .finger {
                 position: absolute;
+                top: 0;
+                left: 0;
                 background: color-mix(in srgb, #FEBD19 55%, transparent);
                 border-radius: 50%;
                 transform: translate(-50%, -50%);
-                animation: dd-join-finger var(--join-duration) var(--dd-ease-out) infinite;
+                animation: dd-join-finger-tap var(--join-duration) var(--dd-ease-out) infinite;
                 opacity: 0;
                 @include setSize(34px, 34px);
 
@@ -320,7 +341,8 @@
 
         // 減少動態效果：不播，手機停在第一個畫面，步驟卡都不特別標示
         @media (prefers-reduced-motion: reduce) {
-            &__step, &__phone *, &__phone .scene { animation: none !important; }
+            &__step::after, &__phone *, &__phone .scene { animation: none !important; }
+            &__step::after { opacity: 0; }
             &__phone .scene--group { opacity: 1; }
             &__phone .finger { display: none; }
         }
@@ -328,14 +350,14 @@
 
     // #region [P] 時間軸（一輪 14 秒）：群組 0–30%、核准信 30–44%、測試連結 44–72%、Play 72–100%
     @keyframes dd-join-step-1 {
-        0%, 42% { border-color: var(--dd-accent); }
-        45%, 98% { border-color: var(--dd-border); }
-        100% { border-color: var(--dd-accent); }
+        0%, 42% { opacity: 1; }
+        45%, 98% { opacity: 0; }
+        100% { opacity: 1; }
     }
     @keyframes dd-join-step-2 {
-        0%, 42% { border-color: var(--dd-border); }
-        45%, 98% { border-color: var(--dd-accent); }
-        100% { border-color: var(--dd-border); }
+        0%, 42% { opacity: 0; }
+        45%, 98% { opacity: 1; }
+        100% { opacity: 0; }
     }
     @keyframes dd-join-scene-1 {
         0%, 28% { opacity: 1; }
@@ -386,72 +408,25 @@
         95%, 100% { opacity: 1; }
     }
     @keyframes dd-join-progress {
-        0%, 85% { width: 0; }
-        94%, 100% { width: 100%; }
+        0%, 85% { transform: scaleX(0); }
+        94%, 100% { transform: none; }
     }
 
     // 三次點擊：申請加入（14%）、成為測試人員（56%）、安裝（84%）；按下去時縮一點
-    // top 是三顆按鈕在手機畫面裡的中心，用瀏覽器量出來的（改了畫面的排版要重量）
-    @keyframes dd-join-finger {
-        0%, 5% {
-            top: 80%;
-            left: 70%;
-            opacity: 0;
-        }
-        10% {
-            top: 46.5%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+    // 位置是三顆按鈕在手機畫面裡的中心（x% y%），用瀏覽器量出來的（改了畫面的排版要重量）
+    @keyframes dd-join-finger-move {
+        0%, 5% { transform: translate(70%, 80%); }
+        10%, 47% { transform: translate(50%, 46.5%); }
+        52%, 75% { transform: translate(50%, 54%); }
+        80%, 100% { transform: translate(50%, 40%); }
+    }
+    @keyframes dd-join-finger-tap {
+        0%, 5%, 21%, 47%, 63%, 75%, 91%, 100% { opacity: 0; }
+        10%, 17%, 52%, 59%, 80%, 87% {
+            scale: 1;
             opacity: 1;
         }
-        14% { transform: translate(-50%, -50%) scale(.8); }
-        17% {
-            top: 46.5%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 1;
-        }
-        21%, 47% {
-            top: 46.5%;
-            left: 50%;
-            opacity: 0;
-        }
-        52% {
-            top: 54%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 1;
-        }
-        56% { transform: translate(-50%, -50%) scale(.8); }
-        59% {
-            top: 54%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 1;
-        }
-        63%, 75% {
-            top: 54%;
-            left: 50%;
-            opacity: 0;
-        }
-        80% {
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 1;
-        }
-        84% { transform: translate(-50%, -50%) scale(.8); }
-        87% {
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 1;
-        }
-        91%, 100% {
-            top: 40%;
-            left: 50%;
-            opacity: 0;
-        }
+        14%, 56%, 84% { scale: .8; }
     }
 
     // #endregion
