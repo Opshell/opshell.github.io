@@ -1,4 +1,5 @@
 import type { AdminDevice, CreateFeedbackInput, FeedbackStatus, TriageItem } from './schemas/admin.schema';
+import { guessDevice } from './deviceSearch';
 
 // 匯入 LINE 回報（#0068）的純邏輯：時間換算、用名字猜是哪台裝置、把逐則的決定整理成「要開的問題＋要建的回報」。
 // 畫面在 components/LineImport.vue。
@@ -29,29 +30,8 @@ export function fromTaipeiInput(value: string): string | undefined {
 
 // #endregion
 
-// #region [P] 用 LINE 上的名字猜裝置：只在剛好一台對得上時預選，猜錯比不猜糟（分數會算給別人）
-
-const normalize = (value: string | null | undefined) => (value ?? '').toLowerCase().replace(/\s+/g, '');
-
-/** 這台裝置可以用哪些字找到：暱稱、排行榜名字、email 的帳號部分、id */
-function keysOf(device: AdminDevice): string[] {
-    return [device.nickname, device.displayName, device.email?.split('@')[0], String(device.id)].map(normalize).filter(Boolean);
-}
-
-export function guessDevice(speaker: string, devices: AdminDevice[]): AdminDevice | null {
-    const name = normalize(speaker);
-    if (!name) return null;
-    const exact = devices.filter(device => keysOf(device).includes(name));
-    return exact.length === 1 ? exact[0] : null;
-}
-
-/** 選裝置的搜尋：id、暱稱、名字、email 有包含就算，最多 8 台 */
-export function searchDevices(query: string, devices: AdminDevice[], limit = 8): AdminDevice[] {
-    const q = normalize(query);
-    if (!q) return [];
-    return devices.filter(device => [...keysOf(device), normalize(device.email)].some(key => key.includes(q))).slice(0, limit);
-}
-
+// #region [P] 找裝置：搬到 deviceSearch.ts（裝置列表也要用），這裡照舊匯出
+export { guessDevice, searchDevices } from './deviceSearch';
 // #endregion
 
 // #region [P] 逐則的決定 → 要開的問題、要建的回報

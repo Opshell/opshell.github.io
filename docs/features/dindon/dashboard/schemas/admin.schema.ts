@@ -71,9 +71,14 @@ export const AdminDeviceSchema = z.object({
     bonusBugs: z.number().int(),
     bonusSuggestions: z.number().int(),
     ironAchievedOn: z.string().nullable(),
-    avatar: AvatarSchema.nullable()
+    avatar: AvatarSchema.nullable(),
+    /** 管理員替這台記的備註（#0070）：只有後台看得到。沒有是空字串 */
+    adminNote: z.string()
 });
 export type AdminDevice = z.infer<typeof AdminDeviceSchema>;
+
+/** 備註上限（後端照字元數算） */
+export const ADMIN_NOTE_MAX = 500;
 
 const AdminDeviceRawSchema = z.object({
     id: z.number(),
@@ -97,7 +102,9 @@ const AdminDeviceRawSchema = z.object({
     bonus_bugs: z.number(),
     bonus_suggestions: z.number(),
     iron_achieved_on: z.string().nullish(),
-    avatar: AvatarSchema.nullish()
+    avatar: AvatarSchema.nullish(),
+    // 2026-09-29 部署以前的後端沒有這個欄位
+    admin_note: z.string().nullish()
 });
 
 export const AdminDeviceParser = AdminDeviceRawSchema
@@ -110,7 +117,8 @@ export const AdminDeviceParser = AdminDeviceRawSchema
         nickname: data.nickname ?? null,
         title: data.title ?? null,
         iron_achieved_on: data.iron_achieved_on ?? null,
-        avatar: data.avatar ?? null
+        avatar: data.avatar ?? null,
+        admin_note: data.admin_note ?? ''
     }))
     .transform(snakeToCamel)
     .pipe(AdminDeviceSchema);
@@ -227,7 +235,9 @@ export const UpdateDeviceFormSchema = z.object({
     /** **只能給 null**：清掉不當的大頭貼，不能替使用者換 */
     avatar: z.null(),
     /** **只能給 null**：清掉不當的稱號。操作紀錄會留下被清掉的字 */
-    title: z.null()
+    title: z.null(),
+    /** 管理員備註。空字串是清掉（不收 null）。操作紀錄不記內容，改錯了救不回來 */
+    adminNote: z.string()
 }).partial();
 
 export const UpdateDevicePayload = UpdateDeviceFormSchema.transform(camelToSnake);

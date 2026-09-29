@@ -2,7 +2,7 @@ import type { AdminDevice, TriageItem } from './schemas/admin.schema';
 import { describe, expect, it } from 'vitest';
 import { draftFrom, draftProblem, fromTaipeiInput, guessDevice, planImport, quickPicks, rememberPick, searchDevices, toTaipeiInput } from './lineImport';
 
-function device(id: number, nickname: string | null, email: string | null = null): AdminDevice {
+function device(id: number, nickname: string | null, email: string | null = null, adminNote = ''): AdminDevice {
     return {
         id,
         planTier: 'free',
@@ -25,7 +25,8 @@ function device(id: number, nickname: string | null, email: string | null = null
         bonusBugs: 0,
         bonusSuggestions: 0,
         ironAchievedOn: null,
-        avatar: null
+        avatar: null,
+        adminNote
     };
 }
 
@@ -73,6 +74,19 @@ describe('用名字猜裝置', () => {
         expect(guessDevice('小美', devices)).toBeNull();
         expect(guessDevice('路人', devices)).toBeNull();
         expect(guessDevice('', devices)).toBeNull();
+    });
+
+    it('名字對不上時看備註：備註裡寫了 LINE 名稱、剛好一台才猜', () => {
+        const noted = [...devices, device(5, null, null, 'LINE：Ken Chen，9/28 從 Threads 來'), device(6, null, null, 'LINE：小華'), device(7, null, null, '小華的同事')];
+        expect(guessDevice('Ken Chen', noted)?.id).toBe(5);
+        expect(guessDevice('小華', noted)).toBeNull();
+        expect(guessDevice('K', noted)).toBeNull();
+        // 名字完全對上的優先，不會被備註蓋過
+        expect(guessDevice('阿明', [...noted, device(8, null, null, '阿明的老婆')])?.id).toBe(1);
+    });
+
+    it('搜尋也比對備註', () => {
+        expect(searchDevices('threads', [device(5, null, null, 'LINE：Ken，從 Threads 來')]).map(d => d.id)).toEqual([5]);
     });
 
     it('搜尋用包含的', () => {

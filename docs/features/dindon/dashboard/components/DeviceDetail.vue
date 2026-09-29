@@ -14,6 +14,7 @@
         PLAN_SOURCE_LABELS,
         presetLabel
     } from '../format';
+    import { ADMIN_NOTE_MAX } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
     const { deviceId } = defineProps<{ deviceId: number }>();
@@ -129,6 +130,7 @@
             referrals.value = result.referrals ?? null;
             referralCode.value = result.referralCode ?? '';
             resetForm();
+            noteDraft.value = result.device.adminNote;
             resetEventForm();
             loadAvatar(result.device);
         } catch (e) {
@@ -157,6 +159,16 @@
     }
 
     const submitPatch = () => mutate(token => adminApi.updateDevice(token, deviceId, patch.value), '已儲存變更');
+
+    // #region [P] 管理員備註（#0070）：「這台是誰」。按儲存才送——操作紀錄不記內容，改錯了救不回來
+    const noteDraft = ref('');
+    const noteLength = computed(() => [...noteDraft.value.trim()].length);
+    const noteChanged = computed(() => !!device.value && noteDraft.value.trim() !== device.value.adminNote);
+    const saveNote = () => mutate(
+        token => adminApi.updateDevice(token, deviceId, { adminNote: noteDraft.value.trim() }),
+        noteDraft.value.trim() ? '已儲存備註' : '已清掉備註'
+    );
+    // #endregion
     /**
      * 這台還在待審的回報一次不採計（api.md 第 8 節 batch，溝通板 #0053）。
      * 不走 mutate：批次端點回的是件數不是裝置。後端刻意沒把凍結包進批次，這裡也分成兩顆按鈕。
@@ -251,7 +263,10 @@
         beta_tester_since: 'beta 資格',
         frozen_at: '凍結',
         linked: '綁定 Google',
-        had_email: '有 email'
+        had_email: '有 email',
+        // 備註的操作紀錄不記內容（可能有真名），只記有沒有
+        had_admin_note: '有備註',
+        admin_note_edited: '改了備註'
     };
 
     function formatValue(value: unknown): string {
@@ -296,6 +311,19 @@
                 <div><dt>建立</dt><dd>{{ formatDateTime(device.createdAt) }}</dd></div>
                 <div v-if="device.frozen"><dt>凍結於</dt><dd>{{ formatDateTime(device.frozenAt) }}</dd></div>
             </dl>
+
+            <!-- #region [P] 備註 -->
+            <section class="dd-detail__card">
+                <h3>備註</h3>
+                <p class="dd-detail__muted">只有後台看得到，使用者看不到。記辨認用的就好，例如「LINE：小明，9/28 從 Threads 來」，不要記電話、地址。</p>
+                <textarea v-model="noteDraft" class="dd-detail__note" rows="3" :disabled="busy" placeholder="這台是誰？" />
+                <div class="dd-detail__actions">
+                    <button type="button" class="dd-admin__btn" :disabled="busy || !noteChanged || noteLength > ADMIN_NOTE_MAX" @click="saveNote">儲存備註</button>
+                    <button v-if="noteChanged" type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="noteDraft = device.adminNote">還原</button>
+                    <span class="dd-detail__muted" :class="{ 'is-over': noteLength > ADMIN_NOTE_MAX }">{{ formatInt(noteLength) }} / {{ formatInt(ADMIN_NOTE_MAX) }} · 操作紀錄不記內容，改錯了救不回來</span>
+                </div>
+            </section>
+            <!-- #endregion -->
 
             <!-- #region [P] 調整 -->
             <section class="dd-detail__card">
@@ -516,6 +544,19 @@
 
 <style lang="scss">
     .dd-detail {
+        &__note {
+            background: var(--vp-c-bg-soft);
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 8px;
+            color: var(--vp-c-text-1);
+            font-family: inherit;
+            font-size: var(--font-size-s);
+            line-height: 1.6;
+            resize: vertical;
+        }
+        .is-over { color: var(--vp-c-danger-1); }
         @include setFlex(flex-start, stretch, 16px, column);
         padding: 20px;
         border: 1px solid var(--vp-c-divider);

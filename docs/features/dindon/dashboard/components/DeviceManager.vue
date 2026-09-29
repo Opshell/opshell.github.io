@@ -3,6 +3,7 @@
     import type { AdminDevice } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
+    import { deviceMatches } from '../deviceSearch';
     import { formatInt, formatRelative, maskEmail, PLAN_LABELS } from '../format';
     import { takePanelPreset } from '../navigation';
     import { errorMessage, useAdminCall } from '../useAdminCall';
@@ -22,19 +23,32 @@
 
     const pageCount = computed(() => Math.max(Math.ceil(total.value / PER_PAGE), 1));
 
-    // 後端只接受「純數字 = id」或「含 @ = 完整 email」，其他格式先在這裡擋掉，不用等 400
-    const queryError = computed(() => {
-        const q = query.value.trim();
-        if (!q || /^\d+$/.test(q) || q.includes('@')) return '';
-        return '請輸入裝置 id（數字）或完整的 email';
-    });
+    // 後端的搜尋只收「純數字 = id」「含 @ = 完整 email」。其他字（暱稱、備註裡的字）抓回全部裝置在這裡比對，
+    // 分頁也在這裡切。全部裝置只抓一次，按「搜尋」或清除時才重抓
+    const isLocalQuery = (q: string) => !!q && !/^\d+$/.test(q) && !q.includes('@');
+    const everyDevice = ref<AdminDevice[] | null>(null);
+    const localMode = ref(false);
+
+    async function loadLocal(q: string, nextPage: number) {
+        everyDevice.value ??= await call(async token => (await adminApi.listAllDevices(token)).devices);
+        const matched = everyDevice.value.filter(device =>
+            deviceMatches(device, q) && (status.value === 'all' || (status.value === 'frozen') === device.frozen));
+        total.value = matched.length;
+        page.value = Math.min(nextPage, Math.max(Math.ceil(matched.length / PER_PAGE), 1));
+        devices.value = matched.slice((page.value - 1) * PER_PAGE, page.value * PER_PAGE);
+    }
 
     async function load(nextPage = page.value) {
-        if (queryError.value) return;
         loading.value = true;
         error.value = '';
+        const q = query.value.trim();
         try {
-            const result = await call(token => adminApi.listDevices(token, { q: query.value.trim(), status: status.value, page: nextPage, perPage: PER_PAGE }));
+            localMode.value = isLocalQuery(q);
+            if (localMode.value) {
+                await loadLocal(q, nextPage);
+                return;
+            }
+            const result = await call(token => adminApi.listDevices(token, { q, status: status.value, page: nextPage, perPage: PER_PAGE }));
             devices.value = result.devices;
             total.value = result.total;
             page.value = result.page;
@@ -47,6 +61,7 @@
 
     function search() {
         selectedId.value = null;
+        everyDevice.value = null;
         load(1);
     }
 
@@ -59,6 +74,8 @@
     function onUpdated(device: AdminDevice) {
         const index = devices.value.findIndex(item => item.id === device.id);
         if (index !== -1) devices.value[index] = device;
+        const cached = everyDevice.value?.findIndex(item => item.id === device.id) ?? -1;
+        if (cached !== -1) everyDevice.value![cached] = device;
     }
 
     onMounted(() => load(1));
@@ -69,18 +86,18 @@
         <form class="dd-devices__toolbar" role="search" @submit.prevent="search">
             <label class="dd-devices__search">
                 <span class="sr-only">搜尋裝置</span>
-                <input v-model="query" type="search" placeholder="裝置 id 或完整 email" :aria-invalid="!!queryError" />
+                <input v-model="query" type="search" placeholder="裝置 id、email、暱稱或備註" />
             </label>
             <select v-model="status" aria-label="狀態" @change="search">
                 <option value="all">全部狀態</option>
                 <option value="active">啟用中</option>
                 <option value="frozen">已凍結</option>
             </select>
-            <button type="submit" class="dd-admin__btn" :disabled="!!queryError || loading">搜尋</button>
+            <button type="submit" class="dd-admin__btn" :disabled="loading">搜尋</button>
             <button v-if="query" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="clearSearch">清除</button>
             <span class="dd-devices__count">共 {{ formatInt(total) }} 台</span>
         </form>
-        <p v-if="queryError" class="dd-admin__error">{{ queryError }}</p>
+        <p v-if="localMode" class="dd-devices__hint">在全部 {{ formatInt(everyDevice?.length ?? 0) }} 台裡比對暱稱、email 與備註</p>
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
 
         <div class="dd-devices__layout" :class="{ 'has-detail': selectedId !== null }">
@@ -90,6 +107,7 @@
                         <tr>
                             <th scope="col">ID</th>
                             <th scope="col">名字</th>
+                            <th scope="col">備註</th>
                             <th scope="col">狀態</th>
                             <th scope="col">方案</th>
                             <th scope="col" class="num">額度</th>
@@ -110,6 +128,7 @@
                         >
                             <td>#{{ device.id }}</td>
                             <td class="summary">{{ device.displayName || '—' }}</td>
+                            <td class="note" :title="device.adminNote">{{ device.adminNote || '—' }}</td>
                             <td>
                                 <span class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
                                     {{ device.frozen ? '❄ 已凍結' : '● 啟用' }}
@@ -123,7 +142,7 @@
                             <td>{{ formatRelative(device.lastAiAt) }}</td>
                         </tr>
                         <tr v-if="!loading && devices.length === 0">
-                            <td colspan="9" class="dd-table__empty">沒有符合的裝置</td>
+                            <td colspan="10" class="dd-table__empty">沒有符合的裝置</td>
                         </tr>
                     </tbody>
                 </table>
@@ -149,6 +168,19 @@
 
 <style lang="scss">
     .dd-devices {
+        // 備註可能很長、有換行：列表只看第一行開頭，完整的滑過去看、或點進詳情
+        .note {
+            max-width: 220px;
+            color: var(--vp-c-text-2);
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        &__hint {
+            margin: 0 0 8px;
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-s);
+        }
         &__toolbar {
             @include setFlex(flex-start, center, 8px);
             flex-wrap: wrap;

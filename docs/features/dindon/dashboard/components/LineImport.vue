@@ -108,7 +108,10 @@
     const deviceById = computed(() => new Map(devices.value.map(device => [device.id, device])));
     const deviceLabel = (id: number | null) => {
         const device = id === null ? undefined : deviceById.value.get(id);
-        return device ? `#${device.id} ${device.displayName}${device.email ? ` · ${device.email}` : ''}` : '';
+        if (!device) return '';
+        // 備註（#0070）是認人最快的線索：帶第一行的前 20 個字
+        const note = [...device.adminNote.split('\n')[0]].slice(0, 20).join('');
+        return `#${device.id} ${device.displayName}${device.email ? ` · ${device.email}` : ''}${note ? ` · ${note}` : ''}`;
     };
     const pending = computed(() => drafts.value.map((draft, index) => ({ draft, index })).filter(({ draft, index }) => draft.include && !isCreated(index)));
     const problems = computed(() => pending.value.map(({ draft, index }) => ({ index, problem: draftProblem(draft) })).filter(p => p.problem));
