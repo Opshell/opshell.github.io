@@ -7,6 +7,7 @@ import type { z } from 'zod';
 import type { AdminDevice, BatchReviewFeedbackInput, CreateFeedbackInput, CreateFeedbackIssueInput, ReviewFeedbackInput, SaveFeatureCandidateInput, SavePromoCodeInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
 import { parseResponse } from '@shared/utils/zod';
 import { apiBase } from '../apiBase';
+import { GetApiCatalogParser } from './console/catalog.schema';
 import {
     BatchReviewFeedbackParser,
     BatchReviewFeedbackPayload,
@@ -120,6 +121,8 @@ export const ALL_DEVICES_MAX_PAGES = 20;
 export const MAX_TOKENS = 1_000_000;
 
 export const adminApi = {
+    /** API 控制台的目錄（#0074）：說明在私有倉庫，登入後才向後端拿 */
+    getApiCatalog: async (token: string) => call(GetApiCatalogParser, token, 'GET', '/v1/admin/api-catalog'),
     /** 全部裝置（總覽算數字、LINE 匯入選人）。後端沒有「全部」的端點，一頁一頁抓 */
     listAllDevices: async (token: string) => {
         const devices: AdminDevice[] = [];

@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import type { DashboardTab, PanelPreset } from '../navigation';
-    import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+    import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { useGoogleAuth } from '../../useGoogleAuth';
     import { setPanelPreset } from '../navigation';
     import { usePulse } from '../usePulse';
@@ -11,6 +11,9 @@
     import PromoPanel from './PromoPanel.vue';
     import UsageReport from './UsageReport.vue';
     import UsageWatch from './UsageWatch.vue';
+
+    // API 控制台用到 markdown-it，點進去才載入，不拖慢其他分頁
+    const ApiConsole = defineAsyncComponent(() => import('../console/ApiConsole.vue'));
 
     const auth = useGoogleAuth();
     const { isSignedIn, profile, expired, loadError } = auth;
@@ -25,6 +28,7 @@
         watch: 'M22 12h-4l-3 9L9 3l-3 9H2',
         promo: 'M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4z M13 5v2 M13 11v2 M13 17v2',
         features: 'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M9 12l2 2 4-4',
+        api: 'M4 17l6-6-6-6 M12 19h8',
         refresh: 'M21 12a9 9 0 1 1-2.64-6.36L21 8 M21 3v5h-5'
     } as const;
 
@@ -36,7 +40,8 @@
         { key: 'usage', label: '用量報表', hint: '各功能的請求、延遲與成本' },
         { key: 'watch', label: '用量監看', hint: '逐台看 AI 用量，提示不是判決' },
         { key: 'promo', label: '優惠碼', hint: '送方案時間或額度點數' },
-        { key: 'features', label: '功能投票', hint: '測試者投票決定下一個做什麼' }
+        { key: 'features', label: '功能投票', hint: '測試者投票決定下一個做什麼' },
+        { key: 'api', label: 'API', hint: '每一支 API 的說明，直接在這裡試打' }
     ];
     type Tab = DashboardTab;
     const tab = ref<Tab>('overview');
@@ -88,7 +93,8 @@
             framed.value = true;
             return;
         }
-        const fromHash = TABS.find(t => `#${t.key}` === location.hash);
+        // API 控制台的網址是 #api/<端點>，也要停在 API 分頁
+        const fromHash = TABS.find(t => location.hash === `#${t.key}` || location.hash.startsWith(`#${t.key}/`));
         if (fromHash) tab.value = fromHash.key;
         if (buttonEl.value) auth.renderButton(buttonEl.value);
         document.addEventListener('visibilitychange', onVisible);
@@ -150,7 +156,7 @@
             </aside>
             <!-- #endregion -->
 
-            <main class="dd-admin__main">
+            <main class="dd-admin__main" :class="{ 'dd-admin__main--wide': tab === 'api' }">
                 <header class="dd-admin__head">
                     <div>
                         <h1>{{ current.label }}</h1>
@@ -168,7 +174,8 @@
                 <UsageReport v-else-if="tab === 'usage'" />
                 <UsageWatch v-else-if="tab === 'watch'" />
                 <PromoPanel v-else-if="tab === 'promo'" />
-                <FeatureVotePanel v-else />
+                <FeatureVotePanel v-else-if="tab === 'features'" />
+                <ApiConsole v-else />
             </main>
         </template>
     </div>
@@ -343,6 +350,9 @@
             max-width: 1280px;
             padding: 28px 32px 80px;
             @include setRWD(640px) { padding: 20px 16px 64px; }
+
+            // API 控制台左右兩欄加上說明與試打並排，要整個寬度
+            &--wide { max-width: none; }
         }
         &__head {
             @include setFlex(space-between, flex-start, 16px);
