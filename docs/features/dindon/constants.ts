@@ -86,6 +86,8 @@ export interface JoinStep {
     note?: string;
     /** 容易做錯的地方 */
     caution?: string;
+    /** 裝不起來時的排查：問題一句、怎麼辦一句。mail 為真的在後面接聯絡信箱（排查順序見外層 docs/ops/google-group-setup.md 第三節） */
+    troubleshoot?: { q: string; a: string; mail?: boolean }[];
 }
 
 export const joinSteps: JoinStep[] = [
@@ -103,7 +105,12 @@ export const joinSteps: JoinStep[] = [
         href: PLAY_OPTIN_URL,
         // Google 的測試頁只有英文：帳號語言、加 ?hl=zh-TW 都沒用（板 #0062，使用者實測）
         note: '測試連結打開是英文頁面，這是 Google 的固定頁面，不是連錯。到了 Play 商店就會照手機語言顯示中文。',
-        caution: '還沒被核准就打開，會加入不了——先做第 1 步。'
+        caution: '還沒被核准就打開，會加入不了——先做第 1 步。',
+        // 2026-09-29 真的有測試者卡在這兩個（板 #0069）
+        troubleshoot: [
+            { q: 'Play 商店顯示「找不到項目」？', a: '看一下 Play 商店右上角頭像的帳號，要跟加入群組、按 Become a tester 的是同一個 Gmail。' },
+            { q: '人在國外？', a: '封測目前只開放台灣，開 VPN 也沒用。寫信告訴我們你在哪個國家，我們幫你開通：', mail: true }
+        ]
     }
 ];
 

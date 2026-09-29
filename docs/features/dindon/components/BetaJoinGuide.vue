@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { joinSteps } from '../constants';
+    import { CONTACT_EMAIL, joinSteps } from '../constants';
 </script>
 
 <template>
@@ -17,6 +17,15 @@
                     <p>{{ step.text }}</p>
                     <p v-if="step.note" class="note">{{ step.note }}</p>
                     <p v-if="step.caution" class="caution">{{ step.caution }}</p>
+                    <details v-if="step.troubleshoot" class="troubleshoot">
+                        <summary>裝不起來？</summary>
+                        <dl>
+                            <template v-for="item in step.troubleshoot" :key="item.q">
+                                <dt>{{ item.q }}</dt>
+                                <dd>{{ item.a }}<a v-if="item.mail" :href="`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('叮咚記帳封測：人在國外')}`">{{ CONTACT_EMAIL }}</a></dd>
+                            </template>
+                        </dl>
+                    </details>
                     <a class="dindon-join__btn" :class="{ 'dindon-join__btn--primary': index === 0 }" :href="step.href" target="_blank" rel="noopener">
                         {{ step.action }}<span class="arrow" aria-hidden="true">→</span>
                     </a>
@@ -122,6 +131,27 @@
             .caution {
                 color: var(--dd-accent-border);
                 font-weight: 700;
+            }
+
+            // 收起來：大部分人用不到，裝不起來的人會自己點開
+            .troubleshoot {
+                width: 100%;
+                font-size: var(--font-size-s);
+
+                summary {
+                    font-weight: 700;
+                    cursor: pointer;
+                }
+                dl { margin: 8px 0 0; }
+                dt { font-weight: 700; }
+                dd {
+                    margin: 2px 0 8px;
+                    color: var(--dd-muted);
+                }
+                a {
+                    text-decoration: underline;
+                    word-break: break-all;
+                }
             }
         }
         &__btn {
