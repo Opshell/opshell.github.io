@@ -4,7 +4,7 @@
     import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
     import { adminApi, AdminApiError } from '../api';
     import { formatInt } from '../format';
-    import { draftFrom, draftProblem, planImport, searchDevices } from '../lineImport';
+    import { draftFrom, draftProblem, planImport, quickPicks, rememberPick, searchDevices } from '../lineImport';
     import { REPORT_DESCRIPTION_MAX, TRIAGE_IMAGE_BYTES, TRIAGE_IMAGE_MAX, TRIAGE_TEXT_MAX } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
@@ -149,10 +149,38 @@
         error.value = '';
     }
 
+    // #region [P] 快選人選：這批選過的、這個瀏覽器最近選過的、常回報的
+
+    // 最近選過的只是這個瀏覽器的方便，存不了（無痕、被擋）就當沒有
+    const RECENT_KEY = 'dd-admin-line-import-recent';
+    function loadRecent(): number[] {
+        try {
+            const saved = JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]');
+            return Array.isArray(saved) ? saved.filter((id): id is number => Number.isInteger(id)) : [];
+        } catch {
+            return [];
+        }
+    }
+    const recent = ref<number[]>([]);
+
+    /** 第 index 則的快選：其他幾則已經選好的人排最前面 */
+    const picksFor = (index: number) => quickPicks(devices.value, {
+        pickedInBatch: drafts.value.flatMap((draft, other) => (other !== index && draft.deviceId !== null ? [draft.deviceId] : [])),
+        recent: recent.value
+    });
+
     function pickDevice(index: number, device: AdminDevice) {
         drafts.value[index].deviceId = device.id;
         queries.value[index] = '';
+        recent.value = rememberPick(recent.value, device.id);
+        try {
+            localStorage.setItem(RECENT_KEY, JSON.stringify(recent.value));
+        } catch {
+            // 存不了就算了，下次只是少了「最近選過的」
+        }
     }
+
+    // #endregion
 
     const created = computed(() => outcomes.value.filter(outcome => outcome && 'id' in outcome).length);
 
@@ -195,6 +223,7 @@
     // #endregion
 
     onMounted(async () => {
+        recent.value = loadRecent();
         // 先把裝置抓好，按「交給 AI 整理」時就不用等
         try {
             devices.value = (await call(async token => adminApi.listAllDevices(token))).devices;
@@ -299,6 +328,11 @@
                                         </li>
                                         <li v-if="!searchDevices(queries[index], devices).length" class="none">找不到</li>
                                     </ul>
+                                    <div v-else-if="picksFor(index).length" class="quick" role="group" aria-label="快選">
+                                        <button v-for="device in picksFor(index)" :key="device.id" type="button" :disabled="busy" :title="deviceLabel(device.id)" @click="pickDevice(index, device)">
+                                            {{ device.displayName }}<span>#{{ device.id }}</span>
+                                        </button>
+                                    </div>
                                 </template>
                             </div>
                         </div>
@@ -538,6 +572,29 @@
                 }
             }
             input { width: 100%; }
+
+            // 快選：這批選過的、最近選過的、常回報的
+            .quick {
+                @include setFlex(flex-start, center, 6px);
+                flex-wrap: wrap;
+                margin-top: 6px;
+
+                button {
+                    background: var(--vp-c-default-soft);
+                    padding: 2px 10px;
+                    border: 1px solid transparent;
+                    border-radius: 999px;
+                    color: var(--vp-c-text-1);
+                    font-size: 12px;
+                    cursor: pointer;
+
+                    &:hover { border-color: var(--vp-c-brand-1); }
+                    span {
+                        margin-left: 4px;
+                        color: var(--vp-c-text-3);
+                    }
+                }
+            }
             .options {
                 position: absolute;
                 top: 100%;

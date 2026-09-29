@@ -1,6 +1,6 @@
 import type { AdminDevice, TriageItem } from './schemas/admin.schema';
 import { describe, expect, it } from 'vitest';
-import { draftFrom, draftProblem, fromTaipeiInput, guessDevice, planImport, searchDevices, toTaipeiInput } from './lineImport';
+import { draftFrom, draftProblem, fromTaipeiInput, guessDevice, planImport, quickPicks, rememberPick, searchDevices, toTaipeiInput } from './lineImport';
 
 function device(id: number, nickname: string | null, email: string | null = null): AdminDevice {
     return {
@@ -126,5 +126,29 @@ describe('整理成要送的東西', () => {
     it('待審、不採計照原樣；沒選裝置的不送', () => {
         const drafts = [{ ...draftFrom(item(), devices), review: 'pending' as const }, { ...draftFrom(item(), devices), review: 'rejected' as const }, { ...draftFrom(item(), devices), deviceId: null }];
         expect(planImport(drafts, 'email').reports.map(r => r.payload.status)).toEqual(['pending', 'rejected']);
+    });
+});
+
+describe('快選人選', () => {
+    const people = [
+        { ...device(1, '阿明'), bugs: 2, suggestions: 1 },
+        { ...device(2, '小美'), bugs: 5, suggestions: 0 },
+        { ...device(3, '阿凍'), bugs: 9, suggestions: 0, frozen: true },
+        device(4, '新來的'),
+        { ...device(5, '小華'), bugs: 0, suggestions: 1 }
+    ];
+
+    it('這批選過的在前、再來最近選過的、最後補常回報的（件數多的在前）；不重複、不列凍結的', () => {
+        expect(quickPicks(people, { pickedInBatch: [4], recent: [5, 4] }).map(d => d.id)).toEqual([4, 5, 2, 1]);
+    });
+
+    it('沒回報過也沒選過的不列；上限', () => {
+        expect(quickPicks(people, { pickedInBatch: [], recent: [] }).map(d => d.id)).toEqual([2, 1, 5]);
+        expect(quickPicks(people, { pickedInBatch: [], recent: [] }, 2)).toHaveLength(2);
+    });
+
+    it('選過的移到最前面、最多記 10 台', () => {
+        expect(rememberPick([3, 2, 1], 1)).toEqual([1, 3, 2]);
+        expect(rememberPick([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 11)).toHaveLength(10);
     });
 });

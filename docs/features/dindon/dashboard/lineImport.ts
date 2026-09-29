@@ -155,3 +155,31 @@ export function planImport(drafts: Draft[], source: 'line' | 'email'): ImportPla
 }
 
 // #endregion
+
+// #region [P] 快選人選：這批已選過的、最近選過的、常回報的（採計件數多的）
+
+export interface QuickPickSources {
+    /** 這一批裡其他幾則已經選好的裝置 */
+    pickedInBatch: number[];
+    /** 管理員最近在匯入時選過的（記在這個瀏覽器，新的在前） */
+    recent: number[];
+}
+
+/** 同一段對話常是同幾個人在講，先列這批選過的，再列最近選過的，最後補常回報的。重複的只列一次，凍結的不列 */
+export function quickPicks(devices: AdminDevice[], sources: QuickPickSources, limit = 8): AdminDevice[] {
+    const byId = new Map(devices.map(device => [device.id, device]));
+    const frequent = devices
+        .filter(device => device.bugs + device.suggestions > 0)
+        .sort((a, b) => (b.bugs + b.suggestions) - (a.bugs + a.suggestions) || b.id - a.id)
+        .map(device => device.id);
+    const ids = [...new Set([...sources.pickedInBatch, ...sources.recent, ...frequent])];
+    return ids
+        .map(id => byId.get(id))
+        .filter((device): device is AdminDevice => !!device && !device.frozen)
+        .slice(0, limit);
+}
+
+/** 最近選過的清單：選到的放最前面，最多記 10 台 */
+export const rememberPick = (recent: number[], id: number, max = 10) => [id, ...recent.filter(other => other !== id)].slice(0, max);
+
+// #endregion
