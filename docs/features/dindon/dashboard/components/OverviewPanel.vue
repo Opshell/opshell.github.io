@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import type { BarRow, BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
+    import type { DashboardTab, PanelPreset } from '../navigation';
     import type { AdminDevice, UsageReport } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
@@ -10,7 +11,8 @@
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import { PULSE_USAGE_DAYS, usePulse } from '../usePulse';
 
-    const emit = defineEmits<{ navigate: [tab: 'feedback' | 'watch' | 'features'] }>();
+    // 總覽上每個數字都點得進去：跳到能看細節的那一頁，需要的話先套好篩選
+    const emit = defineEmits<{ navigate: [tab: DashboardTab, preset?: PanelPreset] }>();
 
     // 後台的第一頁：打開就看得到「有多少人、在不在用、有沒有出問題、花了多少錢」。
     // 裝置的數字來自裝置列表（全部抓回來在瀏覽器算），AI 的數字來自用量報表；兩者都跟著上方的期間走。
@@ -63,7 +65,7 @@
     // #region [P] 需要處理：打開後台第一眼要看到的。數字跟側欄共用（usePulse），點了就跳到那個分頁
     const pulse = usePulse();
     type Tone = 'attention' | 'done' | 'info';
-    interface Todo { key: string; label: string; value: string; hint: string; tone: Tone; to: 'feedback' | 'watch' | 'features' }
+    interface Todo { key: string; label: string; value: string; hint: string; tone: Tone; to: DashboardTab; preset?: PanelPreset }
 
     const countTone = (count: number | null): Tone => (count === null ? 'info' : count > 0 ? 'attention' : 'done');
     const countText = (count: number | null) => (count === null ? '—' : formatInt(count));
@@ -75,7 +77,7 @@
         const leading = pulse.leadingFeature.value;
         const voting = pulse.voting.value;
         return [
-            { key: 'pending', label: '待審回報', value: countText(pending), hint: pending ? '還沒判的 bug 與建議' : '都審完了', tone: countTone(pending), to: 'feedback' },
+            { key: 'pending', label: '待審回報', value: countText(pending), hint: pending ? '還沒判的 bug 與建議' : '都審完了', tone: countTone(pending), to: 'feedback', preset: { feedbackStatus: 'pending' } },
             { key: 'merge', label: '待合併', value: countText(merge), hint: merge ? '採計了、還沒歸到問題' : '都歸好了', tone: countTone(merge), to: 'feedback' },
             {
                 key: 'flagged',
@@ -99,18 +101,19 @@
     // #endregion
 
     // #region [P] 數字卡片
-    const tiles = computed(() => {
+    const tiles = computed<{ label: string; value: string; hint: string; to: DashboardTab; preset?: PanelPreset }[]>(() => {
         const now = Date.now();
         const list = devices.value;
         const since = now - days.value * DAY_MS;
         const features = report.value?.features ?? [];
         return [
-            { label: '裝置總數', value: formatInt(deviceTotal.value), hint: `期間新增 ${formatInt(list.filter(d => new Date(d.createdAt).getTime() >= since).length)} 台` },
-            { label: '近 7 天用過 AI', value: formatInt(list.filter(d => d.lastAiAt && now - new Date(d.lastAiAt).getTime() <= 7 * DAY_MS).length), hint: '台裝置' },
-            { label: 'AI 請求', value: formatInt(features.reduce((sum, f) => sum + f.requests, 0)), hint: `近 ${days.value} 天` },
-            { label: 'Gemini 成本', value: formatUsd(features.reduce((sum, f) => sum + f.totalCostUsd, 0)), hint: `近 ${days.value} 天，依價目表估算` },
-            { label: '綁定 Google', value: formatInt(list.filter(d => d.linked).length), hint: '台裝置' },
-            { label: '已凍結', value: formatInt(list.filter(d => d.frozen).length), hint: '台裝置' }
+            { label: '裝置總數', value: formatInt(deviceTotal.value), hint: `期間新增 ${formatInt(list.filter(d => new Date(d.createdAt).getTime() >= since).length)} 台`, to: 'devices' },
+            { label: '近 7 天用過 AI', value: formatInt(list.filter(d => d.lastAiAt && now - new Date(d.lastAiAt).getTime() <= 7 * DAY_MS).length), hint: '台裝置', to: 'watch' },
+            { label: 'AI 請求', value: formatInt(features.reduce((sum, f) => sum + f.requests, 0)), hint: `近 ${days.value} 天`, to: 'usage' },
+            { label: 'Gemini 成本', value: formatUsd(features.reduce((sum, f) => sum + f.totalCostUsd, 0)), hint: `近 ${days.value} 天，依價目表估算`, to: 'usage' },
+            // 裝置頁沒有「有綁 Google」的篩選，只能跳到列表
+            { label: '綁定 Google', value: formatInt(list.filter(d => d.linked).length), hint: '台裝置', to: 'devices' },
+            { label: '已凍結', value: formatInt(list.filter(d => d.frozen).length), hint: '台裝置', to: 'devices', preset: { deviceStatus: 'frozen' } }
         ];
     });
     // #endregion
@@ -211,7 +214,7 @@
         <!-- #region [P] 需要處理 -->
         <ul class="dd-overview__todos" aria-label="需要處理">
             <li v-for="todo in todos" :key="todo.key">
-                <button type="button" class="dd-overview__todo" :class="`dd-overview__todo--${todo.tone}`" @click="emit('navigate', todo.to)">
+                <button type="button" class="dd-overview__todo" :class="`dd-overview__todo--${todo.tone}`" @click="emit('navigate', todo.to, todo.preset)">
                     <span class="label">{{ todo.label }}</span>
                     <span class="value">{{ todo.value }}</span>
                     <span class="hint">{{ todo.hint }}</span>
@@ -240,15 +243,17 @@
         <template v-if="report">
             <ul class="dd-overview__tiles">
                 <li v-for="tile in tiles" :key="tile.label">
-                    <p class="label">{{ tile.label }}</p>
-                    <p class="value">{{ tile.value }}</p>
-                    <p class="hint">{{ tile.hint }}</p>
+                    <button type="button" @click="emit('navigate', tile.to, tile.preset)">
+                        <span class="label">{{ tile.label }}</span>
+                        <span class="value">{{ tile.value }}</span>
+                        <span class="hint">{{ tile.hint }}</span>
+                    </button>
                 </li>
             </ul>
 
             <div class="dd-overview__grid">
                 <article v-if="hasDaily" class="dd-overview__card dd-overview__card--wide">
-                    <h3>每日 AI 請求</h3>
+                    <h3>每日 AI 請求<button type="button" class="more" @click="emit('navigate', 'usage')">詳細 →</button></h3>
                     <p class="sub">近 {{ days }} 天。橙色是沒做成的（Gemini 出錯、額度不足、撞到每日上限）</p>
                     <ColumnChart :points="dailyPoints" :series="outcomeSeries" unit=" 次" />
                     <details>
@@ -280,7 +285,7 @@
                 </article>
 
                 <article class="dd-overview__card">
-                    <h3>每日新裝置</h3>
+                    <h3>每日新裝置<button type="button" class="more" @click="emit('navigate', 'devices')">詳細 →</button></h3>
                     <p class="sub">第一次用到 AI 功能時才會建立裝置，所以這是「開始用 AI 的新裝置」</p>
                     <ColumnChart :points="newDevicePoints" :series="newDeviceSeries" unit=" 台" />
                     <details>
@@ -295,7 +300,7 @@
                 </article>
 
                 <article class="dd-overview__card">
-                    <h3>裝置最近一次用 AI</h3>
+                    <h3>裝置最近一次用 AI<button type="button" class="more" @click="emit('navigate', 'watch')">詳細 →</button></h3>
                     <p class="sub">還在用的人有多少。算的是最近一次 AI 請求（失敗的也算）；「從沒用過」是領了 key 之後一次請求都沒有</p>
                     <BarChart :rows="recencyRows" :series="singleSeries" unit=" 台" />
                     <details>
@@ -309,7 +314,7 @@
                 </article>
 
                 <article class="dd-overview__card">
-                    <h3>各功能的請求結果</h3>
+                    <h3>各功能的請求結果<button type="button" class="more" @click="emit('navigate', 'usage')">詳細 →</button></h3>
                     <p class="sub">近 {{ days }} 天。橙色多代表 Gemini 出錯，或撞到額度、每日上限</p>
                     <BarChart v-if="outcomeRows.length" :rows="outcomeRows" :series="outcomeSeries" unit=" 次" />
                     <p v-else class="dd-overview__muted">這段期間沒有 AI 請求</p>
@@ -333,7 +338,7 @@
                 </article>
 
                 <article class="dd-overview__card">
-                    <h3>錢花在哪個功能</h3>
+                    <h3>錢花在哪個功能<button type="button" class="more" @click="emit('navigate', 'usage')">詳細 →</button></h3>
                     <p class="sub">近 {{ days }} 天的 Gemini 成本，依後端價目表估算</p>
                     <BarChart v-if="costRows.length" :rows="costRows" :series="costSeries" :format="formatUsd" />
                     <p v-else class="dd-overview__muted">這段期間沒有 AI 請求</p>
@@ -463,10 +468,28 @@
             margin: 0 0 20px;
             list-style: none;
 
-            li {
+            // 整張卡是按鈕：點了跳到能看細節的分頁
+            button {
+                @include setFlex(flex-start, flex-start, 0, column);
+                background: transparent;
+                width: 100%;
+                height: 100%;
                 padding: 16px;
                 border: 1px solid var(--vp-c-divider);
                 border-radius: 12px;
+                color: var(--vp-c-text-1);
+                text-align: left;
+                cursor: pointer;
+                transition: border-color .15s, background .15s;
+
+                &:hover {
+                    background: var(--vp-c-bg-soft);
+                    border-color: var(--vp-c-brand-1);
+                }
+                &:focus-visible {
+                    outline: 2px solid var(--vp-c-brand-1);
+                    outline-offset: 2px;
+                }
             }
             .label {
                 color: var(--vp-c-text-2);
@@ -497,7 +520,22 @@
             border-radius: 12px;
 
             &--wide { grid-column: 1 / -1; }
-            h3 { font-size: var(--font-size-m); }
+            h3 {
+                @include setFlex(space-between, baseline, 12px);
+                font-size: var(--font-size-m);
+            }
+            .more {
+                flex-shrink: 0;
+                background: transparent;
+                padding: 0;
+                border: 0;
+                color: var(--vp-c-brand-1);
+                font-size: var(--font-size-s);
+                font-weight: 600;
+                cursor: pointer;
+
+                &:hover { text-decoration: underline; }
+            }
             .sub {
                 margin-top: -8px !important;
                 color: var(--vp-c-text-2);

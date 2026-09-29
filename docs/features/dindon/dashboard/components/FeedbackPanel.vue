@@ -7,6 +7,7 @@
     import { adminApi } from '../api';
     import ColumnChart from '../charts/ColumnChart.vue';
     import { formatDateTime, formatInt, formatRelative, KIND_LABELS } from '../format';
+    import { takePanelPreset } from '../navigation';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import FeedbackTriage from './FeedbackTriage.vue';
     import MergePicker from './MergePicker.vue';
@@ -26,7 +27,7 @@
     };
     const STATUSES = Object.keys(STATUS_LABELS) as FeedbackStatus[];
 
-    const status = ref<FeedbackFilter>('pending');
+    const status = ref<FeedbackFilter>(takePanelPreset('feedbackStatus') ?? 'pending');
     // 類型篩選（溝通板 #41）。crash 是 App 當掉後自動產生的，跟手寫的回報意義差很多
     const kind = ref<FeedbackKind>('all');
     const reports = ref<FeedbackReport[]>([]);

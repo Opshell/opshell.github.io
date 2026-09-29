@@ -4,6 +4,7 @@
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
     import { formatInt, formatRelative, maskEmail, PLAN_LABELS } from '../format';
+    import { takePanelPreset } from '../navigation';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import DeviceDetail from './DeviceDetail.vue';
 
@@ -11,7 +12,7 @@
     const PER_PAGE = 25;
 
     const query = ref('');
-    const status = ref<DeviceStatus>('all');
+    const status = ref<DeviceStatus>(takePanelPreset('deviceStatus') ?? 'all');
     const page = ref(1);
     const devices = ref<AdminDevice[]>([]);
     const total = ref(0);

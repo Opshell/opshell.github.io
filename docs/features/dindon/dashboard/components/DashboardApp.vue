@@ -1,6 +1,8 @@
 <script setup lang="ts">
+    import type { DashboardTab, PanelPreset } from '../navigation';
     import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { useGoogleAuth } from '../../useGoogleAuth';
+    import { setPanelPreset } from '../navigation';
     import { usePulse } from '../usePulse';
     import DeviceManager from './DeviceManager.vue';
     import FeatureVotePanel from './FeatureVotePanel.vue';
@@ -27,7 +29,7 @@
     } as const;
 
     // 分頁記在網址的 # 後面，重新整理會停在同一頁；總覽是預設，不帶 #
-    const TABS = [
+    const TABS: readonly { key: DashboardTab; label: string; hint: string }[] = [
         { key: 'overview', label: '總覽', hint: '現在要處理什麼、有多少人在用、花了多少' },
         { key: 'devices', label: '裝置', hint: '找一台裝置，看它的方案、額度與紀錄' },
         { key: 'feedback', label: '回報', hint: '審 bug 與建議，合併成問題' },
@@ -35,8 +37,8 @@
         { key: 'watch', label: '用量監看', hint: '逐台看 AI 用量，提示不是判決' },
         { key: 'promo', label: '優惠碼', hint: '送方案時間或額度點數' },
         { key: 'features', label: '功能投票', hint: '測試者投票決定下一個做什麼' }
-    ] as const;
-    type Tab = typeof TABS[number]['key'];
+    ];
+    type Tab = DashboardTab;
     const tab = ref<Tab>('overview');
     const current = computed(() => TABS.find(t => t.key === tab.value)!);
     const buttonEl = ref<HTMLElement>();
@@ -53,7 +55,9 @@
     // 嵌進來就能讀到裡面的東西（溝通板 #20）。GitHub Pages 設不了 frame-ancestors 標頭，只能在這裡擋。
     const framed = ref(false);
 
-    function selectTab(next: Tab) {
+    /** preset：跳過去時要先套用的篩選（總覽點「已凍結」→ 裝置頁只看凍結的） */
+    function selectTab(next: Tab, preset?: PanelPreset) {
+        setPanelPreset(preset);
         tab.value = next;
         history.replaceState(null, '', next === 'overview' ? location.pathname + location.search : `#${next}`);
         window.scrollTo({ top: 0 });
