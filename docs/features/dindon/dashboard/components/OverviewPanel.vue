@@ -4,7 +4,7 @@
     import type { DashboardTab, PanelPreset } from '../navigation';
     import type { AdminDevice, UsageReport } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
-    import { adminApi } from '../api';
+    import { adminApi, ALL_DEVICES_MAX_PAGES, ALL_DEVICES_PER_PAGE } from '../api';
     import BarChart from '../charts/BarChart.vue';
     import ColumnChart from '../charts/ColumnChart.vue';
     import { FEATURE_LABELS, FEATURE_ORDER, formatInt, formatUsd } from '../format';
@@ -24,28 +24,15 @@
     const loading = ref(false);
     const error = ref('');
 
-    // 裝置列表一頁最多 100 台。beta 限額 100 人加上測試裝置，20 頁（2,000 台）綽綽有餘；超過就只統計前 2,000 台並註明
-    const PER_PAGE = 100;
-    const MAX_PAGES = 20;
-
-    async function loadDevices(token: string) {
-        const all: AdminDevice[] = [];
-        let total = 0;
-        for (let page = 1; page <= MAX_PAGES; page++) {
-            const result = await adminApi.listDevices(token, { page, perPage: PER_PAGE });
-            all.push(...result.devices);
-            total = result.total;
-            if (all.length >= total || result.devices.length === 0) break;
-        }
-        return { all, total };
-    }
+    // 裝置最多抓 2,000 台（api.ts 的 listAllDevices）；超過就只統計最新的那些並註明
+    const MAX_DEVICES = ALL_DEVICES_MAX_PAGES * ALL_DEVICES_PER_PAGE;
 
     async function load() {
         loading.value = true;
         error.value = '';
         try {
-            const [deviceResult, usage] = await call(token => Promise.all([loadDevices(token), adminApi.usage(token, days.value)]));
-            devices.value = deviceResult.all;
+            const [deviceResult, usage] = await call(async token => Promise.all([adminApi.listAllDevices(token), adminApi.usage(token, days.value)]));
+            devices.value = deviceResult.devices;
             deviceTotal.value = deviceResult.total;
             report.value = usage;
         } catch (e) {
@@ -238,7 +225,7 @@
             <span v-if="loading" class="dd-overview__muted">載入中…</span>
         </div>
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
-        <p v-if="devices.length < deviceTotal" class="dd-overview__muted">裝置超過 {{ formatInt(MAX_PAGES * PER_PAGE) }} 台，裝置相關的圖表只統計最新的 {{ formatInt(devices.length) }} 台。</p>
+        <p v-if="devices.length < deviceTotal" class="dd-overview__muted">裝置超過 {{ formatInt(MAX_DEVICES) }} 台，裝置相關的圖表只統計最新的 {{ formatInt(devices.length) }} 台。</p>
 
         <template v-if="report">
             <ul class="dd-overview__tiles">
@@ -468,8 +455,8 @@
             margin: 0 0 20px;
             list-style: none;
 
-            // 整張卡是按鈕：點了跳到能看細節的分頁
-            button {
+            // 卡片外框：點得進去的是按鈕（跳分頁或套篩選），純數字的是 .tile（回報頁的「參與人數」）
+            button, .tile {
                 @include setFlex(flex-start, flex-start, 0, column);
                 background: transparent;
                 width: 100%;
@@ -479,9 +466,12 @@
                 border-radius: 12px;
                 color: var(--vp-c-text-1);
                 text-align: left;
-                cursor: pointer;
                 transition: border-color .15s, background .15s;
+            }
+            button {
+                cursor: pointer;
 
+                &.is-active { border-color: var(--vp-c-brand-1); }
                 &:hover {
                     background: var(--vp-c-bg-soft);
                     border-color: var(--vp-c-brand-1);

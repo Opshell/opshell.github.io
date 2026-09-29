@@ -4,7 +4,7 @@
 // 後端回的格式對不上就丟 ApiSchemaError，錯誤訊息會指出是哪支 API、哪個欄位。
 
 import type { z } from 'zod';
-import type { BatchReviewFeedbackInput, CreateFeedbackIssueInput, ReviewFeedbackInput, SaveFeatureCandidateInput, SavePromoCodeInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
+import type { AdminDevice, BatchReviewFeedbackInput, CreateFeedbackInput, CreateFeedbackIssueInput, ReviewFeedbackInput, SaveFeatureCandidateInput, SavePromoCodeInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
 import { parseResponse } from '@shared/utils/zod';
 import { apiBase } from '../apiBase';
 import {
@@ -12,6 +12,8 @@ import {
     BatchReviewFeedbackPayload,
     CreateFeedbackIssueParser,
     CreateFeedbackIssuePayload,
+    CreateFeedbackParser,
+    CreateFeedbackPayload,
     GetDeviceDetailParser,
     GetDeviceListParser,
     GetFeatureCandidateListParser,
@@ -28,6 +30,8 @@ import {
     SaveFeatureCandidatePayload,
     SavePromoCodeParser,
     SavePromoCodePayload,
+    TriageFeedbackParser,
+    TriageFeedbackPayload,
     UpdateDeviceParser,
     UpdateDevicePayload,
     UpdateFeedbackIssuePayload
@@ -38,6 +42,8 @@ export type DeviceStatus = 'all' | 'active' | 'frozen';
 export type FeedbackFilter = 'all' | 'pending' | 'accepted_bug' | 'accepted_suggestion' | 'rejected';
 /** 回報的類型篩選（溝通板 #41）。crash 是 App 當掉後自動產生、使用者按了才送的 */
 export type FeedbackKind = 'all' | 'bug' | 'suggestion' | 'crash';
+/** 回報來源篩選（#0068）：app 是 App 送的，line／email 是後台建的 */
+export type FeedbackSourceFilter = 'all' | 'app' | 'line' | 'email';
 // #endregion
 
 export class AdminApiError extends Error {
@@ -106,10 +112,26 @@ async function call<T extends z.ZodType>(parser: T, token: string, method: strin
     return parseResponse(parser, data, `${method} ${path.split('?')[0]}`);
 }
 
+/** 抓全部裝置時一頁幾台、最多幾頁。beta 限額 100 人加上測試裝置，2,000 台綽綽有餘；超過就只拿最新的 2,000 台 */
+export const ALL_DEVICES_PER_PAGE = 100;
+export const ALL_DEVICES_MAX_PAGES = 20;
+
 /** 後端能設定的額度上限（api.md 第 8 節）：tokens 與加減之後的結果都要在 0～這個數 */
 export const MAX_TOKENS = 1_000_000;
 
 export const adminApi = {
+    /** 全部裝置（總覽算數字、LINE 匯入選人）。後端沒有「全部」的端點，一頁一頁抓 */
+    listAllDevices: async (token: string) => {
+        const devices: AdminDevice[] = [];
+        let total = 0;
+        for (let page = 1; page <= ALL_DEVICES_MAX_PAGES; page++) {
+            const result = await adminApi.listDevices(token, { page, perPage: ALL_DEVICES_PER_PAGE });
+            devices.push(...result.devices);
+            total = result.total;
+            if (devices.length >= total || result.devices.length === 0) break;
+        }
+        return { devices, total };
+    },
     listDevices: async (token: string, params: { q?: string; status?: DeviceStatus; page?: number; perPage?: number }) => {
         const q = params.q?.trim() ?? '';
         const status = params.status ?? 'all';
@@ -150,10 +172,11 @@ export const adminApi = {
 
     // #region [P] 審回報
     feedbackStats: async (token: string) => call(GetFeedbackStatsParser, token, 'GET', '/v1/admin/feedback/stats'),
-    listFeedback: async (token: string, params: { status?: FeedbackFilter; kind?: FeedbackKind; deviceId?: number; page?: number; perPage?: number }) => {
+    listFeedback: async (token: string, params: { status?: FeedbackFilter; kind?: FeedbackKind; source?: FeedbackSourceFilter; deviceId?: number; page?: number; perPage?: number }) => {
         const query = new URLSearchParams();
         if (params.status && params.status !== 'all') query.set('status', params.status);
         if (params.kind && params.kind !== 'all') query.set('kind', params.kind);
+        if (params.source && params.source !== 'all') query.set('source', params.source);
         if (params.deviceId) query.set('device_id', String(params.deviceId));
         query.set('page', String(params.page ?? 1));
         query.set('per_page', String(params.perPage ?? 50));
@@ -174,6 +197,12 @@ export const adminApi = {
     batchReviewFeedback: async (token: string, body: BatchReviewFeedbackInput) =>
         call(BatchReviewFeedbackParser, token, 'POST', '/v1/admin/feedback/batch', BatchReviewFeedbackPayload.parse(body)),
 
+    /** AI 整理 LINE 的對話與截圖，不寫入任何東西。一次約 4 秒，最多等 25 秒 */
+    triageFeedback: async (token: string, body: TriageFeedbackInput) =>
+        call(TriageFeedbackParser, token, 'POST', '/v1/admin/feedback/triage', TriageFeedbackPayload.parse(body)),
+    /** 替使用者建一則回報（來源 line／email），跟 App 送的一樣審、合併、計分 */
+    createFeedback: async (token: string, body: CreateFeedbackInput) =>
+        call(CreateFeedbackParser, token, 'POST', '/v1/admin/feedback', CreateFeedbackPayload.parse(body)),
     listIssues: async (token: string) => call(GetFeedbackIssueListParser, token, 'GET', '/v1/admin/feedback/issues'),
     /** 建立問題，可以同時把幾則回報掛上去——這就是「合併」。回傳新問題（含 id） */
     createIssue: async (token: string, body: CreateFeedbackIssueInput) =>

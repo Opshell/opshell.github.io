@@ -373,11 +373,16 @@ export type UsageDay = UsageReport['daily'][number];
 
 // #region [P] 審回報（api.md 第 8 節「審回報」）
 
+/** 回報從哪來：app 是 App 送的；line／email 是後台替使用者建的（#0068） */
+export const FeedbackSourceSchema = z.enum(['app', 'line', 'email']);
+export type FeedbackSource = z.infer<typeof FeedbackSourceSchema>;
+
 export const FeedbackReportSchema = z.object({
     id: z.number().int(),
     deviceId: z.number().int(),
     deviceName: z.string(),
     kind: FeedbackReportKindSchema,
+    source: FeedbackSourceSchema,
     status: FeedbackStatusSchema,
     description: z.string(),
     appVersion: z.string(),
@@ -402,6 +407,8 @@ const FeedbackReportParser = z
         device_id: z.number(),
         device_name: z.string(),
         kind: FeedbackReportKindSchema,
+        // 2026-09-29 以前的後端沒有這個欄位，那時只有 App 送的
+        source: FeedbackSourceSchema.nullish(),
         status: FeedbackStatusSchema,
         description: z.string(),
         log: z.string().nullish(),
@@ -418,6 +425,7 @@ const FeedbackReportParser = z
     .transform(({ log, ...data }) => ({
         ...data,
         ...(log == null ? {} : { log }),
+        source: data.source ?? 'app',
         screenshots: data.screenshots ?? [],
         issue_id: data.issue_id ?? null,
         reviewed_by: data.reviewed_by ?? null,
@@ -536,6 +544,95 @@ export const UpdateFeedbackIssuePayload = z
     .transform(camelToSnake);
 
 export type CreateFeedbackIssueInput = z.input<typeof CreateFeedbackIssuePayload>;
+
+// #region [P] 匯入 LINE 上的回報（api.md 第 8 節「匯入 LINE 上的回報」，溝通板 #0068）
+
+/** 後端的上限，前端先擋 */
+export const TRIAGE_TEXT_MAX = 20_000;
+export const TRIAGE_IMAGE_MAX = 6;
+export const TRIAGE_IMAGE_BYTES = 1024 * 1024;
+export const REPORT_DESCRIPTION_MAX = 2_000;
+/** said_at 最多幾天前 */
+export const SAID_AT_MAX_DAYS = 90;
+
+export const TriageKindSchema = z.enum(['bug', 'suggestion', 'not_feedback']);
+export const TriageActionSchema = z.enum(['attach_issue', 'duplicate', 'new_issue', 'standalone']);
+export type TriageAction = z.infer<typeof TriageActionSchema>;
+
+/** AI 拆出來的一則。文字都是別人在 LINE 上打的字經過 AI 整理：照一般使用者輸入處理（不用 v-html） */
+export const TriageItemSchema = z.object({
+    kind: TriageKindSchema,
+    /** 只給後台看，建立回報時沒有這個欄位 */
+    title: z.string(),
+    description: z.string(),
+    /** 對話裡的名字；後端不知道是哪台裝置，要管理員選 */
+    speaker: z.string(),
+    /** 看不出來、未來、超過 90 天前都是 null */
+    saidAt: z.string().nullable(),
+    action: TriageActionSchema,
+    /** 保證存在（AI 編的後端濾掉了） */
+    issueId: z.number().int().nullable(),
+    duplicateReportIds: z.array(z.number().int()),
+    /** 同一批裡講同一件新事的幾則，標題一樣 */
+    newIssueTitle: z.string().nullable(),
+    reason: z.string(),
+    confidence: z.enum(['high', 'medium', 'low'])
+});
+export type TriageItem = z.infer<typeof TriageItemSchema>;
+
+const TriageItemParser = z
+    .object({
+        kind: TriageKindSchema,
+        title: z.string(),
+        description: z.string(),
+        speaker: z.string().nullish(),
+        said_at: z.string().nullish(),
+        action: TriageActionSchema,
+        issue_id: z.number().nullish(),
+        duplicate_report_ids: z.array(z.number()).nullish(),
+        new_issue_title: z.string().nullish(),
+        reason: z.string(),
+        confidence: z.enum(['high', 'medium', 'low'])
+    })
+    .transform(data => ({
+        ...data,
+        speaker: data.speaker ?? '',
+        said_at: data.said_at ?? null,
+        issue_id: data.issue_id ?? null,
+        duplicate_report_ids: data.duplicate_report_ids ?? [],
+        new_issue_title: data.new_issue_title || null
+    }))
+    .transform(snakeToCamel)
+    .pipe(TriageItemSchema);
+
+export const TriageFeedbackParser = z
+    .object({ items: nullableList(TriageItemParser), compared: z.object({ issues: z.number(), reports: z.number() }) })
+    .transform(data => ({ items: data.items, compared: data.compared }));
+
+export type TriageResult = z.output<typeof TriageFeedbackParser>;
+
+/** images 是 base64（標準編碼，不含 data: 前綴） */
+export const TriageFeedbackPayload = z.object({ text: z.string(), images: z.array(z.string()) });
+export type TriageFeedbackInput = z.input<typeof TriageFeedbackPayload>;
+
+/** 後台替使用者建一則回報。saidAt 會變成回報的 created_at：同一個問題最早那則拿全額權重 */
+export const CreateFeedbackPayload = z
+    .object({
+        deviceId: z.number().int().positive(),
+        kind: z.enum(['bug', 'suggestion']),
+        description: z.string().trim().min(1, '描述不能空白').refine(value => [...value].length <= REPORT_DESCRIPTION_MAX, `描述最多 ${REPORT_DESCRIPTION_MAX} 字`),
+        source: z.enum(['line', 'email']),
+        status: FeedbackStatusSchema.optional(),
+        issueId: z.number().int().optional(),
+        saidAt: z.string().optional()
+    })
+    .transform(camelToSnake);
+
+export type CreateFeedbackInput = z.input<typeof CreateFeedbackPayload>;
+
+export const CreateFeedbackParser = z.object({ report: FeedbackReportParser }).transform(data => data.report);
+
+// #endregion
 export type UpdateFeedbackIssueInput = z.input<typeof UpdateFeedbackIssuePayload>;
 
 // #endregion

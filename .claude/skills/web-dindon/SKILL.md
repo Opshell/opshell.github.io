@@ -51,7 +51,7 @@ features/dindon/
     ├── usePulse.ts         ← 「現在要處理什麼」：待審回報、待合併、用量提示、投票領先。側欄數字與總覽第一排共用，每 5 分鐘更新
     └── components/         ← DashboardApp（側欄外框；頁面 frontmatter 關掉部落格的 navbar 與 footer）、OverviewPanel、DeviceManager、DeviceDetail、
                                FeedbackPanel、FeedbackTriage、MergePicker、PromoPanel、UsageReport、UsageWatch、
-                               FeatureVotePanel（新功能投票的候選，#0061）
+                               FeatureVotePanel（新功能投票的候選，#0061）、LineImport（匯入 LINE／信件的回報，#0068；純邏輯在 lineImport.ts）
 ```
 
 截圖在 `docs/public/images/dindon/*.webp`（icon、home、stats、badges、items、voice、statement、event）。

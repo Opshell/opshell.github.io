@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { FeedbackFilter, FeedbackKind } from '../api';
+    import type { FeedbackFilter, FeedbackKind, FeedbackSourceFilter } from '../api';
     import type { BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
     import type { FeedbackIssue, FeedbackReport, FeedbackStats, FeedbackStatus } from '../schemas/admin.schema';
@@ -9,7 +9,9 @@
     import { formatDateTime, formatInt, formatRelative, KIND_LABELS } from '../format';
     import { takePanelPreset } from '../navigation';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import { usePulse } from '../usePulse';
     import FeedbackTriage from './FeedbackTriage.vue';
+    import LineImport from './LineImport.vue';
     import MergePicker from './MergePicker.vue';
 
     // beta 貢獻活動的回報審核（api.md 第 8 節）。
@@ -30,6 +32,18 @@
     const status = ref<FeedbackFilter>(takePanelPreset('feedbackStatus') ?? 'pending');
     // 類型篩選（溝通板 #41）。crash 是 App 當掉後自動產生的，跟手寫的回報意義差很多
     const kind = ref<FeedbackKind>('all');
+    // 來源篩選（#0068）：LINE、信件上的回報是後台替使用者建的
+    const source = ref<FeedbackSourceFilter>('all');
+    const SOURCE_LABELS: Record<string, string> = { app: 'App', line: 'LINE', email: '信件' };
+    const importing = ref(false);
+    const pulse = usePulse();
+
+    function onImported(created: number) {
+        importing.value = false;
+        notice.value = `已從 LINE／信件建立 ${formatInt(created)} 則回報`;
+        void load(1);
+        void pulse.refresh();
+    }
     const reports = ref<FeedbackReport[]>([]);
     const total = ref(0);
     const stats = ref<FeedbackStats | null>(null);
@@ -156,7 +170,7 @@
         error.value = '';
         try {
             const [list, statsResult, issueList] = await call(token => Promise.all([
-                adminApi.listFeedback(token, { status: status.value, kind: kind.value, page: nextPage, perPage: PER_PAGE }),
+                adminApi.listFeedback(token, { status: status.value, kind: kind.value, source: source.value, page: nextPage, perPage: PER_PAGE }),
                 adminApi.feedbackStats(token),
                 adminApi.listIssues(token)
             ]));
@@ -278,14 +292,15 @@
     // #endregion
 
     // #region [P] 統計
-    const statTiles = computed(() => {
+    /** filter：點了就把下面的列表篩成這個狀態 */
+    const statTiles = computed<{ label: string; value: string; hint: string; filter?: FeedbackFilter }[]>(() => {
         const s = stats.value;
         if (!s) return [];
         return [
-            { label: '待審', value: formatInt(s.byStatus.pending ?? 0), hint: '還沒判的回報' },
-            { label: '採計為 bug', value: formatInt(s.byStatus.accepted_bug ?? 0), hint: '' },
-            { label: '採計為建議', value: formatInt(s.byStatus.accepted_suggestion ?? 0), hint: '' },
-            { label: '不採計', value: formatInt(s.byStatus.rejected ?? 0), hint: '' },
+            { label: '待審', value: formatInt(s.byStatus.pending ?? 0), hint: '還沒判的回報', filter: 'pending' },
+            { label: '採計為 bug', value: formatInt(s.byStatus.accepted_bug ?? 0), hint: '', filter: 'accepted_bug' },
+            { label: '採計為建議', value: formatInt(s.byStatus.accepted_suggestion ?? 0), hint: '', filter: 'accepted_suggestion' },
+            { label: '不採計', value: formatInt(s.byStatus.rejected ?? 0), hint: '', filter: 'rejected' },
             { label: '參與人數', value: formatInt(s.participants), hint: '送出過回報的裝置' },
             { label: '待合併', value: formatInt(s.acceptedWithoutIssue), hint: '採計了、還沒歸到問題' }
         ];
@@ -313,9 +328,16 @@
     <section class="dd-feedback">
         <ul v-if="stats && !triage" class="dd-overview__tiles">
             <li v-for="tile in statTiles" :key="tile.label">
-                <p class="label">{{ tile.label }}</p>
-                <p class="value">{{ tile.value }}</p>
-                <p class="hint">{{ tile.hint }}</p>
+                <button v-if="tile.filter" type="button" :class="{ 'is-active': status === tile.filter }" @click="status = tile.filter; load(1)">
+                    <span class="label">{{ tile.label }}</span>
+                    <span class="value">{{ tile.value }}</span>
+                    <span class="hint">{{ tile.hint }}</span>
+                </button>
+                <div v-else class="tile">
+                    <span class="label">{{ tile.label }}</span>
+                    <span class="value">{{ tile.value }}</span>
+                    <span class="hint">{{ tile.hint }}</span>
+                </div>
             </li>
         </ul>
 
@@ -340,6 +362,13 @@
                     <option v-for="(label, value) in KIND_LABELS" :key="value" :value="value">{{ label }}</option>
                 </select>
             </label>
+            <label>
+                來源
+                <select v-model="source" @change="load(1)">
+                    <option value="all">全部</option>
+                    <option v-for="(label, value) in SOURCE_LABELS" :key="value" :value="value">{{ label }}</option>
+                </select>
+            </label>
             <label v-if="!triage" class="dd-feedback__check">
                 <input v-model="grouped" type="checkbox" />
                 同一台的摺起來
@@ -355,7 +384,9 @@
             >
                 快速審核{{ stats?.byStatus.pending ? `（${formatInt(stats.byStatus.pending)} 則待審）` : '' }}
             </button>
+            <button v-if="!triage && !importing" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="importing = true">匯入 LINE 回報</button>
         </div>
+        <LineImport v-if="importing && !triage" @done="onImported" @close="importing = false" />
         <!-- #region [P] 批次：勾了才出現 -->
         <div v-if="!triage && checked.size" class="dd-feedback__batch" role="region" aria-label="批次審核">
             <strong>已勾 {{ formatInt(checked.size) }} 則</strong>
@@ -454,7 +485,10 @@
                                 </td>
                                 <td>#{{ report.id }}</td>
                                 <td>{{ report.deviceName || `#${report.deviceId}` }}</td>
-                                <td>{{ KIND_LABELS[report.kind] ?? report.kind }}</td>
+                                <td>
+                                    {{ KIND_LABELS[report.kind] ?? report.kind }}
+                                    <span v-if="report.source !== 'app'" class="dd-feedback__source">{{ SOURCE_LABELS[report.source] }}</span>
+                                </td>
                                 <td>
                                     <span class="dd-status" :class="report.status === 'pending' ? 'is-pending' : report.status === 'rejected' ? 'is-frozen' : 'is-active'">
                                         {{ STATUS_LABELS[report.status] }}
@@ -478,7 +512,10 @@
                             </td>
                             <td>#{{ report.id }}</td>
                             <td>{{ report.deviceName || `#${report.deviceId}` }}</td>
-                            <td>{{ KIND_LABELS[report.kind] ?? report.kind }}</td>
+                            <td>
+                                {{ KIND_LABELS[report.kind] ?? report.kind }}
+                                <span v-if="report.source !== 'app'" class="dd-feedback__source">{{ SOURCE_LABELS[report.source] }}</span>
+                            </td>
                             <td>
                                 <span class="dd-status" :class="report.status === 'pending' ? 'is-pending' : report.status === 'rejected' ? 'is-frozen' : 'is-active'">
                                     {{ STATUS_LABELS[report.status] }}
@@ -643,6 +680,15 @@
 
 <style lang="scss">
     .dd-feedback {
+        // LINE、信件的回報：沒有截圖、log、App 版本，看列表就要知道
+        &__source {
+            padding: 0 6px;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 6px;
+            margin-left: 4px;
+            color: var(--vp-c-text-2);
+            font-size: 12px;
+        }
         @include setFlex(flex-start, stretch, 16px, column);
 
         // 問題清單的欄位多，窄螢幕讓它自己左右捲，不要撐破版面
