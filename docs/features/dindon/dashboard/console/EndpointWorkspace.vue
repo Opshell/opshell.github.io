@@ -27,7 +27,8 @@
     } from './request';
     import ResponseView from './ResponseView.vue';
     import { sendRequest } from './send';
-    import { maskKey, useTestDevice } from './useTestDevice';
+    import TestDevicePanel from './TestDevicePanel.vue';
+    import { useTestDevice } from './useTestDevice';
 
     // 一支端點的說明＋試打。自訂請求（custom）時方法、路徑、認證都可以改。
 
@@ -43,12 +44,14 @@
         custom?: boolean;
         /** 從歷史紀錄重送：帶入當時的參數 */
         replay?: Replay | null;
+        /** 跟這支共用同一段說明的其他端點（後端的 doc_md 是 api.md 的一節，幾支會拿到同一段） */
+        siblings?: ApiEndpoint[];
     }>();
 
-    const emit = defineEmits<{ sent: [entry: HistoryEntry] }>();
+    const emit = defineEmits<{ sent: [entry: HistoryEntry]; select: [id: string] }>();
 
     const auth = useGoogleAuth();
-    const { deviceKey, setKey } = useTestDevice();
+    const { deviceKey } = useTestDevice();
 
     // #region [P] 表單狀態：換端點就重設成預設值（或歷史紀錄帶進來的值）
 
@@ -66,7 +69,6 @@
     const confirmInput = ref('');
     const snippetKind = ref<'curl' | 'fetch'>('curl');
     const copied = ref('');
-    const keyDraft = ref('');
     const confirmEl = ref<HTMLInputElement>();
     let controller: AbortController | null = null;
 
@@ -132,7 +134,7 @@
         const missing = missingQuery(props.endpoint.query, queryValues.value);
         if (missing.length) return `還沒填必填的參數：${missing.join('、')}`;
         if (!body.value.ok) return 'body 不是正確的 JSON';
-        if (authKind.value === 'device' && !deviceKey.value) return '這支要裝置的 API key：先在下面填測試裝置的 key';
+        if (authKind.value === 'device' && !deviceKey.value) return '這支要裝置的 API key：先在下面的「認證」用測試裝置';
         if ((authKind.value === 'admin' || authKind.value === 'google') && !token.value) return '登入過期，請重新登入';
         return '';
     });
@@ -290,6 +292,12 @@
         <div class="dd-api-ws__body">
             <!-- #region [P] 說明 -->
             <section v-if="!custom" class="dd-api-ws__doc" aria-label="說明">
+                <p v-if="siblings?.length" class="dd-api-ws__siblings">
+                    這段說明跟另外 {{ siblings.length }} 支共用：
+                    <button v-for="other in siblings" :key="other.id" type="button" class="link" @click="emit('select', other.id)">
+                        <span class="dd-api-method" :class="`is-${other.method.toLowerCase()}`">{{ other.method }}</span> <code>{{ other.path }}</code>
+                    </button>
+                </p>
                 <MarkdownView v-if="endpoint.docMd" :source="endpoint.docMd" />
                 <p v-else class="dd-api-ws__muted">後端的目錄沒有這支的說明。</p>
 
@@ -415,22 +423,7 @@
                         用你登入的 Google 帳號（{{ auth.profile.value?.email ?? '管理員' }}）的 ID token。
                         <template v-if="authKind === 'google'">這支把 Google 帳號本身當身分：會作用在綁了這個帳號的裝置上。</template>
                     </p>
-                    <div v-else-if="authKind === 'device'" class="dd-api-ws__device">
-                        <p v-if="deviceKey" class="dd-api-ws__muted">
-                            測試裝置的 key：<code>{{ maskKey(deviceKey) }}</code>
-                            <button type="button" class="link" @click="setKey('')">清掉</button>
-                        </p>
-                        <template v-else>
-                            <p class="dd-api-ws__muted">
-                                貼上測試裝置的 API key。只存在這個分頁，關掉就清掉。
-                                不要用真的測試者的裝置：你送的每一筆都會算在那台身上。
-                            </p>
-                            <div class="row">
-                                <input v-model="keyDraft" type="password" autocomplete="off" spellcheck="false" placeholder="裝置 API key" aria-label="裝置 API key" @keydown.enter.prevent="setKey(keyDraft); keyDraft = ''" />
-                                <button type="button" class="dd-admin__btn dd-admin__btn--small" :disabled="!keyDraft.trim()" @click="setKey(keyDraft); keyDraft = ''">使用</button>
-                            </div>
-                        </template>
-                    </div>
+                    <TestDevicePanel v-else-if="authKind === 'device'" />
                     <p v-else class="dd-api-ws__muted">不帶任何憑證。</p>
                 </fieldset>
 

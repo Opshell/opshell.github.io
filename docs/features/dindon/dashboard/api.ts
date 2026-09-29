@@ -31,6 +31,7 @@ import {
     SaveFeatureCandidatePayload,
     SavePromoCodeParser,
     SavePromoCodePayload,
+    TestDeviceKeyParser,
     TriageFeedbackParser,
     TriageFeedbackPayload,
     UpdateDeviceParser,
@@ -121,6 +122,12 @@ export const ALL_DEVICES_MAX_PAGES = 20;
 export const MAX_TOKENS = 1_000_000;
 
 export const adminApi = {
+    /** 建一台測試裝置（#0074）。後端沒有刪除，要重用：一個管理員建一台就好 */
+    createTestDevice: async (token: string, adminNote = 'API 控制台用') =>
+        call(TestDeviceKeyParser, token, 'POST', '/v1/admin/test-devices', { admin_note: adminNote }),
+    /** 換一把新 key，舊的立刻失效。只准測試裝置（一般裝置 409） */
+    rotateTestDeviceKey: async (token: string, id: number) =>
+        call(TestDeviceKeyParser, token, 'POST', `/v1/admin/devices/${id}/api-key`),
     /** API 控制台的目錄（#0074）：說明在私有倉庫，登入後才向後端拿 */
     getApiCatalog: async (token: string) => call(GetApiCatalogParser, token, 'GET', '/v1/admin/api-catalog'),
     /** 全部裝置（總覽算數字、LINE 匯入選人）。後端沒有「全部」的端點，一頁一頁抓 */

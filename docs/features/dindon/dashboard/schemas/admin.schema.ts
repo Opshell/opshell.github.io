@@ -73,7 +73,9 @@ export const AdminDeviceSchema = z.object({
     ironAchievedOn: z.string().nullable(),
     avatar: AvatarSchema.nullable(),
     /** 管理員替這台記的備註（#0070）：只有後台看得到。沒有是空字串 */
-    adminNote: z.string()
+    adminNote: z.string(),
+    /** 後台建立的測試裝置（#0074）：不進用量、排行榜、獎勵、投票的統計 */
+    isTest: z.boolean()
 });
 export type AdminDevice = z.infer<typeof AdminDeviceSchema>;
 
@@ -103,8 +105,9 @@ const AdminDeviceRawSchema = z.object({
     bonus_suggestions: z.number(),
     iron_achieved_on: z.string().nullish(),
     avatar: AvatarSchema.nullish(),
-    // 2026-09-29 部署以前的後端沒有這個欄位
-    admin_note: z.string().nullish()
+    // 2026-09-29 部署以前的後端沒有這兩個欄位
+    admin_note: z.string().nullish(),
+    is_test: z.boolean().nullish()
 });
 
 export const AdminDeviceParser = AdminDeviceRawSchema
@@ -118,7 +121,8 @@ export const AdminDeviceParser = AdminDeviceRawSchema
         title: data.title ?? null,
         iron_achieved_on: data.iron_achieved_on ?? null,
         avatar: data.avatar ?? null,
-        admin_note: data.admin_note ?? ''
+        admin_note: data.admin_note ?? '',
+        is_test: data.is_test ?? false
     }))
     .transform(snakeToCamel)
     .pipe(AdminDeviceSchema);
@@ -242,6 +246,12 @@ export const UpdateDeviceFormSchema = z.object({
 
 export const UpdateDevicePayload = UpdateDeviceFormSchema.transform(camelToSnake);
 export const UpdateDeviceParser = z.object({ device: AdminDeviceParser }).transform(data => data.device);
+
+/** 建立測試裝置、重發測試裝置的 key（#0074）：key 只有這一次看得到 */
+export const TestDeviceKeyParser = z
+    .object({ api_key: z.string().min(1), device: AdminDeviceParser })
+    .transform(data => ({ apiKey: data.api_key, device: data.device }));
+export type TestDeviceKey = z.infer<typeof TestDeviceKeyParser>;
 
 export type UpdateDeviceInput = z.input<typeof UpdateDevicePayload>;
 

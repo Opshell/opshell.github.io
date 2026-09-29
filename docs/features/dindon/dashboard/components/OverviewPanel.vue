@@ -32,8 +32,10 @@
         error.value = '';
         try {
             const [deviceResult, usage] = await call(async token => Promise.all([adminApi.listAllDevices(token), adminApi.usage(token, days.value)]));
-            devices.value = deviceResult.devices;
-            deviceTotal.value = deviceResult.total;
+            // 測試裝置（#0074）不算：後端的用量報表也不算它們
+            const tests = deviceResult.devices.filter(device => device.isTest).length;
+            devices.value = deviceResult.devices.filter(device => !device.isTest);
+            deviceTotal.value = deviceResult.total - tests;
             report.value = usage;
         } catch (e) {
             error.value = errorMessage(e);

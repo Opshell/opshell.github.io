@@ -133,6 +133,7 @@
                                 <span class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
                                     {{ device.frozen ? '❄ 已凍結' : '● 啟用' }}
                                 </span>
+                                <span v-if="device.isTest" class="dd-status is-test" title="後台建立的測試裝置，不進統計">⚙ 測試機</span>
                             </td>
                             <td>{{ PLAN_LABELS[device.planTier] ?? device.planTier }}</td>
                             <td class="num">{{ formatInt(device.tokens) }}</td>
@@ -272,6 +273,10 @@
 
         &.is-active { background: var(--vp-c-green-soft); }
         &.is-frozen { background: var(--vp-c-danger-soft); }
+        &.is-test {
+            background: var(--vp-c-default-soft);
+            margin-left: 4px;
+        }
     }
 
     .sr-only {

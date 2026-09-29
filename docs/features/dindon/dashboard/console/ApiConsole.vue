@@ -81,6 +81,8 @@
     const listOpen = ref(false);
 
     const current = computed(() => endpoints.value.find(endpoint => endpoint.id === selected.value) ?? null);
+    /** 共用同一段說明的其他端點（例如回報的列表、單則、改判、批次） */
+    const siblings = computed(() => (current.value?.docMd ? endpoints.value.filter(endpoint => endpoint.docMd === current.value!.docMd && endpoint.id !== current.value!.id) : []));
     const customEndpoint = computed<ApiEndpoint>(() => ({
         id: 'custom',
         group: 'custom',
@@ -291,7 +293,7 @@
         <!-- #region [P] 右：說明＋試打 -->
         <div class="dd-api__main">
             <EndpointWorkspace v-if="selected === 'custom'" :endpoint="customEndpoint" custom :replay="replay" @sent="onSent" />
-            <EndpointWorkspace v-else-if="current" :endpoint="current" :replay="replay" @sent="onSent" />
+            <EndpointWorkspace v-else-if="current" :endpoint="current" :replay="replay" :siblings="siblings" @sent="onSent" @select="select" />
 
             <section v-else class="dd-api__overview">
                 <div class="dd-api__status">
@@ -737,6 +739,27 @@
                 vertical-align: top;
             }
         }
+        &__siblings {
+            @include setFlex(flex-start, center, 4px 10px);
+            flex-wrap: wrap;
+            background: var(--vp-c-bg-alt);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--vp-c-text-2);
+            font-size: 12px;
+
+            .link {
+                @include setFlex(flex-start, center, 6px);
+                color: var(--vp-c-text-1);
+                text-decoration: none;
+
+                &:hover code { text-decoration: underline; }
+            }
+            .dd-api-method {
+                min-width: 44px;
+                font-size: 10px;
+            }
+        }
         &__example summary {
             color: var(--vp-c-text-2);
             font-size: var(--font-size-s);
@@ -907,19 +930,6 @@
                 border: 0;
                 color: var(--vp-c-text-3);
                 cursor: pointer;
-            }
-        }
-        &__device .row {
-            display: flex;
-            gap: 8px;
-            margin-top: 6px;
-
-            input {
-                flex: 1;
-                background: var(--vp-c-bg);
-                padding: 4px 10px;
-                border: 1px solid var(--vp-c-divider);
-                border-radius: 6px;
             }
         }
         &__muted {

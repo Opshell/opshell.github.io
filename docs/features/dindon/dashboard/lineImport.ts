@@ -145,7 +145,7 @@ export interface QuickPickSources {
     recent: number[];
 }
 
-/** 同一段對話常是同幾個人在講，先列這批選過的，再列最近選過的，最後補常回報的。重複的只列一次，凍結的不列 */
+/** 同一段對話常是同幾個人在講，先列這批選過的，再列最近選過的，最後補常回報的。重複的只列一次，凍結的與測試裝置不列 */
 export function quickPicks(devices: AdminDevice[], sources: QuickPickSources, limit = 8): AdminDevice[] {
     const byId = new Map(devices.map(device => [device.id, device]));
     const frequent = devices
@@ -155,7 +155,7 @@ export function quickPicks(devices: AdminDevice[], sources: QuickPickSources, li
     const ids = [...new Set([...sources.pickedInBatch, ...sources.recent, ...frequent])];
     return ids
         .map(id => byId.get(id))
-        .filter((device): device is AdminDevice => !!device && !device.frozen)
+        .filter((device): device is AdminDevice => !!device && !device.frozen && !device.isTest)
         .slice(0, limit);
 }
 

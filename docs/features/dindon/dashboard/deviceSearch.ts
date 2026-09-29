@@ -26,9 +26,11 @@ export function searchDevices(query: string, devices: AdminDevice[], limit = 8):
  * 用對話裡的名字猜是哪台：名字完全對上的優先；都對不上，再找備註裡寫了這個名字的（例如「LINE：小明」）。
  * 只在剛好一台時才猜：猜錯的話分數會算給別人，比不猜糟。備註比對要兩個字以上，一個字太容易撞到。
  */
-export function guessDevice(speaker: string, devices: AdminDevice[]): AdminDevice | null {
+export function guessDevice(speaker: string, all: AdminDevice[]): AdminDevice | null {
     const name = normalize(speaker);
     if (!name) return null;
+    // 測試裝置（#0074）不會是 LINE 上講話的人
+    const devices = all.filter(device => !device.isTest);
     const exact = devices.filter(device => nameKeys(device).includes(name));
     if (exact.length) return exact.length === 1 ? exact[0] : null;
     if ([...name].length < 2) return null;

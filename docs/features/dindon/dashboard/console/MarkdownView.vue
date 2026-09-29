@@ -77,6 +77,10 @@
             vertical-align: top;
         }
         th { background: var(--vp-c-bg-alt); }
+
+        // 表格裡的欄位名稱（plan_source）不要被拆成兩行；表格本身可以橫向捲動
+        th, td { overflow-wrap: normal; }
+        td code, th code { white-space: nowrap; }
         blockquote {
             padding-left: 12px;
             border-left: 3px solid var(--vp-c-divider);

@@ -255,7 +255,10 @@
         'erase-identity-keep-active': '清除身分（不停用）',
         // 使用者自己在 /dindon/account/ 做的（api.md 第 16 節）；操作者記成 self-delete
         'account-delete-link': '本人解除綁定（網頁）',
-        'account-delete-account': '本人刪除帳戶資料（網頁）'
+        'account-delete-account': '本人刪除帳戶資料（網頁）',
+        // API 控制台的測試裝置（#0074）；不記 key
+        'test-device-create': '建立測試裝置',
+        'test-device-rotate-key': '重發測試裝置的 key'
     };
     const FIELD_LABELS: Record<string, string> = {
         tokens: '額度',
@@ -292,6 +295,7 @@
             <span v-if="device" class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
                 {{ device.frozen ? '❄ 已凍結' : '● 啟用' }}
             </span>
+            <span v-if="device?.isTest" class="dd-status is-test" title="後台建立的測試裝置，不進用量、排行榜、獎勵與投票的統計">⚙ 測試機</span>
             <button type="button" class="dd-detail__close" aria-label="關閉" @click="emit('close')">✕</button>
         </header>
 

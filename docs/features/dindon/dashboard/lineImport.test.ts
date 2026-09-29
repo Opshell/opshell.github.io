@@ -26,7 +26,8 @@ function device(id: number, nickname: string | null, email: string | null = null
         bonusSuggestions: 0,
         ironAchievedOn: null,
         avatar: null,
-        adminNote
+        adminNote,
+        isTest: false
     };
 }
 
@@ -83,6 +84,11 @@ describe('用名字猜裝置', () => {
         expect(guessDevice('K', noted)).toBeNull();
         // 名字完全對上的優先，不會被備註蓋過
         expect(guessDevice('阿明', [...noted, device(8, null, null, '阿明的老婆')])?.id).toBe(1);
+    });
+
+    it('測試裝置不會被猜成 LINE 上講話的人', () => {
+        expect(guessDevice('阿明', [{ ...device(9, '阿明'), isTest: true }])).toBeNull();
+        expect(guessDevice('阿明', [...devices, { ...device(9, '阿明'), isTest: true }])?.id).toBe(1);
     });
 
     it('搜尋也比對備註', () => {
@@ -154,6 +160,10 @@ describe('快選人選', () => {
 
     it('這批選過的在前、再來最近選過的、最後補常回報的（件數多的在前）；不重複、不列凍結的', () => {
         expect(quickPicks(people, { pickedInBatch: [4], recent: [5, 4] }).map(d => d.id)).toEqual([4, 5, 2, 1]);
+    });
+
+    it('測試裝置不列進快選', () => {
+        expect(quickPicks([...people, { ...device(6, '測試'), bugs: 9, suggestions: 0, isTest: true }], { pickedInBatch: [6], recent: [] }).map(d => d.id)).not.toContain(6);
     });
 
     it('沒回報過也沒選過的不列；上限', () => {
