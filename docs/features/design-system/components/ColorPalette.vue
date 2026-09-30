@@ -5,28 +5,25 @@
 <template>
     <div class="color-palette__container">
         <section class="section">
-            <h3 class="title">紙</h3>
-            <p class="note">部落格與後台的底：方格紙白（偏冷，不是米黃）、夜間是深藍灰。結構靠留白與紙上的線，不用卡片與陰影。</p>
-            <ColorSeries category="paper" />
-        </section>
-
-        <section class="section">
-            <h3 class="title">墨與筆</h3>
-            <p class="note">
-                文字一律用墨色三階；連結是藍墨水；紅筆只寫警告；螢光筆黃只畫在重點（粗體）與「目前位置」上，不拿來當按鈕底色。
-                括號裡是對紙的對比度（淺色／深色），都在 4.5 : 1 以上。
-            </p>
-            <ColorSeries category="ink" />
-        </section>
-
-        <section class="section">
-            <h3 class="title">舊色票</h3>
-            <p class="note">2026-10 翻新以前的 token。叮咚的宣傳頁、演示頁、隱私權政策、刪除頁沒有翻新，還在用這一組；新的東西請用上面的 --nb-*。</p>
-        </section>
-
-        <section class="section">
             <h3 class="title">Brand Colors</h3>
             <ColorSeries category="brand" />
+        </section>
+
+        <section class="section">
+            <h3 class="title">Spectrum（稜鏡）</h3>
+            <p class="note">
+                Opshell 的 P 是穿過三稜鏡的那道光。品牌的琥珀→紫漸層攤開成六個色，每個分類拿一個：
+                首頁稜鏡的光、時間軸的圓點、文章標題下那一小段都是同一個顏色。
+                光譜色只畫線、點、光線，不當小字的顏色（琥珀對白底不到 2 : 1）。
+            </p>
+            <div class="spectrum-bar" aria-hidden="true" />
+            <ColorSeries category="spectrum" />
+        </section>
+
+        <section class="section">
+            <h3 class="title">Night Sky（深色模式）</h3>
+            <p class="note">深色模式的底色帶一點紫，像 O 裡面那片夜空。淺色模式的品牌橘加深一階，當字才有 4.6 : 1。</p>
+            <ColorSeries category="night" />
         </section>
 
         <section class="section">
@@ -52,24 +49,29 @@
 </template>
 
 <style lang="scss">
-    .color-palette {
-        &__container {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
+    // 以前這些寫在 .color-palette 底下，但頁面上的 class 是 .color-palette__container，所以一直沒套到
+    .color-palette__container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
 
         .note {
-            max-width: 46em;
-            margin: .5rem 0 0;
-            color: var(--nb-ink-3, var(--vp-c-text-2));
-            font-size: var(--nb-step--1, .875rem);
-            line-height: 1.7;
+            max-width: 46rem;
+            margin: 0 0 1rem;
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-s);
+            line-height: 1.8;
+        }
+        .spectrum-bar {
+            background: var(--pr-spectrum);
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 1.25rem;
         }
         .section {
             + .section {
                 padding-top: 2rem;
-                border-top: 1px solid var(--color-gray-200);
+                border-top: 1px solid var(--vp-c-divider);
             }
         }
     }

@@ -87,82 +87,108 @@
 </template>
 
 <style lang="scss">
-    // 系列清單：跟頁邊的目錄同一套——鉛筆線，現在這篇用螢光筆畫一下（2026-10 翻新）
     .sidebar-item {
         list-style: none;
 
+        // 資料夾樣式
         &__folder {
             &-title {
-                @include setFlex(flex-start, center, var(--nb-space-2));
+                display: flex;
+                align-items: center;
                 background: none;
                 width: 100%;
-                padding: var(--nb-space-2) var(--nb-space-3);
+                padding: 8px 12px;
                 border: none;
-                color: var(--nb-ink);
-                font-size: var(--nb-step--1);
+                color: var(--vp-c-text-1);
+                font-size: 14px;
                 font-weight: 700;
                 text-align: left;
                 cursor: pointer;
+                transition: color 0.2s;
 
-                &:hover { color: var(--nb-link); }
-                &:focus-visible {
-                    outline: 2px solid var(--nb-link);
-                    outline-offset: -2px;
-                }
+                &:hover { color: var(--vp-c-brand); }
 
                 .icon-arrow {
-                    color: var(--nb-pencil);
+                    margin-right: 8px;
+                    color: var(--vp-c-text-3);
                     font-size: 10px;
-                    transition: transform .2s;
+                    transition: transform 0.2s;
                 }
-                &.collapsed .icon-arrow { transform: rotate(-90deg); }
+
+                &.collapsed .icon-arrow {
+                    transform: rotate(-90deg);
+                }
             }
+
             &-items {
                 @include setFlex(flex-start, stretch, 0, column);
                 padding: 0;
                 margin: 0;
+
+                // 左側邊框線，增加層次感 (Optional)
+                // border-left: 1px solid var(--vp-c-divider);
+                // margin-left: 18px;
             }
         }
 
+        // 連結樣式 (與之前相同，但移除了 padding-left 固定值，改用 inline style)
         &__link {
-            @include setFlex(flex-start, baseline, var(--nb-space-2));
-            padding: 5px var(--nb-space-2) 5px 0;
+            @include setFlex(flex-start, flex-start, .5rem);
+            padding: 6px 12px 6px 0;
             border-left: 3px solid transparent;
-            color: var(--nb-ink-3);
-            font-size: var(--nb-step--1);
-            line-height: 1.5;
+            border-radius: 0 8px 8px 0; // 只圓右邊
+            color: var(--vp-c-text-2);
+            font-size: 14px;
+            line-height: 1.4;
             text-decoration: none;
+            transition: .2s;
 
-            // Day 12、[使用實例] 這種前綴：等寬小字，當作頁碼
             .badge {
                 flex-shrink: 0;
-                color: var(--nb-ink-3);
-                font-family: var(--nb-font-mono);
-                font-size: var(--nb-step--2);
-                font-variant-numeric: tabular-nums;
+                padding: 2px 5px;
+                border-radius: 4px;
+                font-family: var(--vp-font-family-mono);
+                font-size: 11px; // 稍微縮小一點適應遞迴
+                font-weight: 600;
+
+                &.day {
+                    background-color: var(--vp-c-bg-alt);
+                    color: var(--vp-c-text-2);
+                }
+                &.bracket {
+                    background-color: var(--vp-c-brand-dimm);
+                    color: var(--vp-c-brand);
+                }
             }
+
             .text {
                 flex: 1;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
             }
-            &:hover {
-                color: var(--nb-ink);
 
-                .text { white-space: normal; }
-            }
-            &:focus-visible {
-                outline: 2px solid var(--nb-link);
-                outline-offset: -2px;
-            }
             &.is-active {
-                border-left-color: var(--nb-marker);
-                color: var(--nb-ink);
+                background-color: var(--vp-c-brand-dimm);
+                border-left-color: var(--vp-c-brand);
+                color: var(--vp-c-brand);
+                line-height: 1.8;
 
-                .badge { color: var(--nb-ink-2); }
+                .badge.day {
+                    background-color: var(--vp-c-brand);
+                    color: white;
+                }
                 .text {
-                    font-weight: 700;
+                    font-weight: 600;
+                    white-space: normal;
+                }
+            }
+
+            &:hover:not(.is-active) {
+                background-color: var(--vp-c-brand-dimm);
+                border-left-color: var(--vp-c-brand);
+                color: var(--vp-c-brand-3);
+                .text {
                     white-space: normal;
                 }
             }

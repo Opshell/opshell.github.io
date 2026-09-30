@@ -19,8 +19,8 @@
         count: number;
     }
 
-    // 月份用中文：「1 月」（2026-10 翻新前是 Jan、Feb）
-    const monthLabel = (month: string) => (Number(month) >= 1 && Number(month) <= 12 ? `${Number(month)} 月` : month);
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthLabel = (month: string) => MONTHS[Number(month) - 1] ?? month;
 
     const timelineData = computed<YearGroup[]>(() => {
         if (!siteData.value) return [];
@@ -53,8 +53,8 @@
 <template>
     <div class="timeline-page">
         <header class="timeline-page__hero">
-            <h1 class="title">時間軸</h1>
-            <p class="subtitle">全部 {{ totalCount }} 篇文章，從新寫到舊。</p>
+            <h1 class="title">Timeline</h1>
+            <p class="subtitle">依時間排列的全部文章，共 {{ totalCount }} 篇。</p>
         </header>
 
         <p v-if="!timelineData.length" class="timeline-page__empty">時間軸空空如也…</p>
@@ -78,6 +78,7 @@
                     >
                         <h3 class="timeline-page__month-label" :title="`${yearGroup.year} 年 ${monthGroup.month} 月`">
                             {{ monthGroup.label }}
+                            <span class="sr-only">{{ yearGroup.year }} 年 {{ monthGroup.month }} 月</span>
                         </h3>
 
                         <ul class="timeline-page__posts">
@@ -95,102 +96,173 @@
 </template>
 
 <style lang="scss">
-    // 時間軸（2026-10 翻新）：一本按日期排的筆記。年份寫在左邊的頁邊（捲動時停住），
-    // 每個月一個小標，文章一行一篇、用細線分開；日期的「日」當作頁碼放在最左邊。
     .timeline-page {
-        --tl-year-width: 7rem;
-        --tl-sticky-top: calc(var(--vp-nav-height) + var(--nb-space-5));
-        width: 100%;
-        max-width: 60rem;
+        --op-year-width: 120px;
+        --op-month-width: 100px;
+        --op-gap: 1rem;
+        --op-post-dot-size: 20px;
+        --op-timeline-font-size: var(--font-size-xl); // 年、月、日、標題共用
+        --op-sticky-top: calc(var(--vp-nav-height) + 1rem);
+
+        // 主線的 x：年欄 + 間距 + 月欄 + 間距 + 圓點的一半
+        --op-line-left: calc(var(--op-year-width) + var(--op-gap) + var(--op-month-width) + var(--op-gap) + var(--op-post-dot-size) / 2 - 1px);
+        max-width: var(--vp-layout-max-width);
         min-height: 60vh;
-        padding: var(--nb-space-8) var(--nb-space-6);
+        padding: 2rem 120px 4rem;
         margin: 0 auto;
-        color: var(--nb-ink);
-        @include setRWD(768px) { padding: var(--nb-space-6) var(--nb-space-4) var(--nb-space-7); }
 
-        :where(h1, h2, h3, p) { margin: 0; }
-
+        // #region [P] 頁首：跟 Design System 頁同一種漸層標題
         &__hero {
-            @include setFlex(flex-start, flex-start, var(--nb-space-2), column);
-            padding-bottom: var(--nb-space-6);
-            border-bottom: 1px solid var(--nb-rule);
-            margin-bottom: var(--nb-space-7);
+            margin-bottom: 2.5rem;
 
             .title {
-                font-family: var(--nb-font-serif);
-                font-size: var(--nb-step-5);
-                font-weight: 700;
-                line-height: 1.15;
+                display: inline-block;
+                background: var(--vp-home-hero-name-background);
+                -webkit-background-clip: text;
+                background-clip: text;
+                margin: 0;
+                font-size: 2.5rem;
+                font-weight: 800;
+                line-height: 1.4;
+                -webkit-text-fill-color: transparent;
             }
-            .subtitle { color: var(--nb-ink-3); }
+            .subtitle {
+                margin: .25rem 0 0;
+                color: var(--vp-c-text-2);
+                font-size: var(--font-size-m);
+            }
         }
 
+        // #endregion
+
         &__empty {
-            padding: var(--nb-space-8) 0;
-            color: var(--nb-ink-3);
+            padding: 4rem 0;
+            color: var(--vp-c-text-3);
             text-align: center;
         }
 
         &__wrap {
-            @include setFlex(flex-start, stretch, var(--nb-space-8), column);
+            position: relative;
+            @include setFlex(flex-start, stretch, 1.25rem, column);
+
+            // 主線：漸層讓頭尾自然淡出
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: var(--op-line-left);
+                background: var(--vp-home-hero-name-background);
+                width: 2px;
+                border-radius: 1px;
+                mask-image: linear-gradient(to bottom, transparent, #000 4rem, #000 calc(100% - 4rem), transparent);
+                z-index: 0;
+            }
         }
 
-        // 一年：左邊頁邊寫年份，右邊是那一年的每個月
         &__year {
             display: grid;
-            grid-template: 'year months' auto / var(--tl-year-width) minmax(0, 1fr);
-            gap: var(--nb-space-5);
+            grid-template: 'year months' auto / var(--op-year-width) 1fr;
+            gap: var(--op-gap);
 
             &-label {
                 position: sticky;
-                top: var(--tl-sticky-top);
+                top: var(--op-sticky-top);
                 grid-area: year;
                 align-self: start;
-                @include setFlex(flex-start, flex-start, var(--nb-space-1), column);
+                @include setFlex(flex-start, baseline, .5rem);
+                padding: 1rem 1rem 1rem 0;
+                border: 0;
+                margin: 0;
+                z-index: 3;
 
                 .year {
-                    font-family: var(--nb-font-serif);
-                    font-size: var(--nb-step-4);
-                    font-weight: 700;
+                    color: var(--vp-c-text-1);
+                    font-size: var(--op-timeline-font-size);
+                    font-weight: 900;
                     line-height: 1;
-                    font-variant-numeric: tabular-nums;
+                    -webkit-text-stroke: 1px var(--vp-c-brand-light);
                 }
                 .count {
-                    color: var(--nb-ink-3);
-                    font-size: var(--nb-step--1);
-                    font-weight: 400;
+                    color: var(--vp-c-text-3);
+                    font-size: var(--font-size-xs);
+                    white-space: nowrap;
                 }
             }
         }
 
         &__months {
             grid-area: months;
-            @include setFlex(flex-start, stretch, var(--nb-space-7), column);
+            @include setFlex(flex-start, stretch, 1.25rem, column);
         }
-        &__month-label {
-            padding-bottom: var(--nb-space-2);
-            border-bottom: 1px solid var(--nb-ink);
-            margin-bottom: var(--nb-space-2);
-            color: var(--nb-ink-2);
-            font-size: var(--nb-step--1);
-            font-weight: 700;
+
+        &__month {
+            display: grid;
+            grid-template: 'month posts' auto / var(--op-month-width) 1fr;
+            gap: var(--op-gap);
+
+            &-label {
+                position: sticky;
+                top: var(--op-sticky-top);
+                align-self: start;
+                background: var(--vp-c-bg);
+                padding: 1rem 1rem 1rem 0;
+                border: 0;
+                margin: 0;
+                color: var(--vp-c-text-1);
+                font-size: var(--op-timeline-font-size);
+                font-weight: 900;
+                line-height: 1;
+                z-index: 3;
+                -webkit-text-stroke: 1px var(--vp-c-brand-light);
+            }
         }
+
         &__posts {
+            position: relative;
+            @include setFlex(flex-start, stretch, 1.25rem, column);
             padding: 0;
             margin: 0;
             list-style: none;
+            z-index: 1;
         }
 
-        // 手機：年份不再停在左邊，改成一行標題
+        .sr-only {
+            position: absolute;
+            clip-path: inset(50%);
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
+        // #region [P] RWD：平板縮欄寬；手機把年、月改成橫排的標籤，主線貼左
+        @include setRWD(1100px) {
+            --op-year-width: 80px;
+            --op-month-width: 64px;
+            --op-timeline-font-size: var(--font-size-l);
+            padding: 2rem 2rem 4rem;
+        }
         @include setRWD(640px) {
-            &__year { display: block; }
-            &__year-label {
+            --op-line-left: calc(var(--op-post-dot-size) / 2 - 1px);
+            padding: 1.5rem 1rem 3rem;
+
+            &__year,
+            &__month {
+                display: block;
+            }
+            &__year-label,
+            &__month-label {
                 position: static;
-                flex-direction: row;
-                gap: var(--nb-space-3);
-                align-items: baseline;
-                margin-bottom: var(--nb-space-5);
+                padding: 0 0 .75rem;
+            }
+            &__month-label {
+                padding-left: calc(var(--op-post-dot-size) + 1.5rem);
+                color: var(--vp-c-text-2);
+                font-size: var(--font-size-m);
+                -webkit-text-stroke: 0;
             }
         }
+
+        // #endregion
     }
 </style>

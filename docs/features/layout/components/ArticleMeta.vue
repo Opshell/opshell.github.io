@@ -10,52 +10,92 @@
 </script>
 
 <template>
-    <!-- 標題下面一行小字：日期、作者、閱讀次數；再一行標籤。不放圖示，資訊本身就夠清楚 -->
-    <div class="article-meta">
-        <p class="article-meta__row">
-            <time v-if="frontmatter.createdAt || lastUpdated" class="date">{{ frontmatter.createdAt || lastUpdated }}</time>
-            <span class="author">{{ frontmatter.author || 'Opshell' }}</span>
-            <span class="views">閱讀 <span id="busuanzi_value_page_pv">--</span> 次</span>
-        </p>
+    <header class="article-meta">
+        <div class="article-meta-header">
+            <div class="meta-row">
+                <div class="meta-item author">
+                    <ElSvgIcon name="history_edu" />
+                    <span class="text">{{ frontmatter.author || 'Opshell' }}</span>
+                </div>
 
-        <div v-if="frontmatter.tags?.length" class="article-meta__tags">
-            <ElTag v-for="tag in frontmatter.tags" :key="tag" :tag />
+                <div v-if="lastUpdated || frontmatter.createdAt" class="meta-item date">
+                    <ElSvgIcon name="calendar_month" />
+                    <span v-if="frontmatter.createdAt" class="text">{{ frontmatter.createdAt }}</span>
+                    <span v-else class="text">{{ lastUpdated }}</span>
+                </div>
+
+                <div class="meta-item views">
+                    <ElSvgIcon name="visibility" />
+                    <span id="busuanzi_value_page_pv" class="text">--</span>
+                </div>
+            </div>
+
+            <div v-if="frontmatter.tags" class="tags-row">
+                <ElTag v-for="tag in frontmatter.tags" :key="tag" :tag />
+            </div>
         </div>
 
-        <figure v-if="frontmatter.image" class="article-meta__banner">
+        <div v-if="frontmatter.image" class="banner-block">
             <img :src="frontmatter.image" :alt="`${frontmatter.title}_image`" loading="lazy" />
-        </figure>
-    </div>
+        </div>
+    </header>
 </template>
 
 <style lang="scss">
     .article-meta {
-        @include setFlex(flex-start, stretch, var(--nb-space-3), column);
+        margin-bottom: 2.5rem;
 
-        &__row {
+        .article-meta-header {
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--vp-c-divider);
+            margin-bottom: 2rem;
+        }
+
+        .meta-row {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--nb-space-1) var(--nb-space-5);
-            margin: 0;
-            color: var(--nb-ink-3);
-            font-size: var(--nb-step--1);
+            gap: 1.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--vp-c-text-2);
+            font-size: 0.9rem;
 
-            .date { font-variant-numeric: tabular-nums; }
+            .meta-item {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+                .icon {
+                    @include setSize(26px, 26px);
+                    transform: translateY(-1px);
+                }
+                .text {
+                    color: var(--color-gray-600);
+                    font-size: var(--font-size-s);
+                }
+
+                // Font fix for numbers/dates
+                &.date, &.views {
+                    font-family: var(--vp-font-family-mono);
+                }
+            }
         }
-        &__tags {
+
+        .tags-row {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--nb-space-1) var(--nb-space-4);
+            gap: 8px;
         }
-        &__banner {
-            margin: var(--nb-space-4) 0 0;
+
+        .banner-block {
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 12px rgb(0 0 0 / 5%);
+            overflow: hidden;
 
             img {
                 display: block;
                 width: 100%;
                 height: auto;
-                border: 1px solid var(--nb-rule);
-                border-radius: var(--nb-radius);
             }
         }
     }

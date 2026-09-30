@@ -60,12 +60,7 @@ export default defineConfig({
     },
     head: [
         ['link', { rel: 'icon', href: '/favicon.ico' }],
-        ['meta', { name: 'google-site-verification', content: 'dGLNijJ_wb3p1_OyBLI_t8GbiJ4W8CdjIlbB7N8pkt8' }],
-        // 文章內文的襯線字（2026-10 翻新）。不像 Noto Sans TC 自己放整套（一個字重 2.9 MB）：
-        // Google Fonts 把中文切成上百片 unicode-range，一頁只下載用到的字
-        ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
-        ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
-        ['link', { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap' }]
+        ['meta', { name: 'google-site-verification', content: 'dGLNijJ_wb3p1_OyBLI_t8GbiJ4W8CdjIlbB7N8pkt8' }]
         // [
         //     'script',
         //     { id: 'check-theme' },

@@ -75,115 +75,126 @@
             </li>
         </ul>
 
-        <p v-else class="section-posts__empty">第一篇還在寫，快了。</p>
+        <ElCard v-else class="section-posts__empty">
+            <p>第一篇還在寫，快了。</p>
+        </ElCard>
     </div>
 </template>
 
 <style lang="scss">
-    // 專區首頁（2026-10 翻新）：跟時間軸、標籤頁同一套條目，寫在紙上、用細線分開，不用卡片
     .section-posts {
-        width: 100%;
-        max-width: 50rem;
-        padding: var(--nb-space-8) var(--nb-space-6);
+        max-width: 860px;
+        padding: 2rem 1.5rem 4rem;
         margin: 0 auto;
-        color: var(--nb-ink);
-        @include setRWD(768px) { padding: var(--nb-space-6) var(--nb-space-4) var(--nb-space-7); }
-
-        :where(h1, h2, p) { margin: 0; }
 
         &__hero {
-            @include setFlex(flex-start, flex-start, var(--nb-space-2), column);
-            padding-bottom: var(--nb-space-6);
-            border-bottom: 1px solid var(--nb-rule);
-            margin-bottom: var(--nb-space-6);
+            margin-bottom: 1.5rem;
 
             .title {
-                font-family: var(--nb-font-serif);
-                font-size: var(--nb-step-5);
-                font-weight: 700;
-                line-height: 1.15;
+                display: inline-block;
+                background: var(--vp-home-hero-name-background);
+                -webkit-background-clip: text;
+                background-clip: text;
+                padding: 0;
+                border: 0;
+                margin: 0;
+                font-size: 2.5rem;
+                font-weight: 800;
+                line-height: 1.4;
+                -webkit-text-fill-color: transparent;
             }
             .lead {
-                max-width: var(--nb-measure);
-                color: var(--nb-ink-2);
-                font-family: var(--nb-font-serif);
-                line-height: 1.8;
+                margin: .25rem 0 0;
+                color: var(--vp-c-text-2);
+                line-height: 1.7;
             }
         }
 
         &__tabs {
-            @include setFlex(flex-start, center, var(--nb-space-2));
+            @include setFlex(flex-start, center, 8px);
             flex-wrap: wrap;
-            margin-bottom: var(--nb-space-5);
+            margin-bottom: 1.5rem;
 
             .count {
+                font-family: var(--vp-font-family-mono);
                 opacity: .7;
-                font-variant-numeric: tabular-nums;
             }
         }
 
         &__list {
+            @include setFlex(flex-start, stretch, 1rem, column);
             padding: 0;
-            border-top: 1px solid var(--nb-ink);
             margin: 0;
             list-style: none;
 
             > li {
-                @include setFlex(flex-start, stretch, var(--nb-space-2), column);
-                padding: var(--nb-space-4) 0;
-                border-bottom: 1px solid var(--nb-rule);
+                background: var(--vp-c-bg-soft);
+                border: 1px solid var(--vp-c-divider);
+                border-radius: 1rem;
+                transition: .2s var(--cubic-FiSo);
+
+                &:hover {
+                    border-color: var(--vp-c-brand);
+                    box-shadow: var(--card-shadow);
+                    transform: translateY(-2px);
+                }
             }
             .tags {
-                display: flex;
+                @include setFlex(flex-start, center, 6px);
                 flex-wrap: wrap;
-                gap: var(--nb-space-1) var(--nb-space-4);
+                padding: 0 1.25rem 1.25rem;
             }
         }
 
         &__card {
-            @include setFlex(flex-start, stretch, var(--nb-space-2), column);
+            display: block;
+            padding: 1.25rem 1.25rem .75rem;
             color: inherit;
             text-decoration: none;
 
             .meta {
-                display: flex;
-                flex-wrap: wrap;
-                gap: var(--nb-space-1) var(--nb-space-4);
-                color: var(--nb-ink-3);
-                font-size: var(--nb-step--1);
-                font-variant-numeric: tabular-nums;
+                @include setFlex(flex-start, center, 8px);
+                color: var(--vp-c-text-3);
+                font-family: var(--vp-font-family-mono);
+                font-size: var(--font-size-xs);
+            }
+            .category {
+                background: color-mix(in srgb, var(--vp-c-brand) 12%, transparent);
+                padding: 2px 8px;
+                border-radius: 6px;
+                color: var(--vp-c-brand-dark);
+                font-family: inherit;
+                font-weight: 600;
             }
             .post-title {
-                font-family: var(--nb-font-serif);
-                font-size: var(--nb-step-2);
-                font-weight: 600;
-                line-height: 1.45;
+                padding: 0;
+                border: 0;
+                margin: .5rem 0 .25rem;
+                color: var(--vp-c-text-1);
+                font-size: var(--font-size-l);
+                font-weight: 700;
+                line-height: 1.4;
+                transition: color .2s var(--cubic-FiSo);
             }
             .excerpt {
                 display: -webkit-box;
-                color: var(--nb-ink-2);
-                font-size: var(--nb-step--1);
-                line-height: 1.75;
-                -webkit-box-orient: vertical;
+                margin: 0;
+                color: var(--vp-c-text-2);
+                font-size: var(--font-size-s);
+                line-height: 1.7;
+                overflow: hidden;
                 -webkit-line-clamp: 2;
                 line-clamp: 2;
-                overflow: hidden;
+                -webkit-box-orient: vertical;
             }
-            &:hover .post-title {
-                color: var(--nb-link);
-                text-decoration: underline;
-                text-underline-offset: .25em;
-            }
-            &:focus-visible {
-                outline: 2px solid var(--nb-link);
-                outline-offset: 4px;
-            }
+            &:hover .post-title { color: var(--vp-c-brand); }
         }
 
         &__empty {
-            padding: var(--nb-space-7) 0;
-            color: var(--nb-ink-3);
+            color: var(--vp-c-text-2);
             text-align: center;
+
+            p { margin: 1rem 0; }
         }
     }
 </style>

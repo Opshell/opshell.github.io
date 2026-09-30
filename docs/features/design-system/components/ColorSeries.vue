@@ -6,30 +6,11 @@
     const { frontmatter, page, isDark } = useData();
 
     interface Props {
-        category: 'paper' | 'ink' | 'brand' | 'gray' | 'functional' | 'community' | 'mdtag';
+        category: 'brand' | 'spectrum' | 'night' | 'gray' | 'functional' | 'community' | 'mdtag';
     }
 
     const colors = computed(() => {
         switch (props.category) {
-            // 筆記本（2026-10 翻新）：名字後面是文字色對紙的對比度（淺色／深色）
-            case 'paper':
-                return [
-                    { name: '紙 paper', var: '--nb-paper', hex: '#F6F7F4', darkHex: '#1A1F27' },
-                    { name: '凹下去的一格 paper-2', var: '--nb-paper-2', hex: '#ECEEE9', darkHex: '#222833' },
-                    { name: '浮起來的一張 card', var: '--nb-card', hex: '#FFFFFF', darkHex: '#262D39' },
-                    { name: '紙上的線 rule', var: '--nb-rule', hex: '#DADDD7', darkHex: '#323A47' },
-                    { name: '鉛筆灰（只畫線）pencil', var: '--nb-pencil', hex: '#8A9099', darkHex: '#5C6573' }
-                ];
-            case 'ink':
-                return [
-                    { name: '墨 ink（13.5／13.2）', var: '--nb-ink', hex: '#1F2A37', darkHex: '#E9E5DA' },
-                    { name: '次要文字 ink-2（6.7／8.7）', var: '--nb-ink-2', hex: '#4E5866', darkHex: '#B7BCC5' },
-                    { name: '說明文字 ink-3（4.8／5.9）', var: '--nb-ink-3', hex: '#636C79', darkHex: '#949BA6' },
-                    { name: '藍墨水 link（6.1／7.7）', var: '--nb-link', hex: '#2F5E9E', darkHex: '#8DB4E8' },
-                    { name: '紅筆 red（只給警告）', var: '--nb-red', hex: '#B8402F', darkHex: '#E8836F' },
-                    { name: '螢光筆 marker', var: '--nb-marker', hex: '#F4B936' },
-                    { name: '螢光筆（淡）marker-soft', var: '--nb-marker-soft', hex: '#FBE3A6', darkHex: 'rgb(244 185 54 / 28%)' }
-                ];
             case 'brand':
                 return [
                     { name: 'Primary 1', var: '--color-primary-1', hex: '#f4b936' },
@@ -38,6 +19,25 @@
                     { name: 'Primary soft', var: '--color-primary-soft', hex: 'rgb(185 148 54 / 16%)', darkHex: '#c4882c' },
 
                     { name: 'Adorn', var: '--color-adorn', hex: '#bd34fe' }
+                ];
+            // 2026-10「稜鏡」：琥珀→紫的品牌漸層攤開成六色，一個分類一色（對照表在 shared/utils/spectrum.ts）
+            case 'spectrum':
+                return [
+                    { name: 'Amber', var: '--pr-amber', hex: '#F4B936' },
+                    { name: 'Orange', var: '--pr-orange', hex: '#F08A24' },
+                    { name: 'Coral', var: '--pr-coral', hex: '#EC5B4B' },
+                    { name: 'Magenta', var: '--pr-magenta', hex: '#D6409F' },
+                    { name: 'Violet', var: '--pr-violet', hex: '#BD34FE' },
+                    { name: 'Indigo', var: '--pr-indigo', hex: '#7B61FF' }
+                ];
+            // 深色模式的夜空：帶一點紫，淺色模式沿用 VitePress 的白
+            case 'night':
+                return [
+                    { name: 'Night bg', var: '--vp-c-bg', hex: '#FFF', darkHex: '#17151E' },
+                    { name: 'Night alt', var: '--vp-c-bg-alt', hex: '#F6F6F7', darkHex: '#121018' },
+                    { name: 'Night soft', var: '--vp-c-bg-soft', hex: '#F6F6F7', darkHex: '#1E1B28' },
+                    { name: 'Night divider', var: '--vp-c-divider', hex: '#E2E2E3', darkHex: '#2C2839' },
+                    { name: 'Brand text', var: '--vp-c-brand-1', hex: '#B4600A', darkHex: '#DC8419' }
                 ];
             case 'gray':
                 return [

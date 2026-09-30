@@ -1,290 +1,299 @@
 <script setup lang="ts">
     import { useSiteData } from '@shared/hooks/useSiteData';
+    import { categoryHue, hueVar } from '@shared/utils/spectrum';
     import { computed } from 'vue';
-    import { BLOG_INTRO, BLOG_MOTTO, BLOG_NAME, LATEST_COUNT, shortcuts, topics } from '../constants';
+    import { BLOG_INTRO, BLOG_MOTTO, BLOG_NAME, CATEGORY_LABELS, LATEST_COUNT, nameParts, PHILOSOPHY_URL, shortcuts } from '../constants';
     import { chapters, latestPosts } from '../contents';
+    import { buildRays } from '../prism';
+    import PrismHero from './PrismHero.vue';
 
-    // 首頁＝這本筆記的目錄頁（2026-10 翻新）：書名與一句介紹、最近寫的幾篇、一個分類一章。
-    // 標題和日期之間用書本目錄的點線串起來，日期就是這本書的「頁碼」。
+    // 首頁（2026-10「稜鏡」翻新）：舊首頁的 hero 文字與入口原樣留著，右邊的插畫變成稜鏡——
+    // 光穿過 O 散成各分類。底下是最近寫的，最後一段講 Opshell 這個名字（光與稜鏡的出處）。
     const siteData = useSiteData();
 
     const posts = computed(() => [...(siteData.value?.posts.values() ?? [])].filter(post => post.date));
     const latest = computed(() => latestPosts(posts.value, LATEST_COUNT));
-    const toc = computed(() => chapters(posts.value));
-    const counts = computed(() => siteData.value?.counts);
+    const rays = computed(() => buildRays(chapters(posts.value)));
+    const total = computed(() => siteData.value?.counts.published ?? posts.value.length);
+
+    const categoryOf = (category: string[]) => category[0] ?? '';
+    const labelOf = (category: string[]) => CATEGORY_LABELS[categoryOf(category).trim()] ?? categoryOf(category);
 </script>
 
 <template>
-    <div class="nb-home">
-        <!-- #region [P] 封面：書名、介紹、入口；右邊頁邊寫這本筆記寫些什麼 -->
-        <header class="nb-home__cover">
-            <div class="nb-home__title-block">
-                <h1 class="nb-home__name">{{ BLOG_NAME }}</h1>
-                <p class="nb-home__intro">{{ BLOG_INTRO }}</p>
-                <p class="nb-home__motto">{{ BLOG_MOTTO }}</p>
-                <nav class="nb-home__shortcuts" aria-label="入口">
-                    <a v-for="item in shortcuts" :key="item.href" :href="item.href">{{ item.text }}</a>
+    <div class="op-home">
+        <!-- #region [P] hero：左邊是舊首頁的三句話與入口，右邊是稜鏡 -->
+        <header class="op-home__hero">
+            <div class="op-home__intro">
+                <h1 class="op-home__name">{{ BLOG_NAME }}</h1>
+                <p class="op-home__text">{{ BLOG_INTRO }}</p>
+                <p class="op-home__motto">{{ BLOG_MOTTO }}</p>
+                <nav class="op-home__actions" aria-label="入口">
+                    <a
+                        v-for="item in shortcuts"
+                        :key="item.href"
+                        class="op-home__action"
+                        :class="{ 'op-home__action--primary': item.primary }"
+                        :href="item.href"
+                    >{{ item.text }}</a>
                 </nav>
-                <p v-if="counts" class="nb-home__counts">
-                    寫了 <strong>{{ counts.published }}</strong> 篇，還有 {{ counts.unpublished }} 篇草稿在坑裡。
-                </p>
             </div>
-
-            <aside class="nb-home__topics" aria-label="這本筆記寫些什麼">
-                <h2>這本筆記寫些什麼</h2>
-                <dl>
-                    <div v-for="topic in topics" :key="topic.title">
-                        <dt>{{ topic.title }}</dt>
-                        <dd>{{ topic.text }}</dd>
-                    </div>
-                </dl>
-            </aside>
+            <PrismHero class="op-home__prism" :rays="rays" />
         </header>
         <!-- #endregion -->
 
-        <!-- #region [P] 最近寫的 -->
-        <section class="nb-home__section" aria-labelledby="nb-home-latest">
-            <h2 id="nb-home-latest" class="nb-home__heading">最近寫的</h2>
-            <ol class="nb-home__list">
+        <!-- #region [P] 最近寫的：卡片頂端那條是分類的顏色（跟稜鏡上的光同色） -->
+        <section class="op-home__section" aria-labelledby="op-home-latest">
+            <div class="op-home__section-head">
+                <h2 id="op-home-latest">最近寫的</h2>
+                <a href="/timeline.html">看全部 {{ total }} 篇</a>
+            </div>
+            <ol class="op-home__cards">
                 <li v-for="post in latest" :key="post.url">
-                    <a class="nb-home__entry" :href="post.url">
-                        <span class="title">{{ post.title }}</span>
-                        <span class="leader" aria-hidden="true" />
-                        <time class="page" :datetime="post.date">{{ post.date }}</time>
+                    <a class="op-home__card" :href="post.url" :style="{ '--hue': hueVar(categoryHue(categoryOf(post.category))) }">
+                        <span class="op-home__card-cat">{{ labelOf(post.category) }}</span>
+                        <h3>{{ post.title }}</h3>
+                        <p v-if="post.excerpt">{{ post.excerpt }}</p>
+                        <time :datetime="post.date">{{ post.date }}</time>
                     </a>
-                    <p v-if="post.excerpt" class="nb-home__excerpt">{{ post.excerpt }}</p>
                 </li>
             </ol>
         </section>
         <!-- #endregion -->
 
-        <!-- #region [P] 目錄：一個分類一章 -->
-        <section class="nb-home__section" aria-labelledby="nb-home-toc">
-            <h2 id="nb-home-toc" class="nb-home__heading">目錄</h2>
-            <ol class="nb-home__list nb-home__list--chapters">
-                <li v-for="chapter in toc" :key="chapter.key">
-                    <a class="nb-home__entry" :href="chapter.first.url">
-                        <span class="title">{{ chapter.label }}</span>
-                        <span class="leader" aria-hidden="true" />
-                        <span class="page">{{ chapter.count }} 篇</span>
-                    </a>
-                    <p class="nb-home__chapter-links">
-                        <a :href="chapter.first.url">從第一篇讀：{{ chapter.first.title }}</a>
-                        <a v-if="chapter.latest.url !== chapter.first.url" :href="chapter.latest.url">最新一篇：{{ chapter.latest.title }}</a>
-                    </p>
-                </li>
-            </ol>
-            <p class="nb-home__more"><a href="/timeline.html">照時間看全部文章</a></p>
+        <!-- #region [P] 名字的由來 -->
+        <section class="op-home__section op-home__about" aria-labelledby="op-home-name">
+            <div class="op-home__section-head">
+                <h2 id="op-home-name">為什麼叫 Opshell</h2>
+                <a :href="PHILOSOPHY_URL">讀〈Opshell 的哲學意義〉</a>
+            </div>
+            <dl class="op-home__parts">
+                <div v-for="item in nameParts" :key="item.part">
+                    <dt><span class="part">{{ item.part }}</span>{{ item.title }}</dt>
+                    <dd>{{ item.text }}</dd>
+                </div>
+            </dl>
         </section>
         <!-- #endregion -->
     </div>
 </template>
 
 <style lang="scss">
-    .nb-home {
-        @include setFlex(flex-start, stretch, var(--nb-space-8), column);
+    // page 版型沒有底色（網站的 body 是黑的），首頁自己鋪
+    /* stylelint-disable-next-line selector-class-pattern -- .Layout 是 VitePress 的版型 class */
+    .Layout.op-home-page {
+        background: var(--vp-c-bg);
+
+        // 窄螢幕時 VitePress 會補一條「Return to top」（VPLocalNav）；舊首頁（home 版型）沒有，這裡也不要
+        /* stylelint-disable-next-line selector-class-pattern -- VitePress 的元件 class */
+        .VPLocalNav { display: none; }
+    }
+
+    .op-home {
+        @include setFlex(flex-start, stretch, 5rem, column);
         width: 100%;
-        max-width: 68rem;
-        padding: var(--nb-space-8) var(--nb-space-6) var(--nb-space-8);
+        max-width: 1200px;
+        padding: 4rem 2rem 6rem;
         margin: 0 auto;
-        color: var(--nb-ink);
         @include setRWD(768px) {
-            gap: var(--nb-space-7);
-            padding: var(--nb-space-6) var(--nb-space-4) var(--nb-space-7);
+            gap: 3.5rem;
+            padding: 2rem 1rem 4rem;
         }
 
         // 用 :where() 把重設的權重降到 0，下面各元素自己的 margin 才蓋得過去
-        :where(h1, h2, p) { margin: 0; }
+        :where(h1, h2, h3, p, dl, dd) { margin: 0; }
         a:focus-visible {
-            border-radius: 2px;
-            outline: 2px solid var(--nb-link);
+            border-radius: 4px;
+            outline: 2px solid var(--vp-c-brand-1);
             outline-offset: 3px;
         }
 
-        // #region [P] 封面
-        &__cover {
+        // #region [P] hero
+        &__hero {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 17rem;
-            gap: var(--nb-space-7);
-            align-items: start;
-            padding-bottom: var(--nb-space-7);
-            border-bottom: 1px solid var(--nb-rule);
-            @include setRWD(900px) {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+            gap: 3rem;
+            align-items: center;
+            @include setRWD(960px) {
                 grid-template-columns: minmax(0, 1fr);
-                gap: var(--nb-space-6);
+                gap: 2.5rem;
             }
-        }
-        &__title-block {
-            @include setFlex(flex-start, flex-start, var(--nb-space-4), column);
-            max-width: 36em;
-        }
-
-        // 書名是這一頁唯一大聲的東西：襯線、大、墨色，不做漸層
-        &__name {
-            font-family: var(--nb-font-serif);
-            font-size: clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem);
-            font-weight: 700;
-            line-height: 1.1;
-            letter-spacing: -.01em;
         }
         &__intro {
-            font-family: var(--nb-font-serif);
-            font-size: var(--nb-step-2);
-            line-height: 1.7;
+            @include setFlex(flex-start, flex-start, 1.25rem, column);
         }
-        &__motto { color: var(--nb-ink-3); }
-        &__shortcuts {
+
+        // 名字是舊首頁那道琥珀→紫的漸層：整道光譜從這裡開始
+        &__name {
+            background: var(--pr-brand-gradient);
+            background-clip: text;
+            color: transparent;
+            font-size: clamp(2.75rem, 1.8rem + 3.6vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -.02em;
+        }
+        &__text {
+            color: var(--vp-c-text-1);
+            font-size: clamp(1.375rem, 1.1rem + 1vw, 2rem);
+            font-weight: 800;
+            line-height: 1.5;
+        }
+        &__motto {
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-l);
+            font-weight: 500;
+        }
+        &__actions {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--nb-space-2) var(--nb-space-5);
-            margin-top: var(--nb-space-2);
-
-            a {
-                color: var(--nb-link);
-                font-weight: 500;
-                text-decoration: underline;
-                text-decoration-color: color-mix(in srgb, var(--nb-link) 35%, transparent);
-                text-underline-offset: .3em;
-
-                &:hover { text-decoration-color: var(--nb-link); }
-            }
+            gap: .75rem;
+            margin-top: .5rem;
         }
-        &__counts {
-            color: var(--nb-ink-3);
-            font-size: var(--nb-step--1);
+        &__action {
+            background: var(--vp-c-default-soft);
+            padding: .6rem 1.25rem;
+            border-radius: 999px;
+            color: var(--vp-c-text-1);
+            font-size: var(--font-size-s);
+            font-weight: 700;
+            text-decoration: none;
+            transition: background .2s var(--cubic-FiSo);
 
-            // 發佈的篇數用螢光筆畫一下：這一頁唯一的黃
-            strong {
-                background: linear-gradient(transparent 58%, var(--nb-marker-soft) 58%);
-                padding: 0 .1em;
-                color: var(--nb-ink);
-            }
-        }
+            &:hover { background: var(--vp-c-default-2); }
+            &--primary {
+                background: var(--vp-c-brand-1);
+                color: var(--vp-c-white);
 
-        // 頁邊：這本筆記寫些什麼
-        &__topics {
-            padding-left: var(--nb-space-5);
-            border-left: 1px solid var(--nb-rule);
-            @include setRWD(900px) {
-                padding: var(--nb-space-5) 0 0;
-                border-top: 1px solid var(--nb-rule);
-                border-left: 0;
-            }
-
-            h2 {
-                margin-bottom: var(--nb-space-3);
-                color: var(--nb-ink-2);
-                font-size: var(--nb-step--1);
-                font-weight: 700;
-            }
-            dl {
-                display: grid;
-                gap: var(--nb-space-3);
-                margin: 0;
-            }
-            dt {
-                font-size: var(--nb-step--1);
-                font-weight: 700;
-            }
-            dd {
-                margin: 0;
-                color: var(--nb-ink-3);
-                font-size: var(--nb-step--1);
-                line-height: 1.6;
+                &:hover { background: var(--vp-c-brand-2); }
             }
         }
 
         // #endregion
 
-        // #region [P] 目錄
+        // #region [P] 段落
         &__section {
-            max-width: 46rem;
+            @include setFlex(flex-start, stretch, 1.5rem, column);
         }
-        &__heading {
-            margin-bottom: var(--nb-space-5);
-            font-size: var(--nb-step-3);
-            font-weight: 700;
+        &__section-head {
+            @include setFlex(space-between, baseline, 1rem);
+            flex-wrap: wrap;
+
+            h2 {
+                font-size: var(--font-size-xl);
+                font-weight: 800;
+            }
+            a {
+                color: var(--vp-c-brand-1);
+                font-weight: 600;
+                text-decoration: none;
+
+                &:hover { text-decoration: underline; }
+            }
         }
-        &__list {
-            @include setFlex(flex-start, stretch, var(--nb-space-5), column);
+        &__cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+            gap: 1.25rem;
             padding: 0;
             margin: 0;
             list-style: none;
+
+            li { display: flex; }
         }
 
-        // 一行目錄：標題……點線……頁碼（日期或篇數）
-        &__entry {
-            display: flex;
-            gap: var(--nb-space-3);
-            align-items: baseline;
-            color: var(--nb-ink);
+        // 卡片：頂端一道分類色的光，其他跟舊首頁的卡片一樣安靜
+        &__card {
+            @include setFlex(flex-start, flex-start, .6rem, column);
+            flex: 1;
+            background: var(--vp-c-bg-soft);
+            padding: 1.25rem 1.5rem 1.5rem;
+            border: 1px solid var(--vp-c-divider);
+            border-top: 3px solid var(--hue);
+            border-radius: 12px;
+            color: var(--vp-c-text-1);
             text-decoration: none;
+            transition: border-color .2s var(--cubic-FiSo);
 
-            .title {
-                font-family: var(--nb-font-serif);
-                font-size: var(--nb-step-1);
-                font-weight: 600;
+            h3 {
+                font-size: var(--font-size-m);
+                font-weight: 700;
                 line-height: 1.5;
-                transition: color .15s ease;
             }
-            .leader {
-                flex: 1;
-                min-width: var(--nb-space-6);
-                border-bottom: 2px dotted var(--nb-pencil);
-                transform: translateY(-.3em);
-            }
-            .page {
-                flex-shrink: 0;
-                color: var(--nb-ink-3);
-                font-size: var(--nb-step--1);
-                font-variant-numeric: tabular-nums;
-            }
-            &:hover .title { color: var(--nb-link); }
-        }
-        &__excerpt {
-            display: -webkit-box;
-            margin-top: var(--nb-space-1);
-            color: var(--nb-ink-3);
-            font-size: var(--nb-step--1);
-            line-height: 1.7;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
-            overflow: hidden;
-        }
-        &__chapter-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--nb-space-1) var(--nb-space-5);
-            margin-top: var(--nb-space-1);
-            font-size: var(--nb-step--1);
-
-            a {
-                max-width: 100%;
-                color: var(--nb-ink-3);
-                white-space: nowrap;
-                text-decoration: none;
-                text-overflow: ellipsis;
+            p {
+                display: -webkit-box;
+                color: var(--vp-c-text-2);
+                font-size: var(--font-size-s);
+                line-height: 1.7;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
                 overflow: hidden;
+            }
+            time {
+                margin-top: auto;
+                color: var(--vp-c-text-3);
+                font-family: var(--vp-font-family-mono);
+                font-size: var(--font-size-xs);
+            }
+            &:hover {
+                border-color: var(--hue);
 
-                &:hover {
-                    color: var(--nb-link);
-                    text-decoration: underline;
-                    text-underline-offset: .25em;
-                }
+                h3 { color: var(--vp-c-brand-1); }
             }
         }
-        &__more {
-            margin-top: var(--nb-space-6);
+        &__card-cat {
+            @include setFlex(flex-start, center, .5rem);
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
 
-            a {
-                color: var(--nb-link);
-                font-weight: 500;
+            &::before {
+                content: '';
+                @include setSize(8px, 8px);
+                background: var(--hue);
+                border-radius: 50%;
             }
+        }
+
+        // #endregion
+
+        // #region [P] 名字的由來：O、P、Shell 三段，字母用品牌漸層
+        &__parts {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 2rem;
+            @include setRWD(768px) {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 1.25rem;
+            }
+
+            dt {
+                @include setFlex(flex-start, baseline, .75rem);
+                margin-bottom: .5rem;
+                font-weight: 700;
+            }
+            .part {
+                background: var(--pr-brand-gradient);
+                background-clip: text;
+                color: transparent;
+                font-size: 2.5rem;
+                font-weight: 900;
+                line-height: 1;
+            }
+            dd {
+                color: var(--vp-c-text-2);
+                line-height: 1.8;
+            }
+        }
+        &__about {
+            padding-top: 3rem;
+            border-top: 1px solid var(--vp-c-divider);
         }
 
         // #endregion
         @media (prefers-reduced-motion: reduce) {
-            &__entry .title { transition: none; }
+            &__action,
+            &__card { transition: none; }
         }
     }
 </style>

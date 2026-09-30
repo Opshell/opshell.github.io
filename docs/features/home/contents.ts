@@ -1,7 +1,8 @@
 import type { Post } from '@shared/schemas/post.schema';
+import { normalizeCategory } from '@shared/utils/spectrum';
 import { CATEGORY_LABELS } from './constants';
 
-// 首頁目錄的純邏輯：把文章排成「最近寫的」與「一個分類一章」。畫面在 components/HomeContents.vue。
+// 首頁的純邏輯：「最近寫的」與「一個分類一組」。畫面在 components/。
 
 export interface Chapter {
     key: string;
@@ -14,9 +15,6 @@ export interface Chapter {
 }
 
 const byDateDesc = (a: Post, b: Post) => b.date.localeCompare(a.date) || a.url.localeCompare(b.url);
-
-/** frontmatter 的分類有時帶引號或多餘空白（'Belief'、'developer '），合在一起 */
-export const normalizeCategory = (category: string) => category.trim().replace(/^['"]|['"]$/g, '').trim();
 
 export function latestPosts(posts: Post[], count: number): Post[] {
     return [...posts].sort(byDateDesc).slice(0, count);

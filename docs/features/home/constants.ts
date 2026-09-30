@@ -1,27 +1,19 @@
-// 首頁（目錄頁）的文案。部落格自己的介紹沿用舊首頁的 hero 與四個主題（2026-10 翻新時從 pages/index.md 搬過來）。
+// 首頁的文案。hero 的三句與入口沿用舊首頁（VitePress home 版型）的內容，2026-10「稜鏡」翻新時搬進來。
 
 export const BLOG_NAME = 'Opshell\'s Blog';
 export const BLOG_INTRO = '一個藉由分享前端開發、各種想法、奇怪技能及其他雜項來與世界互動的部落格。';
-export const BLOG_MOTTO = '平凡即卓越。';
+export const BLOG_MOTTO = '平凡即卓越.';
 
-/** 這本筆記寫些什麼（舊首頁的四張卡片，改成頁邊的一段說明） */
-export const topics: { title: string; text: string }[] = [
-    { title: '程式技巧與除錯', text: '踩雷、填坑、除蟲，寫成技術筆記來對抗我的健忘。' },
-    { title: '靈魂財富', text: '「萬般帶不走，唯有業隨身」，記下銘刻在靈魂裡的收穫。' },
-    { title: '三分鐘熱度', text: '一時興起的興趣，成不成功都是一種人生體驗。' },
-    { title: '生活雜記', text: '柴、米、油、鹽、醬、醋、茶。' }
+/** hero 底下的入口（舊首頁的那排按鈕）；primary 是實心的那顆 */
+export const shortcuts: { text: string; href: string; primary?: boolean }[] = [
+    { text: 'Timeline', href: '/timeline.html', primary: true },
+    { text: 'Resume', href: '/resume.html' },
+    { text: '✨ DinDon 記帳', href: '/dindon/' },
+    { text: 'Vitepress Thirty Days', href: '/article/code-sea/vitepress/2024鐵人賽/day01-preface.html' },
+    { text: 'Design system', href: '/design-system.html' }
 ];
 
-/** 頁首的幾個入口：時間軸是全部文章，其他是站上的作品 */
-export const shortcuts: { text: string; href: string }[] = [
-    { text: '全部文章（時間軸）', href: '/timeline.html' },
-    { text: '標籤', href: '/tags-list.html' },
-    { text: '履歷', href: '/resume.html' },
-    { text: '叮咚記帳', href: '/dindon/' },
-    { text: '設計系統', href: '/design-system.html' }
-];
-
-/** 分類（frontmatter 的 categories）在目錄上顯示的名字；沒列的照原樣顯示 */
+/** 分類在首頁顯示的名字；沒列的照原樣顯示 */
 export const CATEGORY_LABELS: Record<string, string> = {
     'typescript-thirty-days': 'TypeScript 三十天',
     'vitepress-thirty-days': 'VitePress 三十天',
@@ -33,3 +25,11 @@ export const CATEGORY_LABELS: Record<string, string> = {
 
 /** 首頁「最近寫的」列幾篇 */
 export const LATEST_COUNT = 6;
+
+/** 名字的由來：摘自〈Opshell 的哲學意義〉，首頁最底下那一段 */
+export const PHILOSOPHY_URL = '/article/life-murmurs/opshell-的哲學意義.html';
+export const nameParts: { part: string; title: string; text: string }[] = [
+    { part: 'O', title: '唯一的圓滿', text: '大爆炸之前的奇點、禪宗的圓相，一切都還在那個「一」裡。' },
+    { part: 'P', title: '指向現實的指標', text: '像光經過三稜鏡：你就是其中一抹獨特的顏色。' },
+    { part: 'Shell', title: '與核心溝通的介面', text: '殼不是束縛，是接收器。透過它，「全」才體會得到冷熱與悲歡。' }
+];

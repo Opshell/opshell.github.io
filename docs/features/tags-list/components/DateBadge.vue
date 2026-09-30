@@ -1,29 +1,43 @@
 <script setup lang="ts">
     import { computed } from 'vue';
 
-    // 標籤頁的條目沒有年、月分組，日期寫完整的年月日
+    // 標籤頁的卡片各自獨立，沒有年、月分組，所以日要配上年月
     const { date = '' } = defineProps<{ date?: string }>();
 
     const parsed = computed(() => {
         const d = new Date(date);
-        if (Number.isNaN(d.getTime())) return { full: '' };
+        if (Number.isNaN(d.getTime())) return { day: '--', ym: '', full: '' };
         const pad = (n: number) => String(n).padStart(2, '0');
-        return { full: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` };
+        return {
+            day: pad(d.getDate()),
+            ym: `${d.getFullYear()}.${pad(d.getMonth() + 1)}`,
+            full: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+        };
     });
 </script>
 
 <template>
     <time class="date-badge" :datetime="parsed.full" :title="parsed.full">
-        {{ parsed.full || '--' }}
+        <span class="day">{{ parsed.day }}</span>
+        <span class="ym">{{ parsed.ym }}</span>
     </time>
 </template>
 
 <style lang="scss">
-    // 標籤頁的日期：完整的年月日一行小字（時間軸那邊也有 .date-badge，所以包在 .tags-page 底下）
+    // 時間軸也有一個 DateBadge、同樣叫 .date-badge：各自包在頁面的 class 底下，不然兩邊的樣式會互相蓋
     .tags-page .date-badge {
-        color: var(--nb-ink-3);
-        font-size: var(--nb-step--1);
-        line-height: 1.4;
-        font-variant-numeric: tabular-nums;
+        @include setFlex(flex-start, flex-end, 2px, column);
+        line-height: 1;
+
+        .day {
+            color: var(--vp-c-brand);
+            font-size: var(--font-size-xl);
+            font-weight: bold;
+        }
+        .ym {
+            color: var(--vp-c-text-3);
+            font-family: var(--vp-font-family-mono);
+            font-size: var(--font-size-xs);
+        }
     }
 </style>

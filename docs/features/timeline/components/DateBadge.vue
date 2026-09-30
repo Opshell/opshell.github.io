@@ -19,21 +19,18 @@
 </template>
 
 <style lang="scss">
-    // 時間軸的「日」：像書的頁碼，等寬數字、鉛筆色。
-    // 標籤頁也有一個 DateBadge、同樣叫 .date-badge：各自包在頁面的 class 底下，不然全域的樣式會互相蓋
+    // 標籤頁也有一個 DateBadge、同樣叫 .date-badge：各自包在頁面的 class 底下，不然兩邊的樣式會互相蓋
     .timeline-page .date-badge {
         display: block;
-        padding-top: .2em;
+        padding: calc(1rem - 2px) 1rem 0 0;
         line-height: 1;
 
         .day {
             display: block;
-            color: var(--nb-ink-3);
-            font-family: var(--nb-font-serif);
-            font-size: var(--nb-step-2);
-            font-weight: 600;
+            color: var(--vp-c-brand);
+            font-size: var(--op-timeline-font-size, var(--font-size-xl));
+            font-weight: bold;
             text-align: right;
-            font-variant-numeric: tabular-nums;
         }
     }
 </style>

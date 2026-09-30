@@ -122,8 +122,8 @@
 <template>
     <div class="tags-page">
         <header class="tags-page__hero">
-            <h1 class="title">標籤</h1>
-            <p class="subtitle">共 {{ allTags.length }} 個標籤。挑一個，看它底下的文章與寫作紀錄。</p>
+            <h1 class="title">Tags</h1>
+            <p class="subtitle">共 {{ allTags.length }} 個標籤。挑一個，看它底下的文章與活動。</p>
         </header>
 
         <div class="tags-page__layout">
@@ -166,7 +166,7 @@
                 <!-- #region [P] 活動熱圖 -->
                 <section class="tags-page__card tags-page__activity">
                     <div class="card-header">
-                        <h3 class="card-title">寫作紀錄</h3>
+                        <h3 class="card-title">Activity</h3>
                         <ElBtn v-if="selectedDate" size="sm" variant="primary" title="清除日期篩選" @click="onDateSelect(null)">
                             {{ selectedDate }} ✕
                         </ElBtn>
@@ -216,80 +216,98 @@
 </template>
 
 <style lang="scss">
-    // 標籤頁（2026-10 翻新）：左邊是標籤索引（像書後面的索引，一行一個、右邊是篇數），
-    // 右邊是這個標籤的說明、寫作紀錄（熱圖）與文章，全部寫在紙上、用細線分段，不用卡片。
     .tags-page {
-        width: 100%;
-        max-width: 68rem;
-        padding: var(--nb-space-8) var(--nb-space-6);
+        max-width: var(--view-width);
+        padding: 2rem 1.5rem 4rem;
         margin: 0 auto;
-        color: var(--nb-ink);
-        @include setRWD(768px) { padding: var(--nb-space-6) var(--nb-space-4) var(--nb-space-7); }
-
-        :where(h1, h2, h3, p) { margin: 0; }
 
         &__hero {
-            @include setFlex(flex-start, flex-start, var(--nb-space-2), column);
-            padding-bottom: var(--nb-space-6);
-            border-bottom: 1px solid var(--nb-rule);
-            margin-bottom: var(--nb-space-7);
+            margin-bottom: 2rem;
 
             .title {
-                font-family: var(--nb-font-serif);
-                font-size: var(--nb-step-5);
-                font-weight: 700;
-                line-height: 1.15;
+                display: inline-block;
+                background: var(--vp-home-hero-name-background);
+                -webkit-background-clip: text;
+                background-clip: text;
+                margin: 0;
+                font-size: 2.5rem;
+                font-weight: 800;
+                line-height: 1.4;
+                -webkit-text-fill-color: transparent;
             }
-            .subtitle { color: var(--nb-ink-3); }
+            .subtitle {
+                margin: .25rem 0 0;
+                color: var(--vp-c-text-2);
+            }
         }
 
         &__layout {
             display: grid;
-            grid-template-columns: 15rem minmax(0, 1fr);
-            gap: var(--nb-space-7);
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 2.5rem;
             align-items: start;
         }
+
         &__muted {
-            color: var(--nb-ink-3);
-            font-size: var(--nb-step--1);
+            margin: 0;
+            color: var(--vp-c-text-3);
+            font-size: var(--font-size-s);
         }
 
-        // #region [P] 左欄：索引
+        // #region [P] 左欄
         &__sidebar {
             position: sticky;
-            top: calc(var(--vp-nav-height) + var(--nb-space-5));
-            @include setFlex(flex-start, stretch, var(--nb-space-4), column);
+            top: calc(var(--vp-nav-height) + 1.5rem);
+            @include setFlex(flex-start, stretch, 1rem, column);
         }
+
         &__cloud {
-            @include setFlex(flex-start, stretch, 0, column);
-            max-height: calc(100vh - var(--vp-nav-height) - 10rem);
+            @include setFlex(flex-start, stretch, 4px, column);
+            max-height: calc(100vh - var(--vp-nav-height) - 8rem);
+            padding-right: 4px;
             overflow-y: auto;
         }
 
-        // 一個標籤一行：名字……篇數；目前這個用螢光筆標在左邊
         &__chip {
-            @include setFlex(space-between, baseline, var(--nb-space-2));
-            padding: 5px var(--nb-space-2) 5px var(--nb-space-3);
-            border-left: 3px solid transparent;
-            color: var(--nb-ink-2);
-            font-size: var(--nb-step--1);
+            @include setFlex(space-between, center, 8px);
+            padding: 8px 12px;
+            border-radius: 10px;
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-s);
             text-decoration: none;
+            transition: .2s var(--cubic-FiSo);
 
-            .hash { color: var(--nb-pencil); }
-            .count {
-                color: var(--nb-ink-3);
-                font-size: var(--nb-step--2);
-                font-variant-numeric: tabular-nums;
+            .hash {
+                margin-right: 2px;
+                color: var(--vp-c-brand-1);
+                opacity: .7;
             }
-            &:hover { color: var(--nb-link); }
-            &:focus-visible {
-                outline: 2px solid var(--nb-link);
-                outline-offset: -2px;
+            .count {
+                background: var(--vp-c-bg-soft);
+                min-width: 1.75em;
+                padding: 2px 8px;
+                border-radius: 999px;
+                color: var(--vp-c-text-3);
+                font-family: var(--vp-font-family-mono);
+                font-size: var(--font-size-xs);
+                text-align: center;
+            }
+
+            &:hover {
+                background: var(--vp-c-bg-soft);
+                color: var(--vp-c-brand);
+                transform: translateX(4px);
             }
             &.is-active {
-                border-left-color: var(--nb-marker);
-                color: var(--nb-ink);
-                font-weight: 700;
+                background: color-mix(in srgb, var(--vp-c-brand) 15%, transparent);
+                box-shadow: inset 3px 0 0 var(--vp-c-brand);
+                color: var(--vp-c-brand);
+                font-weight: 600;
+
+                .count {
+                    background: var(--vp-c-brand);
+                    color: var(--color-gray-000);
+                }
             }
         }
 
@@ -297,116 +315,150 @@
 
         // #region [P] 右欄
         &__main {
-            @include setFlex(flex-start, stretch, var(--nb-space-7), column);
+            @include setFlex(flex-start, stretch, 1.5rem, column);
             min-width: 0;
         }
+
         &__card {
-            padding-bottom: var(--nb-space-6);
-            border-bottom: 1px solid var(--nb-rule);
+            background: var(--vp-c-bg-soft);
+            padding: 1.5rem;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 1rem;
         }
 
         &__intro {
-            @include setFlex(flex-start, stretch, var(--nb-space-2), column);
-
             .tag-name {
-                font-family: var(--nb-font-serif);
-                font-size: var(--nb-step-4);
-                font-weight: 700;
-                line-height: 1.2;
+                display: inline-block;
+                background: var(--vp-home-hero-name-background);
+                -webkit-background-clip: text;
+                background-clip: text;
+                padding: 0;
+                border: 0;
+                margin: 0;
+                font-size: var(--font-size-xxl);
+                font-weight: 800;
+                line-height: 1.3;
+                -webkit-text-fill-color: transparent;
 
-                .hash {
-                    margin-right: .1em;
-                    color: var(--nb-pencil);
-                }
+                .hash { margin-right: 4px; }
             }
-            .tag-meta { color: var(--nb-ink-3); }
+            .tag-meta {
+                margin: 0;
+                color: var(--vp-c-text-3);
+                font-family: var(--vp-font-family-mono);
+                font-size: var(--font-size-s);
+            }
             .tag-title {
-                margin-top: var(--nb-space-3);
-                font-size: var(--nb-step-1);
-                font-weight: 700;
+                padding: 0;
+                border: 0;
+                margin: 1rem 0 .25rem;
+                color: var(--vp-c-text-1);
+                font-size: var(--font-size-l);
+                font-weight: 600;
             }
             .tag-desc {
-                max-width: var(--nb-measure);
-                color: var(--nb-ink-2);
-                font-family: var(--nb-font-serif);
-                line-height: 1.85;
+                margin: 0;
+                color: var(--vp-c-text-2);
+                line-height: 1.7;
             }
         }
 
         &__activity {
             .card-header {
-                @include setFlex(space-between, center, var(--nb-space-2));
-                margin-bottom: var(--nb-space-4);
+                @include setFlex(space-between, center, 8px);
+                margin-bottom: 1rem;
             }
             .card-title {
-                font-size: var(--nb-step-0);
-                font-weight: 700;
+                padding: 0;
+                border: 0;
+                margin: 0;
+                font-size: var(--font-size-m);
+                font-weight: 600;
             }
             .badge {
-                color: var(--nb-ink-3);
-                font-size: var(--nb-step--2);
+                background: var(--vp-c-bg);
+                padding: 4px 10px;
+                border: 0;
+                border-radius: 999px;
+                color: var(--vp-c-text-3);
+                font-size: var(--font-size-xs);
+
             }
         }
 
         &__list {
-            scroll-margin-top: calc(var(--vp-nav-height) + var(--nb-space-4));
+            scroll-margin-top: calc(var(--vp-nav-height) + 1rem);
 
             .list-header {
-                @include setFlex(space-between, baseline, var(--nb-space-2));
-                padding-bottom: var(--nb-space-2);
-                border-bottom: 1px solid var(--nb-ink);
+                @include setFlex(space-between, baseline, 8px);
+                margin-bottom: 1rem;
             }
             .list-title {
-                @include setFlex(flex-start, baseline, var(--nb-space-2));
-                font-size: var(--nb-step-0);
+                @include setFlex(flex-start, baseline, 8px);
+                padding: 0;
+                border: 0;
+                margin: 0;
+                font-size: var(--font-size-l);
                 font-weight: 700;
             }
             .list-count {
-                color: var(--nb-ink-3);
-                font-size: var(--nb-step--1);
+                color: var(--vp-c-text-3);
+                font-family: var(--vp-font-family-mono);
+                font-size: var(--font-size-s);
                 font-weight: 400;
             }
+            .list-body { @include setFlex(flex-start, stretch, 1rem, column); }
         }
+
         &__empty {
-            padding: var(--nb-space-7) 0;
-            color: var(--nb-ink-3);
+            background: var(--vp-c-bg-soft);
+            padding: 3rem 1rem;
+            border-radius: 1rem;
+            margin: 0;
+            color: var(--vp-c-text-3);
             text-align: center;
         }
+
         &__pager {
-            @include setFlex(center, center, var(--nb-space-1));
-            margin-top: var(--nb-space-6);
+            @include setFlex(center, center, 6px);
+            margin-top: 1.5rem;
 
             .el-btn {
-                min-width: 36px;
-                font-variant-numeric: tabular-nums;
+                min-width: 32px;
+                font-family: var(--vp-font-family-mono);
             }
         }
 
         // #endregion
 
-        // 換頁：淡入就好
+        // 清單切換
         .list-enter-active,
-        .list-leave-active { transition: opacity .2s ease; }
+        .list-leave-active { transition: .3s var(--cubic-FiSo); }
         .list-enter-from,
-        .list-leave-to { opacity: 0; }
+        .list-leave-to {
+            transform: translateY(12px);
+            opacity: 0;
+        }
 
-        // 平板以下：索引變成橫向的一串
+        // #region [P] RWD：平板以下左欄變成橫向的標籤列
         @include setRWD(960px) {
             &__layout {
-                grid-template-columns: minmax(0, 1fr);
-                gap: var(--nb-space-6);
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
             &__sidebar { position: static; }
             &__cloud {
                 flex-flow: row wrap;
-                gap: var(--nb-space-1) var(--nb-space-2);
                 max-height: none;
                 overflow: visible;
             }
+            &__chip {
+                padding: 6px 10px;
+
+                &:hover { transform: none; }
+            }
         }
-        @media (prefers-reduced-motion: reduce) {
-            .list-enter-active,
-            .list-leave-active { transition: none; }
-        }
+
+        // #endregion
     }
 </style>

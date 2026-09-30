@@ -146,12 +146,45 @@
     // #endregion
 }
 
-// #region [P] 筆記本（2026-10 翻新）
-// 部落格是「對抗健忘的筆記本」：方格紙白、墨藍黑的字、螢光筆只畫重點、紅筆只拿來更正。
-// 後台（dindon-dashboard）共用同一組，另外在元件裡加 man page 式的密度與鍵盤操作。
-// 叮咚的宣傳頁、演示頁、政策頁、刪除頁不跟著翻新：頁面上有那幾個 class 時整組不套，維持原本的 VitePress 配色。
+// #region [P] 稜鏡（2026-10 翻新）
+// Opshell 的 O 是「全」，P 是穿過三稜鏡的那道光（〈Opshell 的哲學意義〉）。部落格原本的琥珀→紫漸層就是光譜的一段：
+// 這裡把它攤開成六個色，每個分類拿一個（分類對顏色在 shared/utils/spectrum.ts）；深色模式的夜空帶一點紫。
+// 光譜色只畫線、點、光線，不當小字的顏色（琥珀對白底不到 2 : 1）。
+:root {
+    --pr-amber: #F4B936;         // = --color-primary-1
+    --pr-orange: #F08A24;
+    --pr-coral: #EC5B4B;
+    --pr-magenta: #D6409F;
+    --pr-violet: #BD34FE;        // = --color-adorn
+    --pr-indigo: #7B61FF;
+    --pr-spectrum: linear-gradient(90deg, var(--pr-amber), var(--pr-orange), var(--pr-coral), var(--pr-magenta), var(--pr-violet), var(--pr-indigo));
+    --pr-brand-gradient: linear-gradient(120deg, var(--color-primary-1) 30%, var(--color-adorn) 80%);
+}
+
+// 淺色模式的品牌橘加深一階：原本的 #dc8419 當字在白底只有 2.9 : 1，這個 4.6 : 1（深色模式不變）
+:root:not(.dark):not(:has(.dindon-page, .dindon-privacy, .dindon-account, .dindon-dashboard)) {
+    --vp-c-brand-1: #B4600A;
+}
+
+// 夜空：只調部落格。叮咚的四個公開頁與後台有自己的配色，不套
+.dark:not(:has(.dindon-page, .dindon-privacy, .dindon-account, .dindon-dashboard)) {
+    --vp-c-bg: #17151E;
+    --vp-c-bg-alt: #121018;
+    --vp-c-bg-soft: #1E1B28;
+    --vp-c-bg-elv: #211E2C;
+    --vp-c-divider: #2C2839;
+    --vp-c-gutter: #0E0C13;
+    --vp-nav-bg-color: #17151E;
+    --vp-code-block-bg: #1B1824;
+}
+
+// #endregion
+
+// #region [P] 後台的 man page 配色（2026-10 翻新）
+// 只套在叮咚後台（dindon-dashboard）：方格紙白、墨藍黑的字、品牌黃只畫在目前位置。
+// （這組原本是部落格「筆記本」提案的配色，部落格改走「稜鏡」之後只留給後台。）
 // 顏色對比都算過（淺色對紙白、深色對夜間紙）：ink 13.5／ink-2 6.7／ink-3 4.8／link 6.1 : 1，深色都在 5 : 1 以上。
-:root:not(:has(.dindon-page, .dindon-privacy, .dindon-account)) {
+:root:has(.dindon-dashboard) {
     // 紙
     --nb-paper: #F6F7F4;        // 方格紙白：偏冷的灰綠，不是米黃
     --nb-paper-2: #ECEEE9;      // 凹下去的一格（程式碼、表頭、清單底）
@@ -234,7 +267,7 @@
 }
 
 // 夜間檯燈：深藍灰的紙、暖白的字，螢光筆降一點亮度
-.dark:not(:has(.dindon-page, .dindon-privacy, .dindon-account)) {
+.dark:has(.dindon-dashboard) {
     --nb-paper: #1A1F27;
     --nb-paper-2: #222833;
     --nb-card: #262D39;

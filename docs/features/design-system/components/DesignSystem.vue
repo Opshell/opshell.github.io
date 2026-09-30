@@ -9,12 +9,12 @@
     const activeTab = ref('colors');
 
     const tabs = [
-        { id: 'colors', label: '色彩', icon: 'palette' },
-        { id: 'typography', label: '排版', icon: 'text_fields' },
-        { id: 'font', label: '字型與字級', icon: 'grid_view' },
-        { id: 'animations', label: '動態', icon: 'grid_view' },
-        { id: 'icons', label: '圖示', icon: 'grid_view' },
-        { id: 'components', label: '元件', icon: 'widgets' }
+        { id: 'colors', label: 'Colors', icon: 'palette' },
+        { id: 'typography', label: 'Typography', icon: 'text_fields' },
+        { id: 'font', label: 'Font', icon: 'grid_view' },
+        { id: 'animations', label: 'Animations', icon: 'grid_view' },
+        { id: 'icons', label: 'Icons', icon: 'grid_view' },
+        { id: 'components', label: 'Components', icon: 'widgets' }
     ];
 
     // #region [P] Tab 切換與 Hash 同步邏輯
@@ -96,17 +96,12 @@
 <template>
     <div class="design-system__page">
         <header class="design-system__hero">
-            <h1 class="title">設計系統</h1>
+            <h1 class="title">Design System</h1>
             <p class="subtitle">
-                Opshell's Blog 是一本「對抗健忘的筆記本」（2026-10 翻新）。後台是同一組色票，換成可以用鍵盤操作的 man page。
+                Opshell's Blog 的視覺語言與設計規範。
+                <br />
+                The visual language and foundation of Opshell's Blog.
             </p>
-            <!-- 原則：每一條都對應到 token 或元件的一個決定 -->
-            <ul class="principles">
-                <li><strong>內文先讀得舒服</strong>：襯線字、行寬 38 字、行高 1.9；標題用無襯線跟內文分開。</li>
-                <li><strong>結構靠紙上的線</strong>：留白與細線分段，不用卡片、陰影與漸層。</li>
-                <li><strong>螢光筆只畫重點</strong>：黃色只出現在粗體與「目前位置」，紅筆只給警告。</li>
-                <li><strong>後台是說明文件</strong>：等寬標題、方角、密一點的表格，數字鍵切分頁、? 看快捷鍵。</li>
-            </ul>
         </header>
 
         <div class="design-system__nav">
@@ -131,31 +126,31 @@
             <Transition name="fade" mode="out-in">
                 <div v-if="activeTab === 'colors'" key="colors" class="tab-pane">
                     <div class="section-header">
-                        <h2>色彩</h2>
-                        <p>紙、墨、藍墨水、紅筆、螢光筆。點色塊可以複製色碼。</p>
+                        <h2>Colors</h2>
+                        <p>定義品牌識別與狀態溝通的色彩系統。</p>
                     </div>
                     <ColorPalette />
                 </div>
 
                 <div v-else-if="activeTab === 'typography'" key="typography" class="tab-pane">
                     <div class="section-header">
-                        <h2>排版</h2>
-                        <p>文章內文的樣子，跟文章頁用的是同一份樣式。</p>
+                        <h2>Typography</h2>
+                        <p>確保閱讀體驗清晰易讀的排版規範。</p>
                     </div>
                     <TypeScale />
                 </div>
 
                 <div v-else-if="activeTab === 'font'" key="font" class="tab-pane">
                     <div class="section-header">
-                        <h2>字型與字級</h2>
-                        <p>三種字型各有分工；字級照古典比例。</p>
+                        <h2>Font Family & Sizes</h2>
+                        <p>字體家族與字級變數定義。</p>
                     </div>
                     <FontFamily />
                 </div>
 
                 <div v-else-if="activeTab === 'animations'" key="animations" class="tab-pane">
                     <div class="section-header">
-                        <h2>動態</h2>
+                        <h2>Motion & Easing</h2>
                         <p>
                             定義轉場動畫的時間曲線，營造流暢的操作手感。<br />
                             橘色小球為該 Motion 的 Demo，紫色則為 linear
@@ -166,7 +161,7 @@
 
                 <div v-else-if="activeTab === 'icons'" key="icons" class="tab-pane">
                     <div class="section-header">
-                        <h2>圖示</h2>
+                        <h2>Icons</h2>
                         <p>
                             用於引導使用者與節省空間的符號系統。<br />
                             點擊該 icon 可以直接複製 svg name
@@ -179,8 +174,8 @@
 
                 <div v-else-if="activeTab === 'components'" key="components" class="tab-pane">
                     <div class="section-header">
-                        <h2>元件</h2>
-                        <p>共用的小元件。</p>
+                        <h2>Components</h2>
+                        <p>Reusable building blocks for creating consistent interfaces.</p>
                     </div>
                     <Components />
                 </div>
@@ -198,41 +193,29 @@
             margin: 0 auto;
         }
 
-        // 頁首：跟部落格其他頁一樣寫在紙上，不做漸層標題
         &__hero {
-            max-width: 52rem;
-            padding: var(--nb-space-8, 4rem) var(--nb-space-6, 2rem) var(--nb-space-6, 2rem);
-            color: var(--nb-ink, var(--vp-c-text-1));
+            position: relative;
+            background: linear-gradient(180deg, var(--vp-c-bg-soft) 0%, var(--vp-c-bg) 100%);
+            padding: 6rem 2rem 4rem;
+            margin-bottom: 3rem;
+            text-align: center;
 
             .title {
-                margin: 0 0 var(--nb-space-3, .75rem);
-                font-family: var(--nb-font-serif, inherit);
-                font-size: var(--nb-step-5, 3rem);
-                font-weight: 700;
-                line-height: 1.15;
+                display: inline-block;
+                background: linear-gradient(120deg, var(--color-primary-1), var(--color-adorn));
+                -webkit-background-clip: text;
+                margin-bottom: 1rem;
+                font-size: 3.5rem;
+                font-weight: 800;
+                line-height: 1.8;
+                -webkit-text-fill-color: transparent;
             }
             .subtitle {
-                max-width: 38em;
-                margin: 0;
-                color: var(--nb-ink-2, var(--vp-c-text-2));
-                font-family: var(--nb-font-serif, inherit);
-                font-size: var(--nb-step-1, 1.125rem);
-                line-height: 1.8;
-            }
-            .principles {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: var(--nb-space-3, .75rem) var(--nb-space-6, 2rem);
-                padding: var(--nb-space-5, 1.5rem) 0 0;
-                border-top: 1px solid var(--nb-rule, var(--vp-c-divider));
-                margin: var(--nb-space-6, 2rem) 0 0;
-                color: var(--nb-ink-2, var(--vp-c-text-2));
-                font-size: var(--nb-step--1, .875rem);
-                line-height: 1.7;
-                list-style: none;
-                @include setRWD(640px) { grid-template-columns: minmax(0, 1fr); }
-
-                strong { color: var(--nb-ink, var(--vp-c-text-1)); }
+                max-width: 600px;
+                margin: 0 auto;
+                color: var(--vp-c-text-2);
+                font-size: 1.25rem;
+                line-height: 1.6;
             }
         }
 
@@ -240,10 +223,15 @@
             position: sticky;
             top: var(--vp-nav-height); // 配合 VitePress Header
             @include setFlex();
-            background: var(--vp-c-bg);
+            background: rgb(255 255 255 / 80%); // 玻璃擬態
+            backdrop-filter: blur(12px);
             padding: 1rem 2rem;
             border-bottom: 1px solid var(--vp-c-divider);
             z-index: 10;
+
+            .dark & {
+                background: rgb(30 30 30 / 80%);
+            }
 
             .tabs {
                 position: relative;
@@ -268,8 +256,10 @@
                     transition: color 0.2s;
                     z-index: 2;
 
-                    &:hover { color: var(--nb-link, var(--vp-c-brand-1)); }
-                    &.active { color: var(--nb-ink, var(--vp-c-text-1)); }
+                    &:hover {
+                        color: var(--color-primary-3);
+                    }
+                    &.active { color: var(--color-primary-2); }
                 }
 
                 &-indicator {

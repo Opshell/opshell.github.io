@@ -63,19 +63,20 @@
             transition: .2s var(--cubic-FiFo);
         }
         &:hover::-webkit-scrollbar-thumb {
-            background: var(--nb-pencil);
+            background: var(--vp-c-brand-3);
         }
 
         .sidebar-group {
             margin-bottom: 24px;
 
-            // 系列名：一般的粗體小字，不再全大寫
             .group-title {
-                padding-left: var(--nb-space-3);
-                margin-bottom: var(--nb-space-2);
-                color: var(--nb-ink-2);
-                font-size: var(--nb-step--1);
+                padding-left: 12px;
+                margin-bottom: 8px;
+                color: var(--vp-c-text-2);
+                font-size: 13px;
                 font-weight: 700;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
             }
 
             .group-items {

@@ -1,6 +1,7 @@
 import type { Post } from '@shared/schemas/post.schema';
+import { normalizeCategory } from '@shared/utils/spectrum';
 import { describe, expect, it } from 'vitest';
-import { chapters, latestPosts, normalizeCategory } from './contents';
+import { chapters, latestPosts } from './contents';
 
 const post = (url: string, date: string, category = 'typescript-thirty-days'): Post =>
     ({ url, title: url, date, image: '', category: [category], tags: [], excerpt: '' });
