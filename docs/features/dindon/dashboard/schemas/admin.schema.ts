@@ -815,3 +815,90 @@ export const SaveFeatureCandidatePayload = z
 export type SaveFeatureCandidateInput = z.input<typeof SaveFeatureCandidatePayload>;
 
 // #endregion
+
+// #region [P] 打卡（打開 App 的紀錄）GET /v1/admin/devices/:id/checkins、…/grant、…/revoke（api.md 第 8、20 節，溝通板 #0067）
+// App 0.6.7 起每天第一次打開就是當天的打卡（台灣時間）。Go 的 State.days 沒資料時是 null；entries 一定是陣列。
+
+/** online 當天連線、offline 事後補送、admin 後台給的、imported 升級時從手機匯入（不算有獎勵的活動）。
+ *  用字串不用列舉：後端多一種來源時，畫面照樣顯示（只是沒有中文名），不要整支 API 解析失敗 */
+export const CheckinEntrySchema = z.object({
+    day: z.string(),
+    source: z.string(),
+    /** 後端收到的時間；0.6.7 以前打的卡沒記，是 null */
+    receivedAt: z.string().nullable()
+});
+export type CheckinEntry = z.infer<typeof CheckinEntrySchema>;
+
+const CheckinEntryParser = z
+    .object({ day: z.string(), source: z.string(), received_at: z.string().nullish() })
+    .transform(data => ({ day: data.day, source: data.source, receivedAt: data.received_at ?? null }))
+    .pipe(CheckinEntrySchema);
+
+export const CheckinStateSchema = z.object({
+    /** 後端認定的今天（台灣時間） */
+    today: z.string(),
+    checkedInToday: z.boolean(),
+    /** 目前連續幾天：今天還沒打的話算到昨天 */
+    streak: z.number(),
+    bestStreak: z.number(),
+    totalDays: z.number(),
+    /** 有獎勵的活動看的連續（不含 imported） */
+    eventStreak: z.number(),
+    iron: z.boolean(),
+    offlineLeft: z.number(),
+    offlineQuota: z.number(),
+    /** 這台匯入過手機上的舊紀錄了沒；false 多半是還在用 0.6.6 以前的 App */
+    imported: z.boolean()
+});
+export type CheckinState = z.infer<typeof CheckinStateSchema>;
+
+const CheckinStateParser = z
+    .object({
+        today: z.string(),
+        checked_in_today: z.boolean(),
+        streak: z.number(),
+        best_streak: z.number(),
+        total_days: z.number(),
+        event: z.object({ streak: z.number(), iron: z.boolean() }),
+        offline_left: z.number(),
+        offline_quota: z.number(),
+        imported: z.boolean()
+    })
+    .transform(data => ({
+        today: data.today,
+        checkedInToday: data.checked_in_today,
+        streak: data.streak,
+        bestStreak: data.best_streak,
+        totalDays: data.total_days,
+        eventStreak: data.event.streak,
+        iron: data.event.iron,
+        offlineLeft: data.offline_left,
+        offlineQuota: data.offline_quota,
+        imported: data.imported
+    }))
+    .pipe(CheckinStateSchema);
+
+/** 三支回的都是這個形狀；給／收回另外多帶這次改了幾天 */
+export const GetDeviceCheckinsParser = z
+    .object({
+        state: CheckinStateParser,
+        checkins: nullableList(CheckinEntryParser),
+        added: z.number().optional(),
+        upgraded: z.number().optional(),
+        removed: z.number().optional()
+    })
+    .transform(data => ({
+        state: data.state,
+        checkins: data.checkins,
+        changed: { added: data.added ?? 0, upgraded: data.upgraded ?? 0, removed: data.removed ?? 0 }
+    }));
+export type DeviceCheckins = z.output<typeof GetDeviceCheckinsParser>;
+
+/** 給或收回：from／to（含頭尾）與 days 擇一。一次最多 366 天、不能是未來、不能早於 2026-09-06 */
+export const ChangeCheckinsPayload = z.union([
+    z.object({ from: z.iso.date(), to: z.iso.date() }),
+    z.object({ days: z.array(z.iso.date()).min(1).max(366) })
+]);
+export type ChangeCheckinsInput = z.input<typeof ChangeCheckinsPayload>;
+
+// #endregion

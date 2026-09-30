@@ -16,6 +16,7 @@
     } from '../format';
     import { ADMIN_NOTE_MAX } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import DeviceCheckins from './DeviceCheckins.vue';
 
     const { deviceId } = defineProps<{ deviceId: number }>();
     const emit = defineEmits<{ updated: [device: AdminDevice]; close: [] }>();
@@ -258,7 +259,10 @@
         'account-delete-account': '本人刪除帳戶資料（網頁）',
         // API 控制台的測試裝置（#0074）；不記 key
         'test-device-create': '建立測試裝置',
-        'test-device-rotate-key': '重發測試裝置的 key'
+        'test-device-rotate-key': '重發測試裝置的 key',
+        // 打卡紀錄的手動修正（#0067）
+        'checkin-grant': '給打卡',
+        'checkin-revoke': '收回打卡'
     };
     const FIELD_LABELS: Record<string, string> = {
         tokens: '額度',
@@ -269,7 +273,14 @@
         had_email: '有 email',
         // 備註的操作紀錄不記內容（可能有真名），只記有沒有
         had_admin_note: '有備註',
-        admin_note_edited: '改了備註'
+        admin_note_edited: '改了備註',
+        // 給／收回打卡：範圍與實際改了幾天
+        from: '從',
+        to: '到',
+        days: '選了幾天',
+        added: '新增',
+        upgraded: '匯入改成後台給',
+        removed: '收回'
     };
 
     function formatValue(value: unknown): string {
@@ -315,6 +326,9 @@
                 <div><dt>建立</dt><dd>{{ formatDateTime(device.createdAt) }}</dd></div>
                 <div v-if="device.frozen"><dt>凍結於</dt><dd>{{ formatDateTime(device.frozenAt) }}</dd></div>
             </dl>
+
+            <!-- 打開 App 的紀錄：給了打卡可能剛好湊滿鐵人，所以改完重讀一次裝置 -->
+            <DeviceCheckins :device-id="deviceId" @changed="load" />
 
             <!-- #region [P] 備註 -->
             <section class="dd-detail__card">
