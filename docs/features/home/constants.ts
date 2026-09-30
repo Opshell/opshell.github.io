@@ -13,16 +13,6 @@ export const shortcuts: { text: string; href: string; primary?: boolean }[] = [
     { text: 'Design system', href: '/design-system.html' }
 ];
 
-/** 分類在首頁顯示的名字；沒列的照原樣顯示 */
-export const CATEGORY_LABELS: Record<string, string> = {
-    'typescript-thirty-days': 'TypeScript 三十天',
-    'vitepress-thirty-days': 'VitePress 三十天',
-    'Belief': '靈魂財富',
-    'developer': '開發者的日常',
-    'Web Application': 'Web 應用',
-    'vue': 'Vue'
-};
-
 /** 首頁「最近寫的」列幾篇 */
 export const LATEST_COUNT = 6;
 

@@ -1,23 +1,31 @@
 <script setup lang="ts">
     import { useSiteData } from '@shared/hooks/useSiteData';
-    import { categoryHue, hueVar } from '@shared/utils/spectrum';
-    import { computed } from 'vue';
-    import { BLOG_INTRO, BLOG_MOTTO, BLOG_NAME, CATEGORY_LABELS, LATEST_COUNT, nameParts, PHILOSOPHY_URL, shortcuts } from '../constants';
-    import { chapters, latestPosts } from '../contents';
+    import { categoryHue, categoryLabel, hueVar } from '@shared/utils/spectrum';
+    import { computed, ref } from 'vue';
+    import { BLOG_INTRO, BLOG_MOTTO, BLOG_NAME, LATEST_COUNT, nameParts, PHILOSOPHY_URL, shortcuts } from '../constants';
+    import { chapters, postsInCategories, seriesOf } from '../contents';
     import { buildRays } from '../prism';
     import PrismHero from './PrismHero.vue';
+    import SeriesTracks from './SeriesTracks.vue';
 
     // 首頁（2026-10「稜鏡」翻新）：舊首頁的 hero 文字與入口原樣留著，右邊的插畫變成稜鏡——
-    // 光穿過 O 散成各分類。底下是最近寫的，最後一段講 Opshell 這個名字（光與稜鏡的出處）。
+    // 光穿過 O 散成各分類。稜鏡也是底下文章的篩選：選一道光看那一類，白光是全部。
+    // 再往下是兩個鐵人賽三十天，最後一段講 Opshell 這個名字（光與稜鏡的出處）。
     const siteData = useSiteData();
 
     const posts = computed(() => [...(siteData.value?.posts.values() ?? [])].filter(post => post.date));
-    const latest = computed(() => latestPosts(posts.value, LATEST_COUNT));
     const rays = computed(() => buildRays(chapters(posts.value)));
-    const total = computed(() => siteData.value?.counts.published ?? posts.value.length);
+    const series = computed(() => seriesOf(posts.value));
+    const counts = computed(() => siteData.value?.counts);
+
+    // #region [P] 稜鏡選了哪一道光
+    const selected = ref<string | null>(null);
+    const selectedRay = computed(() => rays.value.find(ray => ray.key === selected.value) ?? null);
+    const shown = computed(() => postsInCategories(posts.value, selectedRay.value?.members ?? null, LATEST_COUNT));
+    const listLine = computed(() => (selectedRay.value ? `linear-gradient(90deg, ${hueVar(selectedRay.value.hue)}, transparent)` : 'var(--pr-brand-gradient)'));
+    // #endregion
 
     const categoryOf = (category: string[]) => category[0] ?? '';
-    const labelOf = (category: string[]) => CATEGORY_LABELS[categoryOf(category).trim()] ?? categoryOf(category);
 </script>
 
 <template>
@@ -37,27 +45,48 @@
                         :href="item.href"
                     >{{ item.text }}</a>
                 </nav>
+                <!-- 舊側欄的 Posts／Drafts：草稿多是事實，也是這個部落格的個性 -->
+                <p v-if="counts" class="op-home__counts">
+                    寫了 <strong>{{ counts.published }}</strong> 篇，還有 <strong>{{ counts.unpublished }}</strong> 篇在坑裡。
+                </p>
             </div>
-            <PrismHero class="op-home__prism" :rays="rays" />
+            <PrismHero class="op-home__prism" :rays="rays" :selected="selected" @select="selected = $event" />
         </header>
         <!-- #endregion -->
 
-        <!-- #region [P] 最近寫的：卡片頂端那條是分類的顏色（跟稜鏡上的光同色） -->
-        <section class="op-home__section" aria-labelledby="op-home-latest">
+        <!-- #region [P] 稜鏡底下的文章：白光是最近寫的，選了一道光就是那一類 -->
+        <section class="op-home__section" aria-labelledby="op-home-latest" :style="{ '--list-line': listLine }">
             <div class="op-home__section-head">
-                <h2 id="op-home-latest">最近寫的</h2>
-                <a href="/timeline.html">看全部 {{ total }} 篇</a>
+                <h2 id="op-home-latest" aria-live="polite">
+                    {{ selectedRay ? selectedRay.label : '最近寫的' }}
+                    <span v-if="selectedRay" class="count">{{ selectedRay.count }} 篇</span>
+                </h2>
+                <div class="op-home__section-links">
+                    <button v-if="selectedRay" type="button" @click="selected = null">看全部分類</button>
+                    <a v-if="selectedRay && selectedRay.key !== '其他'" :href="selectedRay.href">從第一篇讀起</a>
+                    <a v-else href="/timeline.html">看全部 {{ counts?.published ?? posts.length }} 篇</a>
+                </div>
             </div>
-            <ol class="op-home__cards">
-                <li v-for="post in latest" :key="post.url">
+            <TransitionGroup tag="ol" name="op-card" class="op-home__cards">
+                <li v-for="post in shown" :key="post.url">
                     <a class="op-home__card" :href="post.url" :style="{ '--hue': hueVar(categoryHue(categoryOf(post.category))) }">
-                        <span class="op-home__card-cat">{{ labelOf(post.category) }}</span>
+                        <span class="op-home__card-cat">{{ categoryLabel(categoryOf(post.category)) }}</span>
                         <h3>{{ post.title }}</h3>
                         <p v-if="post.excerpt">{{ post.excerpt }}</p>
                         <time :datetime="post.date">{{ post.date }}</time>
                     </a>
                 </li>
-            </ol>
+            </TransitionGroup>
+        </section>
+        <!-- #endregion -->
+
+        <!-- #region [P] 兩個三十天 -->
+        <section v-if="series.length" class="op-home__section" aria-labelledby="op-home-series">
+            <div class="op-home__section-head">
+                <h2 id="op-home-series">兩個三十天</h2>
+                <span class="op-home__note">鐵人賽，一天一篇。滑過一格看那天寫什麼</span>
+            </div>
+            <SeriesTracks :series="series" />
         </section>
         <!-- #endregion -->
 
@@ -144,6 +173,15 @@
             font-size: var(--font-size-l);
             font-weight: 500;
         }
+        &__counts {
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-s);
+
+            strong {
+                color: var(--vp-c-text-1);
+                font-family: var(--vp-font-family-mono);
+            }
+        }
         &__actions {
             display: flex;
             flex-wrap: wrap;
@@ -180,16 +218,44 @@
             flex-wrap: wrap;
 
             h2 {
+                @include setFlex(flex-start, baseline, .75rem);
                 font-size: var(--font-size-xl);
                 font-weight: 800;
+
+                .count {
+                    color: var(--vp-c-text-2);
+                    font-family: var(--vp-font-family-mono);
+                    font-size: var(--font-size-s);
+                    font-weight: 500;
+                }
             }
-            a {
+            a,
+            button {
+                background: none;
+                padding: 0;
+                border: 0;
                 color: var(--vp-c-brand-1);
+                font: inherit;
                 font-weight: 600;
                 text-decoration: none;
+                cursor: pointer;
 
                 &:hover { text-decoration: underline; }
             }
+        }
+        &__section-links {
+            @include setFlex(flex-end, baseline, 1.25rem);
+            flex-wrap: wrap;
+        }
+        &__note {
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-s);
+        }
+
+        // 稜鏡底下那一段的標題線：白光時是品牌漸層，選了一類就是那一類的光
+        &__section[style] > .op-home__section-head {
+            background: var(--list-line) left bottom / 100% 3px no-repeat;
+            padding-bottom: .75rem;
         }
         &__cards {
             display: grid;
@@ -291,9 +357,18 @@
         }
 
         // #endregion
+        // 換一道光時卡片淡入淡出（回應點擊的動態，不是自己在動）
+        .op-card-enter-active,
+        .op-card-leave-active { transition: opacity .2s ease, transform .2s var(--cubic-FiSo); }
+        .op-card-leave-active { display: none; }
+        .op-card-enter-from {
+            transform: translateY(8px);
+            opacity: 0;
+        }
         @media (prefers-reduced-motion: reduce) {
             &__action,
-            &__card { transition: none; }
+            &__card,
+            .op-card-enter-active { transition: none; }
         }
     }
 </style>

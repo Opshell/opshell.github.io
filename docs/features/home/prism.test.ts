@@ -16,7 +16,8 @@ describe('buildRays', () => {
             chapter('未分類', 1)
         ]);
         expect(rays.map(ray => ray.key)).toEqual(['vitepress-thirty-days', 'Git', 'typescript-thirty-days', '其他']);
-        expect(rays.at(-1)).toMatchObject({ count: 2, href: '/timeline.html' });
+        expect(rays.at(-1)).toMatchObject({ count: 2, href: '/timeline.html', members: ['vue', '未分類'] });
+        expect(rays[0].members).toEqual(['vitepress-thirty-days']);
         const ys = rays.map(ray => ray.y);
         expect([...ys].sort((a, b) => a - b)).toEqual(ys);
     });

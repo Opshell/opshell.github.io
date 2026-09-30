@@ -26,3 +26,18 @@ export function categoryHue(category: string | undefined): SpectrumHue {
 }
 
 export const hueVar = (hue: SpectrumHue) => `var(--pr-${hue})`;
+
+/** 分類在畫面上的名字（frontmatter 裡是英文 key）；沒列的照原樣顯示 */
+export const CATEGORY_LABELS: Readonly<Record<string, string>> = {
+    'typescript-thirty-days': 'TypeScript 三十天',
+    'vitepress-thirty-days': 'VitePress 三十天',
+    'Belief': '靈魂財富',
+    'developer': '開發者的日常',
+    'Web Application': 'Web 應用',
+    'vue': 'Vue'
+};
+
+export const categoryLabel = (category: string | undefined) => {
+    const key = normalizeCategory(category ?? '');
+    return CATEGORY_LABELS[key] ?? key;
+};

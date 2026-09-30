@@ -5,9 +5,15 @@
     import { EXIT, LABEL_X, ORB, VIEW } from '../prism';
 
     // 首頁的稜鏡：一道光射進 O（舊首頁那張「筆記本裡的宇宙」裁成圓），從另一邊散成各分類的光。
-    // 每道光是一個連結，點了從那個分類的第一篇讀起；滑過一道光，其他的會暗下去。
+    // 每道光是一個切換鈕：點了，底下的文章換成那一類；點入射的白光或 O 回到全部（白光＝所有顏色加在一起）。
+    // 滑過或選了一道光，其他的暗下去。
     // 進場只有一次：光先射進來，再往右散開。沒有 JS 或關閉動態時直接是畫好的樣子（.is-motion 才有動畫）。
-    const { rays = [] } = defineProps<{ rays?: Ray[] }>();
+    const { rays = [], selected = null } = defineProps<{ rays?: Ray[]; selected?: string | null }>();
+    const emit = defineEmits<{ select: [key: string | null] }>();
+
+    function toggle(key: string) {
+        emit('select', selected === key ? null : key);
+    }
 
     // 插畫裡那個宇宙圓：圓心在圖的 (47.4%, 43.5%)、半徑約 30% 寬。算出圖要放多大、放哪裡，讓它剛好填滿 O
     const IMAGE_SIZE = ORB.r / 0.3;
@@ -45,24 +51,44 @@
                 </filter>
             </defs>
 
-            <line class="prism__beam" v-bind="beam" />
+            <!-- 白光：回到全部。線很細，另外疊一條透明的粗線當按的範圍 -->
+            <g
+                class="prism__white"
+                :class="{ 'is-selected': selected === null }"
+                role="button"
+                tabindex="0"
+                :aria-pressed="selected === null"
+                aria-label="全部分類"
+                @click="emit('select', null)"
+                @keydown.enter.prevent="emit('select', null)"
+                @keydown.space.prevent="emit('select', null)"
+            >
+                <line class="hit" v-bind="beam" />
+                <line class="prism__beam" v-bind="beam" />
+            </g>
 
-            <a
+            <g
                 v-for="(ray, index) in rays"
                 :key="ray.key"
                 class="prism__ray"
-                :href="ray.href"
+                :class="{ 'is-selected': selected === ray.key, 'is-muted': selected !== null && selected !== ray.key }"
+                role="button"
+                tabindex="0"
+                :aria-pressed="selected === ray.key"
                 :style="{ '--hue': hueVar(ray.hue), '--i': index }"
                 :aria-label="`${ray.label}，${ray.count} 篇`"
+                @click="toggle(ray.key)"
+                @keydown.enter.prevent="toggle(ray.key)"
+                @keydown.space.prevent="toggle(ray.key)"
             >
                 <polygon :points="ray.points" />
                 <text :x="LABEL_X" :y="ray.y" dominant-baseline="central" aria-hidden="true">
                     <tspan class="label">{{ ray.label }}</tspan>
                     <tspan class="count" dx="10">{{ ray.count }}</tspan>
                 </text>
-            </a>
+            </g>
 
-            <g class="prism__orb" aria-hidden="true">
+            <g class="prism__orb" aria-hidden="true" @click="emit('select', null)">
                 <circle class="glow" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r * 0.9" fill="url(#prism-ring)" filter="url(#prism-glow)" />
                 <circle class="base" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r" />
                 <image
@@ -77,7 +103,7 @@
                 <circle class="ring" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r" stroke="url(#prism-ring)" />
             </g>
         </svg>
-        <figcaption id="prism-caption">一道光穿過 O，散成這裡寫的每一類：光越寬，文章越多。</figcaption>
+        <figcaption id="prism-caption">一道光穿過 O，散成這裡寫的每一類。光越寬文章越多，點一道光看那一類。</figcaption>
     </figure>
 </template>
 
@@ -137,12 +163,38 @@
             }
         }
 
-        // 滑到一道光上，其他的暗下去
+        // 選了一道光：它的字變粗、光暈加重；其他的暗下去。滑過或用鍵盤停在別道光上時，暫時換那一道亮
+        &__ray.is-selected {
+            polygon { opacity: 1; }
+            .label {
+                text-decoration: underline 2px var(--hue);
+                text-underline-offset: 6px;
+            }
+        }
+        &__ray.is-muted { opacity: .3; }
         &__svg:has(.prism__ray:hover, .prism__ray:focus-visible) .prism__ray:not(:hover, :focus-visible) { opacity: .3; }
+        &__svg .prism__ray:hover,
+        &__svg .prism__ray:focus-visible { opacity: 1; }
+
+        // 白光：選了某一類時變淡，告訴你「按這裡回到全部」
+        &__white {
+            cursor: pointer;
+
+            .hit {
+                stroke: transparent;
+                stroke-width: 24;
+            }
+            &:not(.is-selected) .prism__beam { opacity: .45; }
+            &:hover .prism__beam { opacity: 1; }
+            &:focus { outline: none; }
+            &:focus-visible .prism__beam { stroke-width: 5; }
+        }
 
         // #endregion
 
         &__orb {
+            cursor: pointer;
+
             .glow { opacity: .55; }
             .base { fill: var(--vp-c-bg-alt); }
             .ring {

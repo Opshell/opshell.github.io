@@ -1,7 +1,7 @@
 import type { Post } from '@shared/schemas/post.schema';
 import { normalizeCategory } from '@shared/utils/spectrum';
 import { describe, expect, it } from 'vitest';
-import { chapters, latestPosts } from './contents';
+import { chapters, latestPosts, postsInCategories, seriesOf } from './contents';
 
 const post = (url: string, date: string, category = 'typescript-thirty-days'): Post =>
     ({ url, title: url, date, image: '', category: [category], tags: [], excerpt: '' });
@@ -26,5 +26,16 @@ describe('首頁目錄', () => {
         expect(list.map(c => [c.key, c.count])).toEqual([['typescript-thirty-days', 2], ['Belief', 2], ['未分類', 1]]);
         expect(list[0]).toMatchObject({ label: 'TypeScript 三十天', first: { url: '/a' }, latest: { url: '/b' } });
         expect(list[1].label).toBe('靈魂財富');
+    });
+
+    it('稜鏡選了一道光：只看那幾類；null 是全部', () => {
+        expect(postsInCategories(posts, ['Belief'], 5).map(p => p.url)).toEqual(['/c', '/d']);
+        expect(postsInCategories(posts, null, 2).map(p => p.url)).toEqual(['/c', '/d']);
+    });
+
+    it('連載：篇數夠多的分類，由舊到新', () => {
+        const series = seriesOf(posts, 2);
+        expect(series.map(s => s.key)).toEqual(['typescript-thirty-days', 'Belief']);
+        expect(series[0].posts.map(p => p.url)).toEqual(['/a', '/b']);
     });
 });

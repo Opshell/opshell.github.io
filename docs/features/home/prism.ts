@@ -22,6 +22,8 @@ export interface Ray {
     count: number;
     href: string;
     hue: SpectrumHue;
+    /** 這道光包含哪些分類：一般的就是自己，「其他」是併進來的那幾個 */
+    members: string[];
     /** 光的終點高度（標籤也對齊這裡） */
     y: number;
     /** 終點那一端的半寬 */
@@ -45,10 +47,11 @@ export function buildRays(list: readonly Chapter[], maxRays = 6): Ray[] {
         label: chapter.label,
         count: chapter.count,
         href: chapter.first.url,
-        hue: categoryHue(chapter.key)
+        hue: categoryHue(chapter.key),
+        members: [chapter.key]
     }));
     entries.sort((a, b) => SPECTRUM.indexOf(a.hue) - SPECTRUM.indexOf(b.hue) || b.count - a.count);
-    if (restCount) entries.push({ key: '其他', label: '其他', count: restCount, href: '/timeline.html', hue: 'indigo' });
+    if (restCount) entries.push({ key: '其他', label: '其他', count: restCount, href: '/timeline.html', hue: 'indigo', members: rest.map(chapter => chapter.key) });
 
     const max = Math.max(...entries.map(entry => entry.count), 1);
     const step = entries.length > 1 ? (BOTTOM - TOP) / (entries.length - 1) : 0;

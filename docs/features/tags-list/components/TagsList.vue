@@ -1,13 +1,16 @@
 <script setup lang="ts">
     import type { TagSummary } from '@shared/data/tagSummeries';
     import type { Post } from '@shared/schemas/post.schema';
+    import type { TagSort } from '../tagSpectrum';
     import { tagSummaries } from '@shared/data/tagSummeries';
     import { useSiteData } from '@shared/hooks/useSiteData';
+    import { hueVar } from '@shared/utils/spectrum';
     import { computed, onMounted, ref, watch } from 'vue';
+    import { sortTags, splitTags, tagInfos } from '../tagSpectrum';
     import Heatmap from './Heatmap.vue';
     import PostCard from './PostCard.vue';
 
-    // 標籤頁：左邊標籤雲、右邊該標籤的介紹、活動熱圖、文章清單（分頁）。
+    // 標籤頁：左邊標籤的光譜索引、右邊該標籤的介紹、活動熱圖、文章清單（分頁）。
     // 狀態以網址為準（?tag=&page=），換標籤、換頁都用 replaceState 寫回網址，不重新載入。
     const siteData = useSiteData();
 
@@ -18,17 +21,18 @@
     const selectedDate = ref<string | null>(null);
     const listRef = ref<HTMLElement>();
 
-    // #region [P] 標籤雲
-    const allTags = computed(() => {
-        if (!siteData.value) return [];
-        return Array.from(siteData.value.tags.entries())
-            .map(([name, data]) => ({ name, count: data.count }))
-            .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-    });
+    // #region [P] 光譜索引：大的標籤一列一條光，零星的收成一團（2026-10「稜鏡」翻新）
+    const sortBy = ref<TagSort>('count');
+    const allTags = computed(() => (siteData.value ? sortTags(tagInfos(siteData.value.tags, siteData.value.posts), sortBy.value) : []));
+    const maxCount = computed(() => Math.max(1, ...allTags.value.map(tag => tag.count)));
     const filteredTags = computed(() => {
         const term = searchTerm.value.trim().toLowerCase();
         return term ? allTags.value.filter(tag => tag.name.toLowerCase().includes(term)) : allTags.value;
     });
+    const groups = computed(() => splitTags(filteredTags.value, !!searchTerm.value.trim()));
+    const currentInfo = computed(() => allTags.value.find(tag => tag.name === currentTag.value));
+    /** 零星的小籤用主要那一類的顏色 */
+    const mainHue = (tag: { segments: { hue: Parameters<typeof hueVar>[0] }[] }) => (tag.segments[0] ? hueVar(tag.segments[0].hue) : 'var(--vp-c-text-3)');
     // #endregion
 
     // #region [P] 目前的標籤
@@ -127,17 +131,22 @@
         </header>
 
         <div class="tags-page__layout">
-            <!-- #region [P] 標籤雲 -->
+            <!-- #region [P] 光譜索引 -->
             <aside class="tags-page__sidebar">
                 <ElInput v-model="searchTerm" type="search" placeholder="篩選標籤…" aria-label="篩選標籤">
                     <template #icon><ElSvgIcon name="pageview" /></template>
                 </ElInput>
 
-                <nav class="tags-page__cloud" aria-label="標籤">
+                <div class="tags-page__sort" role="group" aria-label="標籤排序">
+                    <button type="button" :aria-pressed="sortBy === 'count'" @click="sortBy = 'count'">篇數</button>
+                    <button type="button" :aria-pressed="sortBy === 'recent'" @click="sortBy = 'recent'">最近寫的</button>
+                </div>
+
+                <nav class="tags-page__index" aria-label="標籤">
                     <a
-                        v-for="tag in filteredTags"
+                        v-for="tag in groups.major"
                         :key="tag.name"
-                        class="tags-page__chip"
+                        class="tags-page__row"
                         :class="{ 'is-active': currentTag === tag.name }"
                         :href="`?tag=${encodeURIComponent(tag.name)}`"
                         :aria-current="currentTag === tag.name ? 'page' : undefined"
@@ -145,7 +154,29 @@
                     >
                         <span class="name"><span class="hash">#</span>{{ tag.name }}</span>
                         <span class="count">{{ tag.count }}</span>
+                        <!-- 一條光：長度是篇數，顏色照分類比例分段 -->
+                        <span class="beam" aria-hidden="true">
+                            <span class="light" :style="{ width: `${(tag.count / maxCount) * 100}%` }">
+                                <span v-for="segment in tag.segments" :key="segment.category" :style="{ flexGrow: segment.count, background: hueVar(segment.hue) }" />
+                            </span>
+                        </span>
                     </a>
+
+                    <template v-if="groups.minor.length">
+                        <p class="tags-page__minor-title">零星的 {{ groups.minor.length }} 個<span>（1～2 篇）</span></p>
+                        <div class="tags-page__minor">
+                            <a
+                                v-for="tag in groups.minor"
+                                :key="tag.name"
+                                class="tags-page__pebble"
+                                :class="{ 'is-active': currentTag === tag.name }"
+                                :style="{ '--hue': mainHue(tag) }"
+                                :href="`?tag=${encodeURIComponent(tag.name)}`"
+                                :aria-current="currentTag === tag.name ? 'page' : undefined"
+                                @click="selectTag(tag.name, $event)"
+                            >{{ tag.name }}<small>{{ tag.count }}</small></a>
+                        </div>
+                    </template>
                     <p v-if="!filteredTags.length" class="tags-page__muted">沒有符合的標籤</p>
                 </nav>
             </aside>
@@ -156,6 +187,17 @@
                 <section class="tags-page__card tags-page__intro">
                     <h2 class="tag-name"><span class="hash">#</span>{{ currentTag }}</h2>
                     <p class="tag-meta">{{ postsOfTag.length }} 篇文章</p>
+                    <!-- 這個標籤由哪幾類組成：跟左欄那條光同一個比例 -->
+                    <div v-if="currentInfo?.segments.length" class="tag-spectrum">
+                        <span class="light" aria-hidden="true">
+                            <span v-for="segment in currentInfo.segments" :key="segment.category" :style="{ flexGrow: segment.count, background: hueVar(segment.hue) }" />
+                        </span>
+                        <ul>
+                            <li v-for="segment in currentInfo.segments" :key="segment.category" :style="{ '--hue': hueVar(segment.hue) }">
+                                {{ segment.label }} <span>{{ segment.count }}</span>
+                            </li>
+                        </ul>
+                    </div>
                     <template v-if="summary">
                         <h3 class="tag-title">{{ summary.title }}</h3>
                         <p class="tag-desc">{{ summary.description }}</p>
@@ -243,7 +285,7 @@
 
         &__layout {
             display: grid;
-            grid-template-columns: 260px minmax(0, 1fr);
+            grid-template-columns: 280px minmax(0, 1fr);
             gap: 2.5rem;
             align-items: start;
         }
@@ -257,57 +299,161 @@
         // #region [P] 左欄
         &__sidebar {
             position: sticky;
-            top: calc(var(--vp-nav-height) + 1.5rem);
-            @include setFlex(flex-start, stretch, 1rem, column);
-        }
-
-        &__cloud {
-            @include setFlex(flex-start, stretch, 4px, column);
-            max-height: calc(100vh - var(--vp-nav-height) - 8rem);
-            padding-right: 4px;
+            top: calc(var(--vp-nav-height) + 1rem);
+            @include setFlex(flex-start, stretch, .75rem, column);
+            max-height: calc(100vh - var(--vp-nav-height) - 1.75rem);
             overflow-y: auto;
+            scrollbar-width: thin;
+
+            // 可以捲的 flex 欄會把子元素壓扁（篩選框曾被壓成一半高）
+            > * { flex-shrink: 0; }
         }
 
-        &__chip {
-            @include setFlex(space-between, center, 8px);
-            padding: 8px 12px;
+        &__sort {
+            display: flex;
+            gap: 2px;
+            background: var(--vp-c-bg-soft);
+            padding: 3px;
             border-radius: 10px;
+
+            button {
+                flex: 1;
+                background: transparent;
+                padding: 4px 8px;
+                border: 0;
+                border-radius: 7px;
+                color: var(--vp-c-text-2);
+                font-size: var(--font-size-xs);
+                font-weight: 600;
+                cursor: pointer;
+
+                &[aria-pressed=true] {
+                    background: var(--vp-c-bg);
+                    box-shadow: 0 1px 2px rgb(0 0 0 / 12%);
+                    color: var(--vp-c-text-1);
+                }
+                &:focus-visible { outline: 2px solid var(--vp-c-brand-1); }
+            }
+        }
+
+        // 整欄放得下：零星的標籤收成一團，不再需要自己的捲軸（畫面比左欄矮時，整個左欄才捲，見 __sidebar）
+        &__index {
+            @include setFlex(flex-start, stretch, 1px, column);
+        }
+
+        // 一列：名字、篇數，底下一條光
+        &__row {
+            display: grid;
+            grid-template:
+                'name count' auto
+                'beam beam' auto / minmax(0, 1fr) auto;
+            gap: 3px 8px;
+            padding: 5px 10px 6px;
+            border-radius: 8px;
             color: var(--vp-c-text-2);
             font-size: var(--font-size-s);
             text-decoration: none;
-            transition: .2s var(--cubic-FiSo);
+            transition: background .2s var(--cubic-FiSo), color .2s var(--cubic-FiSo);
 
+            .name {
+                grid-area: name;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
             .hash {
-                margin-right: 2px;
-                color: var(--vp-c-brand-1);
-                opacity: .7;
+                margin-right: 1px;
+                color: var(--vp-c-text-3);
             }
             .count {
-                background: var(--vp-c-bg-soft);
-                min-width: 1.75em;
-                padding: 2px 8px;
-                border-radius: 999px;
+                grid-area: count;
                 color: var(--vp-c-text-3);
                 font-family: var(--vp-font-family-mono);
                 font-size: var(--font-size-xs);
-                text-align: center;
             }
+            .beam {
+                grid-area: beam;
+                display: block;
+                background: var(--vp-c-default-soft);
+                height: 3px;
+                border-radius: 2px;
+                overflow: hidden;
+            }
+            .light {
+                display: flex;
+                height: 100%;
+                opacity: .75;
 
+                span { flex-basis: 0; }
+            }
             &:hover {
                 background: var(--vp-c-bg-soft);
-                color: var(--vp-c-brand);
-                transform: translateX(4px);
+                color: var(--vp-c-text-1);
+
+                .light { opacity: 1; }
+            }
+            &:focus-visible {
+                outline: 2px solid var(--vp-c-brand-1);
+                outline-offset: -2px;
             }
             &.is-active {
-                background: color-mix(in srgb, var(--vp-c-brand) 15%, transparent);
-                box-shadow: inset 3px 0 0 var(--vp-c-brand);
-                color: var(--vp-c-brand);
-                font-weight: 600;
+                background: var(--vp-c-bg-soft);
+                color: var(--vp-c-text-1);
+                font-weight: 700;
 
-                .count {
-                    background: var(--vp-c-brand);
-                    color: var(--color-gray-000);
-                }
+                .count { color: var(--vp-c-text-1); }
+                .beam { height: 5px; }
+                .light { opacity: 1; }
+            }
+        }
+        .dark &__row.is-active .light { filter: drop-shadow(0 0 4px rgb(255 255 255 / 25%)); }
+
+        &__minor-title {
+            padding: 0 10px;
+            margin: .75rem 0 .4rem;
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+
+            span {
+                color: var(--vp-c-text-3);
+                font-weight: 400;
+            }
+        }
+
+        // 零星的小籤：不加框，一個分類色的小點＋名字，像一段文字裡的關鍵字，一行放得下三四個
+        &__minor {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px 12px;
+            padding: 0 10px;
+        }
+        &__pebble {
+            @include setFlex(flex-start, center, 4px);
+            padding: 2px 0;
+            border-radius: 4px;
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-xs);
+            text-decoration: none;
+
+            &::before {
+                content: '';
+                @include setSize(6px, 6px);
+                background: var(--hue);
+                border-radius: 50%;
+            }
+            small {
+                color: var(--vp-c-text-3);
+                font-family: var(--vp-font-family-mono);
+                font-size: 10px;
+            }
+            &:hover { color: var(--vp-c-text-1); }
+            &:focus-visible { outline: 2px solid var(--vp-c-brand-1); }
+            &.is-active {
+                color: var(--vp-c-text-1);
+                font-weight: 700;
+                text-decoration: underline 2px var(--hue);
+                text-underline-offset: 4px;
             }
         }
 
@@ -347,6 +493,44 @@
                 color: var(--vp-c-text-3);
                 font-family: var(--vp-font-family-mono);
                 font-size: var(--font-size-s);
+            }
+            .tag-spectrum {
+                @include setFlex(flex-start, stretch, .6rem, column);
+                margin-top: 1rem;
+
+                .light {
+                    display: flex;
+                    height: 6px;
+                    border-radius: 3px;
+                    overflow: hidden;
+
+                    span { flex-basis: 0; }
+                }
+                ul {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: .25rem 1.25rem;
+                    padding: 0;
+                    margin: 0;
+                    color: var(--vp-c-text-2);
+                    font-size: var(--font-size-s);
+                    list-style: none;
+                }
+                li {
+                    @include setFlex(flex-start, center, 6px);
+
+                    &::before {
+                        content: '';
+                        @include setSize(8px, 8px);
+                        background: var(--hue);
+                        border-radius: 50%;
+                    }
+                    span {
+                        color: var(--vp-c-text-3);
+                        font-family: var(--vp-font-family-mono);
+                        font-size: var(--font-size-xs);
+                    }
+                }
             }
             .tag-title {
                 padding: 0;
@@ -447,16 +631,17 @@
                 gap: 1.5rem;
             }
             &__sidebar { position: static; }
-            &__cloud {
-                flex-flow: row wrap;
+
+            // 窄螢幕：光譜索引排成兩三欄，零星的照樣一團
+            &__index {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
                 max-height: none;
                 overflow: visible;
             }
-            &__chip {
-                padding: 6px 10px;
-
-                &:hover { transform: none; }
-            }
+            &__minor-title,
+            &__minor,
+            &__index > .tags-page__muted { grid-column: 1 / -1; }
         }
 
         // #endregion
