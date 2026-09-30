@@ -14,7 +14,7 @@
 
 <template>
     <time class="date-badge" :datetime="parsed.full" :title="parsed.full">
-{{ parsed.full || '--' }}
+        {{ parsed.full || '--' }}
     </time>
 </template>
 
