@@ -455,6 +455,7 @@
             padding: 6px 16px;
             border: 1px solid var(--vp-c-brand-1);
             border-radius: var(--dd-corner);
+
             // 字用紙的顏色：深色模式的品牌藍很淺，白字會看不清楚（紙色對兩種藍都在 6 : 1 以上）
             color: var(--nb-paper, var(--vp-c-white));
             font-size: var(--font-size-s);
