@@ -5,7 +5,7 @@
 <template>
     <div class="font-family__container">
         <section class="font-family__section section">
-            <h3 class="title">Font Sizes</h3>
+            <h3 class="title">字級</h3>
             <div class="size-list">
                 <div v-for="size in fontSizes" :key="size.var" class="size-card">
                     <div class="size-info">
@@ -25,7 +25,7 @@
         <hr class="divider" />
 
         <section class="font-family__section section">
-            <h3 class="title">Font Families</h3>
+            <h3 class="title">字型</h3>
             <div class="family-list">
                 <div v-for="font in fontFamilies" :key="font.name" class="family-card">
                     <div class="meta">

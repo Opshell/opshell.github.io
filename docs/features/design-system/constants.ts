@@ -6,115 +6,104 @@ export interface TypeSpec {
     sample: string; // 範例文本
 }
 
+/**
+ * 文章內文的排版（2026-10 翻新「筆記本」，樣式在 theme/scss/_notebook.scss）。
+ * 範例放在 .nb-prose 裡，跟文章頁用的是同一份樣式。
+ */
 export const typeScales: TypeSpec[] = [
     {
-        tag: 'h1',
-        name: 'Heading 1',
-        specs: {
-            'color': '--color-gray-900',
-            'font-size': '--font-size-xxl (36px)',
-            'font-weight': '600',
-            'line-height': '1.25'
-        },
-        description: '頁面主標題，每頁僅使用一次。',
-        sample: 'The quick brown fox jumps over the lazy dog. 永和九年，歲在癸丑，暮春之初，會于會稽山陰之蘭亭。'
-    },
-    {
         tag: 'h2',
-        name: 'Heading 2',
+        name: '段落標題 h2',
         specs: {
-            'padding-top': '1.5rem',
-            'border-top': '1px solid --color-gray-300',
-            'color': '--color-gray-850',
-            'font-size': '--font-size-xl (26px)',
-            'font-weight': '500',
-            'line-height': '1.4'
+            'font-family': '--nb-font-sans',
+            'font-size': '--nb-step-3 (24px)',
+            'font-weight': '700',
+            'border-top': '1px solid --nb-rule'
         },
-        description: '主要章節標題，上方帶有分隔線。',
-        sample: 'The quick brown fox jumps over the lazy dog永和九年，歲在癸丑，暮春之初，會于會稽山陰之蘭亭。'
+        description: '無襯線，跟襯線內文分得開；前面一條紙上的線，像筆記換一個主題。',
+        sample: '為什麼要先防守？永和九年，歲在癸丑。'
     },
     {
         tag: 'h3',
-        name: 'Heading 3',
+        name: '小節標題 h3',
         specs: {
-            'color': '--color-gray-850',
-            'font-size': '--font-size-l (20px)',
-            'font-weight': '500',
-            'line-height': '1.5'
+            'font-family': '--nb-font-sans',
+            'font-size': '--nb-step-2 (21px)',
+            'font-weight': '700'
         },
-        sample: 'The quick brown fox jumps over the lazy dog永和九年，歲在癸丑，暮春之初，會于會稽山陰之蘭亭。'
+        sample: '邊界意識：建立你的海關'
     },
     {
         tag: 'h4',
-        name: 'Heading 4',
+        name: '細項標題 h4',
         specs: {
-            'color': '--color-gray-850',
-            'font-size': '--font-size-l (20px)',
-            'font-weight': '500',
-            'line-height': '1.5'
+            'font-family': '--nb-font-sans',
+            'font-size': '--nb-step-1 (18px)',
+            'font-weight': '700'
         },
-        description: '與 H3 字級相同，但語意層級較低。',
-        sample: 'The quick brown fox jumps over the lazy dog永和九年，歲在癸丑，暮春之初，會于會稽山陰之蘭亭。'
-    },
-    {
-        tag: 'h5',
-        name: 'Heading 5',
-        specs: {
-            'color': '--color-gray-850',
-            'font-size': '--font-size-l (20px)',
-            'font-weight': '500',
-            'line-height': '1.625'
-        },
-        description: '基本上很少用到',
-        sample: 'The quick brown fox jumps over the lazy dog永和九年，歲在癸丑，暮春之初，會于會稽山陰之蘭亭。'
-    },
-    {
-        tag: 'h6',
-        name: 'Heading 6',
-        specs: {
-            'color': '--color-gray-850',
-            'font-size': '--font-size-l (20px)',
-            'font-weight': '500',
-            'line-height': '1.625'
-        },
-        description: '與 H5 設計相同，但語意層級較低。',
-        sample: 'The quick brown fox jumps over the lazy dog永和九年，歲在癸丑，暮春之初，會于會稽山陰之蘭亭。'
+        sample: '預期失敗：為 undefined 寫程式'
     },
     {
         tag: 'p',
-        name: 'Body Text',
+        name: '內文',
         specs: {
-            'font-size': '--font-size-m (16px)',
-            'font-weight': '400',
-            'line-height': '1.8',
-            'color': '--color-gray-800'
+            'font-family': '--nb-font-serif（Noto Serif TC）',
+            'font-size': '--nb-read-size (17px)',
+            'line-height': '--nb-read-leading (1.9)',
+            'max-width': '--nb-measure (38em)'
         },
-        description: '文章主要內文，注重閱讀舒適度與行高。',
-        sample: 'The quick brown fox jumps over the lazy dog. 永和九年，歲在癸丑，暮春之初，會于會稽山陰之蘭亭。這是一段中文測試文字。即使是在長篇文章中，這樣的行高與字距也能保持良好的閱讀體驗。'
+        description: '襯線字、行高 1.9、一行約 38 個中文字，長文讀起來不累。',
+        sample: '寫程式，真的是一趟不斷學習如何「不要 Gank 未來的自己」的旅程。永和九年，歲在癸丑，暮春之初，會于會稽山陰之蘭亭，修禊事也。The quick brown fox jumps over the lazy dog.'
+    },
+    {
+        tag: 'strong',
+        name: '重點（螢光筆）',
+        specs: {
+            'background': 'linear-gradient(transparent 58%, --nb-marker-soft 58%)',
+            'font-weight': '700'
+        },
+        description: '粗體就是用螢光筆畫過的重點。整頁只有這裡和「目前位置」會用到黃色。',
+        sample: '防守，是為了創造一個絕對安全的環境'
+    },
+    {
+        tag: 'code',
+        name: '行內程式碼',
+        specs: {
+            'font-family': '--nb-font-mono',
+            'background': '--nb-paper-2',
+            'border': '1px solid --nb-rule'
+        },
+        description: '跟內文同一個墨色，不再是橘色；它是程式碼，不是強調。',
+        sample: 'useQuery'
     },
     {
         tag: 'a',
-        name: 'Link',
+        name: '連結（藍墨水）',
         specs: {
-            'color': '--color-primary-2',
-            'font-weight': '400'
+            'color': '--nb-link',
+            'text-decoration': 'underline 40%'
         },
-        sample: '這是一個超連結樣式 (Hyperlink)'
+        sample: '看完整的說明'
     }
 ];
 
 export const fontFamilies = [
-    { name: 'Base (Sans-Serif)', var: '--font-sans-serif' },
-    { name: 'Monospace (Code)', var: '--font-monospace' }
+    { name: '內文襯線 Noto Serif TC', var: '--nb-font-serif' },
+    { name: '介面無襯線 Roboto＋Noto Sans TC', var: '--nb-font-sans' },
+    { name: '等寬 Fira Code（程式碼、後台）', var: '--nb-font-mono' }
 ];
 
+/** 字級：古典比例 12／14／16／18／21／24／36／48（2026-10 翻新）。舊的 --font-size-* 還在，叮咚宣傳頁與舊元件在用 */
 export const fontSizes = [
-    { name: '2X Large', var: '--font-size-xxl', val: '2.25rem (36px)', sample: 'Ag' },
-    { name: 'Extra Large', var: '--font-size-xl', val: '1.625rem (26px)', sample: 'Ag' },
-    { name: 'Large', var: '--font-size-l', val: '1.25rem (20px)', sample: 'Ag' },
-    { name: 'Medium', var: '--font-size-m', val: '1rem (16px)', sample: 'Ag' },
-    { name: 'Small', var: '--font-size-s', val: '0.875rem (14px)', sample: 'Ag' },
-    { name: 'Extra Small', var: '--font-size-xs', val: '0.75rem (12px)', sample: 'Ag' }
+    { name: '書名', var: '--nb-step-5', val: '3rem (48px)', sample: '筆記' },
+    { name: '文章標題', var: '--nb-step-4', val: '2.25rem (36px)', sample: '筆記' },
+    { name: '段落標題', var: '--nb-step-3', val: '1.5rem (24px)', sample: '筆記' },
+    { name: '小節標題', var: '--nb-step-2', val: '1.3125rem (21px)', sample: '筆記' },
+    { name: '清單標題', var: '--nb-step-1', val: '1.125rem (18px)', sample: '筆記' },
+    { name: '內文（文章）', var: '--nb-read-size', val: '1.0625rem (17px)', sample: '筆記' },
+    { name: '介面', var: '--nb-step-0', val: '1rem (16px)', sample: '筆記' },
+    { name: '頁邊、說明', var: '--nb-step--1', val: '.875rem (14px)', sample: '筆記' },
+    { name: '最小', var: '--nb-step--2', val: '.75rem (12px)', sample: '筆記' }
 ];
 
 export const animations = [

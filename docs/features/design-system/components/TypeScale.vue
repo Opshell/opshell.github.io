@@ -7,14 +7,15 @@
 </script>
 
 <template>
-    <article class="type-system article-layout__article">
+    <!-- .nb-prose：跟文章頁同一份排版（theme/scss/_notebook.scss） -->
+    <article class="type-system nb-prose">
         <section class="section">
             <header class="section-header">
-                <h3 class="title">Type Scale</h3>
+                <h3 class="title">文章內文</h3>
 
                 <ElBtn size="sm" :variant="showSpecs ? 'primary' : 'ghost'" title="Toggle CSS Specs" @click="showSpecs = !showSpecs">
                     <template #icon><ElSvgIcon :name="showSpecs ? 'zoom_in_map' : 'pageview'" /></template>
-                    {{ showSpecs ? 'Hide Specs' : 'Preview Mode' }}
+                    {{ showSpecs ? '收起規格' : '只看樣子' }}
                 </ElBtn>
             </header>
 
@@ -32,7 +33,6 @@
 
                     <div class="area-summary">
                         <p v-if="scale.description">{{ scale.description }}</p>
-                        <span v-else class="no-desc">No description</span>
                     </div>
 
                     <div class="area-var">
