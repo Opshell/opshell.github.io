@@ -757,9 +757,9 @@
         .dd-table thead th {
             position: sticky;
             top: 0;
-            z-index: 1;
             background: var(--vp-c-bg);
             box-shadow: inset 0 -1px 0 var(--vp-c-divider);
+            z-index: 1;
         }
 
         // #endregion
