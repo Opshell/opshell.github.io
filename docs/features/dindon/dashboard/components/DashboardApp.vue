@@ -68,6 +68,42 @@
         window.scrollTo({ top: 0 });
     }
 
+    // #region [P] 鍵盤（2026-10 翻新，man page 風格）：1～8 切分頁、r 更新待辦、? 看快捷鍵。
+    // 正在打字（輸入框、下拉選單、可編輯區）或按著修飾鍵時不攔，API 控制台自己的 / 與 ⌘Enter 照舊
+    const helpEl = ref<HTMLDialogElement>();
+    const SHORTCUTS: readonly { keys: string; text: string }[] = [
+        { keys: '1～8', text: '切到側欄的第幾個分頁' },
+        { keys: 'r', text: '更新待辦數字' },
+        { keys: '/', text: 'API 分頁：跳到搜尋' },
+        { keys: '⌘／Ctrl＋Enter', text: 'API 分頁：送出' },
+        { keys: '?', text: '打開這張表' },
+        { keys: 'Esc', text: '關掉這張表' }
+    ];
+
+    function isTyping(target: EventTarget | null) {
+        return target instanceof HTMLElement && !!target.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]');
+    }
+
+    function onShortcut(event: KeyboardEvent) {
+        if (event.metaKey || event.ctrlKey || event.altKey || isTyping(event.target) || !isSignedIn.value) return;
+        if (event.key === '?') {
+            event.preventDefault();
+            helpEl.value?.showModal();
+            return;
+        }
+        if (event.key === 'r') {
+            event.preventDefault();
+            void pulse.refresh();
+            return;
+        }
+        const index = Number(event.key) - 1;
+        if (Number.isInteger(index) && index >= 0 && index < TABS.length) {
+            event.preventDefault();
+            selectTab(TABS[index].key);
+        }
+    }
+    // #endregion
+
     // 待辦數字每 5 分鐘自己更新一次；切回這個瀏覽器分頁時也更新（離開久了數字會舊）
     const PULSE_INTERVAL = 5 * 60_000;
     let timer: ReturnType<typeof setInterval> | undefined;
@@ -98,10 +134,12 @@
         if (fromHash) tab.value = fromHash.key;
         if (buttonEl.value) auth.renderButton(buttonEl.value);
         document.addEventListener('visibilitychange', onVisible);
+        document.addEventListener('keydown', onShortcut);
     });
     onBeforeUnmount(() => {
         clearInterval(timer);
         document.removeEventListener('visibilitychange', onVisible);
+        document.removeEventListener('keydown', onShortcut);
     });
 </script>
 
@@ -133,7 +171,7 @@
 
                 <nav class="dd-admin__nav" role="tablist" aria-label="後台分頁">
                     <button
-                        v-for="t in TABS"
+                        v-for="(t, index) in TABS"
                         :key="t.key"
                         type="button"
                         role="tab"
@@ -144,6 +182,7 @@
                     >
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path :d="ICONS[t.key]" /></svg>
                         <span>{{ t.label }}</span>
+                        <kbd class="dd-admin__key" :aria-label="`快捷鍵 ${index + 1}`">{{ index + 1 }}</kbd>
                         <span v-if="badges[t.key]" class="dd-admin__badge" :aria-label="`${badges[t.key]} 件待處理`">{{ badges[t.key] }}</span>
                     </button>
                 </nav>
@@ -152,6 +191,7 @@
                     <img v-if="profile?.picture" :src="profile.picture" alt="" referrerpolicy="no-referrer" />
                     <span class="email">{{ profile?.email ?? '管理員' }}</span>
                     <button type="button" class="dd-admin__btn dd-admin__btn--ghost dd-admin__btn--small" @click="auth.signOut()">登出</button>
+                    <button type="button" class="dd-admin__help-btn" title="快捷鍵" @click="helpEl?.showModal()"><kbd>?</kbd> 快捷鍵</button>
                 </div>
             </aside>
             <!-- #endregion -->
@@ -159,6 +199,8 @@
             <main class="dd-admin__main" :class="{ 'dd-admin__main--wide': tab === 'api' }">
                 <header class="dd-admin__head">
                     <div>
+                        <!-- 像指令提示的一行路徑：告訴你在哪一頁，方塊游標是品牌黃 -->
+                        <p class="dd-admin__prompt" aria-hidden="true">~/dindon/admin/{{ tab }} <span class="dollar">$</span> <span class="cursor" /></p>
                         <h1>{{ current.label }}</h1>
                         <p>{{ current.hint }}</p>
                     </div>
@@ -167,6 +209,18 @@
                         <span v-if="pulse.loadedAt.value">更新於 {{ timeFormat.format(pulse.loadedAt.value) }}</span>
                     </button>
                 </header>
+
+                <dialog ref="helpEl" class="dd-admin__help" aria-labelledby="dd-admin-help-title" @click.self="helpEl?.close()">
+                    <h2 id="dd-admin-help-title">快捷鍵</h2>
+                    <dl>
+                        <div v-for="item in SHORTCUTS" :key="item.keys">
+                            <dt><kbd>{{ item.keys }}</kbd></dt>
+                            <dd>{{ item.text }}</dd>
+                        </div>
+                    </dl>
+                    <p>正在輸入框裡打字時不會觸發。</p>
+                    <form method="dialog"><button class="dd-admin__btn dd-admin__btn--ghost dd-admin__btn--small">關閉</button></form>
+                </dialog>
 
                 <OverviewPanel v-if="tab === 'overview'" @navigate="selectTab" />
                 <DeviceManager v-else-if="tab === 'devices'" />
@@ -306,7 +360,7 @@
             background: var(--vp-c-danger-1);
             min-width: 20px;
             padding: 1px 6px;
-            border-radius: 999px;
+            border-radius: var(--dd-corner);
             margin-left: auto;
             color: var(--vp-c-white);
             font-size: 12px;
@@ -375,7 +429,7 @@
             background: transparent;
             padding: 6px 10px;
             border: 1px solid var(--vp-c-divider);
-            border-radius: 999px;
+            border-radius: var(--dd-corner);
             color: var(--vp-c-text-2);
             font-size: 12px;
             cursor: pointer;
@@ -400,8 +454,9 @@
             background: var(--vp-c-brand-1);
             padding: 6px 16px;
             border: 1px solid var(--vp-c-brand-1);
-            border-radius: 999px;
-            color: var(--vp-c-white);
+            border-radius: var(--dd-corner);
+            // 字用紙的顏色：深色模式的品牌藍很淺，白字會看不清楚（紙色對兩種藍都在 6 : 1 以上）
+            color: var(--nb-paper, var(--vp-c-white));
             font-size: var(--font-size-s);
             font-weight: 600;
             cursor: pointer;
@@ -451,6 +506,152 @@
             font-size: var(--font-size-s);
         }
     }
+
+    // #region [P] man page 的皮（2026-10 翻新）：色票跟部落格同一組（--nb-*），
+    // 後台另外換成等寬的標題與導覽、方角、密一點的表格，像一份可以用鍵盤操作的說明文件
+    .dd-admin {
+        --dd-mono: var(--nb-font-mono, var(--vp-font-family-mono));
+        --dd-corner: 4px;
+
+        // 標題、導覽、數字用等寬字；中文會自動落到內文字型
+        h1, h2, h3,
+        .dd-admin__nav-item,
+        .dd-admin__brand,
+        .num,
+        [class*=__value],
+        [class*=__count] { font-family: var(--dd-mono); }
+
+        // 卡片、數字格、表格、輸入框：方角、不要陰影
+        [class*=__card],
+        [class*=__tile],
+        [class*=__panel],
+        input,
+        select,
+        textarea {
+            border-radius: var(--dd-corner) !important;
+            box-shadow: none !important;
+        }
+
+        // 表格密一點、表頭用等寬小字
+        .dd-table {
+            th, td { padding: 6px 10px; }
+            th {
+                color: var(--nb-ink-3, var(--vp-c-text-2));
+                font-family: var(--dd-mono);
+                font-size: 12px;
+                font-weight: 500;
+            }
+            td { font-variant-numeric: tabular-nums; }
+        }
+        .dd-status { border-radius: var(--dd-corner); }
+
+        &__prompt {
+            margin-bottom: 4px !important;
+            color: var(--nb-ink-3, var(--vp-c-text-3));
+            font-family: var(--dd-mono);
+            font-size: 12px;
+
+            .dollar { color: var(--nb-ink-2, var(--vp-c-text-2)); }
+
+            // 方塊游標：品牌黃，後台唯一的一塊黃
+            .cursor {
+                display: inline-block;
+                background: var(--nb-marker, #F4B936);
+                width: .6em;
+                height: 1.1em;
+                vertical-align: text-bottom;
+                animation: dd-admin-blink 1.1s steps(1) infinite;
+            }
+        }
+        &__key {
+            @include setSize(20px, 20px);
+            @include setFlex();
+            padding: 0;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 3px;
+            margin-left: auto;
+            color: var(--nb-ink-3, var(--vp-c-text-3));
+            font-family: var(--dd-mono);
+            font-size: 11px;
+            line-height: 1;
+
+            // 有待辦數字時，數字在後面，鍵的提示讓一格
+            + .dd-admin__badge { margin-left: 6px; }
+            @include setRWD(900px) { display: none; }
+        }
+        &__nav-item.is-active {
+            border-radius: 0 6px 6px 0;
+            box-shadow: inset 3px 0 0 var(--nb-marker, var(--vp-c-brand-1));
+        }
+        &__help-btn {
+            @include setFlex(flex-start, center, 6px);
+            background: none;
+            padding: 2px 0;
+            border: 0;
+            color: var(--nb-ink-3, var(--vp-c-text-2));
+            font-size: 12px;
+            cursor: pointer;
+
+            kbd {
+                padding: 0 5px;
+                border: 1px solid var(--vp-c-divider);
+                border-radius: 3px;
+                font-family: var(--dd-mono);
+            }
+            &:hover { color: var(--nb-link, var(--vp-c-brand-1)); }
+            @include setRWD(900px) { display: none; }
+        }
+        &__help {
+            background: var(--vp-c-bg-elv);
+            max-width: 420px;
+            padding: 20px 24px;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: var(--dd-corner);
+            color: var(--vp-c-text-1);
+
+            &::backdrop { background: rgb(0 0 0 / 40%); }
+            h2 {
+                margin-bottom: 12px;
+                font-size: var(--font-size-m);
+            }
+            dl {
+                display: grid;
+                gap: 6px;
+                margin: 0 0 12px;
+            }
+            div {
+                display: grid;
+                grid-template-columns: 9rem 1fr;
+                gap: 12px;
+                font-size: var(--font-size-s);
+            }
+            dd {
+                margin: 0;
+                color: var(--vp-c-text-2);
+            }
+            kbd {
+                padding: 1px 6px;
+                border: 1px solid var(--vp-c-divider);
+                border-bottom-width: 2px;
+                border-radius: 3px;
+                font-family: var(--dd-mono);
+                font-size: 12px;
+            }
+            p {
+                margin-bottom: 12px;
+                color: var(--vp-c-text-3);
+                font-size: 12px;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            &__prompt .cursor { animation: none; }
+        }
+    }
+    @keyframes dd-admin-blink {
+        50% { opacity: 0; }
+    }
+
+    // #endregion
 
     .dark .dd-admin {
         --dd-series-1: #3987e5;
