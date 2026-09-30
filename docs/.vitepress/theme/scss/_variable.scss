@@ -166,13 +166,16 @@
     --nb-link-soft: rgb(47 94 158 / 10%);
     --nb-red: #B8402F;          // 紅筆：更正、警告
     --nb-red-soft: rgb(184 64 47 / 10%);
+
     // 螢光筆：品牌黃。只畫在重點上（strong、目前位置），不拿來當按鈕底色
     --nb-marker: #F4B936;
     --nb-marker-soft: #FBE3A6;
+
     // 字
     --nb-font-serif: 'Noto Serif TC', 'Songti TC', 'PMingLiU', serif;
     --nb-font-sans: 'Roboto', 'NotoSansTC', 'PingFang TC', '微軟正黑體', sans-serif;
     --nb-font-mono: 'FiraCode', ui-monospace, monospace;
+
     // 字級：古典比例（12／14／16／18／21／24／36／48），內文 17px 給襯線
     --nb-step--2: .75rem;
     --nb-step--1: .875rem;
@@ -195,6 +198,15 @@
     --nb-space-7: 3rem;
     --nb-space-8: 4rem;
     --nb-radius: 6px;           // 紙張只有一點點圓角
+
+    // 後台頂端的終端機列：淺色模式也是深底，黃色游標在上面才亮得起來
+    --term-bg: #1F2A37;
+    --term-ink: #E9E5DA;
+    --term-dim: #949BA6;         // 對 --term-bg 5.0 : 1
+    --term-line: #323A47;
+    --term-hot: #F4B936;
+    --term-err: #E8836F;
+
     // 蓋掉 VitePress 的顏色：全站元件（導覽列、搜尋、按鈕）跟著換
     --vp-c-bg: var(--nb-paper);
     --vp-c-bg-alt: var(--nb-paper-2);
@@ -220,6 +232,7 @@
     --vp-custom-block-tip-bg: var(--nb-link-soft);
     --vp-custom-block-tip-code-bg: transparent;
 }
+
 // 夜間檯燈：深藍灰的紙、暖白的字，螢光筆降一點亮度
 .dark:not(:has(.dindon-page, .dindon-privacy, .dindon-account)) {
     --nb-paper: #1A1F27;
@@ -235,6 +248,7 @@
     --nb-red: #E8836F;
     --nb-red-soft: rgb(232 131 111 / 12%);
     --nb-marker-soft: rgb(244 185 54 / 28%);
+    --term-bg: #12161C;          // 深色模式再深一階，跟內容分得開
     --vp-c-border: #3E4757;
     --vp-c-brand-2: #A2C2EC;
     --vp-c-brand-3: #B6CFF0;

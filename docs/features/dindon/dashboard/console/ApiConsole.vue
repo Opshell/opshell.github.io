@@ -4,6 +4,7 @@
     import type { HistoryEntry } from './history';
     import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue';
     import { adminApi, AdminApiError } from '../api';
+    import { takePanelPreset } from '../navigation';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import EndpointWorkspace from './EndpointWorkspace.vue';
     import { loadHistory, pushHistory, saveHistory, sessionBodies } from './history';
@@ -44,7 +45,7 @@
 
     // #region [P] 搜尋與篩選
 
-    const search = ref('');
+    const search = ref(takePanelPreset('apiQuery') ?? '');
     const effects = ref<ApiEffect[]>([]);
     const auths = ref<ApiAuth[]>([]);
     const searchEl = ref<HTMLInputElement>();
@@ -385,7 +386,9 @@
         }
         &__side-body {
             @include setFlex(flex-start, stretch, 10px, column);
-            max-height: calc(100vh - 32px);
+
+            // 100cqh＝後台內容區的高（DashboardApp 的 __content 是 size 容器）；沒有容器時等於視窗高
+            max-height: calc(100cqh - 32px);
             @include setRWD(1100px) {
                 display: none;
                 max-height: 70vh;

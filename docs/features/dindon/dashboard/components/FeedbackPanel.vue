@@ -10,6 +10,7 @@
     import { takePanelPreset } from '../navigation';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import { usePulse } from '../usePulse';
+    import AdminActions from './AdminActions.vue';
     import FeedbackTriage from './FeedbackTriage.vue';
     import LineImport from './LineImport.vue';
     import MergePicker from './MergePicker.vue';
@@ -57,7 +58,7 @@
     const notice = ref('');
 
     /** 快速審核：一次一則、用鍵盤判，判完自動跳下一則 */
-    const triage = ref(false);
+    const triage = ref(takePanelPreset('feedbackTriage') ?? false);
     function closeTriage(changed: boolean) {
         triage.value = false;
         if (changed) load(1); // 審過的狀態變了，列表與統計要重抓
@@ -373,18 +374,14 @@
                 <input v-model="grouped" type="checkbox" />
                 同一台的摺起來
             </label>
-            <button v-if="!triage" type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load()">重新整理</button>
             <span v-if="!triage" class="dd-overview__muted">共 {{ formatInt(total) }} 則</span>
-            <button
-                v-if="!triage"
-                type="button"
-                class="dd-admin__btn"
-                :disabled="loading || !(stats?.byStatus.pending ?? 0)"
-                @click="triage = true"
-            >
-                快速審核{{ stats?.byStatus.pending ? `（${formatInt(stats.byStatus.pending)} 則待審）` : '' }}
-            </button>
-            <button v-if="!triage && !importing" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="importing = true">匯入 LINE 回報</button>
+            <AdminActions v-if="!triage">
+                <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load()">重新整理</button>
+                <button v-if="!importing" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="importing = true">匯入 LINE 回報</button>
+                <button type="button" class="dd-admin__btn" :disabled="loading || !(stats?.byStatus.pending ?? 0)" @click="triage = true">
+                    快速審核{{ stats?.byStatus.pending ? `（${formatInt(stats.byStatus.pending)} 則待審）` : '' }}
+                </button>
+            </AdminActions>
         </div>
         <LineImport v-if="importing && !triage" @done="onImported" @close="importing = false" />
         <!-- #region [P] 批次：勾了才出現 -->
@@ -414,68 +411,96 @@
 
         <div v-else class="dd-devices__layout" :class="{ 'has-detail': selectedId !== null }">
             <div class="dd-devices__table-wrap">
-                <table class="dd-table dd-feedback__table">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="check">
-                                <input
-                                    type="checkbox"
-                                    :checked="allOnPageChecked"
-                                    :disabled="!reports.length"
-                                    aria-label="勾選本頁全部"
-                                    @change="setChecked(reports.map(r => r.id), ($event.target as HTMLInputElement).checked)"
-                                />
-                            </th>
-                            <th scope="col">ID</th>
-                            <th scope="col">裝置</th>
-                            <th scope="col">類型</th>
-                            <th scope="col">狀態</th>
-                            <th scope="col">內容</th>
-                            <th scope="col">送出</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- 摺疊時一台一組：群組列可以整組勾、整組展開、整台的待審一鍵不採計 -->
-                        <template v-for="group in (grouped ? groups : [])" :key="`g-${group.deviceId}`">
-                            <tr
-                                v-if="group.reports.length > 1"
-                                class="group"
-                                tabindex="0"
-                                :aria-expanded="!isFolded(group)"
-                                @click="toggleExpanded(group.deviceId)"
-                                @keydown.enter="toggleExpanded(group.deviceId)"
-                            >
-                                <td class="check" @click.stop>
+                <div class="dd-table-scroll">
+                    <table class="dd-table dd-feedback__table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="check">
                                     <input
                                         type="checkbox"
-                                        :checked="groupAllChecked(group)"
-                                        :aria-label="`勾選 ${group.name} 的全部`"
-                                        @change="setChecked(group.reports.map(r => r.id), ($event.target as HTMLInputElement).checked)"
+                                        :checked="allOnPageChecked"
+                                        :disabled="!reports.length"
+                                        aria-label="勾選本頁全部"
+                                        @change="setChecked(reports.map(r => r.id), ($event.target as HTMLInputElement).checked)"
                                     />
-                                </td>
-                                <td colspan="6">
-                                    <span class="caret" :class="{ 'is-open': !isFolded(group) }" aria-hidden="true">▸</span>
-                                    {{ group.name }}
-                                    <span class="dd-overview__muted">
-                                        · 本頁 {{ formatInt(group.reports.length) }} 則{{ group.pending ? `，${formatInt(group.pending)} 則待審` : '' }}
-                                    </span>
-                                    <template v-if="group.pending">
-                                        <template v-if="confirmingDevice === group.deviceId">
-                                            <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="busy" @click.stop="rejectDevice(group.deviceId, group.name)">
-                                                確定：{{ group.name }} 的待審全部不採計
-                                            </button>
-                                            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click.stop="confirmingDevice = null">取消</button>
-                                        </template>
-                                        <button v-else type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click.stop="confirmingDevice = group.deviceId">
-                                            這台的待審全部不採計…
-                                        </button>
-                                    </template>
-                                </td>
+                                </th>
+                                <th scope="col">ID</th>
+                                <th scope="col">裝置</th>
+                                <th scope="col">類型</th>
+                                <th scope="col">狀態</th>
+                                <th scope="col">內容</th>
+                                <th scope="col">送出</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            <!-- 摺疊時一台一組：群組列可以整組勾、整組展開、整台的待審一鍵不採計 -->
+                            <template v-for="group in (grouped ? groups : [])" :key="`g-${group.deviceId}`">
+                                <tr
+                                    v-if="group.reports.length > 1"
+                                    class="group"
+                                    tabindex="0"
+                                    :aria-expanded="!isFolded(group)"
+                                    @click="toggleExpanded(group.deviceId)"
+                                    @keydown.enter="toggleExpanded(group.deviceId)"
+                                >
+                                    <td class="check" @click.stop>
+                                        <input
+                                            type="checkbox"
+                                            :checked="groupAllChecked(group)"
+                                            :aria-label="`勾選 ${group.name} 的全部`"
+                                            @change="setChecked(group.reports.map(r => r.id), ($event.target as HTMLInputElement).checked)"
+                                        />
+                                    </td>
+                                    <td colspan="6">
+                                        <span class="caret" :class="{ 'is-open': !isFolded(group) }" aria-hidden="true">▸</span>
+                                        {{ group.name }}
+                                        <span class="dd-overview__muted">
+                                            · 本頁 {{ formatInt(group.reports.length) }} 則{{ group.pending ? `，${formatInt(group.pending)} 則待審` : '' }}
+                                        </span>
+                                        <template v-if="group.pending">
+                                            <template v-if="confirmingDevice === group.deviceId">
+                                                <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="busy" @click.stop="rejectDevice(group.deviceId, group.name)">
+                                                    確定：{{ group.name }} 的待審全部不採計
+                                                </button>
+                                                <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click.stop="confirmingDevice = null">取消</button>
+                                            </template>
+                                            <button v-else type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click.stop="confirmingDevice = group.deviceId">
+                                                這台的待審全部不採計…
+                                            </button>
+                                        </template>
+                                    </td>
+                                </tr>
+                                <tr
+                                    v-for="report in (isFolded(group) ? [] : group.reports)"
+                                    :key="report.id"
+                                    :class="{ 'is-selected': report.id === selectedId, 'child': group.reports.length > 1 }"
+                                    tabindex="0"
+                                    @click="openReport(report.id)"
+                                    @keydown.enter="openReport(report.id)"
+                                >
+                                    <td class="check" @click.stop>
+                                        <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
+                                    </td>
+                                    <td>#{{ report.id }}</td>
+                                    <td>{{ report.deviceName || `#${report.deviceId}` }}</td>
+                                    <td>
+                                        {{ KIND_LABELS[report.kind] ?? report.kind }}
+                                        <span v-if="report.source !== 'app'" class="dd-feedback__source">{{ SOURCE_LABELS[report.source] }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="dd-status" :class="report.status === 'pending' ? 'is-pending' : report.status === 'rejected' ? 'is-frozen' : 'is-active'">
+                                            {{ STATUS_LABELS[report.status] }}
+                                        </span>
+                                    </td>
+                                    <td class="summary">{{ report.contentPurgedAt ? '（內容已清除）' : report.description }}</td>
+                                    <td>{{ formatRelative(report.createdAt) }}</td>
+                                </tr>
+                            </template>
+                            <!-- 不摺疊：照後端的順序一則一列 -->
                             <tr
-                                v-for="report in (isFolded(group) ? [] : group.reports)"
+                                v-for="report in (grouped ? [] : reports)"
                                 :key="report.id"
-                                :class="{ 'is-selected': report.id === selectedId, 'child': group.reports.length > 1 }"
+                                :class="{ 'is-selected': report.id === selectedId }"
                                 tabindex="0"
                                 @click="openReport(report.id)"
                                 @keydown.enter="openReport(report.id)"
@@ -497,38 +522,12 @@
                                 <td class="summary">{{ report.contentPurgedAt ? '（內容已清除）' : report.description }}</td>
                                 <td>{{ formatRelative(report.createdAt) }}</td>
                             </tr>
-                        </template>
-                        <!-- 不摺疊：照後端的順序一則一列 -->
-                        <tr
-                            v-for="report in (grouped ? [] : reports)"
-                            :key="report.id"
-                            :class="{ 'is-selected': report.id === selectedId }"
-                            tabindex="0"
-                            @click="openReport(report.id)"
-                            @keydown.enter="openReport(report.id)"
-                        >
-                            <td class="check" @click.stop>
-                                <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
-                            </td>
-                            <td>#{{ report.id }}</td>
-                            <td>{{ report.deviceName || `#${report.deviceId}` }}</td>
-                            <td>
-                                {{ KIND_LABELS[report.kind] ?? report.kind }}
-                                <span v-if="report.source !== 'app'" class="dd-feedback__source">{{ SOURCE_LABELS[report.source] }}</span>
-                            </td>
-                            <td>
-                                <span class="dd-status" :class="report.status === 'pending' ? 'is-pending' : report.status === 'rejected' ? 'is-frozen' : 'is-active'">
-                                    {{ STATUS_LABELS[report.status] }}
-                                </span>
-                            </td>
-                            <td class="summary">{{ report.contentPurgedAt ? '（內容已清除）' : report.description }}</td>
-                            <td>{{ formatRelative(report.createdAt) }}</td>
-                        </tr>
-                        <tr v-if="!loading && reports.length === 0">
-                            <td colspan="7" class="dd-table__empty">沒有符合的回報</td>
-                        </tr>
-                    </tbody>
-                </table>
+                            <tr v-if="!loading && reports.length === 0">
+                                <td colspan="7" class="dd-table__empty">沒有符合的回報</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
                 <div class="dd-devices__pager">
                     <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="page <= 1 || loading" @click="load(page - 1)">上一頁</button>
@@ -638,7 +637,7 @@
         <section class="dd-overview__card dd-feedback__issues">
             <h3>問題（合併後的）</h3>
             <p class="sub">權重 1～100。改了之後所有人的分數與名次立刻跟著變。</p>
-            <div class="dd-feedback__scroll">
+            <div class="dd-feedback__scroll dd-table-scroll">
                 <table class="dd-table dd-table--static">
                     <thead>
                         <tr>

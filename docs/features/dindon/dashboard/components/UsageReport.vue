@@ -4,6 +4,7 @@
     import { adminApi } from '../api';
     import { FEATURE_LABELS, FEATURE_ORDER, formatDateTime, formatInt, formatMs, formatPercent, formatUsd } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import AdminActions from './AdminActions.vue';
 
     // 報表格式與怎麼讀：DinDon_BackEnd/docs/usage-analytics.md 第 4 節
     const call = useAdminCall();
@@ -67,7 +68,9 @@
                     <option :value="365">近 1 年</option>
                 </select>
             </label>
-            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
+            <AdminActions>
+                <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
+            </AdminActions>
             <span v-if="report" class="dd-usage__range">{{ formatDateTime(report.from) }} ～ {{ formatDateTime(report.to) }}</span>
             <span v-if="loading" class="dd-usage__range">載入中…</span>
         </div>
@@ -84,7 +87,7 @@
 
             <h2 class="dd-usage__title">各功能</h2>
             <p class="dd-usage__desc">「每點額度值」三個功能應該差不多；哪個明顯偏高，代表它的點數訂便宜了。延遲與成本看 P95，不看平均。</p>
-            <div class="dd-usage__scroll">
+            <div class="dd-usage__scroll dd-table-scroll">
                 <table class="dd-table dd-table--static">
                     <thead>
                         <tr>
@@ -128,7 +131,7 @@
 
             <h2 class="dd-usage__title">每台裝置的用量分布</h2>
             <p class="dd-usage__desc">免費額度看「每台額度點數」的 P50；訂閱價看「每台成本」的 P95（重度使用者）。</p>
-            <div class="dd-usage__scroll">
+            <div class="dd-usage__scroll dd-table-scroll">
                 <table class="dd-table dd-table--static">
                     <thead>
                         <tr>
@@ -154,7 +157,7 @@
             </div>
 
             <h2 class="dd-usage__title">模型</h2>
-            <div class="dd-usage__scroll">
+            <div class="dd-usage__scroll dd-table-scroll">
                 <table class="dd-table dd-table--static">
                     <thead>
                         <tr>
