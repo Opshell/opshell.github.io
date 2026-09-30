@@ -82,15 +82,15 @@
     <div class="heatmap-container">
         <div class="heatmap-header">
             <span class="year-control" @click="switchYear(-1)">❮</span>
-            <span class="current-year">{{ currentYear }} Activity</span>
+            <span class="current-year">{{ currentYear }} 年</span>
             <span class="year-control" :class="{ disabled: currentYear >= new Date().getFullYear() }" @click="switchYear(1)">❯</span>
 
             <div class="legend">
-                <span>Less</span>
+                <span>少</span>
                 <div class="cell level-0" />
                 <div class="cell level-2" />
                 <div class="cell level-3" />
-                <span>More</span>
+                <span>多</span>
             </div>
         </div>
 
@@ -168,8 +168,8 @@
                     border-radius: 2px;
                 }
                 .level-0 { background: var(--heatmap-empty); }
-                .level-2 { background: color-mix(in srgb, var(--vp-c-brand) 55%, transparent); }
-                .level-3 { background: var(--vp-c-brand); }
+                .level-2 { background: color-mix(in srgb, var(--nb-marker) 65%, var(--nb-marker-soft)); }
+                .level-3 { background: var(--nb-marker); }
             }
         }
 
@@ -222,9 +222,9 @@
                 z-index: 3;
             }
 
-            &.level-1 { background: color-mix(in srgb, var(--vp-c-brand) 25%, transparent); }
-            &.level-2 { background: color-mix(in srgb, var(--vp-c-brand) 55%, transparent); }
-            &.level-3 { background: var(--vp-c-brand); }
+            &.level-1 { background: var(--nb-marker-soft); }
+            &.level-2 { background: color-mix(in srgb, var(--nb-marker) 65%, var(--nb-marker-soft)); }
+            &.level-3 { background: var(--nb-marker); }
         }
 
         .selection-info {
