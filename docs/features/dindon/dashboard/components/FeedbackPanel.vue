@@ -691,7 +691,6 @@
         @include setFlex(flex-start, stretch, 16px, column);
 
         // 問題清單的欄位多，窄螢幕讓它自己左右捲，不要撐破版面
-        &__scroll { overflow-x: auto; }
         &__check {
             @include setFlex(flex-start, center, 6px);
             cursor: pointer;

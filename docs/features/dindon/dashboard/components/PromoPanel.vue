@@ -455,7 +455,6 @@
             @include setFlex(flex-start, center, 8px);
             flex-wrap: wrap;
         }
-        &__scroll { overflow-x: auto; }
 
         input[type=number], input[type=text], input[type=datetime-local], select {
             background: var(--vp-c-bg-soft);

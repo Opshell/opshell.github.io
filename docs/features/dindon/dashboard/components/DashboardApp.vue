@@ -419,12 +419,15 @@
         // 內容區是捲動容器，也是 size 容器：裡面的表格用 100cqh 算自己最多能多高
         &__content {
             container-type: size;
-            padding: 24px var(--dd-gutter) 48px;
+
+            // 上方的留白放在 __page：放在這裡的話，吸頂的表頭會停在留白底下，上面露出一條捲過去的列
+            padding: 0 var(--dd-gutter) 48px;
             overflow: auto;
             overscroll-behavior: contain;
         }
         &__page {
             max-width: 1280px;
+            padding-top: 24px;
 
             // API 控制台左右兩欄加上說明與試打並排，要整個寬度
             &--wide { max-width: none; }
@@ -743,20 +746,20 @@
 
         // #endregion
 
-        // #region [P] 表格：捲動框限制在內容區的高度裡，表頭吸在框的頂端
-        // 表格外面原本是 overflow-x: auto，它會讓表頭吸不住（吸頂要看最近的捲動容器）；
-        // 所以乾脆讓框自己捲兩個方向，高度最多到內容區那麼高
+        // #region [P] 表格：整個後台只有內容區會捲，表頭吸在內容區的頂端
+        // 吸頂看的是最近的捲動容器：表格外面一包 overflow 就吸不到內容區。寬螢幕的表格都放得下（量過，含裝置詳情打開時），
+        // 所以不捲；窄螢幕表格可能比畫面寬，只好讓框自己橫向捲，這時表頭就不吸了（不限高度，還是只有內容區一個直向捲軸）。
+        // （之前讓框自己捲、最高到內容區那麼高，但框上面還有搜尋列，加起來超過內容區，變成兩個捲軸、下一頁被擠到看不到）
         .dd-table-scroll {
-            max-height: calc(100cqh - 16px);
-            overflow: auto;
-            overscroll-behavior: contain;
+            overflow: visible;
+            @include setRWD(900px) { overflow-x: auto; }
         }
         .dd-table thead th {
             position: sticky;
             top: 0;
+            z-index: 1;
             background: var(--vp-c-bg);
             box-shadow: inset 0 -1px 0 var(--vp-c-divider);
-            z-index: 1;
         }
 
         // #endregion

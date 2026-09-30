@@ -281,7 +281,6 @@
             margin: 0 0 6px;
             font-size: var(--font-size-xs);
         }
-        &__scroll { overflow-x: auto; }
 
         tr.is-flagged td:first-child { box-shadow: inset 3px 0 0 var(--vp-c-warning-1); }
     }

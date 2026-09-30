@@ -254,7 +254,6 @@
             color: var(--vp-c-text-2);
             font-size: var(--font-size-s);
         }
-        &__scroll { overflow-x: auto; }
         &__warn {
             display: block;
             color: var(--vp-c-warning-1);

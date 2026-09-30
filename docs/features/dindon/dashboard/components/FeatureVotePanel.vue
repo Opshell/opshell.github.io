@@ -286,7 +286,6 @@
             margin: 0 0 8px;
             font-size: var(--font-size-m);
         }
-        &__scroll { overflow-x: auto; }
         &__description {
             max-width: 560px;
             margin: 4px 0 0;
