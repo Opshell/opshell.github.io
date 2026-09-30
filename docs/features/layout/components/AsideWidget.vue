@@ -95,11 +95,10 @@
             @mouseleave="isHoveringStats = false"
         >
             <h4 class="w-title">
-                <ElSvgIcon name="group_search" />
-                <span class="text">Data</span>
+                <span class="text">這個部落格</span>
                 <div class="dots">
-                    <span class="dot" :class="{ active: currentStatPage === 0 }" @click="currentStatPage = 0" />
-                    <span class="dot" :class="{ active: currentStatPage === 1 }" @click="currentStatPage = 1" />
+                    <button type="button" class="dot" :class="{ active: currentStatPage === 0 }" aria-label="文章數" @click="currentStatPage = 0" />
+                    <button type="button" class="dot" :class="{ active: currentStatPage === 1 }" aria-label="瀏覽數" @click="currentStatPage = 1" />
                 </div>
             </h4>
 
@@ -113,22 +112,22 @@
                     <div v-if="currentStatPage === 0" key="page0" class="stat-grid">
                         <div class="stat-item">
                             <span class="val">{{ formatNumber(siteData?.counts.published || 0) }}</span>
-                            <span class="label">Posts</span>
+                            <span class="label">篇文章</span>
                         </div>
                         <div class="stat-item">
                             <span class="val">{{ formatNumber(siteData?.counts.unpublished || 0) }}</span>
-                            <span class="label">Drafts</span>
+                            <span class="label">篇草稿</span>
                         </div>
                     </div>
 
                     <div v-else key="page1" class="stat-grid">
                         <div class="stat-item">
                             <span class="val">{{ displayPV }}</span>
-                            <span class="label">Views</span>
+                            <span class="label">次瀏覽</span>
                         </div>
                         <div class="stat-item">
                             <span class="val">{{ displayUV }}</span>
-                            <span class="label">Visitors</span>
+                            <span class="label">位訪客</span>
                         </div>
                     </div>
                 </transition>
@@ -137,8 +136,7 @@
 
         <div class="widget-card tags">
             <h4 class="w-title">
-                <ElSvgIcon name="sell" />
-                <span class="text">Tags</span>
+                <span class="text">常用標籤</span>
                 <!-- <ElSvgIcon
                     v-if="hasMoreTags"
                     class="toggle-btn"
@@ -160,7 +158,7 @@
                     href="/tags-list.html"
                     class="tag-link more-link"
                 >
-                    All Tags →
+                    全部標籤
                 </a>
             </div>
         </div>
@@ -168,150 +166,116 @@
 </template>
 
 <style lang="scss">
+    // 頁邊批註：數字與常用標籤直接寫在紙上，不裝進卡片（2026-10 翻新）
     .widgets-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+        @include setFlex(flex-start, stretch, var(--nb-space-6), column);
 
         .widget-card {
             position: relative;
-            background: var(--vp-c-bg-soft);
-            padding: 1.25rem;
-
-            // box-shadow: var(--card-shadow); // 如果有定義變數
-            border: 1px solid var(--vp-c-divider);
-            border-radius: 12px;
-            overflow: hidden;
+            padding-left: var(--nb-space-4);
+            border-left: 1px solid var(--nb-rule);
 
             .w-title {
-                @include setFlex(space-between, center, 5px);
-                margin-bottom: 1rem;
-                color: var(--vp-c-text-2);
-                font-size: 1.25rem;
+                @include setFlex(space-between, center, var(--nb-space-2));
+                margin: 0 0 var(--nb-space-3);
+                color: var(--nb-ink-2);
+                font-size: var(--nb-step--1);
                 font-weight: 700;
-                letter-spacing: 1px;
-                text-transform: uppercase;
 
-                .icon {
-                    @include setSize(24px, 24px);
-                }
-                .text {
-                    flex-grow: 1;
-                    text-align: left;
-                }
+                .text { flex-grow: 1; }
 
-                // Carousel Dots
+                // 兩頁數字的切換點
                 .dots {
-                    display: flex; gap: 4px;
-                    .dot {
-                        background: var(--vp-c-divider);
-                        width: 6px; height: 6px; border-radius: 50%;
-                        cursor: pointer;
-                        transition: background 0.3s;
-                        &.active { background: var(--vp-c-brand); }
-                    }
-                }
+                    display: flex;
+                    gap: 2px;
 
-                // Tag Toggle Btn
-                .toggle-btn {
-                    background: none; border: none;
-                    color: var(--vp-c-text-3); cursor: pointer;
-                    transition: color 0.2s;
-                    &:hover { color: var(--vp-c-brand); }
+                    .dot {
+                        @include setFlex();
+                        background: none;
+                        @include setSize(20px, 20px);
+                        padding: 0;
+                        border: 0;
+                        cursor: pointer;
+
+                        &::after {
+                            content: '';
+                            background: var(--nb-rule);
+                            @include setSize(6px, 6px);
+                            border-radius: 50%;
+                        }
+                        &.active::after { background: var(--nb-ink-2); }
+                        &:focus-visible {
+                            border-radius: 4px;
+                            outline: 2px solid var(--nb-link);
+                        }
+                    }
                 }
             }
         }
 
-        .stat-content {
-            min-height: 60px; // 固定高度避免跳動
-        }
-
+        .stat-content { min-height: 3rem; }
         .stat-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            gap: var(--nb-space-3);
 
             .stat-item {
-                display: flex;
-                flex-direction: column;
-
-                // align-items: center; // 也可以置中看設計喜好
+                @include setFlex(flex-start, baseline, var(--nb-space-1));
+                flex-wrap: wrap;
 
                 .val {
-                    color: var(--vp-c-brand);
-                    font-family: var(--vp-font-family-mono);
-                    font-size: 1.5rem;
+                    color: var(--nb-ink);
+                    font-family: var(--nb-font-serif);
+                    font-size: var(--nb-step-3);
                     font-weight: 700;
                     line-height: 1.1;
+                    font-variant-numeric: tabular-nums;
                 }
                 .label {
-                    margin-top: 4px;
-                    color: var(--vp-c-text-3);
-                    font-size: 0.7rem;
-                    font-weight: 500;
-                    text-transform: uppercase;
+                    color: var(--nb-ink-3);
+                    font-size: var(--nb-step--2);
                 }
             }
         }
 
         .tags-cloud {
-            display: flex; flex-wrap: wrap; gap: 8px 10px;
-            transition: max-height 0.3s ease; // 如果想做 slide down 動畫
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--nb-space-1) var(--nb-space-3);
 
             .tag-link {
-                display: flex; gap: 2px; align-items: center;
-                color: var(--vp-c-text-2);
-                font-size: 0.8rem; text-decoration: none;
-                transition: all 0.2s;
+                @include setFlex(flex-start, baseline, 1px);
+                color: var(--nb-ink-2);
+                font-size: var(--nb-step--1);
+                text-decoration: none;
 
-                .hash {
-                    color: var(--vp-c-brand);
-                    font-weight: 300;
-                    opacity: 0.6;
-                }
-
+                .hash { color: var(--nb-pencil); }
                 .t-count {
-                    background: var(--vp-c-bg-alt);
-                    min-width: 1.4em;
-                    padding: 0 5px; border-radius: 6px; margin-left: 2px;
-                    color: var(--vp-c-text-3);
-                    font-family: var(--vp-font-family-mono);
-                    font-size: 0.65rem; text-align: center;
+                    margin-left: 2px;
+                    color: var(--nb-ink-3);
+                    font-size: var(--nb-step--2);
+                    font-variant-numeric: tabular-nums;
                 }
-
                 &:hover {
-                    color: var(--vp-c-brand);
-                    transform: translateY(-1px);
-                    .t-count {
-                        background: var(--vp-c-brand);
-                        color: white;
-                    }
+                    color: var(--nb-link);
+                    text-decoration: underline;
+                    text-underline-offset: .25em;
                 }
-
+                &:focus-visible {
+                    outline: 2px solid var(--nb-link);
+                    outline-offset: 2px;
+                }
                 &.more-link {
-                    border-bottom: 1px dashed transparent;
-                    color: var(--vp-c-brand);
-                    font-size: 0.75rem;
+                    color: var(--nb-link);
                     font-weight: 600;
-                    &:hover { border-bottom-color: var(--vp-c-brand); }
                 }
             }
         }
 
-        // --- Transitions ---
+        // 數字換頁：淡入淡出就好
         .fade-slide-enter-active,
-        .fade-slide-leave-active {
-            transition: all 0.3s ease;
-        }
-
-        .fade-slide-enter-from {
-            transform: translateY(10px);
-            opacity: 0;
-        }
-
-        .fade-slide-leave-to {
-            transform: translateY(-10px);
-            opacity: 0;
-        }
+        .fade-slide-leave-active { transition: opacity .25s ease; }
+        .fade-slide-enter-from,
+        .fade-slide-leave-to { opacity: 0; }
     }
 </style>

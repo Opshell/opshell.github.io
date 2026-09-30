@@ -146,6 +146,103 @@
     // #endregion
 }
 
+// #region [P] 筆記本（2026-10 翻新）
+// 部落格是「對抗健忘的筆記本」：方格紙白、墨藍黑的字、螢光筆只畫重點、紅筆只拿來更正。
+// 後台（dindon-dashboard）共用同一組，另外在元件裡加 man page 式的密度與鍵盤操作。
+// 叮咚的宣傳頁、演示頁、政策頁、刪除頁不跟著翻新：頁面上有那幾個 class 時整組不套，維持原本的 VitePress 配色。
+// 顏色對比都算過（淺色對紙白、深色對夜間紙）：ink 13.5／ink-2 6.7／ink-3 4.8／link 6.1 : 1，深色都在 5 : 1 以上。
+:root:not(:has(.dindon-page, .dindon-privacy, .dindon-account)) {
+    // 紙
+    --nb-paper: #F6F7F4;        // 方格紙白：偏冷的灰綠，不是米黃
+    --nb-paper-2: #ECEEE9;      // 凹下去的一格（程式碼、表頭、清單底）
+    --nb-card: #FFF;            // 浮起來的一張（對話框、下拉選單）
+    --nb-rule: #DADDD7;         // 紙上的線
+    --nb-pencil: #8A9099;       // 鉛筆灰：只畫線與裝飾，不當文字色（對比不到 4.5）
+    // 墨
+    --nb-ink: #1F2A37;
+    --nb-ink-2: #4E5866;
+    --nb-ink-3: #636C79;
+    --nb-link: #2F5E9E;         // 藍墨水
+    --nb-link-soft: rgb(47 94 158 / 10%);
+    --nb-red: #B8402F;          // 紅筆：更正、警告
+    --nb-red-soft: rgb(184 64 47 / 10%);
+    // 螢光筆：品牌黃。只畫在重點上（strong、目前位置），不拿來當按鈕底色
+    --nb-marker: #F4B936;
+    --nb-marker-soft: #FBE3A6;
+    // 字
+    --nb-font-serif: 'Noto Serif TC', 'Songti TC', 'PMingLiU', serif;
+    --nb-font-sans: 'Roboto', 'NotoSansTC', 'PingFang TC', '微軟正黑體', sans-serif;
+    --nb-font-mono: 'FiraCode', ui-monospace, monospace;
+    // 字級：古典比例（12／14／16／18／21／24／36／48），內文 17px 給襯線
+    --nb-step--2: .75rem;
+    --nb-step--1: .875rem;
+    --nb-step-0: 1rem;
+    --nb-step-1: 1.125rem;
+    --nb-step-2: 1.3125rem;
+    --nb-step-3: 1.5rem;
+    --nb-step-4: 2.25rem;
+    --nb-step-5: 3rem;
+    --nb-read-size: 1.0625rem;
+    --nb-read-leading: 1.9;     // 中文襯線要比黑體再鬆一點
+    --nb-measure: 38em;         // 一行約 38 個中文字
+    // 間距（8 的倍數）
+    --nb-space-1: .25rem;
+    --nb-space-2: .5rem;
+    --nb-space-3: .75rem;
+    --nb-space-4: 1rem;
+    --nb-space-5: 1.5rem;
+    --nb-space-6: 2rem;
+    --nb-space-7: 3rem;
+    --nb-space-8: 4rem;
+    --nb-radius: 6px;           // 紙張只有一點點圓角
+    // 蓋掉 VitePress 的顏色：全站元件（導覽列、搜尋、按鈕）跟著換
+    --vp-c-bg: var(--nb-paper);
+    --vp-c-bg-alt: var(--nb-paper-2);
+    --vp-c-bg-soft: var(--nb-paper-2);
+    --vp-c-bg-elv: var(--nb-card);
+    --vp-c-text-1: var(--nb-ink);
+    --vp-c-text-2: var(--nb-ink-2);
+    --vp-c-text-3: var(--nb-ink-3);
+    --vp-c-divider: var(--nb-rule);
+    --vp-c-gutter: var(--nb-rule);
+    --vp-c-border: #C9CDC6;
+    --vp-c-brand-1: var(--nb-link);
+    --vp-c-brand-2: #3A6DB0;
+    --vp-c-brand-3: #4A7CC0;
+    --vp-c-brand-soft: var(--nb-link-soft);
+    --vp-c-default-soft: rgb(31 42 55 / 6%);
+    --vp-font-family-base: var(--nb-font-sans);
+    --vp-font-family-mono: var(--nb-font-mono);
+    --vp-code-color: var(--nb-ink);
+    --vp-code-bg: var(--nb-paper-2);
+    --vp-code-block-bg: #EEF0EB;
+    --vp-nav-bg-color: var(--nb-paper);
+    --vp-custom-block-tip-bg: var(--nb-link-soft);
+    --vp-custom-block-tip-code-bg: transparent;
+}
+// 夜間檯燈：深藍灰的紙、暖白的字，螢光筆降一點亮度
+.dark:not(:has(.dindon-page, .dindon-privacy, .dindon-account)) {
+    --nb-paper: #1A1F27;
+    --nb-paper-2: #222833;
+    --nb-card: #262D39;
+    --nb-rule: #323A47;
+    --nb-pencil: #5C6573;
+    --nb-ink: #E9E5DA;
+    --nb-ink-2: #B7BCC5;
+    --nb-ink-3: #949BA6;
+    --nb-link: #8DB4E8;
+    --nb-link-soft: rgb(141 180 232 / 12%);
+    --nb-red: #E8836F;
+    --nb-red-soft: rgb(232 131 111 / 12%);
+    --nb-marker-soft: rgb(244 185 54 / 28%);
+    --vp-c-border: #3E4757;
+    --vp-c-brand-2: #A2C2EC;
+    --vp-c-brand-3: #B6CFF0;
+    --vp-c-default-soft: rgb(233 229 218 / 8%);
+    --vp-code-block-bg: #1E242E;
+}
+
+// #endregion
 .dark {
     // 灰階
     --color-gray-900: #FFF; /* 純白 */

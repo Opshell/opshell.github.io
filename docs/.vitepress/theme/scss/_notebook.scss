@@ -1,0 +1,191 @@
+// 文章內文的排版（2026-10 翻新：對抗健忘的筆記本）。
+// 只套在文章版型（.article-layout）裡：全域的 .vp-doc 還有隱私權政策這些不翻新的頁面在用。
+// 2026-10 以前的文章排版在 _basic.scss 的 .article-layout__article，翻新時拿掉了（會蓋掉這裡的顏色與字級）。
+// 原則：襯線內文、行寬 38 字、螢光筆只畫在粗體上、紅筆只給警告；結構用留白與細線，不用卡片。
+
+// .nb-prose：不在文章版型裡、但要示範同一套排版的地方（設計系統頁）
+.article-layout .vp-doc,
+.nb-prose {
+    color: var(--nb-ink);
+    font-family: var(--nb-font-serif);
+    font-size: var(--nb-read-size);
+    line-height: var(--nb-read-leading);
+    font-feature-settings: 'palt' 0; // 中文字距不壓縮，長文比較好讀
+    overflow-wrap: break-word;
+
+    // #region [P] 段落與標題
+    p,
+    li { line-height: var(--nb-read-leading); }
+    p { margin: 1.1em 0; }
+
+    // 內文裡的一級標題多半是副標（文章標題已經在上面），降一級、用襯線，不跟標題搶
+    h1 {
+        margin: 0 0 var(--nb-space-5);
+        color: var(--nb-ink-2);
+        font-family: var(--nb-font-serif);
+        font-size: var(--nb-step-3);
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    // 標題換成無襯線：跟內文分得開，掃讀時一眼找得到段落
+    h2,
+    h3,
+    h4 {
+        color: var(--nb-ink);
+        font-family: var(--nb-font-sans);
+        font-weight: 700;
+        letter-spacing: .01em;
+        text-wrap: balance;
+    }
+
+    // 大段落前面一條紙上的線，像筆記換一個主題
+    h2 {
+        padding-top: var(--nb-space-6);
+        border-top: 1px solid var(--nb-rule);
+        margin: var(--nb-space-8) 0 var(--nb-space-4);
+        font-size: var(--nb-step-3);
+        line-height: 1.4;
+
+        &:first-child {
+            padding-top: 0;
+            border-top: 0;
+            margin-top: 0;
+        }
+    }
+    h3 {
+        margin: var(--nb-space-7) 0 var(--nb-space-3);
+        font-size: var(--nb-step-2);
+        line-height: 1.45;
+    }
+    h4 {
+        margin: var(--nb-space-6) 0 var(--nb-space-2);
+        font-size: var(--nb-step-1);
+    }
+
+    // 標題旁的 # 錨點：只在滑過時出現
+    .header-anchor {
+        color: var(--nb-pencil);
+        font-weight: 400;
+    }
+
+    // #endregion
+
+    // #region [P] 螢光筆與墨水
+    // 粗體＝用螢光筆畫過的重點：底下半截塗黃，字還是墨色
+    strong {
+        background: linear-gradient(transparent 58%, var(--nb-marker-soft) 58%);
+        padding: 0 .1em;
+        border-radius: 0;
+        color: inherit;
+        font-size: inherit;
+        font-weight: 700;
+        box-decoration-break: clone;
+    }
+    em { font-style: normal; text-emphasis: filled dot var(--nb-ink-3); text-emphasis-position: under; }
+
+    a {
+        color: var(--nb-link);
+        font-weight: inherit;
+        text-decoration: underline;
+        text-decoration-color: color-mix(in srgb, var(--nb-link) 40%, transparent);
+        text-decoration-thickness: 1px;
+        text-underline-offset: .25em;
+        transition: text-decoration-color .15s ease;
+
+        &:hover { text-decoration-color: var(--nb-link); }
+    }
+
+    // 行內程式碼：等寬字、凹下去的一格，顏色跟內文一樣（不再是橘色）
+    :not(pre) > code {
+        background: var(--nb-paper-2);
+        padding: .1em .35em;
+        border: 1px solid var(--nb-rule);
+        border-radius: 4px;
+        color: var(--nb-ink);
+        font-family: var(--nb-font-mono);
+        font-size: .86em;
+    }
+
+    // #endregion
+
+    // #region [P] 清單、引用、分隔線、表格
+    ul,
+    ol { padding-left: 1.5em; }
+    li + li { margin-top: .35em; }
+    li::marker { color: var(--nb-ink-3); }
+
+    blockquote {
+        padding: 0 0 0 var(--nb-space-5);
+        border-left: 3px solid var(--nb-pencil);
+        margin: var(--nb-space-6) 0;
+        color: var(--nb-ink-2);
+
+        > p { font-size: inherit; }
+    }
+
+    hr {
+        border-top: 1px dashed var(--nb-pencil);
+        margin: var(--nb-space-7) 0;
+    }
+
+    table {
+        font-family: var(--nb-font-sans);
+        font-size: var(--nb-step--1);
+        line-height: 1.6;
+    }
+    th {
+        background: var(--nb-paper-2);
+        color: var(--nb-ink);
+    }
+    th,
+    td { border-color: var(--nb-rule); }
+    tr { background: transparent; }
+
+    // #endregion
+
+    // #region [P] 程式碼區塊與提示框
+    div[class*='language-'] {
+        background: var(--vp-code-block-bg);
+        border: 1px solid var(--nb-rule);
+        border-radius: var(--nb-radius);
+        box-shadow: none;
+    }
+
+    .custom-block {
+        padding: var(--nb-space-4) var(--nb-space-5);
+        border: 0;
+        border-left: 3px solid var(--nb-link);
+        border-radius: 0 var(--nb-radius) var(--nb-radius) 0;
+        font-family: var(--nb-font-sans);
+        font-size: var(--nb-step--1);
+        line-height: 1.75;
+
+        .custom-block-title { font-weight: 700; }
+        > p:first-child,
+        > summary { font-size: var(--nb-step-0); }
+
+        // 紅筆只拿來寫「注意」與「危險」
+        &.warning,
+        &.danger {
+            background: var(--nb-red-soft);
+            border-left-color: var(--nb-red);
+        }
+        &.tip {
+            background: var(--nb-link-soft);
+            border-left-color: var(--nb-link);
+        }
+        &.info,
+        &.details {
+            background: var(--nb-paper-2);
+            border-left-color: var(--nb-pencil);
+        }
+    }
+
+    // #endregion
+
+    img {
+        border: 1px solid var(--nb-rule);
+        border-radius: var(--nb-radius);
+    }
+}

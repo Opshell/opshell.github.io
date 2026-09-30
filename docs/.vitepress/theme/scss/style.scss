@@ -6,6 +6,9 @@
 
 @use 'basic' as *;
 
+// 文章內文的排版（2026-10 翻新），只套在文章版型
+@use 'notebook' as *;
+
 // markdown 樣式
 // @use 'md' as *;
 

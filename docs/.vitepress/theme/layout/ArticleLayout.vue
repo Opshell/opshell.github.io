@@ -155,27 +155,20 @@
             <VPNav :is-sidebar-open="isSidebarOpen" @open-menu="openSidebar" />
         </header>
 
+        <!-- 筆記本版面（2026-10 翻新）：中間一欄內文（約 38 字寬），左邊是系列、右邊是頁邊批註（本頁目錄與標籤）。
+             不再把文章裝進卡片：內文直接寫在紙上，結構靠留白與細線 -->
         <div class="article-layout__container">
-            <aside class="article-layout__container-left">
+            <aside class="article-layout__container-left" aria-label="這個系列">
                 <div class="sticky-content">
                     <SeriesSidebar />
-                    <!-- <VPSidebar :open="isSidebarOpen"/> -->
                 </div>
             </aside>
 
             <main class="article-layout__container-main">
-                <ElSvgIcon
-                    class="zen-mode-btn"
-                    :name="isFocusMode ? 'zoom_in_map' : 'zoom_out_map'"
-                    :title="isFocusMode ? 'Exit Zen Mode' : 'Enter Zen Mode'"
-                    @click="toggleFocus"
-                />
-
                 <article class="article-layout__article">
-                    <ArticleMeta />
-
                     <header class="article-layout__article-header">
                         <h1 class="title">{{ frontmatter.title }}</h1>
+                        <ArticleMeta />
                     </header>
 
                     <div ref="contentDom" class="vp-doc markdown-body">
@@ -188,8 +181,18 @@
                 </div>
             </main>
 
-            <aside class="article-layout__container-right">
+            <aside class="article-layout__container-right" aria-label="頁邊批註">
                 <div class="sticky-content">
+                    <button
+                        type="button"
+                        class="article-layout__focus"
+                        :aria-pressed="isFocusMode"
+                        @click="toggleFocus"
+                    >
+                        <ElSvgIcon :name="isFocusMode ? 'zoom_in_map' : 'zoom_out_map'" />
+                        {{ isFocusMode ? '結束專注閱讀' : '專注閱讀' }}
+                    </button>
+
                     <ArticleToc
                         :headers="headers"
                         :active-anchor="activeAnchor"
@@ -210,176 +213,152 @@
 
 <style lang="scss">
     .article-layout {
-        @include setFlex(flex-start, stretch, 20px, column);
-        background-color: var(--vp-c-bg-alt); // 底色稍微灰一點，讓 Paper Card 跳出來
+        @include setFlex(flex-start, stretch, 0, column);
+        background-color: var(--vp-c-bg);
         min-height: 100vh;
 
+        // 導覽列：紙上的一條細線，不做毛玻璃
         .VPNav {
             position: fixed;
             top: 0;
-
-            // 強制玻璃擬態
-            background-color: rgb(255 255 255 / 80%) !important;
-            backdrop-filter: saturate(180%) blur(20px);
+            background-color: var(--vp-c-bg) !important;
             width: 100%;
             border-bottom: 1px solid var(--vp-c-divider);
             z-index: 50;
-
-            .dark & { background-color: rgb(22 22 22 / 80%) !important; }
         }
-
-        // 全域樣式修正：讓 VPNav 乖乖聽話
 
         // 手機版遮罩
         .mobile-nav-overlay {
-            position: fixed; top: 0; left: 0;
-            background: rgb(0 0 0 / 60%); width: 100%; height: 100%; z-index: 40;
+            position: fixed;
+            inset: 0;
+            background: rgb(0 0 0 / 60%);
+            z-index: 40;
         }
-    }
-</style>
 
-<style lang="scss">
-    .article-layout {
         .sticky-content {
             position: sticky;
-            top: calc(var(--vp-nav-height) + 2rem);
-            display: flex;
-            flex-direction: column;
-            gap: var(--gap);
-            max-height: calc(100vh - 120px);
-
-            // overflow-y: auto;
+            top: calc(var(--vp-nav-height) + var(--nb-space-6));
+            @include setFlex(flex-start, stretch, var(--nb-space-6), column);
+            max-height: calc(100vh - var(--vp-nav-height) - var(--nb-space-7));
+            overflow-y: auto;
             scrollbar-width: none;
         }
 
-        &__header {
-
-        }
-
+        // #region [P] 三欄：系列｜內文｜頁邊批註
         &__container {
             flex-grow: 1; // 撐開 Footer
             display: grid;
-            grid-template: "left  main           right" auto /
-                            250px minmax(0, 1fr) 250px;
-            gap: 1rem;
+            grid-template: 'left main right' auto / 13.5rem minmax(0, var(--nb-measure)) 13.5rem;
+            gap: var(--nb-space-7);
+            justify-content: center;
             width: 100%;
-            max-width: 1440px;
-            padding: calc(var(--vp-nav-height) + 3rem) 2rem 4rem; // 避開 Fixed Header
+            padding: calc(var(--vp-nav-height) + var(--nb-space-7)) var(--nb-space-6) var(--nb-space-8);
             margin: 0 auto;
-            transition: grid-template-columns 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 
-            // --- Columns ---
-            &-left {
-                grid-area: left;
-                transition: .3s var(--cubic-FiSo);
-            }
+            // 內文欄的寬度以內文字級計算（38em 是 38 個 17px 的字）
             &-main {
                 position: relative;
                 grid-area: main;
-                display: flex;
-                flex-direction: column;
-                gap: 2rem;
+                @include setFlex(flex-start, stretch, var(--nb-space-7), column);
                 min-width: 0;
+                font-size: var(--nb-read-size);
             }
-            &-right {
-                grid-area: right;
-                .widgets-area {
-                    transition: .3s var(--cubic-FiFo);
-                }
+            &-left { grid-area: left; }
+            &-right { grid-area: right; }
+
+            // 窄一點先收掉左邊的系列（系列在文章頁尾的上下篇也找得到），再窄就只剩內文
+            @include setRWD(1279px) {
+                grid-template: 'main right' auto / minmax(0, var(--nb-measure)) 13.5rem;
+
+                &-left { display: none; }
             }
-        }
+            @include setRWD(960px) {
+                grid-template: 'main' auto / minmax(0, 1fr);
+                padding: calc(var(--vp-nav-height) + var(--nb-space-6)) var(--nb-space-4) var(--nb-space-7);
 
-        &__article {
-            background: var(--vp-c-bg-soft);
-            padding: 2rem;
-            border: 1px solid var(--vp-c-divider);
-            border-radius: .75rem;
-
-            &-header {
-                margin-bottom: 1.625rem;
-            }
-        }
-
-        // --- Focus Mode ---
-        &.focus-mode .article-layout {
-            &__container {
-                grid-template-columns: 0 minmax(0, 1fr) 0;
-
-                &-left,
-                &-right {
-                    pointer-events: none;
-                    transform: translateY(10px);
-                    opacity: 0;
-                }
+                &-right { display: none; }
             }
         }
 
-        // --- reading-mode ---
-        &.reading-mode .article-layout {
-            &__container-left {
-                // 當進入閱讀模式時，變半透明
-                opacity: 0.3;
+        // #endregion
 
-                // 互動恢復
-                &:hover { opacity: 1; }
+        // #region [P] 文章標頭：標題用襯線，資訊一行小字在下面
+        &__article-header {
+            @include setFlex(flex-start, stretch, var(--nb-space-4), column);
+            padding-bottom: var(--nb-space-6);
+            border-bottom: 1px solid var(--vp-c-divider);
+            margin-bottom: var(--nb-space-6);
+
+            .title {
+                margin: 0;
+                color: var(--nb-ink);
+                font-family: var(--nb-font-serif);
+                font-size: clamp(1.75rem, 1.2rem + 2vw, var(--nb-step-4));
+                font-weight: 700;
+                line-height: 1.35;
+                letter-spacing: .01em;
+                text-wrap: balance;
             }
-
-            &__container-right {
-                .widgets-area { opacity: 0.3; }
-                &:hover .widgets-area{ opacity: 1; }
-            }
         }
 
-        // 為了讓變化平滑，要在原來的 class 加上 transition
-        .article-layout__container-left,
-        .article-layout__container-right {
-            transition: opacity 0.5s ease, filter 0.5s ease; // 設定 0.5s 讓過渡很優雅
-            opacity: 1; // 預設是不透明
-        }
+        // #endregion
 
-        // Paper Card Style
-        .paper-card {
-            background: var(--vp-c-bg);
-            padding: 3rem 4rem;
-            border: 1px solid var(--vp-c-divider);
-            border-radius: 16px;
-            box-shadow: 0 4px 24px rgb(0 0 0 / 4%); // 浮起來的感覺
-            @media (width <= 768px) { padding: 1.5rem; }
-        }
-
-        .zen-mode-btn {
-            position: absolute;
-            top: 0;
-            right: -65px;
-            background: var(--vp-c-bg);
-            padding: .2rem;
-            border: 1px solid var(--vp-c-divider);
-            border-radius: .5rem;
-            color: var(--vp-c-text-2);
+        // 專注閱讀：頁邊的一個文字鈕，不是浮在內文上的圖示
+        &__focus {
+            @include setFlex(flex-start, center, var(--nb-space-2));
+            background: none;
+            padding: 0;
+            border: 0;
+            color: var(--nb-ink-3);
+            font-size: var(--nb-step--1);
             cursor: pointer;
-            transform: scale(1);
-            transition: .2s var(--cubic-FiSo); // 之前寫成 2.2s 加不存在的 --op-cubic-FiSo
-            z-index: 10;
-            @include setFlex();
-            @include setSize(35px, 35px);
-            &:hover {
-                box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
-                color: var(--vp-c-brand);
-                transform: scale(1.2);
-            }
-            @media (width <= 1280px) {
-                top: 1rem;
-                right: 1rem;
-            }
-        }
-    }
 
-    // RWD
-    @media (width <= 1024px) {
-        .blog-grid-container {
-            grid-template-columns: 0 minmax(0, 1fr) 0;
-            padding: 6rem 1rem 2rem;
+            .svg-icon { @include setSize(16px, 16px); }
+            &:hover { color: var(--nb-link); }
+            &:focus-visible {
+                outline: 2px solid var(--nb-link);
+                outline-offset: 3px;
+            }
         }
-        .grid-area-left, .grid-area-right { display: none; }
+
+        // #region [P] 專注閱讀與閱讀中的淡出
+        &.focus-mode .article-layout__container {
+            grid-template-columns: 0 minmax(0, var(--nb-measure)) 13.5rem;
+
+            .article-layout__container-left {
+                pointer-events: none;
+                opacity: 0;
+            }
+            .article-layout__container-right :is(.article-toc, .widgets-area) {
+                pointer-events: none;
+                opacity: 0;
+            }
+        }
+
+        // 捲過開頭之後，兩邊的欄位淡一點；滑過去就回來
+        &.reading-mode .article-layout {
+            &__container-left { opacity: .45; }
+            &__container-right .widgets-area { opacity: .45; }
+        }
+        .article-layout__container-left,
+        .article-layout__container-right .widgets-area,
+        .article-layout__container-right .article-toc {
+            transition: opacity .4s ease;
+
+            &:hover { opacity: 1; }
+        }
+
+        // #endregion
+
+        .comments-box {
+            padding-top: var(--nb-space-6);
+            border-top: 1px solid var(--vp-c-divider);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .article-layout__container-left,
+            .article-layout__container-right .widgets-area,
+            .article-layout__container-right .article-toc { transition: none; }
+        }
     }
 </style>
