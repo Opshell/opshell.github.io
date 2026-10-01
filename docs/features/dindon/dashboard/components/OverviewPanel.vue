@@ -10,6 +10,7 @@
     import { FEATURE_LABELS, FEATURE_ORDER, formatInt, formatUsd } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import { PULSE_USAGE_DAYS, usePulse } from '../usePulse';
+    import AdminActions from './AdminActions.vue';
 
     // 總覽上每個數字都點得進去：跳到能看細節的那一頁，需要的話先套好篩選
     const emit = defineEmits<{ navigate: [tab: DashboardTab, preset?: PanelPreset] }>();
@@ -223,7 +224,9 @@
                     <option :value="90">近 90 天</option>
                 </select>
             </label>
-            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
+            <AdminActions>
+                <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
+            </AdminActions>
             <span v-if="loading" class="dd-overview__muted">載入中…</span>
         </div>
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>

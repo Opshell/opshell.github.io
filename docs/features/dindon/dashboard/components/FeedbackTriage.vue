@@ -4,6 +4,7 @@
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { adminApi, AdminApiError } from '../api';
     import { formatDateTime, KIND_LABELS } from '../format';
+    import { shortcutsPaused } from '../navigation';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import MergePicker from './MergePicker.vue';
 
@@ -231,10 +232,12 @@
 
     onMounted(() => {
         window.addEventListener('keydown', onKey);
+        shortcutsPaused.value = true;
         loadQueue();
     });
     onBeforeUnmount(() => {
         window.removeEventListener('keydown', onKey);
+        shortcutsPaused.value = false;
         releaseShots();
         prefetched.forEach(entry => entry.forEach(s => URL.revokeObjectURL(s.url))); // 之前寫成 entry.shots，關閉時會 TypeError
         prefetched.clear();

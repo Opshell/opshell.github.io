@@ -12,7 +12,7 @@
     const call = useAdminCall();
     const PER_PAGE = 25;
 
-    const query = ref('');
+    const query = ref(takePanelPreset('deviceQuery') ?? '');
     const status = ref<DeviceStatus>(takePanelPreset('deviceStatus') ?? 'all');
     const page = ref(1);
     const devices = ref<AdminDevice[]>([]);
@@ -102,51 +102,53 @@
 
         <div class="dd-devices__layout" :class="{ 'has-detail': selectedId !== null }">
             <div class="dd-devices__table-wrap">
-                <table class="dd-table">
-                    <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">名字</th>
-                            <th scope="col">備註</th>
-                            <th scope="col">狀態</th>
-                            <th scope="col">方案</th>
-                            <th scope="col" class="num">額度</th>
-                            <th scope="col">Beta</th>
-                            <th scope="col">Google</th>
-                            <th scope="col" class="num">近 30 天 AI</th>
-                            <th scope="col">最近使用</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="device in devices"
-                            :key="device.id"
-                            :class="{ 'is-selected': device.id === selectedId }"
-                            tabindex="0"
-                            @click="selectedId = device.id"
-                            @keydown.enter="selectedId = device.id"
-                        >
-                            <td>#{{ device.id }}</td>
-                            <td class="summary">{{ device.displayName || '—' }}</td>
-                            <td class="note" :title="device.adminNote">{{ device.adminNote || '—' }}</td>
-                            <td>
-                                <span class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
-                                    {{ device.frozen ? '❄ 已凍結' : '● 啟用' }}
-                                </span>
-                                <span v-if="device.isTest" class="dd-status is-test" title="後台建立的測試裝置，不進統計">⚙ 測試機</span>
-                            </td>
-                            <td>{{ PLAN_LABELS[device.planTier] ?? device.planTier }}</td>
-                            <td class="num">{{ formatInt(device.tokens) }}</td>
-                            <td>{{ device.betaTesterSince ?? '—' }}</td>
-                            <td>{{ device.linked ? maskEmail(device.email) || '已綁定' : '—' }}</td>
-                            <td class="num">{{ formatInt(device.aiCalls30d) }}</td>
-                            <td>{{ formatRelative(device.lastAiAt) }}</td>
-                        </tr>
-                        <tr v-if="!loading && devices.length === 0">
-                            <td colspan="10" class="dd-table__empty">沒有符合的裝置</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="dd-table-scroll">
+                    <table class="dd-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">名字</th>
+                                <th scope="col">備註</th>
+                                <th scope="col">狀態</th>
+                                <th scope="col">方案</th>
+                                <th scope="col" class="num">額度</th>
+                                <th scope="col">Beta</th>
+                                <th scope="col">Google</th>
+                                <th scope="col" class="num">近 30 天 AI</th>
+                                <th scope="col">最近使用</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="device in devices"
+                                :key="device.id"
+                                :class="{ 'is-selected': device.id === selectedId }"
+                                tabindex="0"
+                                @click="selectedId = device.id"
+                                @keydown.enter="selectedId = device.id"
+                            >
+                                <td>#{{ device.id }}</td>
+                                <td class="summary">{{ device.displayName || '—' }}</td>
+                                <td class="note" :title="device.adminNote">{{ device.adminNote || '—' }}</td>
+                                <td>
+                                    <span class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
+                                        {{ device.frozen ? '❄ 已凍結' : '● 啟用' }}
+                                    </span>
+                                    <span v-if="device.isTest" class="dd-status is-test" title="後台建立的測試裝置，不進統計">⚙ 測試機</span>
+                                </td>
+                                <td>{{ PLAN_LABELS[device.planTier] ?? device.planTier }}</td>
+                                <td class="num">{{ formatInt(device.tokens) }}</td>
+                                <td>{{ device.betaTesterSince ?? '—' }}</td>
+                                <td>{{ device.linked ? maskEmail(device.email) || '已綁定' : '—' }}</td>
+                                <td class="num">{{ formatInt(device.aiCalls30d) }}</td>
+                                <td>{{ formatRelative(device.lastAiAt) }}</td>
+                            </tr>
+                            <tr v-if="!loading && devices.length === 0">
+                                <td colspan="10" class="dd-table__empty">沒有符合的裝置</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
                 <div class="dd-devices__pager">
                     <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="page <= 1 || loading" @click="load(page - 1)">上一頁</button>
@@ -218,7 +220,7 @@
                 @include setRWD(1100px) { grid-template-columns: 1fr; }
             }
         }
-        &__table-wrap { overflow-x: auto; }
+        &__table-wrap { min-width: 0; }
         &__pager {
             @include setFlex(flex-start, center, 12px);
             margin-top: 12px;

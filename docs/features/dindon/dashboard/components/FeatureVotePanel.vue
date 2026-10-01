@@ -5,6 +5,7 @@
     import { formatDateTime, formatInt } from '../format';
     import { countChars, FEATURE_DESCRIPTION_MAX, FEATURE_TITLE_MAX, SaveFeatureCandidatePayload } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import AdminActions from './AdminActions.vue';
 
     // 新功能投票的候選（api.md 第 8 節，規則第 19 節，溝通板 #0061）。
     // 測試者在 App 裡投票，決定下一個做什麼；這裡列候選、新增、改標題說明與狀態、看票數。
@@ -124,7 +125,9 @@
                 <!-- 中文之間換行會變成空格，所以寫成一行 -->
                 測試者在 App 裡投票，每人同時最多 {{ maxVotes }} 票，只有「投票中」的能投。改成其他狀態時，投的人會拿回那一票，票數留著。<strong>沒有刪除</strong>：不要了就改成「不做了」。看不到是誰投的。
             </p>
-            <button type="button" class="dd-admin__btn" @click="startCreate">新增候選</button>
+            <AdminActions>
+                <button type="button" class="dd-admin__btn" @click="startCreate">新增候選</button>
+            </AdminActions>
         </div>
 
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
@@ -178,7 +181,7 @@
         </form>
         <!-- #endregion -->
 
-        <div class="dd-feature-vote__scroll">
+        <div class="dd-feature-vote__scroll dd-table-scroll">
             <h3 class="dd-feature-vote__sub-title">所有候選（{{ features.length }}）</h3>
             <table class="dd-table">
                 <thead>
@@ -283,7 +286,6 @@
             margin: 0 0 8px;
             font-size: var(--font-size-m);
         }
-        &__scroll { overflow-x: auto; }
         &__description {
             max-width: 560px;
             margin: 4px 0 0;

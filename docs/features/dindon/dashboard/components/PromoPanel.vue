@@ -4,6 +4,7 @@
     import { adminApi } from '../api';
     import { formatDateTime, formatInt, PLAN_LABELS } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import AdminActions from './AdminActions.vue';
 
     // 優惠碼管理（api.md 第 8 節「優惠碼」，溝通板 #38）。
     // 一組碼可以送方案時間、送額度點數，或兩者都送，至少一種——表單用兩個勾選框表示，
@@ -222,7 +223,9 @@
                 一組碼可以送方案時間、送額度點數，或兩者都送。停用或改設定<strong>不影響已經兌換過的人</strong>——
                 權益和點數已經發出去了。沒有刪除，只有停用。
             </p>
-            <button type="button" class="dd-admin__btn" @click="startCreate">新增優惠碼</button>
+            <AdminActions>
+                <button type="button" class="dd-admin__btn" @click="startCreate">新增優惠碼</button>
+            </AdminActions>
         </div>
 
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
@@ -309,7 +312,7 @@
         <!-- #endregion -->
 
         <!-- #region [P] 誰兌換過 -->
-        <div v-if="editing && redemptions.length" class="dd-promo__scroll">
+        <div v-if="editing && redemptions.length" class="dd-promo__scroll dd-table-scroll">
             <h3 class="dd-promo__sub-title">兌換過的人（{{ redemptions.length }}）</h3>
             <table class="dd-table">
                 <thead>
@@ -335,7 +338,7 @@
         <p v-else-if="editing && !isNew" class="dd-promo__muted">還沒有人兌換這組碼。</p>
         <!-- #endregion -->
 
-        <div class="dd-promo__scroll">
+        <div class="dd-promo__scroll dd-table-scroll">
             <h3 class="dd-promo__sub-title">所有優惠碼（{{ codes.length }}）</h3>
             <table class="dd-table">
                 <thead>
@@ -452,7 +455,6 @@
             @include setFlex(flex-start, center, 8px);
             flex-wrap: wrap;
         }
-        &__scroll { overflow-x: auto; }
 
         input[type=number], input[type=text], input[type=datetime-local], select {
             background: var(--vp-c-bg-soft);

@@ -4,6 +4,7 @@
     import { adminApi } from '../api';
     import { FEATURE_LABELS, formatInt, formatRelative, formatUsd } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import AdminActions from './AdminActions.vue';
 
     // 誰在大量使用（api.md 第 8 節，舊板溝通板 #47）。
     //
@@ -95,7 +96,9 @@
                 <input v-model="onlyFlagged" type="checkbox" />
                 只看有提示的（{{ flagged.length }}）
             </label>
-            <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
+            <AdminActions>
+                <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
+            </AdminActions>
             <span class="dd-watch__muted">{{ rows.length }} 台有用量 · 估計成本 {{ formatUsd(totalCost) }}</span>
         </div>
 
@@ -112,7 +115,7 @@
             </dl>
         </details>
 
-        <div class="dd-watch__scroll">
+        <div class="dd-watch__scroll dd-table-scroll">
             <table class="dd-table">
                 <thead>
                     <tr>
@@ -278,7 +281,6 @@
             margin: 0 0 6px;
             font-size: var(--font-size-xs);
         }
-        &__scroll { overflow-x: auto; }
 
         tr.is-flagged td:first-child { box-shadow: inset 3px 0 0 var(--vp-c-warning-1); }
     }
