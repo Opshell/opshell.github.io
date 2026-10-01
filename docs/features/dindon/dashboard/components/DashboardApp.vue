@@ -426,6 +426,7 @@
             overscroll-behavior: contain;
         }
         &__page {
+            container: dd-page / inline-size;
             max-width: 1280px;
             padding-top: 24px;
 
