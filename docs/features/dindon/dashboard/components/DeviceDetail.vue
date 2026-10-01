@@ -576,9 +576,26 @@
         }
         .is-over { color: var(--vp-c-danger-1); }
         @include setFlex(flex-start, stretch, 16px, column);
+
+        // 有底色（不然列表會從底下透出來）；並排時黏在右邊、自己捲：點列表下面的列，詳情也還在畫面上。
+        // 裝置與回報兩頁的詳情都是這個 class
+        position: sticky;
+        top: 16px;
+        background: var(--vp-c-bg);
+        max-height: calc(100cqh - 32px);
         padding: 20px;
         border: 1px solid var(--vp-c-divider);
         border-radius: 16px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+
+        // 可以捲的 flex 欄會把子元素壓扁
+        > * { flex-shrink: 0; }
+        @container dd-page (width < 960px) {
+            position: static;
+            max-height: none;
+            overflow: visible;
+        }
 
         &__header {
             @include setFlex(flex-start, center, 10px);

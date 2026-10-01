@@ -108,13 +108,13 @@
                             <tr>
                                 <th scope="col">ID</th>
                                 <th scope="col">名字</th>
-                                <th scope="col">備註</th>
+                                <th scope="col" class="extra">備註</th>
                                 <th scope="col">狀態</th>
                                 <th scope="col">方案</th>
-                                <th scope="col" class="num">額度</th>
-                                <th scope="col">Beta</th>
-                                <th scope="col">Google</th>
-                                <th scope="col" class="num">近 30 天 AI</th>
+                                <th scope="col" class="num extra">額度</th>
+                                <th scope="col" class="extra">Beta</th>
+                                <th scope="col" class="extra">Google</th>
+                                <th scope="col" class="num extra">近 30 天 AI</th>
                                 <th scope="col">最近使用</th>
                             </tr>
                         </thead>
@@ -129,7 +129,7 @@
                             >
                                 <td>#{{ device.id }}</td>
                                 <td class="summary">{{ device.displayName || '—' }}</td>
-                                <td class="note" :title="device.adminNote">{{ device.adminNote || '—' }}</td>
+                                <td class="note extra" :title="device.adminNote">{{ device.adminNote || '—' }}</td>
                                 <td>
                                     <span class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
                                         {{ device.frozen ? '❄ 已凍結' : '● 啟用' }}
@@ -137,10 +137,10 @@
                                     <span v-if="device.isTest" class="dd-status is-test" title="後台建立的測試裝置，不進統計">⚙ 測試機</span>
                                 </td>
                                 <td>{{ PLAN_LABELS[device.planTier] ?? device.planTier }}</td>
-                                <td class="num">{{ formatInt(device.tokens) }}</td>
-                                <td>{{ device.betaTesterSince ?? '—' }}</td>
-                                <td>{{ device.linked ? maskEmail(device.email) || '已綁定' : '—' }}</td>
-                                <td class="num">{{ formatInt(device.aiCalls30d) }}</td>
+                                <td class="num extra">{{ formatInt(device.tokens) }}</td>
+                                <td class="extra">{{ device.betaTesterSince ?? '—' }}</td>
+                                <td class="extra">{{ device.linked ? maskEmail(device.email) || '已綁定' : '—' }}</td>
+                                <td class="num extra">{{ formatInt(device.aiCalls30d) }}</td>
                                 <td>{{ formatRelative(device.lastAiAt) }}</td>
                             </tr>
                             <tr v-if="!loading && devices.length === 0">
@@ -215,9 +215,13 @@
             align-items: start;
             margin-top: 16px;
 
+            // 詳情打開：右邊 420px 給詳情，列表只留認人用的幾欄（其他欄詳情裡都有），表格才不會擠進詳情底下。
+            // 並排要多寬看內容區（容器 dd-page），不看視窗：側欄收不收差了 150px
             &.has-detail {
                 grid-template-columns: minmax(0, 1fr) 420px;
-                @include setRWD(1100px) { grid-template-columns: 1fr; }
+
+                .extra { display: none; }
+                @container dd-page (width < 960px) { grid-template-columns: minmax(0, 1fr); }
             }
         }
         &__table-wrap { min-width: 0; }

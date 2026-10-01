@@ -767,6 +767,9 @@
             text-overflow: ellipsis;
             overflow: hidden;
         }
+
+        // 詳情打開時列表窄了，內容只露開頭（點開的那則在右邊看得到全文）
+        .has-detail .summary { max-width: 9em; }
         &__desc {
             white-space: pre-wrap; // 使用者打的換行要留著
             overflow-wrap: anywhere; // break-word 已棄用
