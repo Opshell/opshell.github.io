@@ -4,17 +4,19 @@
 // 後端回的格式對不上就丟 ApiSchemaError，錯誤訊息會指出是哪支 API、哪個欄位。
 
 import type { z } from 'zod';
-import type { AdminDevice, BatchReviewFeedbackInput, CreateFeedbackInput, CreateFeedbackIssueInput, ReviewFeedbackInput, SaveFeatureCandidateInput, SavePromoCodeInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
+import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, ReviewFeedbackInput, SaveFeatureCandidateInput, SavePromoCodeInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
 import { parseResponse } from '@shared/utils/zod';
 import { apiBase } from '../apiBase';
 import { GetApiCatalogParser } from './console/catalog.schema';
 import {
     BatchReviewFeedbackParser,
     BatchReviewFeedbackPayload,
+    ChangeCheckinsPayload,
     CreateFeedbackIssueParser,
     CreateFeedbackIssuePayload,
     CreateFeedbackParser,
     CreateFeedbackPayload,
+    GetDeviceCheckinsParser,
     GetDeviceDetailParser,
     GetDeviceListParser,
     GetFeatureCandidateListParser,
@@ -171,6 +173,15 @@ export const adminApi = {
      */
     eraseIdentity: async (token: string, id: number, freeze: boolean) =>
         call(UpdateDeviceParser, token, 'POST', `/v1/admin/devices/${id}/erase-identity`, { freeze }),
+    /** 打開 App 的紀錄（每天的打卡與來源，#0067） */
+    deviceCheckins: async (token: string, id: number) =>
+        call(GetDeviceCheckinsParser, token, 'GET', `/v1/admin/devices/${id}/checkins`),
+    /** 給打卡：來源記成 admin，**算進獎勵 */
+    grantCheckins: async (token: string, id: number, body: ChangeCheckinsInput) =>
+        call(GetDeviceCheckinsParser, token, 'POST', `/v1/admin/devices/${id}/checkins/grant`, ChangeCheckinsPayload.parse(body)),
+    /** 收回打卡（不管來源）；已經達成的鐵人不會跟著收回 */
+    revokeCheckins: async (token: string, id: number, body: ChangeCheckinsInput) =>
+        call(GetDeviceCheckinsParser, token, 'POST', `/v1/admin/devices/${id}/checkins/revoke`, ChangeCheckinsPayload.parse(body)),
     usage: async (token: string, days: number) =>
         call(GetUsageReportParser, token, 'GET', `/v1/admin/usage?days=${days}`),
     /** 逐台的用量，次數多的在前 */
