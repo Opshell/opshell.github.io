@@ -9,6 +9,7 @@
     import { formatDateTime, formatInt, formatRelative, KIND_LABELS } from '../format';
     import { takePanelPreset } from '../navigation';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import { usePanelReveal } from '../usePanelReveal';
     import { usePulse } from '../usePulse';
     import AdminActions from './AdminActions.vue';
     import FeedbackTriage from './FeedbackTriage.vue';
@@ -50,6 +51,13 @@
     const stats = ref<FeedbackStats | null>(null);
     const issues = ref<FeedbackIssue[]>([]);
     const selectedId = ref<number | null>(null);
+    // 詳情面板從沒有到有、關掉時有轉場（換看另一則時不重播）
+    const panel = usePanelReveal();
+    watch(selectedId, (next, prev) => {
+        if (next === null) panel.reset();
+        else if (prev === null) panel.show();
+    });
+    const closeDetail = () => panel.hide(() => (selectedId.value = null));
     const detail = ref<FeedbackReport | null>(null);
     const shots = ref<{ position: number; url: string }[]>([]);
     const loading = ref(false);
@@ -537,13 +545,13 @@
             </div>
 
             <!-- #region [P] 單則 -->
-            <aside v-if="selectedId !== null" class="dd-detail" aria-label="回報內容">
+            <aside v-if="selectedId !== null" class="dd-detail t-panel-slide" :data-open="panel.open.value" aria-label="回報內容">
                 <header class="dd-detail__header">
                     <h2>回報 #{{ selectedId }}</h2>
-                    <button type="button" class="dd-detail__close" aria-label="關閉" @click="selectedId = null">✕</button>
+                    <button type="button" class="dd-detail__close" aria-label="關閉" @click="closeDetail">✕</button>
                 </header>
 
-                <p v-if="!detail" class="dd-detail__muted">載入中…</p>
+                <p v-if="!detail" class="dd-detail__muted t-shimmer" data-text="載入中…">載入中…</p>
                 <template v-else>
                     <dl class="dd-detail__info">
                         <div><dt>裝置</dt><dd>{{ detail.deviceName || '未命名' }}（#{{ detail.deviceId }}）</dd></div>

@@ -251,7 +251,7 @@
                 <strong>快速審核</strong>
                 <span v-if="!loading && left">這批審了 {{ done }} 則 · 還剩 {{ left }} 則 · 現在第 {{ index + 1 }} 則</span>
                 <span v-else-if="!loading">這批審了 {{ done }} 則</span>
-                <span v-else>載入中…</span>
+                <span v-else class="t-shimmer" data-text="載入中…">載入中…</span>
             </div>
             <div class="dd-triage__keys" aria-hidden="true">
                 <kbd>1</kbd> bug<kbd>2</kbd>建議<kbd>3</kbd>不採計<kbd>S</kbd>跳過<kbd>U</kbd>復原<kbd>Esc</kbd>離開
@@ -283,7 +283,7 @@
 
                     <details @toggle="loadLog">
                         <summary>附加的除錯紀錄</summary>
-                        <p v-if="logLoading" class="dd-triage__muted">載入中…</p>
+                        <p v-if="logLoading" class="dd-triage__muted t-shimmer" data-text="載入中…">載入中…</p>
                         <pre v-else-if="log" class="dd-feedback__log">{{ log }}</pre>
                     </details>
                 </div>

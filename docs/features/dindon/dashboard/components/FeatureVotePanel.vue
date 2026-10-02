@@ -216,7 +216,7 @@
                     </tr>
                 </tbody>
             </table>
-            <p v-if="loading" class="dd-feature-vote__muted">載入中…</p>
+            <p v-if="loading" class="dd-feature-vote__muted t-shimmer" data-text="載入中…">載入中…</p>
         </div>
     </section>
 </template>

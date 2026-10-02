@@ -82,6 +82,31 @@
     const terminalRef = ref<InstanceType<typeof AdminTerminal>>();
     const helpEl = ref<HTMLDialogElement>();
 
+    // #region [P] 快捷鍵表的進出場（transitions-dev 06 Modal）：<dialog> 關著時是 display: none，
+    // 所以先 showModal() 讓它出現、強制排版一次，再加 is-open 才有轉場；關的時候播完 --modal-close-dur 才真的 close()
+    function cssMs(name: string, fallback: number) {
+        return Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || fallback;
+    }
+    function openHelp() {
+        const el = helpEl.value;
+        if (!el || el.open) return;
+        el.classList.remove('is-closing');
+        el.showModal();
+        void el.offsetWidth;
+        el.classList.add('is-open');
+    }
+    function closeHelp() {
+        const el = helpEl.value;
+        if (!el?.open || el.classList.contains('is-closing')) return;
+        el.classList.remove('is-open');
+        el.classList.add('is-closing');
+        setTimeout(() => {
+            el.classList.remove('is-closing');
+            el.close();
+        }, cssMs('--modal-close-dur', 150));
+    }
+    // #endregion
+
     /** 側欄上的數字：只有「要去處理」的才顯示，其他分頁不放數字，免得每個都在喊 */
     const badges = computed<Partial<Record<Tab, number>>>(() => ({
         feedback: pulse.pendingReports.value ?? 0,
@@ -117,6 +142,11 @@
         }
     }
     // #endregion
+
+    // 深淺色按鈕的圖示晚一格才換：VitePress 切深淺色的那一格會插一段「全站轉場關掉」的樣式（避免整頁顏色漸變），
+    // 圖示跟它同一格換的話，icon swap 的轉場會被吃掉
+    const iconDark = ref(isDark.value);
+    watch(isDark, dark => requestAnimationFrame(() => requestAnimationFrame(() => (iconDark.value = dark))));
 
     function toggleTheme(mode: 'dark' | 'light' | 'toggle' = 'toggle') {
         isDark.value = mode === 'toggle' ? !isDark.value : mode === 'dark';
@@ -165,7 +195,7 @@
 
         const actions: Record<string, () => void> = {
             ':': () => terminalRef.value?.focus(),
-            '?': () => helpEl.value?.showModal(),
+            '?': openHelp,
             '[': toggleSide,
             'r': () => void pulse.refresh()
         };
@@ -263,7 +293,7 @@
 
         <template v-else>
             <!-- #region [P] 側欄：可以收成只剩圖示；窄螢幕變成頂端一條，分頁可以橫向滑 -->
-            <aside class="dd-admin__side">
+            <aside class="dd-admin__side t-resize">
                 <p class="dd-admin__brand"><img src="/images/dindon/icon.webp" alt="" width="28" height="28" /><span class="label">叮咚後台</span></p>
 
                 <nav class="dd-admin__nav" role="tablist" aria-label="後台分頁">
@@ -281,7 +311,10 @@
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path :d="ICONS[t.key]" /></svg>
                         <span class="label">{{ t.label }}</span>
                         <kbd class="dd-admin__key" aria-hidden="true">{{ index + 1 }}</kbd>
-                        <span v-if="badges[t.key]" class="dd-admin__badge" :aria-label="`${badges[t.key]} 件待處理`">{{ badges[t.key] }}</span>
+                        <!-- 待辦數字（transitions-dev 03 Notification badge）：外框一直在，數字從 0 變多時滑進來、彈一下，歸零時縮掉 -->
+                        <span v-if="t.key in badges" class="t-badge dd-admin__badge-wrap" :data-open="!!badges[t.key]" :aria-hidden="!badges[t.key]">
+                            <span class="t-badge-dot dd-admin__badge" :aria-label="badges[t.key] ? `${badges[t.key]} 件待處理` : undefined">{{ badges[t.key] || '' }}</span>
+                        </span>
                     </button>
                 </nav>
 
@@ -304,9 +337,13 @@
                 <div class="dd-admin__bar">
                     <AdminTerminal ref="terminalRef" :tab="tab" :tabs="TABS" @command="onCommand" />
                     <button type="button" class="dd-admin__bar-btn" :title="isDark ? '換成淺色' : '換成深色'" :aria-label="isDark ? '換成淺色' : '換成深色'" @click="toggleTheme()">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path :d="isDark ? ICONS.sun : ICONS.moon" /></svg>
+                        <!-- 月亮與太陽疊在同一格，換的時候淡出淡入（transitions-dev 09 Icon swap） -->
+                        <span class="t-icon-swap" :data-state="iconDark ? 'b' : 'a'" aria-hidden="true">
+                            <svg class="t-icon" data-icon="a" viewBox="0 0 24 24"><path :d="ICONS.moon" /></svg>
+                            <svg class="t-icon" data-icon="b" viewBox="0 0 24 24"><path :d="ICONS.sun" /></svg>
+                        </span>
                     </button>
-                    <button type="button" class="dd-admin__bar-btn" title="快捷鍵" aria-label="快捷鍵" @click="helpEl?.showModal()">?</button>
+                    <button type="button" class="dd-admin__bar-btn" title="快捷鍵" aria-label="快捷鍵" @click="openHelp">?</button>
                 </div>
                 <!-- #endregion -->
 
@@ -347,7 +384,7 @@
                 <!-- #endregion -->
             </div>
 
-            <dialog ref="helpEl" class="dd-admin__help" aria-labelledby="dd-admin-help-title" @click.self="helpEl?.close()">
+            <dialog ref="helpEl" class="dd-admin__help t-modal" aria-labelledby="dd-admin-help-title" @click.self="closeHelp" @cancel.prevent="closeHelp">
                 <h2 id="dd-admin-help-title">快捷鍵</h2>
                 <dl>
                     <div v-for="item in SHORTCUTS" :key="item.keys">
@@ -356,7 +393,7 @@
                     </div>
                 </dl>
                 <p>正在輸入框裡打字、或快速審核開著時不會觸發。</p>
-                <form method="dialog"><button class="dd-admin__btn dd-admin__btn--ghost dd-admin__btn--small">關閉</button></form>
+                <button type="button" class="dd-admin__btn dd-admin__btn--ghost dd-admin__btn--small" @click="closeHelp">關閉</button>
             </dialog>
         </template>
     </div>
@@ -401,7 +438,9 @@
         // #region [P] 外殼：一個畫面高，只有內容捲
         &--signed-in {
             display: grid;
-            grid-template-columns: var(--dd-side-width) minmax(0, 1fr);
+
+            // 側欄那一欄是 auto：寬度由側欄自己的 width 決定，收合時 width 有轉場（transitions-dev 01 Card resize）
+            grid-template-columns: auto minmax(0, 1fr);
             height: 100vh;
             height: 100dvh;
             min-height: 0;
@@ -453,6 +492,7 @@
         &__side {
             @include setFlex(flex-start, stretch, 18px, column);
             background: var(--vp-c-bg-alt);
+            width: var(--dd-side-width);
             min-height: 0;
             padding: 14px 10px;
             border-right: 1px solid var(--vp-c-divider);
@@ -463,6 +503,7 @@
                 flex-direction: row;
                 gap: 10px;
                 align-items: center;
+                width: auto;
                 padding: 8px 12px;
                 border-right: 0;
                 border-bottom: 1px solid var(--vp-c-divider);
@@ -547,7 +588,17 @@
             font-size: 12px;
             line-height: 18px;
             text-align: center;
-            @include setRWD(900px) { margin-left: 0; }
+        }
+
+        // 數字的外框（.t-badge）一直在、絕對定位，數字出現或歸零都不會讓分頁的字跳位：
+        // 展開時在快捷鍵那一格的左邊，收合時在圖示右上角，窄螢幕在分頁右上角
+        &__badge-wrap.t-badge {
+            top: calc(50% - 10px);
+            right: 36px;
+            @include setRWD(900px) {
+                top: 0;
+                right: 0;
+            }
         }
         &__collapse {
             @include setRWD(900px) { display: none; }
@@ -577,10 +628,11 @@
             }
             .dd-admin__brand { padding: 0; }
             .dd-admin__key { display: none; }
-            .dd-admin__badge {
-                position: absolute;
+            .dd-admin__badge-wrap.t-badge {
                 top: 3px;
                 right: 3px;
+            }
+            .dd-admin__badge {
                 min-width: 16px;
                 padding: 0 4px;
                 font-size: 10px;

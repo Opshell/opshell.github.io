@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import type { TerminalAction, TerminalTab } from '../terminal';
-    import { computed, nextTick, ref } from 'vue';
+    import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
     import { COMMANDS, commonPrefix, parseCommand, suggest } from '../terminal';
 
     // 後台頂端的偽終端機（2026-10 翻新）：原本那個黃色方塊游標變成真的能打字。
@@ -39,6 +39,23 @@
         const last = lines.value.at(-1);
         return last?.kind === 'out' ? last.text : '';
     });
+    // #region [P] 下拉的進出場（transitions-dev 05 Menu dropdown）：一直掛著，用 is-open／is-closing 切；
+    // 關的時候先播 --dropdown-close-dur 再拿掉 is-closing，下次打開才會從「還沒開」的大小長出來
+    const panelState = ref<'' | 'is-open' | 'is-closing'>('');
+    let closeTimer: ReturnType<typeof setTimeout> | undefined;
+    watch(focused, (open) => {
+        clearTimeout(closeTimer);
+        if (open) {
+            panelState.value = 'is-open';
+            return;
+        }
+        panelState.value = 'is-closing';
+        const ms = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dropdown-close-dur')) || 150;
+        closeTimer = setTimeout(() => (panelState.value = ''), ms);
+    });
+    onBeforeUnmount(() => clearTimeout(closeTimer));
+    // #endregion
+
     const suggestions = computed(() => (draft.value.trim() ? suggest(draft.value, props.tabs) : []));
     const tabLabel = (key: string) => props.tabs.find(tab => tab.key === key)?.label ?? key;
 
@@ -177,7 +194,14 @@
         <p v-if="!focused && echo" class="dd-term__echo">{{ echo }}</p>
 
         <!-- #region [P] 下拉：打到一半列建議；空白時列輸出與指令表。按在上面不會讓輸入框失焦 -->
-        <div v-show="focused" id="dd-term-panel" class="dd-term__panel" @mousedown.prevent>
+        <div
+            id="dd-term-panel"
+            class="dd-term__panel t-dropdown"
+            :class="panelState"
+            data-origin="top-left"
+            :aria-hidden="!focused"
+            @mousedown.prevent
+        >
             <ul v-if="suggestions.length" class="dd-term__suggestions" role="listbox" aria-label="建議">
                 <li
                     v-for="(item, index) in suggestions"
