@@ -30,7 +30,7 @@
     /** Google 實際帳單（#0084）：台幣、不是即時；抓不到就只顯示估算 */
     const billing = ref<GeminiBilling | null>(null);
     // 其他金額（每個功能、每天）一律依實際帳單換算
-    const { formatCost, formatDayCost, costNote } = useCostCalibration();
+    const { formatCost, formatDayCost, costFormula, costNote } = useCostCalibration();
     const loading = ref(false);
     const error = ref('');
 
@@ -127,7 +127,7 @@
             // 有實際帳單就顯示實付（台幣），估算（美元）放在小字；帳單抓不到時退回只有估算
             billing.value
                 ? { label: 'Gemini 實付', value: formatMoney(billing.value.total.paid, billing.value.currency), hint: `帳單到 ${billing.value.dataThrough ?? '—'}，之後的還沒匯出`, to: 'usage' }
-                : { label: 'Gemini 成本', value: formatCost(features.reduce((sum, f) => sum + f.totalCostUsd, 0)), hint: costNote.value, to: 'usage' },
+                : { label: 'Gemini 成本', value: formatCost(features.reduce((sum, f) => sum + f.totalCostUsd, 0)), hint: costFormula(features.reduce((sum, f) => sum + f.totalCostUsd, 0)), to: 'usage' },
             // 裝置頁沒有「有綁 Google」的篩選，只能跳到列表
             { label: '綁定 Google', value: formatInt(list.filter(d => d.linked).length), hint: '台裝置', to: 'devices' },
             { label: '已凍結', value: formatInt(list.filter(d => d.frozen).length), hint: '台裝置', to: 'devices', preset: { deviceStatus: 'frozen' } }
@@ -358,7 +358,7 @@
 
                 <article class="dd-overview__card">
                     <h3>錢花在哪個功能<button type="button" class="more" @click="emit('navigate', 'usage')">詳細 →</button></h3>
-                    <p class="sub">近 {{ days }} 天的 Gemini 成本，{{ costNote }}</p>
+                    <p class="sub">近 {{ days }} 天的 Gemini 成本{{ costNote }}</p>
                     <BarChart v-if="costRows.length" :rows="costRows" :series="costSeries" :format="formatCost" />
                     <p v-else class="dd-overview__muted">這段期間沒有 AI 請求</p>
                     <details>
@@ -526,6 +526,7 @@
             .hint {
                 color: var(--vp-c-text-3);
                 font-size: var(--font-size-xs);
+                white-space: pre-line;
             }
         }
         &__grid {

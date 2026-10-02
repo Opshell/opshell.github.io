@@ -1,14 +1,14 @@
 <script setup lang="ts">
     import { computed } from 'vue';
     import { skuRates } from '../billingCalibration';
-    import { formatInt } from '../format';
+    import { formatInt, formatUsd } from '../format';
     import { formatMoney } from '../googleData';
     import { useCostCalibration } from '../useCostCalibration';
 
     // 估算跟帳單差多少、為什麼（2026-10-02，使用者：「檢查估算的部分到底哪裡出問題」）。近 90 天、只看帳單已經匯出的日子。
     // 已經查過的：價目表的單價跟 Google 一模一樣（每個計價項目反推的匯率都是 31.7），所以落差是 token 數對不上，不是價錢錯。
     // 已知會讓帳單比估算多的：被取消的加問（後端記 0 token，Google 照收輸入）、測試裝置不進估算、同一把金鑰的其他用量。
-    const { billing, usage, rate, days, factor, multiple, error, loading } = useCostCalibration();
+    const { billing, usage, rate, days, factor, basis, multiple, error, loading } = useCostCalibration();
 
     const rates = computed(() => (billing.value && usage.value ? skuRates(billing.value.skus, usage.value.pricesUsed) : []));
     /** 每一項反推的匯率差不到 1%：價目表沒問題 */
@@ -39,8 +39,8 @@
                 </li>
                 <li>
                     <span class="label">換算係數</span>
-                    <span class="value">{{ factor ? formatMoney(factor) : '—' }}</span>
-                    <span class="hint">每 US$1 的估算，實際付多少台幣（全後台的金額都乘這個）</span>
+                    <span class="value">{{ factor ? factor.toFixed(2) : '—' }}</span>
+                    <span v-if="basis" class="hint">帳單實付 {{ formatMoney(basis.paidTwd) }} ÷ 資料庫估算 {{ formatUsd(basis.estimateUsd) }}。全後台的「資料庫估算（美元）」都乘這個變成台幣</span>
                 </li>
                 <li>
                     <span class="label">匯率（從帳單反推）</span>

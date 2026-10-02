@@ -33,7 +33,7 @@
 
     /** 照價目表估的總成本（美元）；下面的「Google 實際帳單」是台幣、實際的，兩個分開標 */
     // 金額一律依實際帳單換算：帳單分不出功能，每個功能照估算的比例分（useCostCalibration）
-    const { formatCost, costNote } = useCostCalibration();
+    const { formatCost, costFormula, costNote } = useCostCalibration();
     const estimateUsd = computed(() => features.value.reduce((acc, f) => acc + f.totalCostUsd, 0));
 
     const tiles = computed(() => {
@@ -43,7 +43,7 @@
         return [
             { label: 'AI 請求', value: formatInt(sum(f => f.requests)), hint: `成功 ${formatInt(sum(f => f.ok))}` },
             { label: '活躍裝置', value: formatInt(r.devices.activeDevices), hint: '期間內至少用過一次 AI' },
-            { label: 'Gemini 成本', value: formatCost(estimateUsd.value), hint: costNote.value },
+            { label: 'Gemini 成本', value: formatCost(estimateUsd.value), hint: costFormula(estimateUsd.value) },
             { label: 'Beta 免扣點', value: formatInt(sum(f => f.quotaWaived)), hint: '原本會扣的請求數' },
             { label: '撞到付費牆', value: formatInt(r.devices.devicesHitQuota), hint: '台裝置' },
             { label: '撞到每日上限', value: formatInt(r.devices.devicesHitDailyLimit), hint: '台裝置' }
@@ -252,6 +252,7 @@
             .hint {
                 color: var(--vp-c-text-3);
                 font-size: var(--font-size-xs);
+                white-space: pre-line;
             }
         }
         &__title {

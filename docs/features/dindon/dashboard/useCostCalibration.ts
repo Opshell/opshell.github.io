@@ -2,7 +2,8 @@ import type { ReconcileDay } from './billingCalibration';
 import type { GeminiBilling, UsageReport } from './schemas/admin.schema';
 import { computed, ref, shallowRef } from 'vue';
 import { adminApi } from './api';
-import { calibrationFactor, gapMultiple, impliedRate, reconcileDays } from './billingCalibration';
+import { calibrationFactor, costBasis, gapMultiple, impliedRate, reconcileDays } from './billingCalibration';
+import { formatUsd } from './format';
 import { formatMoney } from './googleData';
 import { errorMessage, useAdminCall } from './useAdminCall';
 
@@ -21,6 +22,8 @@ const rate = computed(() => (billing.value && usage.value ? impliedRate(billing.
 const days = computed<ReconcileDay[]>(() => (billing.value && usage.value ? reconcileDays(billing.value, usage.value.daily, rate.value) : []));
 /** 每 1 美元的估算，實際是多少台幣（含匯率與估算漏掉的部分） */
 const factor = computed(() => calibrationFactor(days.value));
+/** 係數怎麼來的：帳單實付 ÷ 資料庫估算 */
+const basis = computed(() => costBasis(days.value));
 /** 同一個幣別比，實際是估算的幾倍 */
 const multiple = computed(() => gapMultiple(factor.value, rate.value));
 
@@ -56,7 +59,7 @@ export function useCostCalibration() {
     /** 畫面上的金額：有係數就是台幣（依帳單），沒有就是美元估算加「（估）」 */
     const formatCost = (usd: number) => {
         const twd = toTwd(usd);
-        return twd === null ? `US$${usd.toFixed(usd < 0.01 ? 4 : 2)}（估）` : formatMoney(twd);
+        return twd === null ? `${formatUsd(usd)}（估）` : formatMoney(twd);
     };
 
     /** 某一天的成本：帳單已經匯出的日子用帳單實付，之後的日子用估算 × 係數 */
@@ -68,10 +71,27 @@ export function useCostCalibration() {
         return formatCost(usd);
     };
 
-    /** 金額欄位的說明：用在表頭與小字 */
-    const costNote = computed(() => (factor.value === null
-        ? '依價目表估算（美元）：實際帳單還沒算出換算係數'
-        : `依實際帳單換算（每 US$1 估算＝${formatMoney(factor.value)}）`));
+    // 金額的說明一律寫原始資料加算式（2026-10-02，使用者：「要呈現的應該是資料庫原始資料是什麼，下面備註用原始資料搭配算式」）。
+    // 資料庫記的是後端照價目表估的美元；台幣是乘上係數算出來的，係數＝帳單實付 ÷ 同期資料庫估算，不是匯率。
+    const factorText = computed(() => (factor.value === null ? '' : factor.value.toFixed(2)));
+    /** 係數的來源，寫成「帳單 NT$… ÷ 資料庫 US$…（9/21～10/1）」；數字卡片很窄，字要短 */
+    const shortDate = (date: string) => date.slice(5).split('-').map(Number).join('/');
+    const basisText = computed(() => {
+        const b = basis.value;
+        return b ? `帳單 ${formatMoney(b.paidTwd)} ÷ 資料庫 ${formatUsd(b.estimateUsd)}（${shortDate(b.from)}～${shortDate(b.to)}）` : '';
+    });
 
-    return { billing, usage, loading, error, rate, days, factor, multiple, load, toTwd, formatCost, formatDayCost, costNote };
+    /** 一個金額的完整算式，三行：資料庫原始值、乘法、係數的來源 */
+    const costFormula = (usd: number) => {
+        const twd = toTwd(usd);
+        if (twd === null) return `資料庫估算 ${formatUsd(usd)}\n帳單還沒對上，先顯示估算`;
+        return `資料庫估算 ${formatUsd(usd)}\n${formatUsd(usd)} × ${factorText.value} ＝ ${formatMoney(twd)}\n${factorText.value} ＝ ${basisText.value}`;
+    };
+
+    /** 接在「金額」「成本」後面的說明：用在段落、表頭 */
+    const costNote = computed(() => (factor.value === null
+        ? '＝資料庫估算（美元）：帳單還沒對上'
+        : `＝資料庫估算（美元）× ${factorText.value}；${factorText.value} ＝ ${basisText.value}，近 90 天帳單實付 ÷ 同期資料庫估算`));
+
+    return { billing, usage, loading, error, rate, days, factor, basis, multiple, load, toTwd, formatCost, formatDayCost, costFormula, costNote };
 }
