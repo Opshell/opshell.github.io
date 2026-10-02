@@ -8,9 +8,10 @@
     import BarChart from '../charts/BarChart.vue';
     import ColumnChart from '../charts/ColumnChart.vue';
     import { addDays } from '../checkins';
-    import { FEATURE_LABELS, FEATURE_ORDER, formatInt, formatUsd } from '../format';
+    import { FEATURE_LABELS, FEATURE_ORDER, formatInt } from '../format';
     import { formatMoney } from '../googleData';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import { useCostCalibration } from '../useCostCalibration';
     import { PULSE_USAGE_DAYS, usePulse } from '../usePulse';
     import AdminActions from './AdminActions.vue';
 
@@ -28,6 +29,8 @@
     const active = ref<ActiveDevices | null>(null);
     /** Google 實際帳單（#0084）：台幣、不是即時；抓不到就只顯示估算 */
     const billing = ref<GeminiBilling | null>(null);
+    // 其他金額（每個功能、每天）一律依實際帳單換算
+    const { formatCost, formatDayCost, costNote } = useCostCalibration();
     const loading = ref(false);
     const error = ref('');
 
@@ -123,8 +126,8 @@
             { label: 'AI 請求', value: formatInt(features.reduce((sum, f) => sum + f.requests, 0)), hint: `近 ${days.value} 天`, to: 'usage' },
             // 有實際帳單就顯示實付（台幣），估算（美元）放在小字；帳單抓不到時退回只有估算
             billing.value
-                ? { label: 'Gemini 實付', value: formatMoney(billing.value.total.paid, billing.value.currency), hint: `估算 ${formatUsd(features.reduce((sum, f) => sum + f.totalCostUsd, 0))}・帳單到 ${billing.value.dataThrough ?? '—'}`, to: 'usage' }
-                : { label: 'Gemini 成本', value: formatUsd(features.reduce((sum, f) => sum + f.totalCostUsd, 0)), hint: `近 ${days.value} 天，依價目表估算`, to: 'usage' },
+                ? { label: 'Gemini 實付', value: formatMoney(billing.value.total.paid, billing.value.currency), hint: `帳單到 ${billing.value.dataThrough ?? '—'}，之後的還沒匯出`, to: 'usage' }
+                : { label: 'Gemini 成本', value: formatCost(features.reduce((sum, f) => sum + f.totalCostUsd, 0)), hint: costNote.value, to: 'usage' },
             // 裝置頁沒有「有綁 Google」的篩選，只能跳到列表
             { label: '綁定 Google', value: formatInt(list.filter(d => d.linked).length), hint: '台裝置', to: 'devices' },
             { label: '已凍結', value: formatInt(list.filter(d => d.frozen).length), hint: '台裝置', to: 'devices', preset: { deviceStatus: 'frozen' } }
@@ -290,7 +293,7 @@
                                     <td class="num">{{ formatInt(day.rejected) }}</td>
                                     <td class="num">{{ formatInt(day.failed) }}</td>
                                     <td class="num">{{ formatInt(day.uniqueDevices) }}</td>
-                                    <td class="num">{{ formatUsd(day.costUsd) }}</td>
+                                    <td class="num">{{ formatDayCost(day.date, day.costUsd) }}</td>
                                 </tr>
                                 <tr v-if="!(report.daily ?? []).length">
                                     <td colspan="6" class="dd-table__empty">這段期間沒有 AI 請求</td>
@@ -355,14 +358,14 @@
 
                 <article class="dd-overview__card">
                     <h3>錢花在哪個功能<button type="button" class="more" @click="emit('navigate', 'usage')">詳細 →</button></h3>
-                    <p class="sub">近 {{ days }} 天的 Gemini 成本，依後端價目表估算</p>
-                    <BarChart v-if="costRows.length" :rows="costRows" :series="costSeries" :format="formatUsd" />
+                    <p class="sub">近 {{ days }} 天的 Gemini 成本，{{ costNote }}</p>
+                    <BarChart v-if="costRows.length" :rows="costRows" :series="costSeries" :format="formatCost" />
                     <p v-else class="dd-overview__muted">這段期間沒有 AI 請求</p>
                     <details>
                         <summary>看數字</summary>
                         <table class="dd-table dd-table--static">
                             <tbody>
-                                <tr v-for="r in costRows" :key="r.label"><th scope="row">{{ r.label }}</th><td class="num">{{ formatUsd(r.values.cost) }}</td></tr>
+                                <tr v-for="r in costRows" :key="r.label"><th scope="row">{{ r.label }}</th><td class="num">{{ formatCost(r.values.cost) }}</td></tr>
                             </tbody>
                         </table>
                     </details>

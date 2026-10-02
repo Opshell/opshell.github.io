@@ -2,8 +2,9 @@
     import type { Dist, UsageReport } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
-    import { FEATURE_LABELS, FEATURE_ORDER, formatDateTime, formatInt, formatMs, formatPercent, formatUsd } from '../format';
+    import { FEATURE_LABELS, FEATURE_ORDER, formatDateTime, formatInt, formatMs, formatPercent } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import { useCostCalibration } from '../useCostCalibration';
     import AdminActions from './AdminActions.vue';
     import GeminiBilling from './GeminiBilling.vue';
 
@@ -31,6 +32,8 @@
         .sort((a, b) => FEATURE_ORDER.indexOf(a.feature) - FEATURE_ORDER.indexOf(b.feature)));
 
     /** 照價目表估的總成本（美元）；下面的「Google 實際帳單」是台幣、實際的，兩個分開標 */
+    // 金額一律依實際帳單換算：帳單分不出功能，每個功能照估算的比例分（useCostCalibration）
+    const { formatCost, costNote } = useCostCalibration();
     const estimateUsd = computed(() => features.value.reduce((acc, f) => acc + f.totalCostUsd, 0));
 
     const tiles = computed(() => {
@@ -40,7 +43,7 @@
         return [
             { label: 'AI 請求', value: formatInt(sum(f => f.requests)), hint: `成功 ${formatInt(sum(f => f.ok))}` },
             { label: '活躍裝置', value: formatInt(r.devices.activeDevices), hint: '期間內至少用過一次 AI' },
-            { label: 'Gemini 成本（估）', value: formatUsd(estimateUsd.value), hint: '依後端價目表估算；實際帳單在下面' },
+            { label: 'Gemini 成本', value: formatCost(estimateUsd.value), hint: costNote.value },
             { label: 'Beta 免扣點', value: formatInt(sum(f => f.quotaWaived)), hint: '原本會扣的請求數' },
             { label: '撞到付費牆', value: formatInt(r.devices.devicesHitQuota), hint: '台裝置' },
             { label: '撞到每日上限', value: formatInt(r.devices.devicesHitDailyLimit), hint: '台裝置' }
@@ -53,7 +56,7 @@
         return [
             { label: '每台請求數', dist: d.requestsPerDevice, fmt: formatInt },
             { label: '每台額度點數', dist: d.quotaChargedPerDevice, fmt: formatInt },
-            { label: '每台成本', dist: d.costUsdPerDevice, fmt: formatUsd }
+            { label: '每台成本', dist: d.costUsdPerDevice, fmt: formatCost }
         ] satisfies { label: string; dist: Dist; fmt: (v: number) => string }[];
     });
 
@@ -92,7 +95,7 @@
             <GeminiBilling :days="days" :estimate-usd="estimateUsd" />
 
             <h2 class="dd-usage__title">各功能</h2>
-            <p class="dd-usage__desc">「每點額度值」三個功能應該差不多；哪個明顯偏高，代表它的點數訂便宜了。延遲與成本看 P95，不看平均。</p>
+            <p class="dd-usage__desc">「每點額度值」三個功能應該差不多；哪個明顯偏高，代表它的點數訂便宜了。延遲與成本看 P95，不看平均。金額{{ costNote }}。</p>
             <div class="dd-usage__scroll dd-table-scroll">
                 <table class="dd-table dd-table--static">
                     <thead>
@@ -124,9 +127,9 @@
                             <td class="num">{{ formatInt(f.uniqueDevices) }}</td>
                             <td class="num">{{ formatPercent(f.hedgeRate) }}</td>
                             <td class="num">{{ formatMs(f.latencyMs.p50) }}／{{ formatMs(f.latencyMs.p95) }}</td>
-                            <td class="num">{{ formatUsd(f.costUsdPerRequest.p95) }}</td>
-                            <td class="num key">{{ formatUsd(f.costUsdPerQuotaPoint) }}</td>
-                            <td class="num">{{ formatUsd(f.totalCostUsd) }}</td>
+                            <td class="num">{{ formatCost(f.costUsdPerRequest.p95) }}</td>
+                            <td class="num key">{{ formatCost(f.costUsdPerQuotaPoint) }}</td>
+                            <td class="num">{{ formatCost(f.totalCostUsd) }}</td>
                         </tr>
                         <tr v-if="!features.length">
                             <td colspan="13" class="dd-table__empty">這段期間沒有 AI 請求</td>
@@ -189,7 +192,7 @@
                             <td class="num">{{ formatInt(m.canceled) }}</td>
                             <td class="num">{{ formatInt(m.promptTokens) }}</td>
                             <td class="num">{{ formatInt(m.outputTokens + m.thoughtsTokens) }}</td>
-                            <td class="num">{{ formatUsd(m.costUsd) }}</td>
+                            <td class="num">{{ formatCost(m.costUsd) }}</td>
                         </tr>
                         <tr v-if="!report.models.length">
                             <td colspan="8" class="dd-table__empty">這段期間沒有呼叫 Gemini</td>

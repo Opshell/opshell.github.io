@@ -48,9 +48,14 @@ export function maskEmail(email: string | null): string {
 export const FEATURE_LABELS: Record<string, string> = {
     'classify': '推播分類',
     'recognize': '照片辨識',
-    'recognize-speech': '語音記帳'
+    'recognize-speech': '語音記帳',
+    // 後端另外幾個也會呼叫 Gemini 的（usage/record.go）：帳單上都算錢，報表上要認得
+    'recognize-statement': '帳單截圖',
+    'search': 'AI 搜尋',
+    'nudge': '小精靈提醒',
+    'admin-triage': '後台整理 LINE 回報'
 };
-export const FEATURE_ORDER = ['classify', 'recognize', 'recognize-speech'];
+export const FEATURE_ORDER = ['classify', 'recognize', 'recognize-speech', 'recognize-statement', 'search', 'nudge', 'admin-triage'];
 
 export const PLAN_LABELS: Record<string, string> = { free: '免費', lite: 'Lite', pro: 'Pro' };
 

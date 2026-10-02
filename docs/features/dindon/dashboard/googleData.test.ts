@@ -33,6 +33,7 @@ describe('格式', () => {
         expect(formatMoney(2.8)).toBe('NT$2.80');
         expect(formatMoney(1.5, 'USD')).toBe('USD 1.50');
         expect(formatMoney(-0.15)).toBe('-NT$0.15');
+        expect(formatMoney(0.00031)).toBe('NT$0.0003');
         expect(formatBytes(512)).toBe('512 B');
         expect(formatBytes(2048)).toBe('2.0 KB');
         expect(reportKind('stats/store_performance/store_performance_me.opshell.dindon_202609_country.csv')).toBe('商店頁成效');

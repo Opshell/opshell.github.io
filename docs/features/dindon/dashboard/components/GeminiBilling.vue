@@ -5,6 +5,7 @@
     import { formatDateTime, formatInt, formatUsd } from '../format';
     import { formatMoney, skuLabel } from '../googleData';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import BillingReconcile from './BillingReconcile.vue';
 
     // 用量報表裡的「Google 實際帳單」（溝通板 #0084）：Cloud Billing 匯出到 BigQuery 的 Gemini 費用，後端快取 3 小時。
     // 跟上面的估算（美元、照價目表算）幣別不同、也不是同一個來源，所以分開標，不硬並成一個數字。
@@ -60,9 +61,9 @@
                     <span class="hint">原價 {{ formatMoney(billing.total.cost, billing.currency) }}，抵免 {{ formatMoney(billing.total.credits, billing.currency) }}</span>
                 </li>
                 <li>
-                    <span class="label">同期的估算</span>
+                    <span class="label">同期的估算（原始）</span>
                     <span class="value">{{ formatUsd(estimateUsd) }}</span>
-                    <span class="hint">上面「Gemini 成本（估）」那一格：照價目表算、美元，不是同一個幣別</span>
+                    <span class="hint">照價目表算的美元；後台其他金額都已經依帳單換算，原始估算只在這裡</span>
                 </li>
                 <li>
                     <span class="label">有用量的日子</span>
@@ -117,6 +118,8 @@
                 </table>
             </details>
         </template>
+
+        <BillingReconcile />
     </section>
 </template>
 
