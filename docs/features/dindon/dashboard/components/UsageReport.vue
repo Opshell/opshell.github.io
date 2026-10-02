@@ -5,6 +5,7 @@
     import { FEATURE_LABELS, FEATURE_ORDER, formatDateTime, formatInt, formatMs, formatPercent, formatUsd } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import AdminActions from './AdminActions.vue';
+    import GeminiBilling from './GeminiBilling.vue';
 
     // 報表格式與怎麼讀：DinDon_BackEnd/docs/usage-analytics.md 第 4 節
     const call = useAdminCall();
@@ -29,6 +30,9 @@
     const features = computed(() => [...(report.value?.features ?? [])]
         .sort((a, b) => FEATURE_ORDER.indexOf(a.feature) - FEATURE_ORDER.indexOf(b.feature)));
 
+    /** 照價目表估的總成本（美元）；下面的「Google 實際帳單」是台幣、實際的，兩個分開標 */
+    const estimateUsd = computed(() => features.value.reduce((acc, f) => acc + f.totalCostUsd, 0));
+
     const tiles = computed(() => {
         const r = report.value;
         if (!r) return [];
@@ -36,7 +40,7 @@
         return [
             { label: 'AI 請求', value: formatInt(sum(f => f.requests)), hint: `成功 ${formatInt(sum(f => f.ok))}` },
             { label: '活躍裝置', value: formatInt(r.devices.activeDevices), hint: '期間內至少用過一次 AI' },
-            { label: 'Gemini 成本', value: formatUsd(sum(f => f.totalCostUsd)), hint: '依後端價目表估算' },
+            { label: 'Gemini 成本（估）', value: formatUsd(estimateUsd.value), hint: '依後端價目表估算；實際帳單在下面' },
             { label: 'Beta 免扣點', value: formatInt(sum(f => f.quotaWaived)), hint: '原本會扣的請求數' },
             { label: '撞到付費牆', value: formatInt(r.devices.devicesHitQuota), hint: '台裝置' },
             { label: '撞到每日上限', value: formatInt(r.devices.devicesHitDailyLimit), hint: '台裝置' }
@@ -84,6 +88,8 @@
                     <p class="hint">{{ tile.hint }}</p>
                 </li>
             </ul>
+
+            <GeminiBilling :days="days" :estimate-usd="estimateUsd" />
 
             <h2 class="dd-usage__title">各功能</h2>
             <p class="dd-usage__desc">「每點額度值」三個功能應該差不多；哪個明顯偏高，代表它的點數訂便宜了。延遲與成本看 P95，不看平均。</p>

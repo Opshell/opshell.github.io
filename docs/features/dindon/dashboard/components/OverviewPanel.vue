@@ -2,13 +2,14 @@
     import type { BarRow, BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
     import type { DashboardTab, PanelPreset } from '../navigation';
-    import type { ActiveDevices, AdminDevice, UsageReport } from '../schemas/admin.schema';
+    import type { ActiveDevices, AdminDevice, GeminiBilling, UsageReport } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi, ALL_DEVICES_MAX_PAGES, ALL_DEVICES_PER_PAGE } from '../api';
     import BarChart from '../charts/BarChart.vue';
     import ColumnChart from '../charts/ColumnChart.vue';
     import { addDays } from '../checkins';
     import { FEATURE_LABELS, FEATURE_ORDER, formatInt, formatUsd } from '../format';
+    import { formatMoney } from '../googleData';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import { PULSE_USAGE_DAYS, usePulse } from '../usePulse';
     import AdminActions from './AdminActions.vue';
@@ -25,6 +26,8 @@
     const report = ref<UsageReport | null>(null);
     /** 近 1／7／30 天有打開 App 的裝置數（#0081）；後端的數，不含測試與凍結的 */
     const active = ref<ActiveDevices | null>(null);
+    /** Google 實際帳單（#0084）：台幣、不是即時；抓不到就只顯示估算 */
+    const billing = ref<GeminiBilling | null>(null);
     const loading = ref(false);
     const error = ref('');
 
@@ -37,6 +40,7 @@
         try {
             // 「近幾天有開 App」是附加的數字：抓失敗只讓那兩格顯示「—」，不拖垮整個總覽
             void call(token => adminApi.activeDevices(token)).then(result => (active.value = result), () => (active.value = null));
+            void call(token => adminApi.geminiBilling(token, Math.min(days.value, 90))).then(result => (billing.value = result), () => (billing.value = null));
             const [deviceResult, usage] = await call(async token => Promise.all([adminApi.listAllDevices(token), adminApi.usage(token, days.value)]));
             // 測試裝置（#0074）不算：後端的用量報表也不算它們
             const tests = deviceResult.devices.filter(device => device.isTest).length;
@@ -117,7 +121,10 @@
             { label: '7 天以上沒開', value: formatInt(idleCount(7)), hint: '含從沒打開過的，點了看名單', to: 'devices', preset: { deviceIdleDays: 7, deviceStatus: 'active' } },
             { label: '近 7 天用過 AI', value: formatInt(list.filter(d => d.lastAiAt && now - new Date(d.lastAiAt).getTime() <= 7 * DAY_MS).length), hint: '台裝置', to: 'watch' },
             { label: 'AI 請求', value: formatInt(features.reduce((sum, f) => sum + f.requests, 0)), hint: `近 ${days.value} 天`, to: 'usage' },
-            { label: 'Gemini 成本', value: formatUsd(features.reduce((sum, f) => sum + f.totalCostUsd, 0)), hint: `近 ${days.value} 天，依價目表估算`, to: 'usage' },
+            // 有實際帳單就顯示實付（台幣），估算（美元）放在小字；帳單抓不到時退回只有估算
+            billing.value
+                ? { label: 'Gemini 實付', value: formatMoney(billing.value.total.paid, billing.value.currency), hint: `估算 ${formatUsd(features.reduce((sum, f) => sum + f.totalCostUsd, 0))}・帳單到 ${billing.value.dataThrough ?? '—'}`, to: 'usage' }
+                : { label: 'Gemini 成本', value: formatUsd(features.reduce((sum, f) => sum + f.totalCostUsd, 0)), hint: `近 ${days.value} 天，依價目表估算`, to: 'usage' },
             // 裝置頁沒有「有綁 Google」的篩選，只能跳到列表
             { label: '綁定 Google', value: formatInt(list.filter(d => d.linked).length), hint: '台裝置', to: 'devices' },
             { label: '已凍結', value: formatInt(list.filter(d => d.frozen).length), hint: '台裝置', to: 'devices', preset: { deviceStatus: 'frozen' } }

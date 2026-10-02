@@ -19,6 +19,7 @@ import {
     CreateFeedbackIssuePayload,
     CreateFeedbackParser,
     CreateFeedbackPayload,
+    GeminiBillingParser,
     GetAnnouncementListParser,
     GetDeviceCheckinsParser,
     GetDeviceDetailParser,
@@ -32,6 +33,8 @@ import {
     GetPromoCodeParser,
     GetUsageByDeviceParser,
     GetUsageReportParser,
+    PlayReportsParser,
+    PlayVitalsParser,
     ReviewFeedbackPayload,
     SaveAnnouncementParser,
     SaveAnnouncementPayload,
@@ -114,7 +117,10 @@ async function request(token: string, path: string, init: { method?: string; bod
 
     const data = await response.json().catch(() => null);
     if (!response.ok) {
-        throw new AdminApiError(response.status, (data && typeof data.error === 'string') ? data.error : fallbackMessage(response.status));
+        const message = (data && typeof data.error === 'string') ? data.error : fallbackMessage(response.status);
+        // 後端代讀 Google 的資料（帳單、Play）被 Google 拒絕時回 502，附 Google 的原文：查權限問題全靠這一句（#0084）
+        const google = data && typeof data.google_message === 'string' ? `（Google ${data.google_status ?? ''}：${data.google_message}）` : '';
+        throw new AdminApiError(response.status, message + google);
     }
     return data;
 }
@@ -283,6 +289,18 @@ export const adminApi = {
         call(SaveAnnouncementParser, token, 'POST', '/v1/admin/announcements', SaveAnnouncementPayload.parse(body)),
     /** 只改有給的欄位；{ withdrawn: true } 下架、false 重新上架。不能刪 */
     updateAnnouncement: async (token: string, id: number, body: SaveAnnouncementInput) =>
-        call(SaveAnnouncementParser, token, 'PATCH', `/v1/admin/announcements/${id}`, SaveAnnouncementPayload.parse(body))
+        call(SaveAnnouncementParser, token, 'PATCH', `/v1/admin/announcements/${id}`, SaveAnnouncementPayload.parse(body)),
+    // #endregion
+
+    // #region [P] Google 實際帳單與 Play（#0084）：後端快取 3 小時，refresh 才重查
+    /** days 1～90（含今天，台灣時間）。只算 Gemini，幣別是帳單帳戶的（TWD） */
+    geminiBilling: async (token: string, days: number, refresh = false) =>
+        call(GeminiBillingParser, token, 'GET', `/v1/admin/billing/gemini?days=${days}${refresh ? '&refresh=true' : ''}`),
+    /** 當機率與 ANR（美國太平洋時間的每日）；使用者太少的日子 Play 不給數字 */
+    playVitals: async (token: string, days: number, refresh = false) =>
+        call(PlayVitalsParser, token, 'GET', `/v1/admin/play/vitals?days=${days}${refresh ? '&refresh=true' : ''}`),
+    /** 報表空間裡有哪些檔案（只列，不讀內容） */
+    playReports: async (token: string, refresh = false) =>
+        call(PlayReportsParser, token, 'GET', `/v1/admin/play/reports${refresh ? '?refresh=true' : ''}`)
     // #endregion
 };

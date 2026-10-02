@@ -58,7 +58,7 @@
         { key: 'watch', label: '用量監看', hint: '逐台看 AI 用量，提示不是判決' },
         { key: 'promo', label: '優惠碼', hint: '送方案時間或額度點數' },
         { key: 'features', label: '功能投票', hint: '測試者投票決定下一個做什麼' },
-        { key: 'app', label: 'App 版本', hint: '各版本有幾台、最低可用版本、對 App 發重要公告' },
+        { key: 'app', label: 'App 版本', hint: '各版本有幾台、Play 的當機率、最低可用版本、對 App 發重要公告' },
         { key: 'api', label: 'API', hint: '每一支 API 的說明，直接在這裡試打' }
     ];
     const PANELS: Record<DashboardTab, Component> = {

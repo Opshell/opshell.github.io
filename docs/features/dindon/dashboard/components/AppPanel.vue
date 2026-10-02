@@ -7,6 +7,7 @@
     import { formatDateTime, formatInt } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import AdminActions from './AdminActions.vue';
+    import PlayHealth from './PlayHealth.vue';
 
     // 「App 版本」分頁（溝通板 #0076、#0080）：各版本有幾台、最低可用版本與最新版本、對 App 發的重要公告。
     // 版本的數字看「最近幾天有連線過的裝置」，不含測試與凍結的（後端算）。
@@ -229,6 +230,9 @@
             </template>
         </section>
         <!-- #endregion -->
+
+        <!-- Play 的當機率與報表空間（#0084）：跟版本放在一起，都是「App 在外面的狀況」 -->
+        <PlayHealth />
 
         <!-- #region [P] 版本設定 -->
         <section v-if="config" class="dd-app__card" aria-labelledby="dd-app-config">
