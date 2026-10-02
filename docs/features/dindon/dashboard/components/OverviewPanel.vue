@@ -2,11 +2,12 @@
     import type { BarRow, BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
     import type { DashboardTab, PanelPreset } from '../navigation';
-    import type { AdminDevice, UsageReport } from '../schemas/admin.schema';
+    import type { ActiveDevices, AdminDevice, UsageReport } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi, ALL_DEVICES_MAX_PAGES, ALL_DEVICES_PER_PAGE } from '../api';
     import BarChart from '../charts/BarChart.vue';
     import ColumnChart from '../charts/ColumnChart.vue';
+    import { addDays } from '../checkins';
     import { FEATURE_LABELS, FEATURE_ORDER, formatInt, formatUsd } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import { PULSE_USAGE_DAYS, usePulse } from '../usePulse';
@@ -22,6 +23,8 @@
     const devices = ref<AdminDevice[]>([]);
     const deviceTotal = ref(0);
     const report = ref<UsageReport | null>(null);
+    /** 近 1／7／30 天有打開 App 的裝置數（#0081）；後端的數，不含測試與凍結的 */
+    const active = ref<ActiveDevices | null>(null);
     const loading = ref(false);
     const error = ref('');
 
@@ -32,6 +35,8 @@
         loading.value = true;
         error.value = '';
         try {
+            // 「近幾天有開 App」是附加的數字：抓失敗只讓那兩格顯示「—」，不拖垮整個總覽
+            void call(token => adminApi.activeDevices(token)).then(result => (active.value = result), () => (active.value = null));
             const [deviceResult, usage] = await call(async token => Promise.all([adminApi.listAllDevices(token), adminApi.usage(token, days.value)]));
             // 測試裝置（#0074）不算：後端的用量報表也不算它們
             const tests = deviceResult.devices.filter(device => device.isTest).length;
@@ -91,6 +96,15 @@
     // #endregion
 
     // #region [P] 數字卡片
+    const activeCount = (windowDays: number) => {
+        const found = active.value?.windows.find(w => w.days === windowDays);
+        return found ? formatInt(found.devices) : '—';
+    };
+    /** 最後一次打開是 N 天前或更早（含從沒打開過），跟後端的 idle_days 同一個算法；凍結的不算 */
+    const idleCount = (idle: number) => {
+        const cutoff = addDays(taipeiDate.format(new Date()), -idle);
+        return devices.value.filter(d => !d.frozen && (!d.lastCheckinDay || d.lastCheckinDay <= cutoff)).length;
+    };
     const tiles = computed<{ label: string; value: string; hint: string; to: DashboardTab; preset?: PanelPreset }[]>(() => {
         const now = Date.now();
         const list = devices.value;
@@ -98,6 +112,9 @@
         const features = report.value?.features ?? [];
         return [
             { label: '裝置總數', value: formatInt(deviceTotal.value), hint: `期間新增 ${formatInt(list.filter(d => new Date(d.createdAt).getTime() >= since).length)} 台`, to: 'devices' },
+            // 有沒有在用看打卡（每天第一次打開 App 就打卡），只記帳不用 AI 的人也算得到（#0081）
+            { label: '近 7 天有開 App', value: activeCount(7), hint: `今天 ${activeCount(1)} 台・近 30 天 ${activeCount(30)} 台`, to: 'devices', preset: { deviceSort: 'last_checkin' } },
+            { label: '7 天以上沒開', value: formatInt(idleCount(7)), hint: '含從沒打開過的，點了看名單', to: 'devices', preset: { deviceIdleDays: 7, deviceStatus: 'active' } },
             { label: '近 7 天用過 AI', value: formatInt(list.filter(d => d.lastAiAt && now - new Date(d.lastAiAt).getTime() <= 7 * DAY_MS).length), hint: '台裝置', to: 'watch' },
             { label: 'AI 請求', value: formatInt(features.reduce((sum, f) => sum + f.requests, 0)), hint: `近 ${days.value} 天`, to: 'usage' },
             { label: 'Gemini 成本', value: formatUsd(features.reduce((sum, f) => sum + f.totalCostUsd, 0)), hint: `近 ${days.value} 天，依價目表估算`, to: 'usage' },

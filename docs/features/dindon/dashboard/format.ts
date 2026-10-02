@@ -14,6 +14,18 @@ export function formatDateTime(value: string | null | undefined): string {
     return value ? dateTime.format(new Date(value)) : '—';
 }
 
+/** 台灣時間的今天（YYYY-MM-DD） */
+export const todayInTaipei = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(new Date());
+
+/** 某一天（台灣時間 YYYY-MM-DD）離今天多久：今天、昨天、N 天前；null 是從沒打開過（#0081 的 last_checkin_day） */
+export function formatDayAgo(day: string | null | undefined, today = todayInTaipei()): string {
+    if (!day) return '從未';
+    const days = Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${day}T00:00:00Z`)) / 86_400_000);
+    if (days <= 0) return '今天';
+    if (days === 1) return '昨天';
+    return `${days} 天前`;
+}
+
 /** 「3 分鐘前」這種相對時間，列表上比絕對時間好掃 */
 export function formatRelative(value: string | null | undefined): string {
     if (!value) return '從未';

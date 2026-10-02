@@ -27,7 +27,11 @@ function device(id: number, nickname: string | null, email: string | null = null
         ironAchievedOn: null,
         avatar: null,
         adminNote,
-        isTest: false
+        isTest: false,
+        appVersion: '',
+        appBuild: 0,
+        lastSeenAt: null,
+        lastCheckinDay: null
     };
 }
 

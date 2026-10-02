@@ -4,11 +4,14 @@
 // 後端回的格式對不上就丟 ApiSchemaError，錯誤訊息會指出是哪支 API、哪個欄位。
 
 import type { z } from 'zod';
-import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, ReviewFeedbackInput, SaveFeatureCandidateInput, SavePromoCodeInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
+import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
 import { parseResponse } from '@shared/utils/zod';
 import { apiBase } from '../apiBase';
 import { GetApiCatalogParser } from './console/catalog.schema';
 import {
+    ActiveDevicesParser,
+    AppConfigParser,
+    AppVersionsParser,
     BatchReviewFeedbackParser,
     BatchReviewFeedbackPayload,
     ChangeCheckinsPayload,
@@ -16,6 +19,7 @@ import {
     CreateFeedbackIssuePayload,
     CreateFeedbackParser,
     CreateFeedbackPayload,
+    GetAnnouncementListParser,
     GetDeviceCheckinsParser,
     GetDeviceDetailParser,
     GetDeviceListParser,
@@ -29,6 +33,9 @@ import {
     GetUsageByDeviceParser,
     GetUsageReportParser,
     ReviewFeedbackPayload,
+    SaveAnnouncementParser,
+    SaveAnnouncementPayload,
+    SaveAppConfigPayload,
     SaveFeatureCandidateParser,
     SaveFeatureCandidatePayload,
     SavePromoCodeParser,
@@ -43,6 +50,8 @@ import {
 
 // #region [P] 查詢條件（送出用的參數，不是 API 的資料）
 export type DeviceStatus = 'all' | 'active' | 'frozen';
+/** id：新的在前；last_checkin：最近打開 App 的在前，從沒打開過的最後（#0081） */
+export type DeviceSort = 'id' | 'last_checkin';
 export type FeedbackFilter = 'all' | 'pending' | 'accepted_bug' | 'accepted_suggestion' | 'rejected';
 /** 回報的類型篩選（溝通板 #41）。crash 是 App 當掉後自動產生、使用者按了才送的 */
 export type FeedbackKind = 'all' | 'bug' | 'suggestion' | 'crash';
@@ -144,16 +153,19 @@ export const adminApi = {
         }
         return { devices, total };
     },
-    listDevices: async (token: string, params: { q?: string; status?: DeviceStatus; page?: number; perPage?: number }) => {
+    /** idleDays：只列最後一次打開 App 是 N 天前或更早的（含從沒打開過的）；0＝不篩 */
+    listDevices: async (token: string, params: { q?: string; status?: DeviceStatus; page?: number; perPage?: number; sort?: DeviceSort; idleDays?: number }) => {
         const q = params.q?.trim() ?? '';
         const status = params.status ?? 'all';
         const page = params.page ?? 1;
         const perPage = params.perPage ?? 50;
+        const sort = params.sort ?? 'id';
+        const idleDays = params.idleDays ?? 0;
 
         // email 不能放在網址上：Cloud Run 的連線紀錄會記下完整網址、保存 30 天，
         // 處理刪除請求時，要清除的 email 反而會留在日誌裡。改放 body（api.md 第 8 節）
         if (q.includes('@')) {
-            return call(GetDeviceListParser, token, 'POST', '/v1/admin/devices/search', { q, status, page, per_page: perPage });
+            return call(GetDeviceListParser, token, 'POST', '/v1/admin/devices/search', { q, status, page, per_page: perPage, sort, idle_days: idleDays });
         }
 
         const query = new URLSearchParams();
@@ -161,6 +173,8 @@ export const adminApi = {
         if (status !== 'all') query.set('status', status);
         query.set('page', String(page));
         query.set('per_page', String(perPage));
+        if (sort !== 'id') query.set('sort', sort);
+        if (idleDays > 0) query.set('idle_days', String(idleDays));
         return call(GetDeviceListParser, token, 'GET', `/v1/admin/devices?${query}`);
     },
     getDevice: async (token: string, id: number) =>
@@ -253,6 +267,22 @@ export const adminApi = {
         call(SaveFeatureCandidateParser, token, 'POST', '/v1/admin/features', SaveFeatureCandidatePayload.parse(body)),
     /** 從「投票中」改成別的狀態，投的人那一票會還給他（票數留著） */
     updateFeatureCandidate: async (token: string, id: number, body: SaveFeatureCandidateInput) =>
-        call(SaveFeatureCandidateParser, token, 'PATCH', `/v1/admin/features/${id}`, SaveFeatureCandidatePayload.parse(body))
+        call(SaveFeatureCandidateParser, token, 'PATCH', `/v1/admin/features/${id}`, SaveFeatureCandidatePayload.parse(body)),
+    // #endregion
+
+    // #region [P] 有沒有在用、App 版本、重要公告（#0076、#0080、#0081）
+    /** 近 1／7／30 天有打開 App 的裝置數（不含測試與凍結的） */
+    activeDevices: async (token: string) => call(ActiveDevicesParser, token, 'GET', '/v1/admin/active-devices'),
+    appVersions: async (token: string, days: number) => call(AppVersionsParser, token, 'GET', `/v1/admin/app-versions?days=${days}`),
+    getAppConfig: async (token: string) => call(AppConfigParser, token, 'GET', '/v1/admin/app-config'),
+    /** 整個換掉。調高最低版本會讓舊版除了 /v1/me 全部 426：畫面上一定要先確認 */
+    saveAppConfig: async (token: string, body: SaveAppConfigInput) =>
+        call(AppConfigParser, token, 'PUT', '/v1/admin/app-config', SaveAppConfigPayload.parse(body)),
+    listAnnouncements: async (token: string) => call(GetAnnouncementListParser, token, 'GET', '/v1/admin/announcements'),
+    createAnnouncement: async (token: string, body: SaveAnnouncementInput) =>
+        call(SaveAnnouncementParser, token, 'POST', '/v1/admin/announcements', SaveAnnouncementPayload.parse(body)),
+    /** 只改有給的欄位；{ withdrawn: true } 下架、false 重新上架。不能刪 */
+    updateAnnouncement: async (token: string, id: number, body: SaveAnnouncementInput) =>
+        call(SaveAnnouncementParser, token, 'PATCH', `/v1/admin/announcements/${id}`, SaveAnnouncementPayload.parse(body))
     // #endregion
 };
