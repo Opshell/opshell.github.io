@@ -138,8 +138,8 @@
             padding-left: 1.2em;
             margin: 0;
             font-size: var(--font-size-s);
-            list-style: disc;
             line-height: 1.7;
+            list-style: disc;
 
             .is-ok::marker { color: var(--vp-c-green-1); }
             .is-bad::marker { color: var(--vp-c-danger-1); }
