@@ -1,6 +1,6 @@
 import type { GeminiBilling, UsageReport } from './schemas/admin.schema';
 import { describe, expect, it } from 'vitest';
-import { calibrationFactor, gapMultiple, impliedRate, reconcileDays, skuModel, skuRates } from './billingCalibration';
+import { calibrationFactor, costBasis, gapMultiple, impliedRate, reconcileDays, skuModel, skuRates } from './billingCalibration';
 
 const prices: UsageReport['pricesUsed'] = {
     'gemini-3.1-flash-lite': { inputPerMillionUsd: 0.25, outputPerMillionUsd: 1.5 },
@@ -64,5 +64,10 @@ describe('reconcileDays／calibrationFactor', () => {
         expect(factor).toBeCloseTo(0.8 / 0.015);
         expect(gapMultiple(factor, 30)).toBeCloseTo(0.8 / 0.015 / 30);
         expect(calibrationFactor([])).toBeNull();
+    });
+
+    it('係數的來源：期間實付與資料庫估算的加總，舊到新的日期', () => {
+        expect(costBasis(reconcileDays(billing, usageDaily, 30))).toEqual({ paidTwd: 0.8, estimateUsd: 0.015, from: '2026-09-25', to: '2026-10-01' });
+        expect(costBasis([])).toBeNull();
     });
 });

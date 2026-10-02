@@ -79,5 +79,16 @@ export function calibrationFactor(days: readonly ReconcileDay[]): number | null 
     return estimate > 0 && actual > 0 ? actual / estimate : null;
 }
 
+/** 換算係數的來源：對帳期間的帳單實付（台幣）與資料庫估算（美元）各加總，畫面上寫成算式用 */
+export function costBasis(days: readonly ReconcileDay[]): { paidTwd: number; estimateUsd: number; from: string; to: string } | null {
+    if (!days.length) return null;
+    return {
+        paidTwd: days.reduce((sum, day) => sum + day.actualTwd, 0),
+        estimateUsd: days.reduce((sum, day) => sum + day.estimateUsd, 0),
+        from: days[days.length - 1].date,
+        to: days[0].date
+    };
+}
+
 /** 實際是估算的幾倍（同一個幣別比）：k ÷ 匯率 */
 export const gapMultiple = (factor: number | null, rate: number | null) => (factor && rate ? factor / rate : null);

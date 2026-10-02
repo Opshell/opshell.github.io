@@ -67,9 +67,10 @@ export const formatInt = (value: number) => integer.format(Math.round(value));
 
 /** 成本常常是小數點後好幾位的美金，依大小決定位數，不要全部變成 $0.00 */
 export function formatUsd(value: number): string {
-    if (value === 0) return '$0';
+    // 寫 US$ 不寫 $：同一個畫面有台幣，只寫 $ 分不出是哪一種
+    if (value === 0) return 'US$0';
     const digits = value >= 1 ? 2 : value >= 0.01 ? 4 : 6;
-    return `$${value.toFixed(digits)}`;
+    return `US$${value.toFixed(digits)}`;
 }
 
 export const formatPercent = (value: number) => `${(value * 100).toFixed(value > 0 && value < 0.1 ? 1 : 0)}%`;

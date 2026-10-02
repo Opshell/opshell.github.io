@@ -61,7 +61,7 @@
                     <span class="hint">原價 {{ formatMoney(billing.total.cost, billing.currency) }}，抵免 {{ formatMoney(billing.total.credits, billing.currency) }}</span>
                 </li>
                 <li>
-                    <span class="label">同期的估算（原始）</span>
+                    <span class="label">同期的資料庫估算（原始）</span>
                     <span class="value">{{ formatUsd(estimateUsd) }}</span>
                     <span class="hint">照價目表算的美元；後台其他金額都已經依帳單換算，原始估算只在這裡</span>
                 </li>
