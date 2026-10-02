@@ -1059,3 +1059,66 @@ export const SaveAnnouncementPayload = z
 export type SaveAnnouncementInput = z.input<typeof SaveAnnouncementPayload>;
 
 // #endregion
+
+// #region [P] Google 實際帳單與 Play 當機率（api.md 第 8 節，溝通板 #0084）
+// 後端用 dindon-run 讀 Google 的資料，快取 3 小時；?refresh=true 重查。Google 拒絕時回 502（帶 google_status／google_message）
+
+const MoneyParser = z.object({ cost: z.number(), credits: z.number(), paid: z.number() });
+
+const BillingItemParser = z
+    .object({ sku: z.string(), amount: z.number(), unit: z.string(), cost: z.number(), credits: z.number(), paid: z.number() });
+
+export const GeminiBillingParser = z
+    .object({
+        report: z.object({
+            days: z.number(),
+            since: z.string(),
+            /** 帳單帳戶的幣別（現在 TWD）；用量報表的 cost_usd 是美元而且是估的 */
+            currency: z.string(),
+            /** 帳單匯出最晚有資料的那天：之後的日子是「還沒匯出」，不是沒花錢 */
+            data_through: z.string().nullish(),
+            exported_at: z.string().nullish(),
+            total: MoneyParser,
+            daily: nullableList(MoneyParser.extend({ date: z.string(), items: nullableList(BillingItemParser) })),
+            skus: nullableList(BillingItemParser)
+        }),
+        cached_at: z.string().nullish()
+    })
+    .transform(({ report, cached_at }) => ({
+        days: report.days,
+        since: report.since,
+        currency: report.currency,
+        dataThrough: report.data_through ?? null,
+        exportedAt: report.exported_at ?? null,
+        total: report.total,
+        daily: report.daily,
+        skus: report.skus,
+        cachedAt: cached_at ?? null
+    }));
+export type GeminiBilling = z.output<typeof GeminiBillingParser>;
+
+const VitalsSetParser = z
+    .object({
+        metric_set: z.string().nullish(),
+        /** Play 有資料的最後一天（美國太平洋時間） */
+        through: z.string().nullish(),
+        /** 使用者太少的日子不出現，或那個指標不在 metrics 裡 */
+        days: nullableList(z.object({ date: z.string(), metrics: nullableRecord(z.number()) }))
+    })
+    .transform(data => ({ through: data.through ?? null, days: data.days }));
+
+export const PlayVitalsParser = z
+    .object({ crash: VitalsSetParser, anr: VitalsSetParser, cached_at: z.string().nullish() })
+    .transform(data => ({ crash: data.crash, anr: data.anr, cachedAt: data.cached_at ?? null }));
+export type PlayVitals = z.output<typeof PlayVitalsParser>;
+
+export const PlayReportsParser = z
+    .object({
+        bucket: z.string(),
+        objects: nullableList(z.object({ name: z.string(), size: z.number(), updated: z.string() })),
+        cached_at: z.string().nullish()
+    })
+    .transform(data => ({ bucket: data.bucket, objects: data.objects, cachedAt: data.cached_at ?? null }));
+export type PlayReports = z.output<typeof PlayReportsParser>;
+
+// #endregion
