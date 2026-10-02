@@ -2,11 +2,12 @@ import type { PlayVitals } from './schemas/admin.schema';
 
 // Google 實際帳單與 Play 資料的顯示邏輯（溝通板 #0084）。畫面在 UsageReport、OverviewPanel、AppPanel。
 
-/** 新台幣：小數兩位（Gemini 一天只花幾毛錢，四捨五入到元會全是 0） */
+/** 新台幣：小數兩位，小於 0.1 的四位（Gemini 一天只花幾毛錢，每次請求只有幾毫） */
 export function formatMoney(value: number, currency = 'TWD'): string {
     const prefix = currency === 'TWD' ? 'NT$' : `${currency} `;
-    // 抵免是負數：寫成 -NT$0.15，不要 NT$-0.15
-    return `${value < 0 ? '-' : ''}${prefix}${Math.abs(value).toFixed(2)}`;
+    // 抵免是負數：寫成 -NT$0.15，不要 NT$-0.15。每次請求只有幾毫，兩位小數會全是 0.00，小於 0.1 的寫到四位
+    const abs = Math.abs(value);
+    return `${value < 0 ? '-' : ''}${prefix}${abs.toFixed(abs > 0 && abs < 0.1 ? 4 : 2)}`;
 }
 
 /**

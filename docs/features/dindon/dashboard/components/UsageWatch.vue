@@ -2,8 +2,9 @@
     import type { DeviceUsage, UsageFlag } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
-    import { FEATURE_LABELS, formatInt, formatRelative, formatUsd } from '../format';
+    import { FEATURE_LABELS, formatInt, formatRelative } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import { useCostCalibration } from '../useCostCalibration';
     import AdminActions from './AdminActions.vue';
 
     // 誰在大量使用（api.md 第 8 節，舊板溝通板 #47）。
@@ -34,6 +35,8 @@
 
     const flagged = computed(() => rows.value.filter(r => r.flags?.length));
     const shown = computed(() => (onlyFlagged.value ? flagged.value : rows.value));
+    // 金額一律依實際帳單換算（useCostCalibration）
+    const { formatCost, costNote } = useCostCalibration();
     const totalCost = computed(() => rows.value.reduce((sum, r) => sum + r.costUsd, 0));
 
     const rejectedRatio = (r: DeviceUsage) => (r.requests ? r.rejected / r.requests : 0);
@@ -99,7 +102,7 @@
             <AdminActions>
                 <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
             </AdminActions>
-            <span class="dd-watch__muted">{{ rows.length }} 台有用量 · 估計成本 {{ formatUsd(totalCost) }}</span>
+            <span class="dd-watch__muted">{{ rows.length }} 台有用量 · 成本 {{ formatCost(totalCost) }}</span>
         </div>
 
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
@@ -124,7 +127,7 @@
                         <th scope="col" class="num">今天</th>
                         <th scope="col">最密集的一小時</th>
                         <th scope="col" class="num">不是單據</th>
-                        <th scope="col" class="num">估計成本</th>
+                        <th scope="col" class="num" :title="costNote">成本</th>
                         <th scope="col">提示</th>
                         <th scope="col">處理</th>
                     </tr>
@@ -146,7 +149,7 @@
                             {{ formatInt(row.rejected) }}
                             <span v-if="row.rejected" class="dd-watch__muted">（{{ Math.round(rejectedRatio(row) * 100) }}%）</span>
                         </td>
-                        <td class="num">{{ formatUsd(row.costUsd) }}</td>
+                        <td class="num">{{ formatCost(row.costUsd) }}</td>
                         <td>
                             <!-- v-for 產生的標籤之間沒有空白，不會自己換行；用 flex-wrap 讓它們在欄內排成兩行 -->
                             <div class="dd-watch__flags">
@@ -182,7 +185,7 @@
                 </tbody>
             </table>
         </div>
-        <p class="dd-watch__muted">次數只算真的打了 Gemini 的；成本是用價目表估的，不是 Google 的實際帳單。beta 期間點數沒有真的扣。</p>
+        <p class="dd-watch__muted">次數只算真的打了 Gemini 的；成本{{ costNote }}：Google 的帳單分不出是哪一台，每台照估算的比例分。beta 期間點數沒有真的扣。</p>
     </section>
 </template>
 

@@ -394,6 +394,8 @@ export const GetUsageReportParser = z
             cost_usd: z.number(),
             price_known: z.boolean()
         })),
+        /** 估算用的價目表（模型 → 每一百萬 token 的美元）：拿來從帳單反推匯率（#0084 對帳） */
+        prices_used: nullableRecord(z.object({ input_per_million_usd: z.number(), output_per_million_usd: z.number() })),
         notes: nullableList(z.string())
     })
     // daily 已經轉好（裡面有要保留原樣的 key），其他照常轉駝峰
