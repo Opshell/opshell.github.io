@@ -55,3 +55,14 @@
   模擬「減少動態」：全部直接到位、shimmer 不跑。
 - **坑**：一個正規式把 `data-text="載入中…"` 的結尾引號吃掉，HTML 壞了之後又跑了 `eslint --fix`，它把 9 個檔案的模板改得亂七八糟（有一個動了 196 行）。
   全部還原成 HEAD 再重新套用；之後**先確認模板解析得過，才跑 `--fix`**。
+
+# 2026-10-02：Play 報表的空間網址
+
+**使用者**：play 報表網址 gs://pubsite_prod_5642699731951285302/stats/store_performance/
+
+- 用使用者自己的 gcloud 帳號 `gsutil ls`（只讀）：空間是 `gs://pubsite_prod_5642699731951285302/`（實際名字沒有教學寫的 `rev_`）。
+  現在只有 `stats/store_performance/` 的 2026-09 兩份（依國家、依流量來源）：商店頁訪客、取得、轉換率。內容只有 9/24 一列（1 位訪客、0 次取得）。
+  安裝數、評分、評論、當機的報表還沒出現。
+- 檔案是 **gzip 壓縮的 UTF-16 CSV**：`gsutil cat … | gunzip | iconv -f UTF-16 -t UTF-8` 才讀得到。
+- 工作區：溝通板 #0084 補上網址、格式，請後端用 `dindon-run` 實際列一次（看 Play Console 的權限生效了沒）；
+  量太小，先不做進後台，等安裝數與評論的報表出現再設計。營運文件 `play-reports-access.md` 第 3 步標完成。
