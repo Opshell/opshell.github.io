@@ -315,7 +315,7 @@ export const features: Feature[] = [
         branch: 'insight',
         name: '液體圓餅圖與長條圖',
         purpose: '一眼看出錢的形狀：佔比越大的那一塊越活潑。',
-        how: '底部的「統計」。上方切換今日、本週、本月、本期，圓餅與長條可以換。',
+        how: '底部的「統計」。上方切換看哪一段時間（設了發薪日就照發薪日算），圓餅與長條可以換。',
         tips: ['點一塊看金額、佔比、筆數；點空白處回到區間總額。'],
         related: ['drill', 'hide', 'categories', 'range'],
         demo: '23-liquid-pie'
@@ -350,7 +350,7 @@ export const features: Feature[] = [
         how: '首頁上方的日曆按鈕挑一段日期，首頁就只列那一段、上面改成「範圍累積」。',
         tips: [
             '挑日期的日曆上，每天花多少用深淺標出來；特別深的那幾天就是值得回頭看的日子。',
-            '有這個月、上個月、這一期、上一期可以直接選。'
+            '有這個月、上個月這種常用的區間可以直接選；想看回全部，按一下範圍的標籤就好。'
         ],
         related: ['stats', 'feedSummary', 'search'],
         demo: '20-date-range-heatmap'
