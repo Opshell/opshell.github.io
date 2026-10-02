@@ -109,7 +109,7 @@
 <template>
     <section class="dd-detail__card dd-checkins" aria-labelledby="dd-checkins-title">
         <h3 id="dd-checkins-title">打開 App</h3>
-        <p v-if="loading && !data" class="dd-detail__muted">載入中…</p>
+        <p v-if="loading && !data" class="dd-detail__muted t-shimmer" data-text="載入中…">載入中…</p>
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
 
         <template v-if="data">

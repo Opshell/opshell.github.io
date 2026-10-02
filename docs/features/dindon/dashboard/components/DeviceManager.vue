@@ -1,13 +1,14 @@
 <script setup lang="ts">
     import type { DeviceSort, DeviceStatus } from '../api';
     import type { AdminDevice } from '../schemas/admin.schema';
-    import { computed, onMounted, ref } from 'vue';
+    import { computed, onMounted, ref, watch } from 'vue';
     import { adminApi } from '../api';
     import { addDays } from '../checkins';
     import { deviceMatches } from '../deviceSearch';
     import { formatDayAgo, formatInt, formatRelative, maskEmail, PLAN_LABELS, todayInTaipei } from '../format';
     import { takePanelPreset } from '../navigation';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import { usePanelReveal } from '../usePanelReveal';
     import DeviceDetail from './DeviceDetail.vue';
 
     const call = useAdminCall();
@@ -25,6 +26,14 @@
     const loading = ref(false);
     const error = ref('');
     const selectedId = ref<number | null>(null);
+
+    // 詳情面板從沒有到有、關掉時有轉場（換看另一台時不重播）
+    const panel = usePanelReveal();
+    watch(selectedId, (next, prev) => {
+        if (next === null) panel.reset();
+        else if (prev === null) panel.show();
+    });
+    const closeDetail = () => panel.hide(() => (selectedId.value = null));
 
     const pageCount = computed(() => Math.max(Math.ceil(total.value / PER_PAGE), 1));
 
@@ -174,7 +183,7 @@
                     <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="page <= 1 || loading" @click="load(page - 1)">上一頁</button>
                     <span>第 {{ page }} / {{ pageCount }} 頁</span>
                     <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="page >= pageCount || loading" @click="load(page + 1)">下一頁</button>
-                    <span v-if="loading" class="dd-devices__loading">載入中…</span>
+                    <span v-if="loading" class="dd-devices__loading t-shimmer" data-text="載入中…">載入中…</span>
                 </div>
             </div>
 
@@ -182,8 +191,10 @@
                 v-if="selectedId !== null"
                 :key="selectedId"
                 :device-id="selectedId"
+                class="t-panel-slide"
+                :data-open="panel.open.value"
                 @updated="onUpdated"
-                @close="selectedId = null"
+                @close="closeDetail"
             />
         </div>
     </section>

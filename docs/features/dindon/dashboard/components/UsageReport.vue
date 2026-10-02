@@ -72,7 +72,7 @@
                 <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
             </AdminActions>
             <span v-if="report" class="dd-usage__range">{{ formatDateTime(report.from) }} ～ {{ formatDateTime(report.to) }}</span>
-            <span v-if="loading" class="dd-usage__range">載入中…</span>
+            <span v-if="loading" class="dd-usage__range t-shimmer" data-text="載入中…">載入中…</span>
         </div>
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
 

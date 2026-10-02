@@ -311,7 +311,7 @@
             <button type="button" class="dd-detail__close" aria-label="關閉" @click="emit('close')">✕</button>
         </header>
 
-        <p v-if="loading && !device" class="dd-detail__muted">載入中…</p>
+        <p v-if="loading && !device" class="dd-detail__muted t-shimmer" data-text="載入中…">載入中…</p>
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
         <p v-if="notice" class="dd-detail__notice" role="status">✓ {{ notice }}</p>
 
@@ -567,6 +567,20 @@
 
 <style lang="scss">
     .dd-detail {
+        // 進場（07 Panel reveal）的位移：面板很高，只滑一小段
+        --panel-translate-y: 24px;
+
+        // 有底色（不然列表會從底下透出來）；並排時黏在右邊、自己捲：點列表下面的列，詳情也還在畫面上。
+        // 裝置與回報兩頁的詳情都是這個 class
+        position: sticky;
+        top: 16px;
+        background: var(--vp-c-bg);
+        max-height: calc(100cqh - 32px);
+        padding: 20px;
+        border: 1px solid var(--vp-c-divider);
+        border-radius: 16px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
         &__note {
             background: var(--vp-c-bg-soft);
             width: 100%;
@@ -581,18 +595,6 @@
         }
         .is-over { color: var(--vp-c-danger-1); }
         @include setFlex(flex-start, stretch, 16px, column);
-
-        // 有底色（不然列表會從底下透出來）；並排時黏在右邊、自己捲：點列表下面的列，詳情也還在畫面上。
-        // 裝置與回報兩頁的詳情都是這個 class
-        position: sticky;
-        top: 16px;
-        background: var(--vp-c-bg);
-        max-height: calc(100cqh - 32px);
-        padding: 20px;
-        border: 1px solid var(--vp-c-divider);
-        border-radius: 16px;
-        overflow-y: auto;
-        overscroll-behavior: contain;
 
         // 可以捲的 flex 欄會把子元素壓扁
         > * { flex-shrink: 0; }

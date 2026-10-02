@@ -244,7 +244,7 @@
             <AdminActions>
                 <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load">重新整理</button>
             </AdminActions>
-            <span v-if="loading" class="dd-overview__muted">載入中…</span>
+            <span v-if="loading" class="dd-overview__muted t-shimmer" data-text="載入中…">載入中…</span>
         </div>
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
         <p v-if="devices.length < deviceTotal" class="dd-overview__muted">裝置超過 {{ formatInt(MAX_DEVICES) }} 台，裝置相關的圖表只統計最新的 {{ formatInt(devices.length) }} 台。</p>

@@ -6,6 +6,9 @@
 
 @use 'basic' as *;
 
+// transitions-dev 的轉場配方（叮咚後台用，class 都是 t-* 開頭）
+@use 'transitions';
+
 // markdown 樣式
 // @use 'md' as *;
 
