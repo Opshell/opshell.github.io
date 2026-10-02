@@ -75,7 +75,14 @@ export const AdminDeviceSchema = z.object({
     /** 管理員替這台記的備註（#0070）：只有後台看得到。沒有是空字串 */
     adminNote: z.string(),
     /** 後台建立的測試裝置（#0074）：不進用量、排行榜、獎勵、投票的統計 */
-    isTest: z.boolean()
+    isTest: z.boolean(),
+    /** 最後一次帶的 App 版本（#0076）；0.6.7 以前的 App 不帶，是空字串／0 */
+    appVersion: z.string(),
+    appBuild: z.number().int(),
+    /** 最後一次帶 key 來的時間，最多差一小時；從沒來過是 null */
+    lastSeenAt: z.string().nullable(),
+    /** 最後一次打開 App（打卡）的日子，台灣時間 YYYY-MM-DD（#0081）；比 lastAiAt 準，只記帳不用 AI 的人也有 */
+    lastCheckinDay: z.string().nullable()
 });
 export type AdminDevice = z.infer<typeof AdminDeviceSchema>;
 
@@ -107,7 +114,12 @@ const AdminDeviceRawSchema = z.object({
     avatar: AvatarSchema.nullish(),
     // 2026-09-29 部署以前的後端沒有這兩個欄位
     admin_note: z.string().nullish(),
-    is_test: z.boolean().nullish()
+    is_test: z.boolean().nullish(),
+    // 2026-10-02 部署以前的後端沒有這四個欄位（#0076、#0081）
+    app_version: z.string().nullish(),
+    app_build: z.number().nullish(),
+    last_seen_at: z.string().nullish(),
+    last_checkin_day: z.string().nullish()
 });
 
 export const AdminDeviceParser = AdminDeviceRawSchema
@@ -122,7 +134,11 @@ export const AdminDeviceParser = AdminDeviceRawSchema
         iron_achieved_on: data.iron_achieved_on ?? null,
         avatar: data.avatar ?? null,
         admin_note: data.admin_note ?? '',
-        is_test: data.is_test ?? false
+        is_test: data.is_test ?? false,
+        app_version: data.app_version ?? '',
+        app_build: data.app_build ?? 0,
+        last_seen_at: data.last_seen_at ?? null,
+        last_checkin_day: data.last_checkin_day ?? null
     }))
     .transform(snakeToCamel)
     .pipe(AdminDeviceSchema);
@@ -900,5 +916,146 @@ export const ChangeCheckinsPayload = z.union([
     z.object({ days: z.array(z.iso.date()).min(1).max(366) })
 ]);
 export type ChangeCheckinsInput = z.input<typeof ChangeCheckinsPayload>;
+
+// #endregion
+
+// #region [P] 近幾天有打開 App 的裝置數 GET /v1/admin/active-devices（api.md 第 8 節，溝通板 #0081）
+
+export const ActiveDevicesParser = z
+    .object({ today: z.string(), windows: nullableList(z.object({ days: z.number(), devices: z.number() })) })
+    .transform(data => ({ today: data.today, windows: data.windows }));
+export type ActiveDevices = z.output<typeof ActiveDevicesParser>;
+
+// #endregion
+
+// #region [P] App 版本 GET /v1/admin/app-versions、GET／PUT /v1/admin/app-config（api.md 第 8 節，溝通板 #0076）
+
+export const AppConfigSchema = z.object({
+    /** 低於它、有帶版本的 App 除了 /v1/me 全部 426（0＝誰都不擋） */
+    minAppBuild: z.number().int(),
+    latestAppBuild: z.number().int(),
+    latestAppVersion: z.string()
+});
+export type AppConfig = z.infer<typeof AppConfigSchema>;
+
+export const AppConfigParser = z
+    .object({
+        min_app_build: z.number(),
+        latest_app_build: z.number(),
+        latest_app_version: z.string().nullish(),
+        updated_by: z.string().nullish(),
+        updated_at: z.string().nullish()
+    })
+    .transform(data => ({
+        minAppBuild: data.min_app_build,
+        latestAppBuild: data.latest_app_build,
+        latestAppVersion: data.latest_app_version ?? '',
+        updatedBy: data.updated_by ?? '',
+        updatedAt: data.updated_at ?? null
+    }));
+
+export const SaveAppConfigPayload = AppConfigSchema.transform(camelToSnake);
+export type SaveAppConfigInput = z.input<typeof SaveAppConfigPayload>;
+
+export const AppVersionsParser = z
+    .object({
+        days: z.number(),
+        total: z.number(),
+        /** 沒帶版本的（0.6.7 以前） */
+        unknown: z.number(),
+        below_min: z.number(),
+        below_latest: z.number(),
+        min_app_build: z.number(),
+        latest_app_build: z.number(),
+        latest_app_version: z.string().nullish(),
+        versions: nullableList(z.object({ app_version: z.string(), app_build: z.number(), devices: z.number() }))
+    })
+    .transform(data => ({
+        days: data.days,
+        total: data.total,
+        unknown: data.unknown,
+        belowMin: data.below_min,
+        belowLatest: data.below_latest,
+        minAppBuild: data.min_app_build,
+        latestAppBuild: data.latest_app_build,
+        latestAppVersion: data.latest_app_version ?? '',
+        versions: data.versions.map(v => ({ appVersion: v.app_version, appBuild: v.app_build, devices: v.devices }))
+    }));
+export type AppVersions = z.output<typeof AppVersionsParser>;
+
+// #endregion
+
+// #region [P] 重要公告 /v1/admin/announcements（api.md 第 8 節，溝通板 #0080）
+
+export const AnnouncementStateSchema = z.enum(['scheduled', 'active', 'ended', 'withdrawn']);
+export type AnnouncementState = z.infer<typeof AnnouncementStateSchema>;
+
+export const AnnouncementSchema = z.object({
+    id: z.number().int(),
+    message: z.string(),
+    /** ""、https:// 網址，或 app:<頁面代號> */
+    link: z.string(),
+    startsAt: z.string(),
+    endsAt: z.string(),
+    /** 只給這個範圍的版本看；0＝不限 */
+    minAppBuild: z.number().int(),
+    maxAppBuild: z.number().int(),
+    state: AnnouncementStateSchema,
+    withdrawnAt: z.string().nullable(),
+    createdBy: z.string(),
+    createdAt: z.string()
+});
+export type Announcement = z.infer<typeof AnnouncementSchema>;
+
+const AnnouncementParser = z
+    .object({
+        id: z.number(),
+        message: z.string(),
+        link: z.string().nullish(),
+        starts_at: z.string(),
+        ends_at: z.string(),
+        min_app_build: z.number().nullish(),
+        max_app_build: z.number().nullish(),
+        state: AnnouncementStateSchema,
+        withdrawn_at: z.string().nullish(),
+        created_by: z.string().nullish(),
+        created_at: z.string()
+    })
+    .transform(data => ({
+        id: data.id,
+        message: data.message,
+        link: data.link ?? '',
+        startsAt: data.starts_at,
+        endsAt: data.ends_at,
+        minAppBuild: data.min_app_build ?? 0,
+        maxAppBuild: data.max_app_build ?? 0,
+        state: data.state,
+        withdrawnAt: data.withdrawn_at ?? null,
+        createdBy: data.created_by ?? '',
+        createdAt: data.created_at
+    }))
+    .pipe(AnnouncementSchema);
+
+export const GetAnnouncementListParser = z
+    .object({ announcements: nullableList(AnnouncementParser), message_max: z.number().nullish() })
+    .transform(data => ({ announcements: data.announcements, messageMax: data.message_max ?? 80 }));
+
+/** 新增、修改都回一則（新增是 201） */
+export const SaveAnnouncementParser = AnnouncementParser;
+
+/** 新增：message、endsAt 必填；時間是 RFC3339、要帶時區。修改只送有變的欄位，加 withdrawn 下架／重新上架 */
+export const SaveAnnouncementPayload = z
+    .object({
+        message: z.string(),
+        link: z.string(),
+        startsAt: z.string(),
+        endsAt: z.string(),
+        minAppBuild: z.number().int().min(0),
+        maxAppBuild: z.number().int().min(0),
+        withdrawn: z.boolean()
+    })
+    .partial()
+    .transform(camelToSnake);
+export type SaveAnnouncementInput = z.input<typeof SaveAnnouncementPayload>;
 
 // #endregion

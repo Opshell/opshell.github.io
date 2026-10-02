@@ -1,10 +1,11 @@
 <script setup lang="ts">
-    import type { DeviceStatus } from '../api';
+    import type { DeviceSort, DeviceStatus } from '../api';
     import type { AdminDevice } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
+    import { addDays } from '../checkins';
     import { deviceMatches } from '../deviceSearch';
-    import { formatInt, formatRelative, maskEmail, PLAN_LABELS } from '../format';
+    import { formatDayAgo, formatInt, formatRelative, maskEmail, PLAN_LABELS, todayInTaipei } from '../format';
     import { takePanelPreset } from '../navigation';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import DeviceDetail from './DeviceDetail.vue';
@@ -14,6 +15,10 @@
 
     const query = ref(takePanelPreset('deviceQuery') ?? '');
     const status = ref<DeviceStatus>(takePanelPreset('deviceStatus') ?? 'all');
+    // 有沒有在用（#0081）：照最近打開 App 排、只看 N 天以上沒打開的（含從沒打開過的）
+    const sort = ref<DeviceSort>(takePanelPreset('deviceSort') ?? 'id');
+    const idleDays = ref(takePanelPreset('deviceIdleDays') ?? 0);
+    const IDLE_OPTIONS = [3, 7, 14, 30];
     const page = ref(1);
     const devices = ref<AdminDevice[]>([]);
     const total = ref(0);
@@ -31,8 +36,13 @@
 
     async function loadLocal(q: string, nextPage: number) {
         everyDevice.value ??= await call(async token => (await adminApi.listAllDevices(token)).devices);
+        // 比對暱稱、備註是在這裡做的，所以排序與「幾天沒開」也要在這裡照後端的規則做一次
+        const cutoff = idleDays.value > 0 ? addDays(todayInTaipei(), -idleDays.value) : '';
         const matched = everyDevice.value.filter(device =>
-            deviceMatches(device, q) && (status.value === 'all' || (status.value === 'frozen') === device.frozen));
+            deviceMatches(device, q)
+            && (status.value === 'all' || (status.value === 'frozen') === device.frozen)
+            && (!cutoff || !device.lastCheckinDay || device.lastCheckinDay <= cutoff));
+        if (sort.value === 'last_checkin') matched.sort((a, b) => (b.lastCheckinDay ?? '').localeCompare(a.lastCheckinDay ?? '') || b.id - a.id);
         total.value = matched.length;
         page.value = Math.min(nextPage, Math.max(Math.ceil(matched.length / PER_PAGE), 1));
         devices.value = matched.slice((page.value - 1) * PER_PAGE, page.value * PER_PAGE);
@@ -48,7 +58,7 @@
                 await loadLocal(q, nextPage);
                 return;
             }
-            const result = await call(token => adminApi.listDevices(token, { q, status: status.value, page: nextPage, perPage: PER_PAGE }));
+            const result = await call(token => adminApi.listDevices(token, { q, status: status.value, page: nextPage, perPage: PER_PAGE, sort: sort.value, idleDays: idleDays.value }));
             devices.value = result.devices;
             total.value = result.total;
             page.value = result.page;
@@ -93,6 +103,14 @@
                 <option value="active">啟用中</option>
                 <option value="frozen">已凍結</option>
             </select>
+            <select v-model="sort" aria-label="排序" @change="search">
+                <option value="id">新的在前</option>
+                <option value="last_checkin">最近打開 App 的在前</option>
+            </select>
+            <select v-model.number="idleDays" aria-label="沒打開 App 的天數" @change="search">
+                <option :value="0">不管有沒有在用</option>
+                <option v-for="days in IDLE_OPTIONS" :key="days" :value="days">{{ days }} 天以上沒打開</option>
+            </select>
             <button type="submit" class="dd-admin__btn" :disabled="loading">搜尋</button>
             <button v-if="query" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="clearSearch">清除</button>
             <span class="dd-devices__count">共 {{ formatInt(total) }} 台</span>
@@ -115,7 +133,8 @@
                                 <th scope="col" class="extra">Beta</th>
                                 <th scope="col" class="extra">Google</th>
                                 <th scope="col" class="num extra">近 30 天 AI</th>
-                                <th scope="col">最近使用</th>
+                                <th scope="col" title="最後一次打開 App 的那天（每天第一次打開就打卡）">最近打開</th>
+                                <th scope="col" class="extra">最近用 AI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -141,10 +160,11 @@
                                 <td class="extra">{{ device.betaTesterSince ?? '—' }}</td>
                                 <td class="extra">{{ device.linked ? maskEmail(device.email) || '已綁定' : '—' }}</td>
                                 <td class="num extra">{{ formatInt(device.aiCalls30d) }}</td>
-                                <td>{{ formatRelative(device.lastAiAt) }}</td>
+                                <td :title="device.lastCheckinDay ?? '沒有打卡紀錄'">{{ formatDayAgo(device.lastCheckinDay) }}</td>
+                                <td class="extra">{{ formatRelative(device.lastAiAt) }}</td>
                             </tr>
                             <tr v-if="!loading && devices.length === 0">
-                                <td colspan="10" class="dd-table__empty">沒有符合的裝置</td>
+                                <td colspan="11" class="dd-table__empty">沒有符合的裝置</td>
                             </tr>
                         </tbody>
                     </table>

@@ -9,6 +9,7 @@
     import { setPanelPreset, shortcutsPaused } from '../navigation';
     import { usePulse } from '../usePulse';
     import AdminTerminal from './AdminTerminal.vue';
+    import AppPanel from './AppPanel.vue';
     import DeviceManager from './DeviceManager.vue';
     import FeatureVotePanel from './FeatureVotePanel.vue';
     import FeedbackPanel from './FeedbackPanel.vue';
@@ -38,6 +39,7 @@
         watch: 'M22 12h-4l-3 9L9 3l-3 9H2',
         promo: 'M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4z M13 5v2 M13 11v2 M13 17v2',
         features: 'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M9 12l2 2 4-4',
+        app: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9 M10.3 21a1.94 1.94 0 0 0 3.4 0',
         api: 'M4 17l6-6-6-6 M12 19h8',
         refresh: 'M21 12a9 9 0 1 1-2.64-6.36L21 8 M21 3v5h-5',
         collapse: 'M3 3h18v18H3z M9 3v18 M16 9l-3 3 3 3',
@@ -56,6 +58,7 @@
         { key: 'watch', label: '用量監看', hint: '逐台看 AI 用量，提示不是判決' },
         { key: 'promo', label: '優惠碼', hint: '送方案時間或額度點數' },
         { key: 'features', label: '功能投票', hint: '測試者投票決定下一個做什麼' },
+        { key: 'app', label: 'App 版本', hint: '各版本有幾台、最低可用版本、對 App 發重要公告' },
         { key: 'api', label: 'API', hint: '每一支 API 的說明，直接在這裡試打' }
     ];
     const PANELS: Record<DashboardTab, Component> = {
@@ -66,6 +69,7 @@
         watch: UsageWatch,
         promo: PromoPanel,
         features: FeatureVotePanel,
+        app: AppPanel,
         api: ApiConsole
     };
     type Tab = DashboardTab;
@@ -132,12 +136,12 @@
     }
     // #endregion
 
-    // #region [P] 鍵盤：1～8 切分頁、: 或 ⌘K 打指令、[ 收側欄、r 更新待辦、? 看快捷鍵。
+    // #region [P] 鍵盤：1～9 切分頁、: 或 ⌘K 打指令、[ 收側欄、r 更新待辦、? 看快捷鍵。
     // 正在打字（輸入框、下拉選單、可編輯區）或按著修飾鍵時不攔；API 控制台自己的 / 與 ⌘Enter 照舊。
     // 快速審核開著時全部讓開：它的 1、2、3 是判定鍵（shortcutsPaused）
     const SHORTCUTS: readonly { keys: string; text: string }[] = [
         { keys: ':　或　⌘K', text: '到終端機打指令（打 help 看全部）' },
-        { keys: '1～8', text: '切到側欄的第幾個分頁' },
+        { keys: '1～9', text: '切到側欄的第幾個分頁' },
         { keys: '[', text: '收合／展開側欄' },
         { keys: 'r', text: '更新待辦數字' },
         { keys: '/', text: 'API 分頁：跳到搜尋' },

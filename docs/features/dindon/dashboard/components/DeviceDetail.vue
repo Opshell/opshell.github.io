@@ -5,6 +5,7 @@
     import {
         AVATAR_KIND_LABELS,
         formatDateTime,
+        formatDayAgo,
         formatInt,
         formatRelative,
         PERK_SOURCE_LABELS,
@@ -322,7 +323,11 @@
                 <div><dt>Google</dt><dd>{{ device.linked ? device.email ?? '已綁定' : '未綁定' }}</dd></div>
                 <div><dt>訂閱到期</dt><dd>{{ formatDateTime(device.subscriptionExpiresAt) }}</dd></div>
                 <div><dt>近 30 天 AI</dt><dd>{{ formatInt(device.aiCalls30d) }} 次</dd></div>
-                <div><dt>最近使用</dt><dd>{{ formatRelative(device.lastAiAt) }}</dd></div>
+                <div><dt>最近打開 App</dt><dd>{{ formatDayAgo(device.lastCheckinDay) }}{{ device.lastCheckinDay ? `（${device.lastCheckinDay}）` : '' }}</dd></div>
+                <div><dt>最近用 AI</dt><dd>{{ formatRelative(device.lastAiAt) }}</dd></div>
+                <!-- App 版本與最後連線（#0076）：0.6.7 以前的 App 不帶版本 -->
+                <div><dt>App 版本</dt><dd>{{ device.appVersion ? `${device.appVersion}（${device.appBuild}）` : '不知道（0.6.7 以前）' }}</dd></div>
+                <div><dt>最後連線</dt><dd>{{ formatRelative(device.lastSeenAt) }}</dd></div>
                 <div><dt>建立</dt><dd>{{ formatDateTime(device.createdAt) }}</dd></div>
                 <div v-if="device.frozen"><dt>凍結於</dt><dd>{{ formatDateTime(device.frozenAt) }}</dd></div>
             </dl>
