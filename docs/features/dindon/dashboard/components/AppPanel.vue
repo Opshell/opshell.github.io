@@ -3,7 +3,7 @@
     import type { Announcement, AppVersions } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
-    import { announcementError, blockedCount, buildRangeText, configError, fromTaipeiLocal, toTaipeiLocal } from '../appAdmin';
+    import { announcementError, APP_PAGES, blockedCount, buildRangeText, configError, fromTaipeiLocal, LINK_URL, linkChoice, linkLabel, toTaipeiLocal } from '../appAdmin';
     import { formatDateTime, formatInt } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import AdminActions from './AdminActions.vue';
@@ -76,7 +76,18 @@
 
     const STATE_LABELS: Record<Announcement['state'], string> = { scheduled: '還沒開始', active: '播放中', ended: '已結束', withdrawn: '已下架' };
     // App 內頁面的代號由前端定（#0080 還在等清單）；先給常用的幾個當參考，實際清單出來後改成下拉選單
-    const LINK_HINT = '空白、https:// 網址，或 app:頁面代號（代號清單等前端給，App 看不懂的代號會當沒有連結）';
+    // 連結用下拉選（#0080）：App 的頁面、或網址。舊公告的代號不在清單上的話，照原樣列成一項，不會被洗掉
+    const linkSelect = computed({
+        get: () => linkChoice(form.value.link),
+        set: (value: string) => {
+            if (value !== LINK_URL) form.value.link = value;
+            else if (!form.value.link.startsWith('https://')) form.value.link = 'https://';
+        }
+    });
+    const unknownAppLink = computed(() => {
+        const choice = linkSelect.value;
+        return choice.startsWith('app:') && !APP_PAGES.some(page => page.code === choice) ? choice : '';
+    });
 
     function emptyForm(): AnnouncementDraft {
         const now = Date.now();
@@ -286,8 +297,16 @@
                 </label>
                 <label class="wide">
                     按下去去哪裡
-                    <input v-model="form.link" type="text" placeholder="app:settings/account" />
-                    <span class="counter">{{ LINK_HINT }}</span>
+                    <select v-model="linkSelect">
+                        <option value="">不連結</option>
+                        <optgroup label="App 的頁面">
+                            <option v-for="page in APP_PAGES" :key="page.code" :value="page.code">{{ page.label }}</option>
+                            <option v-if="unknownAppLink" :value="unknownAppLink">{{ unknownAppLink }}（不在清單上，App 可能不認得）</option>
+                        </optgroup>
+                        <option :value="LINK_URL">網址…</option>
+                    </select>
+                    <input v-if="linkSelect === LINK_URL" v-model="form.link" type="url" placeholder="https://opshell.me/dindon/" />
+                    <span class="counter">App 0.7.5 起才會帶過去；舊版只講內容。{{ linkSelect && linkSelect !== LINK_URL ? form.link : '' }}</span>
                 </label>
                 <label>開始（台灣時間）<input v-model="form.startsAt" type="datetime-local" /></label>
                 <label>結束（台灣時間）<input v-model="form.endsAt" type="datetime-local" /></label>
@@ -323,7 +342,7 @@
                             <td><span class="dd-status" :class="`is-${item.state}`">{{ STATE_LABELS[item.state] }}</span></td>
                             <td class="message">
                                 {{ item.message }}
-                                <small v-if="item.link">→ {{ item.link }}</small>
+                                <small v-if="item.link">→ {{ linkLabel(item.link) }}</small>
                             </td>
                             <td class="period">{{ formatDateTime(item.startsAt) }}<br />～ {{ formatDateTime(item.endsAt) }}</td>
                             <td>{{ buildRangeText(item.minAppBuild, item.maxAppBuild) }}</td>
@@ -441,6 +460,7 @@
             font-size: var(--font-size-s);
 
             input,
+            select,
             textarea {
                 background: var(--vp-c-bg-soft);
                 padding: 6px 10px;

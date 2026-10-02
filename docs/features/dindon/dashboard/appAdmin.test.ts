@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { announcementError, blockedCount, buildRangeText, configError, fromTaipeiLocal, toTaipeiLocal } from './appAdmin';
+import { announcementError, APP_PAGES, blockedCount, buildRangeText, configError, fromTaipeiLocal, LINK_URL, linkChoice, linkLabel, toTaipeiLocal } from './appAdmin';
 
 describe('台灣時間', () => {
     it('伺服器的 RFC3339 換成 datetime-local，再換回來帶 +08:00', () => {
@@ -57,5 +57,24 @@ describe('buildRangeText', () => {
         expect(buildRangeText(0, 51)).toBe('51 以下');
         expect(buildRangeText(52, 0)).toBe('52 以上');
         expect(buildRangeText(52, 53)).toBe('52～53');
+    });
+});
+
+describe('公告連結的下拉選單', () => {
+    it('空的、代號、網址各對到一項；不在清單上的代號照原樣留著', () => {
+        expect(linkChoice('')).toBe('');
+        expect(linkChoice('app:wallet')).toBe('app:wallet');
+        expect(linkChoice('app:old-page')).toBe('app:old-page');
+        expect(linkChoice('https://opshell.me/dindon/')).toBe(LINK_URL);
+    });
+
+    it('列表上認得的代號寫頁面名稱', () => {
+        expect(linkLabel('app:wallet')).toBe('帳戶（app:wallet）');
+        expect(linkLabel('https://opshell.me/')).toBe('https://opshell.me/');
+    });
+
+    it('每個代號都過得了連結的格式檢查', () => {
+        const ok = { message: '公告', startsAt: '', endsAt: '2026-10-15T00:00', minAppBuild: 0, maxAppBuild: 0 };
+        for (const page of APP_PAGES) expect(announcementError({ ...ok, link: page.code }, 80), page.code).toBe('');
     });
 });
