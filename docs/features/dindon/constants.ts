@@ -9,6 +9,9 @@ export const PRIVACY_PATH = '/dindon/privacy/';
 /** 功能演示（溝通板 #0055） */
 export const DEMO_PATH = '/dindon/demo/';
 
+/** 功能地圖與養成路線（2026-10-02） */
+export const GUIDE_PATH = '/dindon/guide/';
+
 /** 刪除資料與帳號。Google Play 要求「帳號刪除」有一個不用裝 App 也打得開的網址 */
 export const ACCOUNT_PATH = '/dindon/account/';
 

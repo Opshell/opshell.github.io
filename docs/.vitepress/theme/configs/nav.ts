@@ -83,6 +83,10 @@ export default [
                 link: '/dindon/demo/'
             },
             {
+                text: '功能地圖與養成路線',
+                link: '/dindon/guide/'
+            },
+            {
                 text: '隱私權政策',
                 link: '/dindon/privacy/'
             },
