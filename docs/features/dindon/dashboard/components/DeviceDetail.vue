@@ -65,7 +65,7 @@
     const plan = ref<PlanTier>('free');
     const hasBeta = ref(false);
     const betaDate = ref('');
-    const confirming = ref<'patch' | 'freeze' | 'reject-pending' | null>(null);
+    const confirming = ref<'patch' | 'freeze' | 'reject-pending' | 'test' | null>(null);
 
     const todayInTaipei = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(new Date());
 
@@ -190,6 +190,11 @@
             confirming.value = null;
         }
     }
+    /** 標成／取消測試／開發用（#0086）。標了會從排行榜、獎勵、投票的統計消失，所以一定先確認 */
+    const toggleTest = () => {
+        const isTest = !device.value?.isTest;
+        return mutate(token => adminApi.updateDevice(token, deviceId, { isTest }), isTest ? '已標成測試／開發用' : '已改回一般裝置');
+    };
     const toggleFreeze = () => {
         const frozen = !device.value?.frozen;
         return mutate(token => adminApi.updateDevice(token, deviceId, { frozen }), frozen ? '已凍結這台裝置' : '已解凍這台裝置');
@@ -270,6 +275,7 @@
         plan_tier: '方案',
         beta_tester_since: 'beta 資格',
         frozen_at: '凍結',
+        is_test: '測試／開發用',
         linked: '綁定 Google',
         had_email: '有 email',
         // 備註的操作紀錄不記內容（可能有真名），只記有沒有
@@ -307,7 +313,8 @@
             <span v-if="device" class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
                 {{ device.frozen ? '❄ 已凍結' : '● 啟用' }}
             </span>
-            <span v-if="device?.isTest" class="dd-status is-test" title="後台建立的測試裝置，不進用量、排行榜、獎勵與投票的統計">⚙ 測試機</span>
+            <span v-if="device?.isConsole" class="dd-status is-test" title="API 控制台建的測試裝置，不進一般統計">⚙ 控制台</span>
+            <span v-else-if="device?.isTest" class="dd-status is-test" title="標成測試／開發用：不進一般統計，用量算在開發成本">⚙ 測試／開發</span>
             <button type="button" class="dd-detail__close" aria-label="關閉" @click="emit('close')">✕</button>
         </header>
 
@@ -406,6 +413,33 @@
                 <div v-else class="dd-detail__actions">
                     <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = 'reject-pending'">這台的待審全部不採計…</button>
                 </div>
+            </section>
+            <!-- #endregion -->
+
+            <!-- #region [P] 測試／開發用（#0086）：開發者自己的手機、模擬器標起來，用量算開發成本 -->
+            <section class="dd-detail__card">
+                <h3>測試／開發用</h3>
+                <p class="dd-detail__muted">
+                    <template v-if="device.isConsole">API 控制台建的測試裝置，一定是測試用，不能改回一般裝置（不要了就凍結）。</template>
+                    <template v-else-if="device.isTest">這台標成測試／開發用：不進一般使用者的統計，AI 用量算在用量報表的「開發成本」。</template>
+                    <template v-else>自己拿來測的手機、模擬器標起來：用量改算「開發成本」，不再混進使用者的成本與統計。</template>
+                </p>
+                <template v-if="!device.isConsole">
+                    <div v-if="confirming === 'test'" class="dd-detail__actions">
+                        <p v-if="!device.isTest" class="dd-detail__warn">
+                            標了之後這台會<strong>從排行榜消失</strong>，回報不再計分，也不算 beta 獎勵與投票的票數；近 N 天有開 App、版本分布也不算它。
+                        </p>
+                        <button type="button" class="dd-admin__btn" :class="{ 'dd-admin__btn--danger': !device.isTest }" :disabled="busy" @click="toggleTest">
+                            確定{{ device.isTest ? '改回一般裝置' : '標成測試／開發用' }} #{{ deviceId }}
+                        </button>
+                        <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = null">取消</button>
+                    </div>
+                    <div v-else class="dd-detail__actions">
+                        <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = 'test'">
+                            {{ device.isTest ? '改回一般裝置…' : '標成測試／開發用…' }}
+                        </button>
+                    </div>
+                </template>
             </section>
             <!-- #endregion -->
 
@@ -620,6 +654,14 @@
         &__muted {
             color: var(--vp-c-text-2);
             font-size: var(--font-size-s);
+        }
+        &__warn {
+            flex-basis: 100%;
+            background: var(--vp-c-danger-soft);
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: var(--font-size-s);
+            line-height: 1.6;
         }
         &__notice {
             background: var(--vp-c-green-soft);

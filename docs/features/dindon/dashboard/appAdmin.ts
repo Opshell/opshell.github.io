@@ -52,7 +52,7 @@ export function configError(draft: ConfigDraft): string {
 const APP_LINK = /^app:[a-z0-9_/-]{1,64}$/;
 
 /**
- * App 認得的頁面代號（溝通板 #0080，前端 10-03 給的；App 0.7.5 起會接）。之後以 api.md 為準，前端加頁面會在那張單補。
+ * App 認得的頁面代號，照 api.md 第 21 節（溝通板 #0080；10-03 對過，20 個一樣）。App 0.7.5 起會接；api.md 加了新的再補這裡。
  * App 看不懂的代號一律當沒有連結。
  */
 export const APP_PAGES: { code: string; label: string }[] = [
