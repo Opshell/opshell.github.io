@@ -32,9 +32,14 @@
         .sort((a, b) => FEATURE_ORDER.indexOf(a.feature) - FEATURE_ORDER.indexOf(b.feature)));
 
     /** 照價目表估的總成本（美元）；下面的「Google 實際帳單」是台幣、實際的，兩個分開標 */
-    // 金額一律依實際帳單換算：帳單分不出功能，每個功能照估算的比例分（useCostCalibration）
+    // 金額是資料庫的估算 × Google 帳單上的匯率（useCostCalibration）；後端量過，估算本身是準的（#0085）
     const { formatCost, costFormula, costNote } = useCostCalibration();
     const estimateUsd = computed(() => features.value.reduce((acc, f) => acc + f.totalCostUsd, 0));
+    /** 使用者的成本：各功能加起來，再加被取消的加問估計（Google 照收輸入；後端量過估計對得上帳單） */
+    const usersUsd = computed(() => estimateUsd.value + (report.value?.canceledCostEstUsd ?? 0));
+    /** 開發成本：標成測試／開發用的裝置（#0086），不混進上面任何數字 */
+    const test = computed(() => report.value?.test);
+    const testUsd = computed(() => (test.value ? test.value.costUsd + test.value.canceledCostEstUsd : 0));
 
     const tiles = computed(() => {
         const r = report.value;
@@ -43,7 +48,7 @@
         return [
             { label: 'AI 請求', value: formatInt(sum(f => f.requests)), hint: `成功 ${formatInt(sum(f => f.ok))}` },
             { label: '活躍裝置', value: formatInt(r.devices.activeDevices), hint: '期間內至少用過一次 AI' },
-            { label: 'Gemini 成本', value: formatCost(estimateUsd.value), hint: costFormula(estimateUsd.value) },
+            { label: 'Gemini 成本（使用者）', value: formatCost(usersUsd.value), hint: costFormula(usersUsd.value) },
             { label: 'Beta 免扣點', value: formatInt(sum(f => f.quotaWaived)), hint: '原本會扣的請求數' },
             { label: '撞到付費牆', value: formatInt(r.devices.devicesHitQuota), hint: '台裝置' },
             { label: '撞到每日上限', value: formatInt(r.devices.devicesHitDailyLimit), hint: '台裝置' }
@@ -178,6 +183,7 @@
                             <th scope="col" class="num">輸入 token</th>
                             <th scope="col" class="num">輸出 token</th>
                             <th scope="col" class="num">成本</th>
+                            <th scope="col" class="num" title="被取消的那幾次：同一題贏的那次的輸入 token × 這個模型的價，不含在成本裡">取消的估計</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -193,13 +199,40 @@
                             <td class="num">{{ formatInt(m.promptTokens) }}</td>
                             <td class="num">{{ formatInt(m.outputTokens + m.thoughtsTokens) }}</td>
                             <td class="num">{{ formatCost(m.costUsd) }}</td>
+                            <td class="num">{{ formatCost(m.canceledCostEstUsd) }}</td>
                         </tr>
                         <tr v-if="!report.models.length">
-                            <td colspan="8" class="dd-table__empty">這段期間沒有呼叫 Gemini</td>
+                            <td colspan="9" class="dd-table__empty">這段期間沒有呼叫 Gemini</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
+            <!-- #region [P] 開發成本（#0086）：標成測試／開發用的裝置，不算在上面任何數字裡 -->
+            <h2 class="dd-usage__title">開發成本</h2>
+            <p class="dd-usage__desc">
+                標成測試／開發用的裝置（API 控制台建的，和在裝置詳情裡標的手機、模擬器）。不算在上面任何數字裡；
+                本機直接打 Gemini、AI Studio 網頁的用量後端看不到，在「Google 實際帳單」的「其他」。
+            </p>
+            <ul v-if="test && test.requests" class="dd-usage__tiles">
+                <li>
+                    <p class="label">開發成本</p>
+                    <p class="value">{{ formatCost(testUsd) }}</p>
+                    <p class="hint">{{ costFormula(testUsd) }}</p>
+                </li>
+                <li>
+                    <p class="label">測試裝置</p>
+                    <p class="value">{{ formatInt(test.devices) }}</p>
+                    <p class="hint">期間內有用 AI 的</p>
+                </li>
+                <li>
+                    <p class="label">AI 請求</p>
+                    <p class="value">{{ formatInt(test.requests) }}</p>
+                    <p class="hint">呼叫 Gemini {{ formatInt(test.geminiCalls) }} 次</p>
+                </li>
+            </ul>
+            <p v-else class="dd-usage__desc">這段期間測試／開發用的裝置沒有 AI 請求。自己測試用的手機記得在裝置詳情標起來，用量才會算到這裡。</p>
+            <!-- #endregion -->
 
             <ul v-if="report.notes?.length" class="dd-usage__notes">
                 <li v-for="note in report.notes" :key="note">{{ note }}</li>

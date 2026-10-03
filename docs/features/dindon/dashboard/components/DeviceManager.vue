@@ -162,7 +162,8 @@
                                     <span class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
                                         {{ device.frozen ? '❄ 已凍結' : '● 啟用' }}
                                     </span>
-                                    <span v-if="device.isTest" class="dd-status is-test" title="後台建立的測試裝置，不進統計">⚙ 測試機</span>
+                                    <span v-if="device.isConsole" class="dd-status is-test" title="API 控制台建的測試裝置，不進統計">⚙ 控制台</span>
+                                    <span v-else-if="device.isTest" class="dd-status is-test" title="標成測試／開發用，不進統計，用量算開發成本">⚙ 測試／開發</span>
                                 </td>
                                 <td>{{ PLAN_LABELS[device.planTier] ?? device.planTier }}</td>
                                 <td class="num extra">{{ formatInt(device.tokens) }}</td>

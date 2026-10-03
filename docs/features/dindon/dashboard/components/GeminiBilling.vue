@@ -63,7 +63,7 @@
                 <li>
                     <span class="label">同期的資料庫估算（原始）</span>
                     <span class="value">{{ formatUsd(estimateUsd) }}</span>
-                    <span class="hint">照價目表算的美元；後台其他金額都已經依帳單換算，原始估算只在這裡</span>
+                    <span class="hint">照價目表算的美元（不含被取消的加問與測試裝置）；後台其他金額是它 × 帳單上的匯率</span>
                 </li>
                 <li>
                     <span class="label">有用量的日子</span>

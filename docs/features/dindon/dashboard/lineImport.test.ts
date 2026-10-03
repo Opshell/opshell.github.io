@@ -28,6 +28,7 @@ function device(id: number, nickname: string | null, email: string | null = null
         avatar: null,
         adminNote,
         isTest: false,
+        isConsole: false,
         appVersion: '',
         appBuild: 0,
         lastSeenAt: null,

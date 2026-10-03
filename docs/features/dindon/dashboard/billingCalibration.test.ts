@@ -1,6 +1,6 @@
-import type { GeminiBilling, UsageReport } from './schemas/admin.schema';
+import type { DayModel, GeminiBilling, UsageReport } from './schemas/admin.schema';
 import { describe, expect, it } from 'vitest';
-import { calibrationFactor, costBasis, gapMultiple, impliedRate, reconcileDays, skuModel, skuRates } from './billingCalibration';
+import { billingRate, breakdown, impliedRate, reconcileDays, skuModel, skuRates } from './billingCalibration';
 
 const prices: UsageReport['pricesUsed'] = {
     'gemini-3.1-flash-lite': { inputPerMillionUsd: 0.25, outputPerMillionUsd: 1.5 },
@@ -35,39 +35,51 @@ describe('impliedRate', () => {
     });
 });
 
-describe('reconcileDays／calibrationFactor', () => {
+describe('帳單的匯率', () => {
+    it('有 usd_rate 用它，舊的後端沒給就用反推的', () => {
+        const base = { skus, usdRate: 31.735 } as unknown as GeminiBilling;
+        expect(billingRate(base, prices)).toBe(31.735);
+        expect(billingRate({ ...base, usdRate: 0 }, prices)).toBeCloseTo(31.7, 1);
+    });
+});
+
+describe('reconcileDays／breakdown', () => {
+    // 照後端 10-03 量的：9/25 清庫前（後端 0）、9/29 有測試與取消、10/01 完全對上、10/02 還沒匯出
     const billing = {
         since: '2026-09-03',
         dataThrough: '2026-10-01',
         daily: [
-            { date: '2026-10-01', cost: 0.6, credits: 0, paid: 0.6, items: [] },
+            { date: '2026-10-01', cost: 0.32, credits: 0, paid: 0.32, items: [] },
+            { date: '2026-09-29', cost: 1, credits: 0, paid: 1, items: [] },
             { date: '2026-09-25', cost: 0.2, credits: 0, paid: 0.2, items: [] }
         ]
     } as unknown as GeminiBilling;
-    const usageDaily = [
-        { date: '2026-10-02', costUsd: 0.01 },
-        { date: '2026-10-01', costUsd: 0.01 },
-        { date: '2026-09-25', costUsd: 0.005 }
-    ] as unknown as UsageReport['daily'];
+    const row = (date: string, group: 'users' | 'test', costUsd: number, canceledCostEstUsd = 0) =>
+        ({ date, model: 'gemini-3.1-flash-lite', group, costUsd, canceledCostEstUsd }) as DayModel;
+    const models = [
+        row('2026-10-02', 'users', 0.01),
+        row('2026-10-01', 'users', 0.01),
+        row('2026-09-29', 'users', 0.02, 0.001),
+        row('2026-09-29', 'test', 0.005)
+    ];
 
-    it('只對帳單已經匯出的日子，新的在前；估算換成台幣算差額', () => {
-        const days = reconcileDays(billing, usageDaily, 30);
-        expect(days.map(day => day.date)).toEqual(['2026-10-01', '2026-09-25']);
-        expect(days[0]).toMatchObject({ estimateUsd: 0.01, actualTwd: 0.6 });
-        expect(days[0].estimateTwd).toBeCloseTo(0.3);
-        expect(days[0].gapTwd).toBeCloseTo(0.3);
+    it('只拆帳單已經匯出的日子，新的在前；其他是帳單扣掉三塊剩下的', () => {
+        const days = reconcileDays(billing, models, 32);
+        expect(days.map(day => day.date)).toEqual(['2026-10-01', '2026-09-29', '2026-09-25']);
+        expect(days[0]).toMatchObject({ paidTwd: 0.32, usersTwd: 0.32, testTwd: 0, canceledTwd: 0, beforeReset: false });
+        expect(days[0].otherTwd).toBeCloseTo(0);
+        expect(days[1].usersTwd).toBeCloseTo(0.64);
+        expect(days[1].testTwd).toBeCloseTo(0.16);
+        expect(days[1].canceledTwd).toBeCloseTo(0.032);
+        expect(days[1].otherTwd).toBeCloseTo(1 - 0.64 - 0.16 - 0.032);
+        expect(days[2]).toMatchObject({ usersTwd: 0, beforeReset: true });
     });
 
-    it('係數＝實付 ÷ 估算；除以匯率就是差了幾倍', () => {
-        const days = reconcileDays(billing, usageDaily, 30);
-        const factor = calibrationFactor(days);
-        expect(factor).toBeCloseTo(0.8 / 0.015);
-        expect(gapMultiple(factor, 30)).toBeCloseTo(0.8 / 0.015 / 30);
-        expect(calibrationFactor([])).toBeNull();
-    });
-
-    it('係數的來源：期間實付與資料庫估算的加總，舊到新的日期', () => {
-        expect(costBasis(reconcileDays(billing, usageDaily, 30))).toEqual({ paidTwd: 0.8, estimateUsd: 0.015, from: '2026-09-25', to: '2026-10-01' });
-        expect(costBasis([])).toBeNull();
+    it('清庫前整天的帳單另外一塊，不算進「其他」', () => {
+        const total = breakdown(reconcileDays(billing, models, 32));
+        expect(total.paidTwd).toBeCloseTo(1.52);
+        expect(total.resetTwd).toBeCloseTo(0.2);
+        expect(total.otherTwd).toBeCloseTo(1 - 0.64 - 0.16 - 0.032);
+        expect(total.usersTwd + total.testTwd + total.canceledTwd + total.resetTwd + total.otherTwd).toBeCloseTo(total.paidTwd);
     });
 });

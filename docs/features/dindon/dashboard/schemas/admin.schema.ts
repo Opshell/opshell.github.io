@@ -74,8 +74,10 @@ export const AdminDeviceSchema = z.object({
     avatar: AvatarSchema.nullable(),
     /** 管理員替這台記的備註（#0070）：只有後台看得到。沒有是空字串 */
     adminNote: z.string(),
-    /** 後台建立的測試裝置（#0074）：不進用量、排行榜、獎勵、投票的統計 */
+    /** 測試／開發用（#0074、#0086）：不進用量、排行榜、獎勵、投票的統計，用量算在開發成本。任何裝置都能在後台標 */
     isTest: z.boolean(),
+    /** API 控制台建的（#0086）：只有它能重發 key，也不能取消測試標記。控制台找自己的裝置看這個，不看 isTest */
+    isConsole: z.boolean(),
     /** 最後一次帶的 App 版本（#0076）；0.6.7 以前的 App 不帶，是空字串／0 */
     appVersion: z.string(),
     appBuild: z.number().int(),
@@ -115,6 +117,8 @@ const AdminDeviceRawSchema = z.object({
     // 2026-09-29 部署以前的後端沒有這兩個欄位
     admin_note: z.string().nullish(),
     is_test: z.boolean().nullish(),
+    // 2026-10-03 部署以前的後端沒有（#0086）
+    is_console: z.boolean().nullish(),
     // 2026-10-02 部署以前的後端沒有這四個欄位（#0076、#0081）
     app_version: z.string().nullish(),
     app_build: z.number().nullish(),
@@ -135,6 +139,7 @@ export const AdminDeviceParser = AdminDeviceRawSchema
         avatar: data.avatar ?? null,
         admin_note: data.admin_note ?? '',
         is_test: data.is_test ?? false,
+        is_console: data.is_console ?? false,
         app_version: data.app_version ?? '',
         app_build: data.app_build ?? 0,
         last_seen_at: data.last_seen_at ?? null,
@@ -257,7 +262,9 @@ export const UpdateDeviceFormSchema = z.object({
     /** **只能給 null**：清掉不當的稱號。操作紀錄會留下被清掉的字 */
     title: z.null(),
     /** 管理員備註。空字串是清掉（不收 null）。操作紀錄不記內容，改錯了救不回來 */
-    adminNote: z.string()
+    adminNote: z.string(),
+    /** 標成／取消測試／開發用（#0086）。標了就不進一般統計、從排行榜消失；控制台建的不能取消（409） */
+    isTest: z.boolean()
 }).partial();
 
 export const UpdateDevicePayload = UpdateDeviceFormSchema.transform(camelToSnake);
@@ -356,6 +363,32 @@ const FeatureStatsRawSchema = z.object({
 
 // #region [P] 用量報表 GET /v1/admin/usage
 
+const DayModelRawSchema = z.object({
+    date: z.string(),
+    model: z.string(),
+    group: z.enum(['users', 'test']),
+    calls: z.number(),
+    canceled: z.number(),
+    prompt_tokens: z.number(),
+    output_tokens: z.number(),
+    thoughts_tokens: z.number(),
+    canceled_prompt_tokens_est: z.number(),
+    cost_usd: z.number(),
+    canceled_cost_est_usd: z.number()
+});
+
+const TestUsageRawSchema = z.object({
+    devices: z.number(),
+    requests: z.number(),
+    gemini_calls: z.number(),
+    cost_usd: z.number(),
+    canceled_cost_est_usd: z.number(),
+    models: nullableList(z.object({ model: z.string(), calls: z.number(), cost_usd: z.number() }).passthrough()),
+    daily: nullableList(z.object({ date: z.string(), requests: z.number(), cost_usd: z.number(), canceled_cost_est_usd: z.number() }))
+});
+
+const EMPTY_TEST_USAGE: z.input<typeof TestUsageRawSchema> = { devices: 0, requests: 0, gemini_calls: 0, cost_usd: 0, canceled_cost_est_usd: 0, models: [], daily: [] };
+
 export const GetUsageReportParser = z
     .object({
         from: z.string(),
@@ -371,6 +404,8 @@ export const GetUsageReportParser = z
             failed: z.number(),
             unique_devices: z.number(),
             cost_usd: z.number(),
+            /** 這天被取消的加問估計的成本，不含在 cost_usd 裡（#0085；10-03 以前的後端沒有） */
+            canceled_cost_est_usd: z.number().nullish().transform(v => v ?? 0),
             features: nullableRecord(DayFeatureParser)
         // features 的 key 是功能名稱，原樣保留
         }).transform(({ features, ...day }) => ({ ...snakeToCamel(day), features }))),
@@ -392,8 +427,16 @@ export const GetUsageReportParser = z
             output_tokens: z.number(),
             thoughts_tokens: z.number(),
             cost_usd: z.number(),
-            price_known: z.boolean()
+            price_known: z.boolean(),
+            canceled_prompt_tokens_est: z.number().nullish().transform(v => v ?? 0),
+            canceled_cost_est_usd: z.number().nullish().transform(v => v ?? 0)
         })),
+        /** 被取消的加問估計的成本（一般使用者；上面的成本都不含它）。同一題贏的那次的輸入 token × 被取消那個模型的價（#0085） */
+        canceled_cost_est_usd: z.number().nullish().transform(v => v ?? 0),
+        /** 每天 × 模型 × 群（users／test）的 token 與成本，含測試裝置：兩群加起來是後端看得到的全部（#0085） */
+        daily_models: nullableList(DayModelRawSchema),
+        /** 測試／開發用裝置的用量＝開發成本（#0086）。不混進其他任何數字 */
+        test: TestUsageRawSchema.nullish().transform(v => v ?? EMPTY_TEST_USAGE),
         /** 估算用的價目表（模型 → 每一百萬 token 的美元）：拿來從帳單反推匯率（#0084 對帳） */
         prices_used: nullableRecord(z.object({ input_per_million_usd: z.number(), output_per_million_usd: z.number() })),
         notes: nullableList(z.string())
@@ -404,6 +447,7 @@ export const GetUsageReportParser = z
 export type UsageReport = z.output<typeof GetUsageReportParser>;
 export type FeatureStats = UsageReport['features'][number];
 export type UsageDay = UsageReport['daily'][number];
+export type DayModel = UsageReport['dailyModels'][number];
 
 // #endregion
 
@@ -1077,6 +1121,8 @@ export const GeminiBillingParser = z
             since: z.string(),
             /** 帳單帳戶的幣別（現在 TWD）；用量報表的 cost_usd 是美元而且是估的 */
             currency: z.string(),
+            /** 1 美元換多少帳單幣別：期間內最新那天帳單上 Google 自己用的匯率（#0085；10-03 以前的後端沒有，是 0） */
+            usd_rate: z.number().nullish(),
             /** 帳單匯出最晚有資料的那天：之後的日子是「還沒匯出」，不是沒花錢 */
             data_through: z.string().nullish(),
             exported_at: z.string().nullish(),
@@ -1090,6 +1136,7 @@ export const GeminiBillingParser = z
         days: report.days,
         since: report.since,
         currency: report.currency,
+        usdRate: report.usd_rate ?? 0,
         dataThrough: report.data_through ?? null,
         exportedAt: report.exported_at ?? null,
         total: report.total,

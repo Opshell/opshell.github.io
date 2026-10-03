@@ -29,7 +29,8 @@
         try {
             // 裝置不多（beta 限額 100 台），一頁 100 台一次就抓完；只有這裡會用到，所以這個分頁只找一次
             const { devices } = await call(token => adminApi.listAllDevices(token));
-            testDevices.value = devices.filter(device => device.isTest);
+            // 看 isConsole 不看 isTest（#0086）：使用者自己的手機標成測試用之後也是 isTest，重發會讓手機被登出，後端也會回 409
+            testDevices.value = devices.filter(device => device.isConsole);
         } catch (e) {
             error.value = errorMessage(e);
         } finally {

@@ -1,22 +1,31 @@
-import type { GeminiBilling, UsageReport } from './schemas/admin.schema';
+import type { DayModel, GeminiBilling, UsageReport } from './schemas/admin.schema';
 
-// 用實際帳單校正估算（2026-10-02，使用者：「所有的分析和檢視都用實際帳單的金額」）。
+// 用實際帳單看成本（2026-10-02 起；10-03 照後端的量測改寫，溝通板 #0085）。
 //
-// 帳單只細到「哪一天、哪個計價項目」，分不出是哪個功能、哪台裝置花的；後端的估算分得出來，但金額不準。
-// 所以兩個疊起來用：
-// - 一天、一段期間的總數：直接用帳單。
-// - 每個功能、每台裝置、每次請求：估算（美元）× 換算係數 k。k = 兩邊都有資料的日子裡，帳單實付（台幣）÷ 估算（美元）。
-//   k 同時包含匯率，與估算漏掉的部分（被取消的加問、測試裝置……），所以換算後的總和會等於帳單。
-// 匯率另外從帳單反推（實際成本 ÷ 用價目表算的美元），用來把估算換成台幣、看估算到底差了多少。
+// 後端逐日、逐模型對過帳單：**估算本身是準的**（單價對、token 對，10/01 一個 token 都不差），差額都是「後端看不到的用量」：
+// 9/28 清資料庫刪掉的紀錄、本機開發與 AI Studio 網頁、被取消的加問（另外估）。
+// 所以後台這樣算：
+// - 每個功能、每台裝置、每次請求：資料庫的估算（美元）× 帳單上的匯率。**不再乘「實付 ÷ 估算」的係數**——
+//   那會把本機開發與清庫前的錢灌到使用者頭上，使用者的成本被放大一倍多。
+// - 一天、一段期間的總數：直接用帳單，拆成「使用者、測試／開發、被取消的加問、其他」四塊。
+
+/** 9/28 beta 前清過正式資料庫：這天以前的 AI 紀錄被刪了，帳單有錢、後端是 0（溝通板 #0085 第 1 點） */
+export const DATA_RESET_DAY = '2026-09-28';
 
 export interface ReconcileDay {
     date: string;
-    estimateUsd: number;
-    /** 估算換成台幣（照反推的匯率） */
-    estimateTwd: number | null;
-    actualTwd: number;
-    /** 實際 − 估算（台幣）；正的是估算漏掉的 */
-    gapTwd: number | null;
+    /** 帳單實付（台幣） */
+    paidTwd: number;
+    /** 一般使用者的估算 × 匯率 */
+    usersTwd: number;
+    /** 測試／開發用裝置的估算 × 匯率（開發成本） */
+    testTwd: number;
+    /** 被取消的加問估計 × 匯率（兩群都算） */
+    canceledTwd: number;
+    /** 帳單 − 上面三塊：本機開發、AI Studio 網頁；清庫前的日子整天都在這 */
+    otherTwd: number;
+    /** 在 9/28 清庫以前：後端沒有紀錄 */
+    beforeReset: boolean;
 }
 
 type Prices = UsageReport['pricesUsed'];
@@ -45,8 +54,8 @@ export function impliedRate(skus: GeminiBilling['skus'], prices: Prices): number
 }
 
 /**
- * 每個計價項目各自反推的匯率。全部差不多（例如都在 31.7）就代表價目表的單價跟 Google 一樣，
- * 估算的落差不是價錢錯，是 token 數對不上；有一項特別高就是那個模型或方向的單價寫錯了。
+ * 每個計價項目各自反推的匯率。全部差不多（例如都在 31.7）就代表價目表的單價跟 Google 一樣；
+ * 有一項特別高就是那個模型或方向的單價寫錯了。
  */
 export function skuRates(skus: GeminiBilling['skus'], prices: Prices): { sku: string; rate: number }[] {
     return skus.flatMap((item) => {
@@ -55,40 +64,46 @@ export function skuRates(skus: GeminiBilling['skus'], prices: Prices): { sku: st
     });
 }
 
-/** 逐日對帳：只看帳單已經匯出的日子（≤ dataThrough），新的在前 */
-export function reconcileDays(billing: GeminiBilling, usageDaily: UsageReport['daily'], rate: number | null): ReconcileDay[] {
+/** 換算用的匯率：帳單上 Google 自己用的（usd_rate）；舊的後端沒給時用反推的 */
+export function billingRate(billing: GeminiBilling, prices: Prices): number | null {
+    return billing.usdRate > 0 ? billing.usdRate : impliedRate(billing.skus, prices);
+}
+
+/** 逐日拆帳：只看帳單已經匯出的日子（≤ dataThrough），新的在前 */
+export function reconcileDays(billing: GeminiBilling, dailyModels: readonly DayModel[], rate: number): ReconcileDay[] {
     const through = billing.dataThrough ?? '';
-    const dates = new Set<string>();
-    const actual = new Map(billing.daily.map(day => [day.date, day.paid]));
-    const estimate = new Map(usageDaily.map(day => [day.date, day.costUsd]));
-    for (const date of [...actual.keys(), ...estimate.keys()]) {
-        if (date >= billing.since && (!through || date <= through)) dates.add(date);
+    const byDate = new Map<string, { users: number; test: number; canceled: number }>();
+    for (const row of dailyModels) {
+        const day = byDate.get(row.date) ?? { users: 0, test: 0, canceled: 0 };
+        day[row.group] += row.costUsd;
+        day.canceled += row.canceledCostEstUsd;
+        byDate.set(row.date, day);
     }
+    const paid = new Map(billing.daily.map(day => [day.date, day.paid]));
+    const dates = new Set([...paid.keys(), ...byDate.keys()].filter(date => date >= billing.since && (!through || date <= through)));
     return [...dates].sort((a, b) => b.localeCompare(a)).map((date) => {
-        const estimateUsd = estimate.get(date) ?? 0;
-        const actualTwd = actual.get(date) ?? 0;
-        const estimateTwd = rate ? estimateUsd * rate : null;
-        return { date, estimateUsd, estimateTwd, actualTwd, gapTwd: estimateTwd === null ? null : actualTwd - estimateTwd };
+        const usd = byDate.get(date) ?? { users: 0, test: 0, canceled: 0 };
+        const paidTwd = paid.get(date) ?? 0;
+        const usersTwd = usd.users * rate;
+        const testTwd = usd.test * rate;
+        const canceledTwd = usd.canceled * rate;
+        return { date, paidTwd, usersTwd, testTwd, canceledTwd, otherTwd: paidTwd - usersTwd - testTwd - canceledTwd, beforeReset: date < DATA_RESET_DAY };
     });
 }
 
-/** 換算係數：每 1 美元的估算，實際是多少台幣。兩邊都要有數字才算得出來 */
-export function calibrationFactor(days: readonly ReconcileDay[]): number | null {
-    const estimate = days.reduce((sum, day) => sum + day.estimateUsd, 0);
-    const actual = days.reduce((sum, day) => sum + day.actualTwd, 0);
-    return estimate > 0 && actual > 0 ? actual / estimate : null;
-}
-
-/** 換算係數的來源：對帳期間的帳單實付（台幣）與資料庫估算（美元）各加總，畫面上寫成算式用 */
-export function costBasis(days: readonly ReconcileDay[]): { paidTwd: number; estimateUsd: number; from: string; to: string } | null {
-    if (!days.length) return null;
+/** 一段期間加總；other 再分成清庫前（整天都是）與之後（本機開發、AI Studio） */
+export function breakdown(days: readonly ReconcileDay[]) {
+    const sum = (pick: (day: ReconcileDay) => number, list = days) => list.reduce((total, day) => total + pick(day), 0);
+    const before = days.filter(day => day.beforeReset);
+    const after = days.filter(day => !day.beforeReset);
     return {
-        paidTwd: days.reduce((sum, day) => sum + day.actualTwd, 0),
-        estimateUsd: days.reduce((sum, day) => sum + day.estimateUsd, 0),
-        from: days[days.length - 1].date,
-        to: days[0].date
+        paidTwd: sum(day => day.paidTwd),
+        usersTwd: sum(day => day.usersTwd),
+        testTwd: sum(day => day.testTwd),
+        canceledTwd: sum(day => day.canceledTwd),
+        /** 9/28 以前：資料庫清掉了，整天的帳單都算這裡 */
+        resetTwd: sum(day => day.paidTwd, before),
+        /** 9/28 以後還對不上的：本機開發、AI Studio 網頁 */
+        otherTwd: sum(day => day.otherTwd, after)
     };
 }
-
-/** 實際是估算的幾倍（同一個幣別比）：k ÷ 匯率 */
-export const gapMultiple = (factor: number | null, rate: number | null) => (factor && rate ? factor / rate : null);
