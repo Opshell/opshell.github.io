@@ -19,7 +19,7 @@ Claude 於 2026-10-05 補完：懶人包與結論（原本的「總結」改名�
 :::
 
 ::: info 這篇的脈絡
-一個「勾選餐點」的清單，同一段程式碼讓我撞了兩次牆。這篇是第一次：勾選回來的 key 變成字串。第二次是接著寫篩選時的型別錯誤與效能，在下一篇 [修好型別錯誤，再用 Set 把查找變 O(1)](./透過-set-優化性能-2)。
+一個「勾選分類」的清單，同一段程式碼讓我撞了兩次牆。這篇是第一次：勾選回來的 key 變成字串。第二次是接著寫篩選時的型別錯誤與效能，在下一篇 [修好型別錯誤，再用 Set 把查找變 O(1)](./透過-set-優化性能-2)。
 
 這種坑的共通點是：TypeScript 在編譯時說沒問題，JavaScript 在執行時做了另一件事。
 :::
@@ -34,8 +34,8 @@ Claude 於 2026-10-05 補完：懶人包與結論（原本的「總結」改名�
 今天在開發時遇到一個有趣的狀況。我有一個響應式物件，其型別定義如下：
 
 ```typescript
-const mealDataGroup = ref<Record<number, {
-    mealData: iMealNumberData[];
+const categoryGroup = ref<Record<number, {
+    products: iProductData[];
     total: number;
 }>>({});
 ```
@@ -44,21 +44,21 @@ const mealDataGroup = ref<Record<number, {
 
 ```html
 <div
-  v-for="(item, key) in mealDataGroup"
-  :key="`meal-type-${key}`"
+  v-for="(item, key) in categoryGroup"
+  :key="`category-${key}`"
 >
-  <ElCheckbox v-model="coverMealNumberKeys" :val="key" />
+  <ElCheckbox v-model="selectedCategoryIds" :val="key" />
   </div>
 ```
 
 ```typescript
 // <script setup lang="ts">
-const coverMealNumberKeys = ref<number[]>([]);
-// 期望 coverMealNumberKeys 是一個數字陣列 number[]
+const selectedCategoryIds = ref<number[]>([]);
+// 期望 selectedCategoryIds 是一個數字陣列 number[]
 // </script>
 ```
 
-我**預期** `coverMealNumberKeys` 中收集到的值會是 `number[]`，但實際 `console.log` 出來的結果卻是 `string[]`。為什麼？
+我**預期** `selectedCategoryIds` 中收集到的值會是 `number[]`，但實際 `console.log` 出來的結果卻是 `string[]`。為什麼？
 
 ## 深入探討：JavaScript 的核心機制
 
@@ -76,11 +76,11 @@ const coverMealNumberKeys = ref<number[]>([]);
 
 現在我們來看看模板中發生了什麼事：
 
-1.  `v-for` 開始遍歷 `mealDataGroup`。假設 `mealDataGroup` 的內容是 `{ 1: { ... }, 2: { ... } }`。
+1.  `v-for` 開始遍歷 `categoryGroup`。假設 `categoryGroup` 的內容是 `{ 1: { ... }, 2: { ... } }`。
 2.  在第一輪迴圈中，`key` 的值是 `'1'` (字串)。
 3.  `<ElCheckbox :val="key" />` 這行程式碼，等同於把字串 `'1'` 傳給了 `ElCheckbox` 元件的 `val` prop。
-4.  當使用者勾選這個 checkbox 時，`v-model` 指令會將這個 checkbox 的 `val` 值 (也就是字串 `'1'`) `push` 到 `coverMealNumberKeys` 陣列中。
-5.  最終，`coverMealNumberKeys.value` 就變成了 `['1']`，一個 `string[]`。
+4.  當使用者勾選這個 checkbox 時，`v-model` 指令會將這個 checkbox 的 `val` 值 (也就是字串 `'1'`) `push` 到 `selectedCategoryIds` 陣列中。
+5.  最終，`selectedCategoryIds.value` 就變成了 `['1']`，一個 `string[]`。
 
 ## 解決方案
 
@@ -92,13 +92,13 @@ const coverMealNumberKeys = ref<number[]>([]);
 
 ```html
 <div
-    v-for="(item, key) in mealDataGroup"
-    :key="`meal-type-${key}`"
+    v-for="(item, key) in categoryGroup"
+    :key="`category-${key}`"
 >
-    <ElCheckbox v-model="coverMealNumberKeys" :val="Number(key)" />
+    <ElCheckbox v-model="selectedCategoryIds" :val="Number(key)" />
 
-    <span class="meal-type">
-      {{ receiverMealTypeOptions.find(option => option.id === Number(key))?.name || '未知餐別' }}
+    <span class="category-name">
+      {{ categoryOptions.find(option => option.id === Number(key))?.name || '未知分類' }}
     </span>
     <span class="number">{{ item.total }}人</span>
 </div>
@@ -108,18 +108,18 @@ const coverMealNumberKeys = ref<number[]>([]);
 
   * **問題在源頭解決**：確保進入 `v-model` 陣列的資料型別從一開始就是正確的。
   * **程式碼可讀性高**：其他協作者能一眼看出這裡進行了型別轉換。
-  * **維護資料模型純淨**：`coverMealNumberKeys` 的型別始終是我們期望的 `number[]`，不需要在其他地方做額外處理。
+  * **維護資料模型純淨**：`selectedCategoryIds` 的型別始終是我們期望的 `number[]`，不需要在其他地方做額外處理。
 
 ### 方案二：提交或使用資料時再轉換 (不推薦)
 
-你也可以讓 `coverMealNumberKeys` 保持 `string[]`，然後在需要使用這些資料（例如發送 API請求）時再進行轉換。
+你也可以讓 `selectedCategoryIds` 保持 `string[]`，然後在需要使用這些資料（例如發送 API請求）時再進行轉換。
 
 ```typescript
 // 在 script 中
 function submitData() {
-    const numericKeys = coverMealNumberKeys.value.map(key => Number(key));
+    const numericKeys = selectedCategoryIds.value.map(key => Number(key));
     // 使用 numericKeys 去發送請求
-    api.post({ mealTypes: numericKeys });
+    api.post({ categoryIds: numericKeys });
 }
 ```
 
