@@ -286,3 +286,32 @@
   - 〈fsd-是什麼.md〉整篇的換行不見了，擠成一行。
 - 驗證：`pnpm check` 全過；`docs:preview` 用 Edge 無頭截圖看 1440 淺／深色與 390 深色，手機寬 `scrollWidth` = 390。
 - 在 `redesign-2026-10` 分支，還沒 commit。
+
+**追加（同日）**：使用者要把這頁的內容也放進 `/design-system`，多一個分頁。
+
+- 內文抽成 `features/markdown-guide/guide.md`（`features/**/*.md` 在 `srcExclude`，不會變成頁面），
+  文章頁與 `design-system.md` 都用 `<!--@include: @/features/markdown-guide/guide.md-->` 引入，改一份兩邊一起變。
+- `DesignSystem.vue` 多一個 `Markdown` 分頁，內容走具名 slot `markdown`：要經過 markdown 編譯，只能從 md 傳進元件，元件自己沒辦法渲染 md。
+  分頁外包一層 `.vp-doc`、限寬 860px。設計系統頁沒有文章版型，`.vp-doc` 預設會給連結畫底線，稜鏡與光譜的連結列補了 `text-decoration: none`。
+- 已知限制：md 內的錨點（`#bold` 這類）只在 Markdown 分頁開著時有效；帶著 `#bold` 直接開網址會停在預設的 Colors 分頁。
+- 驗證：`pnpm check` 全過；預覽版 `/design-system.html#markdown` 截圖看 1440 深／淺色與 390 淺色。
+
+# 2026-10-05：「API 串接進化史」系列草稿（八篇，不上線）
+
+**使用者**：`WWW/axios/` 放了四個舊專案的倉庫（醫療後台 2023-11 起、供餐系統 2024-03 起、查核系統 2025-01 起、flowmodoro side project）
+跟四份 Gemini 對話的 PDF。從大學用 HTML5＋AJAX 做打磚塊對戰、jQuery 時代的純前端，到 2023～2026 自己封裝 axios、
+導入 TanStack Query，整個歷程寫成一個小系列：每一次進化是被什麼情境推的、學到什麼。口吻照 `day12-prettier-is-not-that-great.md`。不上線。
+
+- **素材**：四個代理各挖一個倉庫的 git 歷史（`git log -S`、分水嶺 commit、`git show` 當時的封裝檔），PDF 用 pypdf 抽文字。
+  關鍵發現：`useApi.ts` 從醫療後台複製到供餐系統再到查核系統，連寫反的 `if (!token)` 一起帶走；兩個專案 2024-11 都把攔截器塞進
+  composable 函式裡（每呼叫一次多註冊一個），供餐 15 天搬回去、醫療後台 16 個月後才加 flag；查核系統 2025-09-02 手刻 `useAsyncState`、
+  三天後導入 TanStack Query，`useAsyncState.ts` 變成沒人 import 的死碼；供餐系統至今兩套 `useApi` 並存（23 vs 15 個檔）、
+  同事 2026-03 開的第三代 `src/http/` 分支叫「統一替換」但一個呼叫端都沒換、沒合回去。
+- **跟既有系列的關係**：`developer/串 API 的那些事/` 四篇是「評群組裡別人貼的 useApi」，視角是評論者；這個系列是當事人的時間線。
+  重疊的技術細節（全域旗標、重載、useAsyncState 的寫法）只連過去不重講。
+- **寫了**：`docs/pages/article/code-sea/developer/API 串接進化史/01～08.md`，共約 5.1 萬字元，`isPublished: false`，
+  每篇開頭有 `::: warning 草稿`（發文工具會擋）列出要使用者補或確認的地方。專案用「醫療後台／供餐系統／查核系統」代稱，
+  沒寫 Jira 編號、內網 IP、client secret。側欄照資料夾掃，不用改 `config.mts`。
+- **要使用者補的**：第一篇的打磚塊（怎麼同步、輪詢還是 WebSocket）與 jQuery 打包 App 那段幾乎都是倉庫外的記憶；
+  第三篇供餐系統 24 天後刪 token 刷新的真正原因；第七篇那個查不到來源的第二次 GET 後來有沒有結案。
+- 發文排程加進「二、有料的半成品」。build 通過才 commit，沒 push。
