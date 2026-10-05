@@ -1,43 +1,212 @@
 <script setup lang="ts">
-    import type { Ray } from '../prism';
-    import { hueVar } from '@shared/utils/spectrum';
-    import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-    import { aimFromPointer, bezierAt, LABEL_X, ORB, photonAt, rayEnd, rayPolygon, refract, SOURCE_X, SOURCE_Y, stars, strandAt, VIEW } from '../prism';
+    import type { ElementKey, Point, Ray } from '../prism';
+    import { hueVar, SPECTRUM } from '@shared/utils/spectrum';
+    import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+    import { aimFromPointer, along, END_X, exitsFor, LABEL_X, ORB, photonAt, rayPolygon, refract, SOURCE_X, SOURCE_Y, stars, strandPoints, VIEW } from '../prism';
 
-    // 首頁的光學台（2026-10 翻新第二版）：白光射進玻璃 O，散成各分類的光。取代舊版那張 AI 插畫。
-    // - 滑鼠上下是瞄準入射光：O 的出射點反向偏一點，整把光跟著轉（幾何在 prism.ts）
-    // - 光上一直有光點往外流，文章越多的光越熱鬧；滑過一道光，標籤底下出現那類最新的一篇
-    // - 每道光是切換鈕：點了，底下的文章換成那一類；點白光或 O 回到全部
-    // - 進場一次：光先射進來、O 亮起來、再一道道散開。之後的動態都在回應滑鼠；
-    //   關閉動態時是畫好的靜止畫面（光點停在固定位置、不瞄準）。捲出畫面或切到別的分頁就停。
+    // 首頁的光學台（2026-10 翻新第二版）：白光（原初）射進玻璃 O，在裡面演化成六種元素的光絲，
+    // 從 O 的右緣稍微分開的地方各自出去，成為各分類的光。
+    // - 滑鼠上下是瞄準入射光；滑過一道光，標籤底下出現那類最新的一篇；點了篩底下的文章，點白光或 O 回到全部
+    // - 進場一次：光射進來、O 亮、一道道散開
+    //
+    // 效能（2026-10-05，使用者：「一到首頁電腦風扇直接狂轉」）：會動的東西（星塵、漣漪、光絲、光點）全畫在一張 <canvas> 上，
+    // 每秒 30 張、沒有模糊濾鏡；SVG 只放不動的東西（光暈、光束、玻璃、標籤、點的範圍），只在瞄準時重畫。
+    // 捲出畫面、切到別的分頁就停；關閉動態時只畫一張靜止的。
     const { rays = [], selected = null } = defineProps<{ rays?: Ray[]; selected?: string | null }>();
     const emit = defineEmits<{ select: [key: string | null] }>();
 
+    const FRAME_MS = 1000 / 30;
+    const TAU = Math.PI * 2;
     const sky = stars(70);
 
-    // #region [P] 瞄準與時間
+    // #region [P] 瞄準：只在滑鼠移動、光還在追的時候改 sourceY（SVG 跟著重畫），平常 SVG 完全不動
     const sourceY = ref<number>(SOURCE_Y.rest);
-    const clock = ref(0);
     const hovered = ref<string | null>(null);
     const motion = ref(false);
+    const focus = computed(() => hovered.value ?? selected);
+    const entry = computed(() => refract(sourceY.value).entry);
+    const exits = computed(() => exitsFor(sourceY.value, rays.length));
     let target: number | null = null;
+    let current: number = SOURCE_Y.rest;
+
+    function aim(event: PointerEvent) {
+        if (!motion.value || event.pointerType === 'touch') return;
+        const rect = (event.currentTarget as Element).getBoundingClientRect();
+        target = aimFromPointer((event.clientY - rect.top) / rect.height);
+    }
+    // #endregion
+
+    // #region [P] 畫布
+    const rootRef = ref<HTMLElement>();
+    const stageRef = ref<HTMLElement>();
+    const canvasRef = ref<HTMLCanvasElement>();
+    let ctx: CanvasRenderingContext2D | null = null;
+    let scale = 1;
+    let dpr = 1;
+    let colors: Record<string, string> = {};
+
+    /** 畫布不認 CSS 變數：從元素上讀出實際的顏色（切換深淺色時再讀一次） */
+    function readColors() {
+        const style = getComputedStyle(rootRef.value!);
+        const read = (name: string) => style.getPropertyValue(name).trim();
+        colors = Object.fromEntries(SPECTRUM.map(hue => [hue, read(`--pr-${hue}`)]));
+        colors.beam = read('--op-beam');
+        colors.star = read('--op-star');
+    }
+
+    function resize() {
+        const stage = stageRef.value;
+        const canvas = canvasRef.value;
+        if (!stage || !canvas) return;
+        const { width, height } = stage.getBoundingClientRect();
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        scale = width / VIEW.width;
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        draw(time);
+    }
+
+    /** 每種元素的筆觸：粗細、外面那層光的寬度、亮度 */
+    const STROKE: Record<ElementKey, { width: number; glow: number; alpha: number }> = {
+        metal: { width: 1.8, glow: 5, alpha: 0.95 },
+        earth: { width: 3.2, glow: 9, alpha: 0.85 },
+        fire: { width: 2, glow: 8, alpha: 0.9 },
+        wood: { width: 1.6, glow: 5, alpha: 0.9 },
+        wind: { width: 1, glow: 4, alpha: 0.55 },
+        water: { width: 2.2, glow: 7, alpha: 0.9 }
+    };
+
+    function polyline(points: readonly Point[]) {
+        ctx!.beginPath();
+        ctx!.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) ctx!.lineTo(points[i].x, points[i].y);
+    }
+    function dot(x: number, y: number, r: number) {
+        ctx!.beginPath();
+        ctx!.arc(x, y, r, 0, TAU);
+        ctx!.fill();
+    }
+
+    function draw(now: number) {
+        const c = ctx;
+        if (!c) return;
+        c.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
+        c.clearRect(0, 0, VIEW.width, VIEW.height);
+        const en = entry.value;
+        const ex = exits.value;
+        const lit = focus.value;
+
+        // 星塵：慢慢地一閃一閃
+        c.fillStyle = colors.star;
+        for (const star of sky) {
+            c.globalAlpha = 0.1 + 0.4 * (0.5 + 0.5 * Math.sin(now * 1.05 + star.delay * 1.7));
+            dot(star.x, star.y, star.r);
+        }
+
+        // O 裡面：入口的漣漪與光絲，裁在玻璃圓裡
+        c.save();
+        c.beginPath();
+        c.arc(ORB.cx, ORB.cy, ORB.r - 3, 0, TAU);
+        c.clip();
+        c.strokeStyle = colors.beam;
+        c.lineWidth = 1.5;
+        for (let k = 0; k < 3; k++) {
+            const p = (now / 2.4 + k / 3) % 1;
+            c.globalAlpha = (1 - p) * 0.55;
+            c.beginPath();
+            c.arc(en.x, en.y, 3 + p * 62, 0, TAU);
+            c.stroke();
+        }
+        c.lineCap = 'round';
+        c.lineJoin = 'round';
+        const threadsOf: Point[][][] = [];
+        rays.forEach((ray, index) => {
+            const element = ray.element.key;
+            const threads = strandPoints(element, en, ex[index], { x: END_X, y: ray.y }, now, index * 1.37);
+            threadsOf.push(threads);
+            const gradient = c.createLinearGradient(en.x, en.y, ex[index].x, ex[index].y);
+            gradient.addColorStop(0, colors.beam);
+            gradient.addColorStop(0.4, colors[ray.hue]);
+            gradient.addColorStop(1, colors[ray.hue]);
+            const stroke = STROKE[element];
+            const dim = lit && lit !== ray.key ? 0.18 : 1;
+            // 火會閃
+            const flicker = element === 'fire' ? 0.7 + 0.3 * Math.sin(now * 13 + index) : 1;
+            c.strokeStyle = gradient;
+            c.lineJoin = element === 'metal' ? 'miter' : 'round';
+            for (const thread of threads) {
+                polyline(thread);
+                c.globalAlpha = 0.22 * dim * flicker;
+                c.lineWidth = stroke.glow;
+                c.stroke();
+                c.globalAlpha = stroke.alpha * dim * flicker;
+                c.lineWidth = stroke.width;
+                c.stroke();
+            }
+        });
+        // O 裡的光點：沿著光絲走，比外面快
+        rays.forEach((ray, index) => {
+            c.fillStyle = colors[ray.hue];
+            const dim = lit && lit !== ray.key ? 0.3 : 1;
+            for (let i = 0; i < 2; i++) {
+                const t = (i / 2 + index * 0.21 + now * 0.45) % 1;
+                const p = along(threadsOf[index][0], t);
+                c.globalAlpha = Math.sin(Math.PI * t) * dim;
+                dot(p.x, p.y, 1.4);
+            }
+        });
+        c.restore();
+
+        // 光上的光點：往外流，文章越多越熱鬧
+        rays.forEach((ray, index) => {
+            c.fillStyle = colors[ray.hue];
+            const dim = lit && lit !== ray.key ? 0.25 : 1;
+            for (let i = 0; i < ray.photons; i++) {
+                const phase = (i / ray.photons + index * 0.137) % 1;
+                const t = (phase + now * (0.16 + 0.02 * (i % 3))) % 1;
+                const p = photonAt(ex[index], ray, t, Math.sin((i + 1) * 2.4 + index) * 0.9);
+                c.globalAlpha = Math.sin(Math.PI * t) * dim;
+                dot(p.x, p.y, 1.6 + (i % 2) * 0.8);
+            }
+        });
+        // 入射光上的光點
+        c.fillStyle = colors.beam;
+        for (let i = 0; i < 5; i++) {
+            const t = (i / 5 + now * 0.22) % 1;
+            c.globalAlpha = Math.sin(Math.PI * t) * 0.9;
+            dot(SOURCE_X + (en.x - SOURCE_X) * t, sourceY.value + (en.y - sourceY.value) * t, 1.8);
+        }
+        c.globalAlpha = 1;
+    }
+    // #endregion
+
+    // #region [P] 動畫迴圈：每秒 30 張；看不到就停
+    let time = 2; // 關閉動態時畫這一刻：光絲已經彎好
     let frame = 0;
-    let last = 0;
+    let lastFrame = 0;
+    let lastDraw = 0;
     let visible = true;
     let observer: IntersectionObserver | undefined;
+    let resizer: ResizeObserver | undefined;
+    let theme: MutationObserver | undefined;
 
     function tick(now: number) {
-        const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
-        last = now;
-        clock.value += dt;
-        // 沒有滑鼠的時候光自己慢慢晃，有的時候追著滑鼠（追的速度跟距離成正比，停下來時很順）
-        const aim = target ?? SOURCE_Y.rest + Math.sin(clock.value * 0.35) * 28;
-        sourceY.value += (aim - sourceY.value) * Math.min(1, dt * 4);
         frame = requestAnimationFrame(tick);
+        const dt = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0;
+        lastFrame = now;
+        time += dt;
+        const goal = target ?? SOURCE_Y.rest;
+        if (Math.abs(goal - current) > 0.3) {
+            current += (goal - current) * Math.min(1, dt * 5);
+            sourceY.value = Math.round(current * 10) / 10;
+        }
+        if (now - lastDraw < FRAME_MS) return;
+        lastDraw = now;
+        draw(time);
     }
     function start() {
         if (!motion.value || frame || !visible || document.hidden) return;
-        last = 0;
+        lastFrame = 0;
         frame = requestAnimationFrame(tick);
     }
     function stop() {
@@ -46,17 +215,20 @@
     }
     const onVisibility = () => (document.hidden ? stop() : start());
 
-    function aim(event: PointerEvent) {
-        if (!motion.value || event.pointerType === 'touch') return;
-        const rect = (event.currentTarget as Element).getBoundingClientRect();
-        target = aimFromPointer((event.clientY - rect.top) / rect.height);
-    }
-
     onMounted(() => {
         motion.value = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+        ctx = canvasRef.value!.getContext('2d');
+        readColors();
+        resizer = new ResizeObserver(resize);
+        resizer.observe(stageRef.value!);
+        theme = new MutationObserver(() => {
+            readColors();
+            draw(time);
+        });
+        theme.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
         if (!motion.value) return;
-        observer = new IntersectionObserver(([entry]) => {
-            visible = entry.isIntersecting;
+        observer = new IntersectionObserver(([found]) => {
+            visible = found.isIntersecting;
             visible ? start() : stop();
         });
         observer.observe(rootRef.value!);
@@ -66,60 +238,12 @@
     onBeforeUnmount(() => {
         stop();
         observer?.disconnect();
+        resizer?.disconnect();
+        theme?.disconnect();
         document.removeEventListener('visibilitychange', onVisibility);
     });
-    // #endregion
-
-    // #region [P] 幾何
-    const rootRef = ref<HTMLElement>();
-    const path = computed(() => refract(sourceY.value));
-    const focus = computed(() => hovered.value ?? selected);
-    /** O 裡面的光絲：每道光一股，在玻璃裡扭動，出口時對準自己那道光（形狀在 prism.ts 的 strandAt） */
-    const strands = computed(() => {
-        const { entry, exit } = path.value;
-        return rays.map((ray, index) => ({
-            key: ray.key,
-            hue: hueVar(ray.hue),
-            muted: !!focus.value && focus.value !== ray.key,
-            ...strandAt(entry, exit, rayEnd(ray), clock.value, index)
-        }));
-    });
-
-    /** 光點：每道光幾顆，照各自的相位往外流；入射光上也有 */
-    const photons = computed(() => {
-        const { entry, exit } = path.value;
-        const list: { key: string; x: number; y: number; o: number; hue: string; r: number }[] = [];
-        rays.forEach((ray, rayIndex) => {
-            for (let i = 0; i < ray.photons; i++) {
-                const phase = (i / ray.photons + rayIndex * 0.137) % 1;
-                const t = (phase + clock.value * (0.16 + 0.02 * (i % 3))) % 1;
-                const lane = Math.sin((i + 1) * 2.4 + rayIndex) * 0.9;
-                const p = photonAt(exit, ray, t, lane);
-                const dim = focus.value && focus.value !== ray.key ? 0.25 : 1;
-                list.push({ key: `${ray.key}-${i}`, x: p.x, y: p.y, o: Math.sin(Math.PI * t) * dim, hue: hueVar(ray.hue), r: 1.6 + (i % 2) * 0.8 });
-            }
-        });
-        // O 裡面：光點沿著光絲走，比外面快一點、亮一點，像被攪動
-        strands.value.forEach((strand, index) => {
-            for (let i = 0; i < 2; i++) {
-                const t = (i / 2 + index * 0.21 + clock.value * 0.45) % 1;
-                const p = bezierAt(strand.points, t);
-                list.push({ key: `in-${strand.key}-${i}`, x: p.x, y: p.y, o: Math.sin(Math.PI * t) * (strand.muted ? 0.3 : 1), hue: strand.hue, r: 1.4 });
-            }
-        });
-        for (let i = 0; i < 5; i++) {
-            const t = (i / 5 + clock.value * 0.22) % 1;
-            list.push({
-                key: `beam-${i}`,
-                x: SOURCE_X + (entry.x - SOURCE_X) * t,
-                y: sourceY.value + (entry.y - sourceY.value) * t,
-                o: Math.sin(Math.PI * t) * 0.9,
-                hue: 'var(--op-beam)',
-                r: 1.8
-            });
-        }
-        return list;
-    });
+    // 關閉動態時沒有迴圈：滑過、選了一道光要自己重畫一次
+    watch(focus, () => !frame && draw(time));
     // #endregion
 
     function toggle(key: string) {
@@ -130,149 +254,103 @@
 
 <template>
     <figure ref="rootRef" class="op-bench" :class="{ 'is-motion': motion }" @pointermove="aim" @pointerleave="target = null">
-        <svg
-            class="op-bench__svg"
-            :viewBox="`0 0 ${VIEW.width} ${VIEW.height}`"
-            role="group"
-            aria-labelledby="op-bench-caption"
-            :style="{ '--exit-x': `${path.exit.x}px`, '--exit-y': `${path.exit.y}px` }"
-        >
-            <defs>
-                <linearGradient id="op-bench-ring" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="15%" stop-color="var(--pr-amber)" />
-                    <stop offset="55%" stop-color="var(--pr-magenta)" />
-                    <stop offset="90%" stop-color="var(--pr-violet)" />
-                </linearGradient>
-                <radialGradient id="op-bench-glass" cx="42%" cy="38%" r="70%">
-                    <stop offset="0%" stop-color="var(--op-glass-core)" />
-                    <stop offset="70%" stop-color="var(--op-glass-edge)" />
-                    <stop offset="100%" stop-color="var(--op-glass-rim)" />
-                </radialGradient>
-                <!-- 每股光絲：入口是白的，往裡面走才變成自己的顏色 -->
-                <linearGradient
-                    v-for="(strand, index) in strands"
-                    :id="`op-bench-strand-${index}`"
-                    :key="strand.key"
-                    gradientUnits="userSpaceOnUse"
-                    :x1="path.entry.x"
-                    :y1="path.entry.y"
-                    :x2="path.exit.x"
-                    :y2="path.exit.y"
+        <div ref="stageRef" class="op-bench__stage">
+            <svg
+                class="op-bench__svg"
+                :viewBox="`0 0 ${VIEW.width} ${VIEW.height}`"
+                role="group"
+                aria-labelledby="op-bench-caption"
+                :style="{ '--exit-x': `${exits[Math.floor(exits.length / 2)]?.x ?? ORB.cx}px`, '--exit-y': `${exits[Math.floor(exits.length / 2)]?.y ?? ORB.cy}px` }"
+            >
+                <defs>
+                    <linearGradient id="op-bench-ring" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="15%" stop-color="var(--pr-amber)" />
+                        <stop offset="55%" stop-color="var(--pr-magenta)" />
+                        <stop offset="90%" stop-color="var(--pr-violet)" />
+                    </linearGradient>
+                    <radialGradient id="op-bench-glass" cx="42%" cy="38%" r="70%">
+                        <stop offset="0%" stop-color="var(--op-glass-core)" />
+                        <stop offset="70%" stop-color="var(--op-glass-edge)" />
+                        <stop offset="100%" stop-color="var(--op-glass-rim)" />
+                    </radialGradient>
+                    <linearGradient id="op-bench-beam" gradientUnits="userSpaceOnUse" :x1="SOURCE_X" :y1="sourceY" :x2="entry.x" :y2="entry.y">
+                        <stop offset="0%" stop-color="var(--op-beam)" stop-opacity="0" />
+                        <stop offset="35%" stop-color="var(--op-beam)" stop-opacity=".9" />
+                        <stop offset="100%" stop-color="var(--op-beam)" />
+                    </linearGradient>
+                    <!-- 光暈用整張畫布的座標：濾鏡範圍跟著元素的外框算的話，細長的光會被裁掉 -->
+                    <filter id="op-bench-blur" filterUnits="userSpaceOnUse" x="-200" y="-200" :width="VIEW.width + 400" :height="VIEW.height + 400">
+                        <feGaussianBlur stdDeviation="9" />
+                    </filter>
+                    <filter id="op-bench-halo" filterUnits="userSpaceOnUse" x="-200" y="-200" :width="VIEW.width + 400" :height="VIEW.height + 400">
+                        <feGaussianBlur stdDeviation="34" />
+                    </filter>
+                </defs>
+
+                <circle class="op-bench__halo" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r" fill="url(#op-bench-ring)" filter="url(#op-bench-halo)" aria-hidden="true" />
+
+                <!-- 白光（原初）：回到全部。線很細，另外疊一條透明的粗線當按的範圍 -->
+                <g
+                    class="op-bench__white"
+                    :class="{ 'is-selected': selected === null }"
+                    role="button"
+                    tabindex="0"
+                    :aria-pressed="selected === null"
+                    aria-label="全部分類"
+                    @click="emit('select', null)"
+                    @keydown.enter.prevent="emit('select', null)"
+                    @keydown.space.prevent="emit('select', null)"
                 >
-                    <stop offset="0%" stop-color="var(--op-beam)" />
-                    <stop offset="35%" :stop-color="strand.hue" stop-opacity=".9" />
-                    <stop offset="100%" :stop-color="strand.hue" />
-                </linearGradient>
-                <clipPath id="op-bench-orb-clip">
-                    <circle :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r - 3" />
-                </clipPath>
-                <linearGradient id="op-bench-beam" gradientUnits="userSpaceOnUse" :x1="SOURCE_X" :y1="sourceY" :x2="path.entry.x" :y2="path.entry.y">
-                    <stop offset="0%" stop-color="var(--op-beam)" stop-opacity="0" />
-                    <stop offset="35%" stop-color="var(--op-beam)" stop-opacity=".9" />
-                    <stop offset="100%" stop-color="var(--op-beam)" />
-                </linearGradient>
-                <!-- 光暈用整張畫布的座標：濾鏡範圍跟著元素的外框算的話，細長的光會被裁掉 -->
-                <filter id="op-bench-blur" filterUnits="userSpaceOnUse" x="-200" y="-200" :width="VIEW.width + 400" :height="VIEW.height + 400">
-                    <feGaussianBlur stdDeviation="9" />
-                </filter>
-                <filter id="op-bench-halo" filterUnits="userSpaceOnUse" x="-200" y="-200" :width="VIEW.width + 400" :height="VIEW.height + 400">
-                    <feGaussianBlur stdDeviation="34" />
-                </filter>
-            </defs>
-
-            <!-- 星塵：呼應舊首頁「筆記本裡的宇宙」 -->
-            <g class="op-bench__sky" aria-hidden="true">
-                <circle v-for="(star, index) in sky" :key="index" :cx="star.x" :cy="star.y" :r="star.r" :style="{ animationDelay: `${star.delay}s` }" />
-            </g>
-
-            <circle class="op-bench__halo" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r" fill="url(#op-bench-ring)" filter="url(#op-bench-halo)" aria-hidden="true" />
-
-            <!-- 白光：回到全部。線很細，另外疊一條透明的粗線當按的範圍 -->
-            <g
-                class="op-bench__white"
-                :class="{ 'is-selected': selected === null }"
-                role="button"
-                tabindex="0"
-                :aria-pressed="selected === null"
-                aria-label="全部分類"
-                @click="emit('select', null)"
-                @keydown.enter.prevent="emit('select', null)"
-                @keydown.space.prevent="emit('select', null)"
-            >
-                <line class="hit" :x1="SOURCE_X" :y1="sourceY" :x2="path.entry.x" :y2="path.entry.y" />
-                <line class="soft" :x1="SOURCE_X" :y1="sourceY" :x2="path.entry.x" :y2="path.entry.y" filter="url(#op-bench-blur)" />
-                <line class="core" :x1="SOURCE_X" :y1="sourceY" :x2="path.entry.x" :y2="path.entry.y" stroke="url(#op-bench-beam)" pathLength="1" />
-            </g>
-
-            <g
-                v-for="(ray, index) in rays"
-                :key="ray.key"
-                class="op-bench__ray"
-                :class="{
-                    'is-selected': selected === ray.key,
-                    'is-focused': focus === ray.key,
-                    'is-muted': !!focus && focus !== ray.key,
-                }"
-                role="button"
-                tabindex="0"
-                :aria-pressed="selected === ray.key"
-                :style="{ '--hue': hueVar(ray.hue), '--i': index }"
-                :aria-label="`${ray.label}，${ray.count} 篇，最新：${ray.latest.title}`"
-                @click="toggle(ray.key)"
-                @keydown.enter.prevent="toggle(ray.key)"
-                @keydown.space.prevent="toggle(ray.key)"
-                @pointerenter="hovered = ray.key"
-                @pointerleave="hovered = null"
-                @focus="hovered = ray.key"
-                @blur="hovered = null"
-            >
-                <polygon class="glow" :points="rayPolygon(path.exit, ray)" filter="url(#op-bench-blur)" />
-                <polygon class="beam" :points="rayPolygon(path.exit, ray)" />
-                <text :x="LABEL_X" :y="ray.y" dominant-baseline="central" aria-hidden="true">
-                    <tspan class="label">{{ ray.label }}</tspan>
-                    <tspan class="count" dx="10">{{ ray.count }}</tspan>
-                </text>
-                <text class="latest" :x="LABEL_X" :y="ray.y + 20" dominant-baseline="central" aria-hidden="true">最新：{{ shorten(ray.latest.title) }}</text>
-            </g>
-
-            <!-- 玻璃 O：厚度是一圈淡淡的寬環，外緣是品牌漸層。白光進來就被拆成光絲、在裡面扭動，出口才收束成光束 -->
-            <g class="op-bench__orb" aria-hidden="true" @click="emit('select', null)">
-                <circle class="body" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r" fill="url(#op-bench-glass)" />
-                <circle class="orbit" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r * 0.68" />
-                <g class="inner" clip-path="url(#op-bench-orb-clip)">
-                    <!-- 入口的漣漪：光打進來的地方一圈圈擴散 -->
-                    <circle v-for="n in 3" :key="n" class="ripple" :cx="path.entry.x" :cy="path.entry.y" r="16" :style="{ animationDelay: `${(n - 1) * 0.8}s` }" />
-                    <path
-                        v-for="(strand, index) in strands"
-                        :key="`glow-${strand.key}`"
-                        class="strand-glow"
-                        :class="{ 'is-muted': strand.muted }"
-                        :d="strand.d"
-                        :stroke="strand.hue"
-                        filter="url(#op-bench-blur)"
-                        :style="{ '--i': index }"
-                    />
-                    <path
-                        v-for="(strand, index) in strands"
-                        :key="strand.key"
-                        class="strand"
-                        :class="{ 'is-muted': strand.muted }"
-                        :d="strand.d"
-                        :stroke="`url(#op-bench-strand-${index})`"
-                        :style="{ '--i': index }"
-                    />
+                    <line class="hit" :x1="SOURCE_X" :y1="sourceY" :x2="entry.x" :y2="entry.y" />
+                    <line class="soft" :x1="SOURCE_X" :y1="sourceY" :x2="entry.x" :y2="entry.y" />
+                    <line class="core" :x1="SOURCE_X" :y1="sourceY" :x2="entry.x" :y2="entry.y" stroke="url(#op-bench-beam)" pathLength="1" />
                 </g>
-                <circle class="thick" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r - 9" stroke="url(#op-bench-ring)" />
-                <circle class="ring" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r" stroke="url(#op-bench-ring)" />
-                <circle class="caustic" :cx="path.exit.x" :cy="path.exit.y" r="9" filter="url(#op-bench-blur)" />
-            </g>
 
-            <g class="op-bench__photons" aria-hidden="true">
-                <circle v-for="p in photons" :key="p.key" :cx="p.x" :cy="p.y" :r="p.r" :fill="p.hue" :opacity="p.o" />
-            </g>
-        </svg>
+                <g
+                    v-for="(ray, index) in rays"
+                    :key="ray.key"
+                    class="op-bench__ray"
+                    :class="{
+                        'is-selected': selected === ray.key,
+                        'is-focused': focus === ray.key,
+                        'is-muted': !!focus && focus !== ray.key,
+                    }"
+                    role="button"
+                    tabindex="0"
+                    :aria-pressed="selected === ray.key"
+                    :style="{ '--hue': hueVar(ray.hue), '--i': index }"
+                    :aria-label="`${ray.label}，${ray.count} 篇，${ray.element.glyph}：${ray.element.trait}。最新：${ray.latest.title}`"
+                    @click="toggle(ray.key)"
+                    @keydown.enter.prevent="toggle(ray.key)"
+                    @keydown.space.prevent="toggle(ray.key)"
+                    @pointerenter="hovered = ray.key"
+                    @pointerleave="hovered = null"
+                    @focus="hovered = ray.key"
+                    @blur="hovered = null"
+                >
+                    <!-- 模糊的光暈只在滑過、選了的時候才放：模糊濾鏡很貴 -->
+                    <polygon v-if="focus === ray.key" class="glow" :points="rayPolygon(exits[index], ray)" filter="url(#op-bench-blur)" />
+                    <polygon class="beam" :points="rayPolygon(exits[index], ray)" />
+                    <text :x="LABEL_X" :y="ray.y" dominant-baseline="central" aria-hidden="true">
+                        <tspan class="glyph">{{ ray.element.glyph }}</tspan>
+                        <tspan class="label" dx="8">{{ ray.label }}</tspan>
+                        <tspan class="count" dx="10">{{ ray.count }}</tspan>
+                    </text>
+                    <text class="latest" :x="LABEL_X" :y="ray.y + 20" dominant-baseline="central" aria-hidden="true">最新：{{ shorten(ray.latest.title) }}</text>
+                </g>
+
+                <!-- 玻璃 O：厚度是一圈淡淡的寬環，外緣是品牌漸層。裡面的光絲畫在畫布上 -->
+                <g class="op-bench__orb" aria-hidden="true" @click="emit('select', null)">
+                    <circle class="body" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r" fill="url(#op-bench-glass)" />
+                    <circle class="orbit" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r * 0.68" />
+                    <circle class="thick" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r - 9" stroke="url(#op-bench-ring)" />
+                    <circle class="ring" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r" stroke="url(#op-bench-ring)" />
+                </g>
+            </svg>
+            <canvas ref="canvasRef" class="op-bench__canvas" aria-hidden="true" />
+        </div>
         <figcaption id="op-bench-caption">
-            一道光穿過 O，散成這裡寫的每一類。光越寬文章越多；<span class="op-bench__hint">移動滑鼠瞄準入射光，</span>點一道光看那一類。
+            白光是原初，在 O 裡演化成金、土、火、木、風、水，散成這裡寫的每一類。光越寬文章越多；<span class="op-bench__hint">移動滑鼠瞄準入射光，</span>點一道光看那一類。
         </figcaption>
     </figure>
 </template>
@@ -287,6 +365,7 @@
         margin: 0;
         touch-action: pan-y;
 
+        &__stage { position: relative; }
         &__svg {
             display: block;
             width: 100%;
@@ -294,15 +373,15 @@
             overflow: visible;
         }
 
-        // #region [P] 星塵與光暈
-        &__sky circle {
-            fill: var(--op-star);
-            opacity: .35;
+        // 畫布疊在 SVG 上、跟它一樣大；不吃滑鼠，點的範圍都在 SVG
+        &__canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
         }
-        &.is-motion &__sky circle { animation: op-bench-twinkle 6s ease-in-out infinite; }
         &__halo { opacity: .28; }
-
-        // #endregion
 
         // #region [P] 白光
         &__white {
@@ -315,8 +394,8 @@
             }
             .soft {
                 stroke: var(--op-beam);
-                stroke-width: 10;
-                opacity: .25;
+                stroke-width: 9;
+                opacity: .12;
             }
             .core { stroke-width: 3; }
             &:focus-visible .core { stroke-width: 5; }
@@ -330,20 +409,23 @@
             cursor: pointer;
 
             .beam {
+                fill: var(--hue);
                 transition: opacity .3s var(--cubic-FiSo);
                 opacity: .55;
-                fill: var(--hue);
             }
             .glow {
-                transition: opacity .3s var(--cubic-FiSo);
-                opacity: 0;
                 fill: var(--hue);
+                opacity: .7;
             }
             text {
                 fill: var(--vp-c-text-1);
                 font-size: 15px;
                 font-weight: 700;
                 transition: opacity .3s var(--cubic-FiSo);
+            }
+            .glyph {
+                fill: var(--hue);
+                font-size: 13px;
             }
             .count {
                 fill: var(--vp-c-text-3);
@@ -360,7 +442,6 @@
             &.is-focused,
             &.is-selected {
                 .beam { opacity: 1; }
-                .glow { opacity: .7; }
                 .latest { opacity: 1; }
                 .label { fill: var(--hue); }
             }
@@ -387,44 +468,13 @@
                 opacity: .16;
             }
             .orbit {
-                transform-origin: center;
-                transform-box: fill-box;
-                opacity: .25;
                 fill: none;
                 stroke: var(--op-star);
                 stroke-dasharray: 2 9;
                 stroke-width: 1;
-            }
-            .strand,
-            .strand-glow {
-                fill: none;
-                stroke-linecap: round;
-                transition: opacity .3s var(--cubic-FiSo);
-            }
-            .strand {
-                stroke-width: 2.2;
-                opacity: .95;
-            }
-            .strand-glow {
-                stroke-width: 7;
-                opacity: .35;
-            }
-            .is-muted { opacity: .15; }
-            .ripple {
-                transform-origin: center;
-                transform-box: fill-box;
-                opacity: 0;
-                fill: none;
-                stroke: var(--op-beam);
-                stroke-width: 1.5;
-            }
-            .caustic {
-                fill: var(--op-beam);
-                opacity: .8;
+                opacity: .2;
             }
         }
-        &.is-motion &__orb .orbit { animation: op-bench-orbit 60s linear infinite; }
-        &.is-motion &__orb .ripple { animation: op-bench-ripple 2.4s ease-out infinite; }
 
         // #endregion
 
@@ -438,7 +488,7 @@
             &__hint { display: none; }
         }
 
-        // #region [P] 進場：光射進來（0～.7s）→ O 亮起來 → 一道道散開
+        // #region [P] 進場：光射進來（0～.7s）→ O 亮起來 → 一道道散開 → 畫布淡入
         &.is-motion {
             .op-bench__white .core {
                 stroke-dasharray: 1;
@@ -450,7 +500,7 @@
                 transform-origin: var(--exit-x) var(--exit-y);
                 animation: op-bench-burst .7s calc(.8s + var(--i) * .07s) var(--cubic-SiRo) both;
             }
-            .op-bench__photons { animation: op-bench-fade .6s 1.3s both; }
+            .op-bench__canvas { animation: op-bench-fade .8s .6s both; }
         }
 
         // #endregion
@@ -462,23 +512,6 @@
         --op-glass-core: rgb(255 255 255 / 60%);
         --op-glass-edge: rgb(189 52 254 / 6%);
         --op-glass-rim: rgb(244 185 54 / 22%);
-    }
-    @keyframes op-bench-twinkle {
-        0%, 100% { opacity: .15; }
-        50% { opacity: .6; }
-    }
-    @keyframes op-bench-orbit {
-        to { transform: rotate(360deg); }
-    }
-    @keyframes op-bench-ripple {
-        from {
-            transform: scale(.2);
-            opacity: .7;
-        }
-        to {
-            transform: scale(4.5);
-            opacity: 0;
-        }
     }
     @keyframes op-bench-draw {
         from { stroke-dashoffset: 1; }

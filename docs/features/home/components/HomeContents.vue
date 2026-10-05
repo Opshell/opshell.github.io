@@ -564,9 +564,9 @@
                     content: '';
                     position: absolute;
                     inset: 0;
+                    background: var(--pr-amber);
                     border-radius: 50%;
-                    box-shadow: 0 0 0 0 var(--pr-amber);
-                    animation: op-pad-pulse 2s ease-out infinite;
+                    animation: op-pad-pulse 2s ease-out infinite; // 只動 transform 與 opacity：交給合成器，不重畫
                 }
             }
         }
@@ -685,7 +685,14 @@
         }
     }
     @keyframes op-pad-pulse {
-        to { box-shadow: 0 0 0 8px transparent; }
+        from {
+            transform: scale(1);
+            opacity: .7;
+        }
+        to {
+            transform: scale(3.2);
+            opacity: 0;
+        }
     }
 
     // #endregion
