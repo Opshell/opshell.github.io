@@ -157,7 +157,8 @@ export default defineConfig({
         theme: 'one-dark-pro',
         lineNumbers: true,
         container: {
-            infoLabel: '細節：',
+            // info 原本叫「細節」，跟 details 的「詳細資料」撞名，也是五個裡唯一沒有圖示、沒有英文的
+            infoLabel: '📝 補充 [Info]：',
             tipLabel: '💡 錦囊 [Tips]：',
             warningLabel: '⚡ 注意 [Warning]：',
             dangerLabel: '⛔ 錯誤 [Error]：',
@@ -203,7 +204,7 @@ export default defineConfig({
 
                     token = state.push('inline', '', 0);
                     token.content = `
-                        <input class="task-list--input" type="checkbox" ${checked ? 'checked' : ''} />
+                        <input class="task-list--input" type="checkbox" disabled ${checked ? 'checked' : ''} />
                         <span class="task-list--text">${content.replace(reg, '')}</span>
                     `;
                     token.block = true;

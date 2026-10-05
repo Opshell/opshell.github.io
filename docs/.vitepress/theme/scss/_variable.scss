@@ -122,6 +122,28 @@
     --vp-c-indigo-3: #508fe0;
     --vp-c-indigo-soft: rgb(40 103 184 / 14%);
 
+    // 文章裡「當字用」的品牌色：#dc8419 在淺底只有 2.6:1，粗體膠囊與 {.brand} 改用深一階（5.4:1）；深色模式用回品牌色（5.8:1）
+    --color-ink-brand: #9A5208;
+
+    // 行內程式碼用中性色：品牌橘留給粗體膠囊，兩者才分得出「術語」與「照抄」
+    --vp-code-color: var(--vp-c-text-1);
+
+    // 程式碼區塊不分深淺色都是 one-dark 的深底：主題本身是暗色配色，放在淺灰底上淡色字會看不清楚
+    --vp-code-block-bg: #282C34;
+    --vp-code-block-divider-color: #181A1F;
+    --vp-code-tab-bg: #21252B;
+    --vp-code-tab-text-color: #9DA5B4;
+    --vp-code-tab-hover-text-color: #E6E6E6;
+    --vp-code-tab-active-text-color: #E6E6E6;
+    --vp-code-lang-color: #7F848E;
+    --vp-code-line-number-color: #636D83;
+    --vp-code-line-highlight-color: rgb(171 178 191 / 12%);
+    --vp-code-copy-code-bg: #2C313A;
+    --vp-code-copy-code-border-color: #3E4451;
+    --vp-code-copy-code-hover-bg: #333842;
+    --vp-code-copy-code-hover-border-color: #4B5263;
+    --vp-code-copy-code-active-text: #ABB2BF;
+
     // 把tip 改為品牌色 (Component: Custom Block)
     --vp-custom-block-tip-border: transparent;
     --vp-custom-block-tip-text: var(--vp-c-text-1);
@@ -258,6 +280,8 @@
 // #endregion
 
 .dark {
+    --color-ink-brand: var(--vp-c-brand-1);
+
     // 灰階
     --color-gray-900: #FFF; /* 純白 */
     --color-gray-850: #F7F7F7;

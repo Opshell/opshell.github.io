@@ -42,7 +42,7 @@ html {
 }
 
 // text color
-.brand { color: var(--vp-c-brand-1) !important; }
+.brand { color: var(--color-ink-brand) !important; } // 淺色模式的品牌橘當字太淡，見 _variable.scss
 .info { color: var(--vp-c-indigo-1) !important; }
 .error { color: var(--vp-c-red-1) !important; }
 .warning { color: var(--vp-c-yellow-1) !important; }
@@ -77,7 +77,7 @@ html {
 
     // 程式碼區塊
     div[class*=language-], .vp-block {
-        background: var(--color-gray-100);
+        background: var(--vp-code-block-bg);
         border-radius: .5rem;
         margin: 1rem 0;
         box-shadow: 0 0 1px 0 rgb(0 0 0 / 10%);
@@ -97,17 +97,11 @@ html {
     .task-list {
         @include setFlex(flex-start, flex-start, 10px, column);
         margin: 10px 0;
+
+        // 作者的進度表，不是讀者的待辦：勾了也不會存，所以不給可以點的樣子（原本有手指游標和 hover 變色）
         &--item {
             position: relative;
             @include setFlex(flex-start, center, 20px);
-            cursor: pointer;
-
-            &:hover {
-                .task-list {
-                    &--input::before { border-color: var(--vp-c-brand-3); }
-                    &--text { color: var(--vp-c-brand-3); }
-                }
-            }
         }
 
         &--input {
@@ -115,7 +109,7 @@ html {
             box-sizing: border-box;
             margin-left: 10px;
             @include setSize(0, 0);
-            cursor: pointer;
+            pointer-events: none;
 
             &::before,
             &::after {
@@ -148,13 +142,12 @@ html {
                 }
                 &::after {
                     @include setSize(20px, 10px);
-                    border: 3px solid #eee;
+                    border: 3px solid var(--vp-c-bg);
                     border-top: none;
                     border-right: none;
                     transition: border-color 0.15s $cubic-FiSo,
                                 height 0.05s $cubic-FiSo,
                                 width 0.1s $cubic-FiSo 0.04s;
-                    filter: drop-shadow(0 0 3px rgb(0 0 0 / 100%));
                 }
             }
         }
@@ -177,7 +170,6 @@ html {
     border-left: 4px solid var(--vp-c-brand);
     border-radius: 12px;
     margin: 2rem 0;
-    box-shadow: 0 4px 12px rgb(0 0 0 / 5%);
 
 
 
@@ -249,11 +241,7 @@ html {
         opacity: 0.2; // 淡一點比較不搶戲
     }
 
-    // Hover 效果
-    &:hover {
-        box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
-        transform: translateY(-2px);
-    }
+    // 原本 hover 會浮起來加陰影，但引言不能點，浮起來只會讓人以為可以點；也跟全站的平面風格不合，拿掉
 }
 
 .article-layout__article {
@@ -368,11 +356,12 @@ html {
 
 
 
+    // 向 Vue 文件的引用致敬的綠。原本字色寫死 #777，深色模式在深綠底上幾乎看不見，改用 token
     blockquote {
-        background-color: rgb(66 185 131 / 10%);
+        background-color: color-mix(in srgb, var(--color-mdtag-vue) 10%, transparent);
         padding: 10px 15px;
-        border-left: 4px solid #42b983;
-        color: #777;
+        border-left: 4px solid var(--color-mdtag-vue);
+        color: var(--vp-c-text-2);
     }
 
     table {
