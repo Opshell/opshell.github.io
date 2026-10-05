@@ -374,12 +374,20 @@
         }
     }
 
-    // RWD
+    // RWD：兩側欄收起來，只留文章。
+    // 之前選擇器還是改名前的 .blog-grid-container／.grid-area-*，對不到元素，手機上維持 250px＋內文＋250px 三欄，內文被擠成一條
     @media (width <= 1024px) {
-        .blog-grid-container {
-            grid-template-columns: 0 minmax(0, 1fr) 0;
-            padding: 6rem 1rem 2rem;
+        .article-layout {
+            &__container {
+                grid-template-columns: 0 minmax(0, 1fr) 0;
+                gap: 0;
+                padding: calc(var(--vp-nav-height) + 1.5rem) 1rem 2rem;
+
+                &-left,
+                &-right { display: none; }
+            }
+
+            &__article { padding: 1.25rem; }
         }
-        .grid-area-left, .grid-area-right { display: none; }
     }
 </style>
