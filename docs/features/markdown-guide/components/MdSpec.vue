@@ -2,7 +2,8 @@
     import type { LayerKey } from '../constants';
     import { TOTAL_POSTS } from '../constants';
 
-    // 一個語法一張卡：寫法 → 呈現（真的經過這個站的 markdown 渲染）→ 為什麼這樣呈現 → 讀者怎麼讀。
+    // 一個語法一張卡：左邊寫法、右邊呈現（真的經過這個站的 markdown 渲染），下面是為什麼這樣呈現、讀者怎麼讀。
+    // 左右的寬度比例由外層 MdGuide 的 --md-split 決定（三段開關）。
     // 「呈現」那格不是截圖，是 md 原文直接渲染，所以改了主題樣式，這頁會跟著變。
     const { layer, origin, posts } = defineProps<{
         layer: LayerKey;
@@ -27,7 +28,9 @@
             </div>
             <div class="md-spec__pane md-spec__pane--render">
                 <span class="md-spec__label">呈現</span>
-                <slot name="render" />
+                <div class="md-spec__render">
+                    <slot name="render" />
+                </div>
             </div>
         </div>
 
@@ -76,23 +79,33 @@
         &__stage {
             display: grid;
             grid-template-columns: minmax(0, 1fr);
-            gap: .75rem;
+            gap: .75rem 1rem;
             margin-top: .75rem;
         }
 
+        // 兩欄都是「標籤＋內容」，內容撐滿剩下的高度，左右兩塊底部對齊
         &__pane {
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: .375rem;
             min-width: 0;
 
-            // 渲染出來的內容自己有上下邊距，卡片裡收掉頭尾，兩格才對得齊
-            > :nth-child(2) { margin-top: .25rem !important; }
-            > :last-child { margin-bottom: 0 !important; }
-
-            &--render {
-                background-color: var(--vp-c-bg);
-                padding: .75rem 1rem;
-                border-radius: 8px;
+            // 程式碼區塊自己有上下邊距，卡片裡收掉，兩欄才對得齊
+            > div[class*=language-] {
+                flex: 1;
+                margin: 0 !important;
             }
+        }
+
+        &__render {
+            flex: 1;
+            background-color: var(--vp-c-bg);
+            padding: .75rem 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+
+            > :first-child { margin-top: 0 !important; }
+            > :last-child { margin-bottom: 0 !important; }
         }
 
         &__label {
@@ -118,11 +131,20 @@
             }
         }
 
-        // 寫法與呈現永遠上下排：並排時程式碼只剩半寬，幾乎每張卡都要橫捲。說明文字短，才並排
+        // 夠寬才左右對照；太窄（手機）維持上下排，不然程式碼只剩一小條
+        @container (width >= 560px) {
+            &__stage {
+                grid-template-columns: var(--md-split, minmax(0, 1fr) minmax(0, 1fr));
+                transition: grid-template-columns .45s var(--cubic-FiSo);
+            }
+        }
         @container (width >= 640px) {
             &__notes {
                 grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             }
         }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .md-spec__stage { transition: none !important; }
     }
 </style>

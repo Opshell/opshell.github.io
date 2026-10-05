@@ -108,8 +108,8 @@
         &__source {
             display: inline-block;
 
-            // 固定用 one-dark 的底色：淺色模式的程式碼底是淺灰，這行淡色字放上去會看不清楚
-            background-color: #282C34 !important;
+            // 跟程式碼區塊同一個底（不分深淺色都是 one-dark 的深底）
+            background-color: var(--vp-code-block-bg) !important;
             max-width: 100%;
             padding: .5rem .875rem !important;
             border-radius: 6px;

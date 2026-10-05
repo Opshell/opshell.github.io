@@ -1,8 +1,9 @@
 <script setup lang="ts">
-    import type { TabKey } from '../constants';
+    import type { SplitMode, TabKey } from '../constants';
     import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
     import { GUIDE_TABS } from '../constants';
     import MdPrism from './MdPrism.vue';
+    import MdSplitSwitch from './MdSplitSwitch.vue';
 
     // 語法圖鑑的外框：稜鏡在最上面，內容拆成分頁（slot 名稱＝GUIDE_TABS 的 key，內容由 md 傳進來才會經過 markdown 編譯）。
     // 往下捲、稜鏡捲過吸頂線之後，右側的導覽「停靠」出來，兼當分頁與目錄；版面太窄（文章頁）時改成吸頂的橫向分頁列。
@@ -11,6 +12,15 @@
     const current = ref('');
     const docked = ref(false);
     const progress = ref(0);
+
+    // 卡片「寫法｜呈現」的寬度比例。記在這台瀏覽器（只是個人偏好，讀不到就用預設的各半）
+    const SPLIT_KEY = 'md-guide-split';
+    const split = ref<SplitMode>('even');
+    watch(split, (value) => {
+        try {
+            localStorage.setItem(SPLIT_KEY, value);
+        } catch {}
+    });
 
     const rootEl = ref<HTMLElement>();
     const heroEl = ref<HTMLElement>();
@@ -151,6 +161,10 @@
         window.addEventListener('touchstart', onTouchStart, { passive: true });
         window.addEventListener('touchmove', onTouchMove, { passive: true });
         document.addEventListener('click', onClick, true);
+        try {
+            const saved = localStorage.getItem(SPLIT_KEY);
+            if (saved === 'source' || saved === 'even' || saved === 'render') split.value = saved;
+        } catch {}
         lastY = window.scrollY;
         measure();
         reveal(location.hash);
@@ -169,7 +183,7 @@
 </script>
 
 <template>
-    <div ref="rootEl" class="md-guide">
+    <div ref="rootEl" class="md-guide" :class="`is-split-${split}`">
         <div class="md-guide__layout" :class="{ 'is-docked': docked }">
             <div ref="heroEl" class="md-guide__hero">
                 <MdPrism :active @select="select" />
@@ -202,9 +216,20 @@
                         </div>
                     </li>
                 </ul>
+
+                <div class="md-guide__split">
+                    <span class="md-guide__split-label">對照比例</span>
+                    <MdSplitSwitch v-model="split" />
+                </div>
             </nav>
 
             <div ref="panesEl" class="md-guide__panes">
+                <!-- 寬版時導覽要捲過稜鏡才出來，內容最上面先放一個，一進來就能調 -->
+                <div class="md-guide__toolbar">
+                    <span class="md-guide__split-label">每張卡片左邊是寫法、右邊是呈現，拉一下開關調整比例</span>
+                    <MdSplitSwitch v-model="split" />
+                </div>
+
                 <section
                     v-for="tab in GUIDE_TABS"
                     :key="tab.key"
@@ -242,11 +267,15 @@
 
 <style lang="scss">
     .md-guide {
+        // 寫法｜呈現的比例：MdSpec 讀這個變數排兩欄；切換時 grid-template-columns 會漸變
+        --md-split: minmax(0, 1fr) minmax(0, 1fr);
         container-type: inline-size;
 
         &__nav {
             position: sticky;
             top: var(--md-guide-sticky-top);
+            display: flex;
+            align-items: center;
             background-color: var(--vp-c-bg-soft);
             padding: .375rem;
             border-radius: 10px;
@@ -254,13 +283,43 @@
             z-index: 5;
         }
 
+        &.is-split-source { --md-split: minmax(0, 7fr) minmax(0, 3fr); }
+        &.is-split-render { --md-split: minmax(0, 3fr) minmax(0, 7fr); }
+
         &__nav-title {
             display: none;
         }
 
+        // 窄版：開關放在橫向分頁列的右端
+        &__split {
+            flex-shrink: 0;
+            display: flex;
+            gap: .5rem;
+            align-items: center;
+            padding: 0 .375rem 0 .75rem;
+            border-left: 1px solid var(--vp-c-divider);
+        }
+
+        &__split-label {
+            display: none;
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-xs);
+        }
+
+        &__toolbar {
+            display: none;
+        }
+
+        // 太窄時卡片是上下排，比例沒有意義，開關收起來
+        @container (width < 560px) {
+            &__split { display: none !important; }
+        }
+
         &__tabs {
             display: flex;
+            flex: 1;
             gap: .25rem;
+            min-width: 0;
             padding: 0 !important;
             margin: 0 !important;
             list-style: none !important;
@@ -450,8 +509,10 @@
             // 導覽跨到接力區，捲到接力區時還停靠著
             &__nav {
                 align-self: start;
+                flex-direction: column;
                 grid-row: 1 / span 3;
                 grid-column: 2;
+                align-items: stretch;
                 background: none;
                 padding: 0;
                 margin: 0;
@@ -473,6 +534,31 @@
                     transform .45s var(--cubic-FiSo);
                 visibility: visible;
                 opacity: 1;
+            }
+
+            &__toolbar {
+                display: flex;
+                flex-wrap: wrap;
+                gap: .5rem 1rem;
+                align-items: center;
+                justify-content: space-between;
+                background-color: var(--vp-c-bg-soft);
+                padding: .625rem 1rem;
+                border-radius: 10px;
+                margin-bottom: 1.5rem;
+
+                .md-guide__split-label { display: inline; }
+            }
+
+            &__split {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: .75rem .5rem 0;
+                border-top: 1px solid var(--vp-c-divider);
+                border-left: none;
+                margin-top: .75rem;
+
+                .md-guide__split-label { display: inline; }
             }
 
             &__nav-title {

@@ -20,6 +20,15 @@ export interface GuideTab {
     items: { id: string; name: string }[];
 }
 
+// 卡片裡「寫法｜呈現」的寬度比例：三段開關切換，預設各半
+export type SplitMode = 'source' | 'even' | 'render';
+
+export const SPLIT_MODES: { key: SplitMode; label: string }[] = [
+    { key: 'source', label: '寫法 70%、呈現 30%' },
+    { key: 'even', label: '寫法與呈現各半' },
+    { key: 'render', label: '寫法 30%、呈現 70%' }
+];
+
 export interface Usage {
     id: string;
     name: string;
