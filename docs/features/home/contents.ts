@@ -58,3 +58,14 @@ export function postsInCategories(posts: Post[], members: readonly string[] | nu
     const picked = members ? posts.filter(post => members.includes(normalizeCategory(post.category[0] ?? '未分類') || '未分類')) : posts;
     return latestPosts(picked, count);
 }
+
+/** 每年寫幾篇（舊到新，從第一篇那年到最新一篇那年，中間沒寫的年也列 0），給 Timeline 卡片的長條 */
+export function yearlyCounts(posts: Post[]): { year: string; count: number }[] {
+    const years = posts.map(post => Number(post.date.slice(0, 4))).filter(Boolean);
+    if (!years.length) return [];
+    const counts = new Map<number, number>();
+    for (const year of years) counts.set(year, (counts.get(year) ?? 0) + 1);
+    const from = Math.min(...years);
+    const to = Math.max(...years);
+    return Array.from({ length: to - from + 1 }, (_, index) => ({ year: String(from + index), count: counts.get(from + index) ?? 0 }));
+}
