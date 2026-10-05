@@ -15,6 +15,10 @@ tags:
 editLink: true
 isPublished: false
 ---
+::: warning 草稿
+Claude 於 2026-10-05 補完：只加了懶人包，內文與原本的「總結與展望」都沒動。看過、改成自己的話之後刪掉這個區塊，發佈工具才會放行。
+:::
+
 ::: info 系列：串 API 的那些事
 這個系列從群組裡一段別人貼出來的 axios 封裝開始，一路改到型別安全，每一篇都在收拾上一篇留下的問題。
 1. **Axios 封裝，從「能用」到「好用」**（這篇）
@@ -24,6 +28,13 @@ isPublished: false
 
 **這篇的脈絡**：有人在群組貼出專案裡的 useApi composable，問大家怎麼看。這種檔案幾乎每個專案都有一支，所以我把討論整理成筆記：先講它做對了什麼，再講哪裡可以更好，最後動手重構。程式碼用到 Quasar 的 Dialog，換成你用的 UI 框架道理一樣。
 :::
+
+## 懶人包
+- 把 API 請求集中在一支 composable、統一回傳格式、用攔截器處理 401／500，這個方向是對的。
+- 模組頂層的 `showXxxDialog` 旗標，在兩支請求同時失敗時會吞掉其中一個錯誤，改成判斷「現在有沒有 Dialog 開著」。
+- `getImage` 其實就是 `responseType: 'blob'` 的 `sendRequest`，做成語法糖，就不用維護兩套一樣的邏輯。
+- 失敗時不要回傳 `null`：永遠回傳同一種 `iResult`，呼叫端只看 `status`，還拿得到錯誤訊息。
+- `.then().catch()` 換成 `async/await` 加 `try...catch`，可選參數收進一個 `options` 物件。
 
 
 今天在群組看到有位大大貼了他專案中封裝 axios 的 useApi composable，想問問大家的看法。這是一個非常經典的議題，幾乎每個專案都會有類似的檔案。把 API 請求的邏輯抽離出來，統一管理，絕對是正確的方向。

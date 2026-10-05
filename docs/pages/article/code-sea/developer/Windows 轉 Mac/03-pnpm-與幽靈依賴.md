@@ -15,12 +15,22 @@ tags:
 editLink: true
 isPublished: false
 ---
+::: warning 草稿
+Claude 於 2026-10-05 補完：懶人包（結尾原本就有總結）。看過、改成自己的話之後刪掉這個區塊，發佈工具才會放行。
+:::
+
 ::: info 系列：Windows 前端工程師搬家到 Mac
 用了十年 Windows，第一次拿 MacBook Air 寫 code，把卡住我的地方照順序記下來。
 1. [快捷鍵與操作邏輯](./01-快捷鍵與操作邏輯)
 2. [開發環境：Homebrew + fnm + Oh My Zsh](./02-開發環境)
 3. [擁抱 pnpm 與解決幽靈依賴](./03-pnpm-與幽靈依賴)
 :::
+
+## 懶人包
+- Mac Air 硬碟寸土寸金，趁換機全面改用 **pnpm**：多個專案共用同一份依賴，用連結指過去，省空間又快。
+- 從 Yarn／npm 搬過來最常撞到**幽靈依賴**：程式碼用了 `package.json` 沒寫的套件，pnpm 會直接報錯。
+- 解法是缺什麼補什麼，用 `pnpm add -D` 把報錯的套件明確裝進來。
+- 某些依賴（如 esbuild、sharp）的建置腳本預設不會執行，要用 `pnpm approve-builds` 手動授權。
 
 換了 Mac Air 後，硬碟空間變得寸土寸金。傳統的 `npm` 或 `Yarn` 會在每個專案底下都塞一份 `node_modules`，這對硬碟是極大的浪費。藉著換機的機會，我決定全面轉向 **pnpm**。
 

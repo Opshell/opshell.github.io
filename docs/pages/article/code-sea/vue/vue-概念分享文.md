@@ -12,6 +12,10 @@ tags:
 editLink: true
 isPublished: false
 ---
+::: danger 標記：待補素材
+只有四個 Threads 貼文連結，看不到要分享哪些 Vue 概念。缺：這幾篇 Threads 的內容（或想講的概念清單與自己的觀點），補上才寫得出來。
+:::
+
 #
 
 

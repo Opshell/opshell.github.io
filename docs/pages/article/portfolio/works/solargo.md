@@ -14,6 +14,10 @@ isPublished: false
 description: ''
 keywords: ''
 ---
+::: danger 標記：待補素材
+只有幾行摘要（獲利公式、會員系統 UX、微動畫），缺技術棧與實作細節；另外內文第一個標題寫成「富德土雞」，是從 fu-de.md 複製過來沒改到。
+:::
+
 ## [富德土雞(全端 UI/UX)](https://www.solargo.com.tw/)
 
 ## Summary

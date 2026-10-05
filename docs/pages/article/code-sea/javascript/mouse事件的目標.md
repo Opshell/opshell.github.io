@@ -14,6 +14,16 @@ tags:
 editLink: true
 isPublished: false
 ---
+::: warning 草稿
+Claude 於 2026-10-05 補完：懶人包與結論。看過、改成自己的話之後刪掉這個區塊，發佈工具才會放行。
+:::
+
+## 懶人包
+- `mouseenter`／`mouseleave` 不冒泡，只在綁定的元素本身觸發，`$event.target` 就是那個元素。
+- `mouseover`／`mouseout` 會冒泡，滑鼠進到子元素也會觸發，`$event.target` 常常是裡面的子元素。
+- 只想知道「滑鼠進了這一塊」（hover 浮到最上層這類），用 `mouseenter`／`mouseleave`。
+- 一定要用 `mouseover` 的話，改讀 `$event.currentTarget`，它永遠指向綁事件的那個元素。
+
 ## 前言
 在串接 Google Map 時要動態渲染標記，標記一多，想做「hover 的那個浮到最上層」，但怎麼樣都抓不到正確的元素。
 
@@ -54,3 +64,8 @@ $event.target 可能是綁定事件的元素（div）或其子元素（span）�
 
 ## 如果一定要使用某個event的解決方式
 如果你希望 $event.target 始終指向綁定事件的元素，例如 （div），可以改用 $event.currentTarget，因為它永遠指向綁定事件的元素，可以避免因事件冒泡或子元素觸發導致的差異。
+
+## 結論
+`target` 是「事件實際發生在誰身上」，`currentTarget` 是「現在是誰的監聽器在處理」，會冒泡的事件這兩個就會分家。
+所以 hover 類的需求先選 `mouseenter`／`mouseleave`，選不了就讀 `currentTarget`，別再跟 `target` 硬拚了。
+AI 推薦的事件不一定是錯的，只是它不知道你要的是「進了這一塊」還是「進了每一個子元素」~~（它也不用陪你 debug 到半夜）~~。

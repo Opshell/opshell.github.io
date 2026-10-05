@@ -14,6 +14,10 @@ isPublished: false
 description: ''
 keywords: ''
 ---
+::: danger 標記：過時
+跟已發佈的 `code-sea/vitepress/2024鐵人賽/day10-antfu-eslint-config.md`（ESLint、VS Code 設定、vue/script-indent 等規則）與 `day11-stylelint.md`（stylelint、properties-order）重複，對方有解說比較完整；這份還停在 yarn、鎖舊版本與 `eslint.experimental.useFlatConfig` 的寫法。
+:::
+
 ## 需安裝的套件
 
 - 之前穩定版

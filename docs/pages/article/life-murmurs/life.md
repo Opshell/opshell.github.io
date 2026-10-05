@@ -14,6 +14,10 @@ keywords: ''
 createdAt: '2024-08-14'
 isPublished: false
 ---
+::: danger 標記：無意義
+內容是 VitePress 預設的 Markdown Extension Examples 範例頁，跟標題「Life Murmur」無關，看不出想寫什麼。
+:::
+
 # Markdown Extension Examples
 
 This page demonstrates some of the built-in markdown extensions provided by VitePress.

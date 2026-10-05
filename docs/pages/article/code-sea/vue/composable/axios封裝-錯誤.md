@@ -10,6 +10,10 @@ tags:
 editLink: true
 isPublished: false
 ---
+::: danger 標記：過時
+只有程式碼沒有敘述，而且是同一份 sendRequest／getImage／refleshToken 封裝；回傳 null、getImage 與 sendRequest 重疊等問題，`code-sea/developer/串 API 的那些事/01-axios-封裝-從能用到好用.md` 已經拆解得更完整。這篇獨有的兩個錯誤（模組頂層呼叫 `useRouter()`、把 `axios.interceptors.response.use` 寫進 composable 函式裡導致每呼叫一次就多疊一個攔截器）建議併進那篇當一小節。
+:::
+
 ```ts
 // 從Axios 拉型別出來用
 import { AxiosProgressEvent, AxiosRequestConfig, AxiosRequestHeaders, Method } from 'axios';

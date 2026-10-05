@@ -10,6 +10,10 @@ tags:
 editLink: true
 isPublished: false
 ---
+::: danger 標記：過時
+跟 `code-sea/vue/tanstack-query.md` 重疊，對方完整很多（範例也已收進去）；另外這裡的 `cacheTime` 在 TanStack Query v5 已改名為 `gcTime`。
+:::
+
 vue-query的用途是這樣：
 
 ```ts
