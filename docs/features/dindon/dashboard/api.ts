@@ -5,8 +5,8 @@
 
 import type { z } from 'zod';
 import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
+import { apiBase } from '@shared/utils/apiBase';
 import { parseResponse } from '@shared/utils/zod';
-import { apiBase } from '../apiBase';
 import { GetApiCatalogParser } from './console/catalog.schema';
 import {
     ActiveDevicesParser,

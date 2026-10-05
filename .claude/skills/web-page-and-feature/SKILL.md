@@ -71,7 +71,6 @@ import { DinDonAccount } from '@features/dindon';
 docs/features/dindon/
 ├── index.ts              ← 唯一入口，只 export 要給頁面用的元件（與 hook）
 ├── constants.ts          ← 文案、網址、數字
-├── apiBase.ts            ← 後端網址
 ├── components/           ← 對外的元件（PascalCase）
 ├── hooks/useXxx.ts
 ├── account/  dashboard/  ← 子功能各自有 api.ts、components/

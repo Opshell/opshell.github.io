@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import { useVisitorStats } from '@features/visitor';
     import { useSiteData } from '@hooks/useSiteData';
     import { formatNumber } from '@utils/number';
 
@@ -25,14 +26,9 @@
         }
     }, 30000); // 建議 5 秒，2-3 分鐘太久了使用者會以為那是靜態的
 
-    // 為了 Busuanzi 數字的即時格式化，我們使用 MutationObserver 或者簡單的 computed
-    // 但 Busuanzi 是直接操作 DOM innerText，Vue 的響應式抓不到。
-    // [Trick] 我們用一個 invisible 的 span 讓 Busuanzi 填值，然後我們讀取它來格式化顯示
-    const pvRaw = ref('--');
-    const uvRaw = ref('--');
-
-    const displayPV = computed(() => formatNumber(pvRaw.value));
-    const displayUV = computed(() => formatNumber(uvRaw.value));
+    const { sitePv, siteUv } = useVisitorStats();
+    const displayPV = computed(() => sitePv.value === null ? '--' : formatNumber(sitePv.value));
+    const displayUV = computed(() => siteUv.value === null ? '--' : formatNumber(siteUv.value));
     // #endregion
 
     // #region [P] 標籤雲
@@ -71,20 +67,6 @@
         return true;
     });
     // #endregion
-
-    // 在 mounted 後啟動一個觀察者去抓 busuanzi 的 DOM 變化
-    onMounted(() => {
-        // 這裡用一個簡單的 polling 來同步 busuanzi 的值到 Vue ref
-        // 因為 busuanzi 腳本載入時間不確定
-        const syncInterval = setInterval(() => {
-            const pvEl = document.getElementById('busuanzi_value_site_pv_hidden');
-            const uvEl = document.getElementById('busuanzi_value_site_uv_hidden');
-            if (pvEl) pvRaw.value = pvEl.innerText;
-            if (uvEl) uvRaw.value = uvEl.innerText;
-        }, 2000);
-
-        onUnmounted(() => clearInterval(syncInterval));
-    });
 </script>
 
 <template>
@@ -103,11 +85,6 @@
                     <button type="button" class="dot" :class="{ active: currentStatPage === 1 }" aria-label="瀏覽數" :aria-pressed="currentStatPage === 1" @click="currentStatPage = 1" />
                 </div>
             </h4>
-
-            <div style="display: none;">
-                <span id="busuanzi_value_site_pv_hidden" />
-                <span id="busuanzi_value_site_uv_hidden" />
-            </div>
 
             <div class="stat-content">
                 <transition name="fade-slide" mode="out-in">

@@ -1,4 +1,5 @@
 import type { Component } from 'vue';
+import { recordHit } from '@features/visitor';
 import mediumZoom from 'medium-zoom';
 import { Theme, useRoute } from 'vitepress';
 
@@ -30,32 +31,6 @@ const Sandbox = defineAsyncComponent(async () => {
     return Sandbox;
 });
 
-// 這些頁面不載入第三方的計數腳本：它們手上有 Google 的登入憑證（後台是管理員、帳號頁是使用者本人），
-// 不讓外部腳本跑在同一頁。
-// 直接打開後台網址時完全不會載入；從別頁點進來的話，前一頁已經執行過的腳本卸不掉，只能不再重新載入。
-const NO_THIRD_PARTY_PATHS = ['/dindon/dashboard/', '/dindon/account/'];
-
-function reloadBusuanzi(path: string) {
-    const busuanziScriptId = 'busuanzi-script';
-
-    // Remove the existing script if it exists
-    const existingScript = document.getElementById(busuanziScriptId);
-    if (existingScript) {
-        existingScript.remove();
-    }
-
-    if (NO_THIRD_PARTY_PATHS.some(prefix => path.startsWith(prefix))) return;
-
-    // Create a new script element
-    const script = document.createElement('script');
-    script.id = busuanziScriptId;
-    script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
-    script.async = true;
-
-    // Append the script to the document body
-    document.body.appendChild(script);
-}
-
 function initZoom() {
     mediumZoom('.vp-doc img', { background: 'var(--vp-c-bg)' });
 }
@@ -66,15 +41,14 @@ export default {
     setup() {
         const route = useRoute();
 
-        onMounted(async () => {
+        // 瀏覽計數走自家後端（溝通板 #0090）。以前用不蒜子，2026-10 它的 API 回 502 之後就拿掉了
+        onMounted(() => {
             initZoom();
-            reloadBusuanzi(route.path);
+            void recordHit(route.path);
         });
-        watch(() => route.path, () => {
-            void nextTick(() => {
-                initZoom();
-                reloadBusuanzi(route.path);
-            });
+        watch(() => route.path, (path) => {
+            void recordHit(path);
+            void nextTick(initZoom);
         });
     },
     enhanceApp({ app }) {

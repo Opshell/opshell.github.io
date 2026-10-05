@@ -80,7 +80,7 @@ Node 24、pnpm 10.28（`packageManager` 鎖住）。`ignoreDeadLinks: true`，�
 - 介面以 `DinDon_BackEnd/docs/api.md` 為準，只有後端改。`features/dindon/dashboard/api.ts` 是照著接的，型別旁邊註明第幾節。
 - 這是公開的靜態網站，**沒有也不能有任何祕密**。Google client ID 本來就是公開的；權限全靠後端驗 token。
 - 隱私權政策頁是產生出來的：改內容要改 App 的原稿再跑 `pnpm dindon:privacy`，**不能直接改 `docs/pages/dindon/privacy/index.md`**。
-- 後台 `/dindon/dashboard/` 設 `noindex`、不進 nav、不載入第三方腳本（`theme/index.ts` 的 `NO_THIRD_PARTY_PATHS`）。
+- 後台 `/dindon/dashboard/` 設 `noindex`、不進 nav、不載入第三方腳本。瀏覽計數（自家後端，`features/visitor/`）也不記後台與帳號頁（`path.ts` 的 `SKIP_PREFIXES`）。
 - 宣傳頁配色照 App 的 Sicily 色票，平面風格：沒有描邊、高光、漣漪。
 - 文案裡的數字（封測名額、獎勵）在 `features/dindon/constants.ts`，要跟 App 與 Play 對得上；改了要開單通知前端／上架。
 

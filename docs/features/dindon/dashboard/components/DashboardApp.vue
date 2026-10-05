@@ -2,9 +2,9 @@
     import type { Component } from 'vue';
     import type { DashboardTab, PanelPreset } from '../navigation';
     import type { TerminalAction } from '../terminal';
+    import { apiBase, isProductionApi } from '@shared/utils/apiBase';
     import { useData } from 'vitepress';
     import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-    import { apiBase, isProductionApi } from '../../apiBase';
     import { useGoogleAuth } from '../../useGoogleAuth';
     import { setPanelPreset, shortcutsPaused } from '../navigation';
     import { usePulse } from '../usePulse';

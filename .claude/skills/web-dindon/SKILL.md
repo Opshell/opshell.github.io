@@ -26,7 +26,6 @@ description: 叮咚記帳在官網上的五頁（宣傳頁、功能演示、後�
 ```
 features/dindon/
 ├── constants.ts            ← 宣傳頁全部文案與數字：BETA_SEATS、GROUP_URL、PLAY_OPTIN_URL、betaRewards…
-├── apiBase.ts              ← 後端網址；localhost 時可用 ?api= 覆寫
 ├── useGoogleAuth.ts        ← Google 登入，後台與刪除頁共用；client ID 在這（公開的）
 ├── components/
 │   ├── DinDonLanding.vue   ← 宣傳頁；配色是 App 的 Sicily 色票（--dd-* 變數）
@@ -61,8 +60,9 @@ App 出新版要換圖時，從模擬器拍、轉 webp、檔名沿用。
 
 - **沒有祕密**：這是公開的靜態站，程式碼任何人看得到。Google client ID 本來就是公開的，權限全部由後端驗 ID token
   （後台驗管理員名單、刪除頁驗帳號本人）。看到有人想把 key、密碼、白名單放進來，擋下來。
-- **token 只放記憶體**（`useGoogleAuth.ts` 的模組層級 `ref`），不進 `localStorage`：這個網站每一頁都會載入第三方腳本。
-- 後台與刪除頁**不載入第三方腳本**：`theme/index.ts` 的 `NO_THIRD_PARTY_PATHS`。加新的需要登入的頁面時要一起加進去。
+- **token 只放記憶體**（`useGoogleAuth.ts` 的模組層級 `ref`），不進 `localStorage`：文章頁會載入 giscus 這類第三方腳本。
+- 後台與刪除頁**不載入第三方腳本**（2026-10 拿掉不蒜子後，主題已經沒有每頁都載的第三方腳本）。後端網址在 `shared/utils/apiBase.ts`，localhost 時可用 `?api=` 覆寫。
+  部落格的瀏覽計數（`features/visitor/`，api.md 第 22 節）不記後台與帳號頁：加新的需要登入的頁面時，加進 `features/visitor/path.ts` 的 `SKIP_PREFIXES`。
 - 後台 `noindex, nofollow`、不進 nav、不設 `isPublished`。
 - 錯誤訊息是給使用者看的中文；後端回的 `error` 欄位也是中文，可以直接顯示。
 - 表單送出前先在前端擋一遍（上限、必填），但**後端才是真正的把關**，前端的規則要跟 api.md 一致。

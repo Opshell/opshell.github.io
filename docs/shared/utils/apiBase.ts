@@ -1,4 +1,4 @@
-// 叮咚後端的網址。後台（/v1/admin/*）與帳號刪除頁（/v1/account/*）共用。
+// 叮咚後端的網址。後台（/v1/admin/*）、帳號刪除頁（/v1/account/*）與部落格的瀏覽計數（/v1/blog/hit）共用。
 export const PRODUCTION_API = 'https://dindon-backend-851099261403.asia-southeast1.run.app';
 
 /** 本機開發時可以用 ?api=http://localhost:8090 改接本機後端；正式網站一律打正式後端 */

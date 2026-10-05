@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import { useVisitorStats } from '@features/visitor';
     import useKeyBoardControl from '@shared/hooks/useKeyBoardControl';
     import { useSiteData } from '@shared/hooks/useSiteData';
 
@@ -14,6 +15,7 @@
     // Data Hooks
     const { frontmatter, page, isDark } = useData();
     const siteData = useSiteData();
+    const { pagePv, sitePv, siteUv } = useVisitorStats();
 
     // --- 1. TypeScript Fix & Data Logic ---
     // 修復：使用 computed 並處理 siteData 可能為 undefined 的情況
@@ -135,7 +137,7 @@
 
                         <div class="meta-item views">
                             <ElSvgIcon name="visibility" class="icon" />
-                            <span id="busuanzi_value_page_pv">--</span>
+                            <span>{{ pagePv?.toLocaleString() ?? '--' }}</span>
                         </div>
                     </div>
 
@@ -179,11 +181,11 @@
                     </li>
                     <li class="stat-item">
                         <span class="label">總瀏覽量</span>
-                        <span id="busuanzi_value_site_pv" class="value">--</span>
+                        <span class="value">{{ sitePv?.toLocaleString() ?? '--' }}</span>
                     </li>
                     <li class="stat-item">
                         <span class="label">訪客人數</span>
-                        <span id="busuanzi_value_site_uv" class="value">--</span>
+                        <span class="value">{{ siteUv?.toLocaleString() ?? '--' }}</span>
                     </li>
                 </ul>
             </div>
