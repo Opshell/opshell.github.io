@@ -666,3 +666,13 @@
   側欄上方的「已發佈／草稿」數字照舊只算已發佈的。草稿的 frontmatter 格式不對時跳過並印一行 `[草稿] …`，不讓 dev server 起不來（已發佈的照舊直接報錯）。
 - 防呆：開關開著時 `vitepress build` 直接拒絕（`config.mts`），草稿不會不小心上線；sitemap 與 noindex 本來就只看 `isPublished`，沒動。
 - 驗證：開關開著時時間軸有 392 個「草稿｜」、側欄 49 個；一般 build 的 sitemap 還是 72 條、時間軸 0 個草稿；`pnpm check` 全過（156 個測試）。
+
+# 2026-10-06：docs:drafts 啟動失敗（MiniSearch duplicate ID）
+
+**使用者**：`pnpm run docs:drafts` 起不來，`MiniSearch: duplicate ID …/zod-schema-型別使用規範拷貝.html#前端開發規範`。
+
+- 原因：`configs/search.ts` 的 `_render` 會在內文前補一個 `# title` 當錨點，內文本身也有同名 `#` 標題時同頁就有兩個相同錨點。
+  已發佈文章剛好都沒有這種寫法；`docs:drafts` 把草稿收進搜尋後才撞到。目前只有那個未追蹤的拷貝是這樣，但以後寫文章也可能踩到，所以修設定、不動檔案。
+- 修法：先算出 `# title` 的錨點 id，內文已有同一個 id 就不補（`70e90d6`）。
+- 那個拷貝是《前端開發規範》v4 唯一的一份（v5 第一次進版控時就是 v5），沒刪；要不要留由使用者決定。
+- 驗證：`SHOW_DRAFTS=1 vitepress dev` 正常啟動；`pnpm docs:build` 通過。
