@@ -546,3 +546,37 @@
   文章頁、履歷頁（26 個 icon 全找得到）、設計系統 Icons 分頁、星系頁（canvas 有畫、無錯誤）截圖。
   `#visibility` 找不到是 main 原本就有的，`redesign-2026-10` 已補檔。
 - `pnpm audit`：53（29 high）→ 21（10 high），剩下的多半要等 VitePress 2 換掉 Vite 5 那條鏈。
+
+# 2026-10-05：Noto Sans TC 切片，每頁字型從 11 MB 降到 0.3～1.7 MB
+
+**使用者**：吃效能的是全站字型：NotoSansTC 每種字重約 2.9 MB，每一頁都要下載，是其他所有東西加起來的好幾倍。
+把字型按字元範圍切成很多小塊，每頁只下載用到的字。副檔名是不是也有更小的？開另一個分支處理。
+
+- **副檔名**：已經是 woff2，這是瀏覽器能用的最小格式，沒有再小的；省的只能從「少下載」下手。
+- **切法**：借 Google Fonts 對 Noto Sans TC 的切片表（108 片，常用字集中在同幾片、罕用字散在其他片），
+  抄成 `scripts/lib/noto-sans-tc-ranges.json`。`scripts/subset-fonts.mjs` 用 `subset-font`（harfbuzz 的 wasm，純 Node，不用裝 Python）
+  把四種字重各切成 108 片 woff2，放 `theme/fonts/Noto_Sans_TC/subset/`，`@font-face` 產到 `theme/fonts/noto-sans-tc.css`（432 條，各帶 `unicode-range`）。
+  指令 `pnpm fonts:subset`，約 45 秒；產出要 commit，CI 不跑。來源的四個 2.9 MB 留在原位當素材，CSS 不再引用它們，建置不會帶出去。
+- **兩個坑**：
+  1. Vite 把小於 4 KB 的資源內嵌成 data URI，20 片小的被塞進 CSS、變成每頁都載。`config.mts` 加 `assetsInlineLimit`，`.woff2` 一律不內嵌。
+  2. 432 條 `unicode-range` 文字讓 CSS 從 370 KB 變 779 KB。四種字重的範圍文字完全一樣，改成「同一片的四種字重相鄰」輸出，
+     gzip 的 32 KB 視窗才抓得到重複：壓縮後 63 KB → 109 KB，多 46 KB。
+- 順手刪掉 `config.mts` 的 `transformHead`：它找 `.ttf` 做 preload，字型早就是 woff2、也沒有 `return`，從來沒作用過。
+- **實測**（preview ＋ headless Chromium 的 net log，統計真的下載的字型檔）：
+
+  | 頁面 | NotoSansTC | 說明 |
+  |---|---|---|
+  | 改前任何一頁 | 11.3 MB | 四種字重全載（Light 2.75 ＋ Regular 2.83 ＋ Medium 2.87 ＋ Bold 2.9） |
+  | 首頁 | 1.1 MB | Medium 17 片 616 KB、Bold 11 片 450 KB、Regular 2 片。首頁幾乎都是中粗體 |
+  | 文章列表 `/article/` | 277 KB | 9 片 |
+  | 叮咚 `/dindon/` | 1.4 MB | 43 片 |
+  | 前端開發規範（長文） | 1.7 MB | 45 片 |
+
+  沒到「幾百 KB」的原因：一頁用了幾種字重，每種字重都要各自下載那幾片；Google 的常用字片一片 40～70 KB，
+  一段中文內文通常就要 8～12 片。跟直接用 Google Fonts 的成本一樣。要再降只有兩條路：頁面少用一種字重（設計決定），
+  或照本站實際用到的字做一片「本站常用字」放最前面（切片表就不是 Google 的了，要自己維護）。
+- 另外量到但沒動：Roboto 每種字重 63 KB（含西里爾、希臘字，可只留拉丁）、FiraCode 每種 103 KB；
+  VitePress 預設主題 preload 的 Inter 66 KB，本站沒用它但關不掉。
+- 驗證：`pnpm check` 五項全過（lint 用 `CI=1` 跑過，編輯器模式會關掉幾條規則）；首頁與文章頁截圖字形正常；
+  dist 裡 432 片都是獨立檔、CSS 沒有 `data:font`。
+- 分支 `perf/font-subset`，worktree `../opshell-fonts`，沒 push、沒併 main。

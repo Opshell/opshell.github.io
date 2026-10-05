@@ -333,28 +333,12 @@ export default defineConfig({
             pageData.frontmatter.head.push(['meta', { name: 'robots', content: 'noindex, nofollow' }]);
         }
     },
-    transformHead({ assets }) {
-        // adjust the regex accordingly to match your font
-        ['Roboto', 'NotoSansTC', 'FiraCode'].map((fontName) => {
-            const fontFile = assets.find(file => new RegExp(`${fontName}\\-\\w+\\.ttf`).test(file));
-            if (fontFile) {
-                return [
-                    [
-                        'link',
-                        {
-                            rel: 'preload',
-                            href: fontFile,
-                            as: 'fonts',
-                            type: 'fonts/ttf',
-                            crossorigin: ''
-                        }
-                    ]
-                ];
-            }
-            return [];
-        });
-    },
     vite: {
+        build: {
+            // 字型切片有些不到 4 KB，Vite 預設會把它們以 data URI 內嵌進 CSS，變成每一頁都要載；
+            // 字型一律留成獨立檔，讓 unicode-range 決定要不要下載。其他資源照預設。
+            assetsInlineLimit: filePath => (filePath.endsWith('.woff2') ? false : undefined)
+        },
         resolve: {
             alias: { // 設定別名
                 '@': path.resolve(__dirname, '../'), // docs 當根目錄
