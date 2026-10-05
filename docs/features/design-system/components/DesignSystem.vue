@@ -14,7 +14,8 @@
         { id: 'font', label: 'Font', icon: 'grid_view' },
         { id: 'animations', label: 'Animations', icon: 'grid_view' },
         { id: 'icons', label: 'Icons', icon: 'grid_view' },
-        { id: 'components', label: 'Components', icon: 'widgets' }
+        { id: 'components', label: 'Components', icon: 'widgets' },
+        { id: 'markdown', label: 'Markdown', icon: 'menu_book' }
     ];
 
     // #region [P] Tab 切換與 Hash 同步邏輯
@@ -179,6 +180,17 @@
                     </div>
                     <Components />
                 </div>
+
+                <!-- 內容要經過 markdown 編譯，所以由 design-system.md 從 slot 傳進來（共用 features/markdown-guide/guide.md） -->
+                <div v-else-if="activeTab === 'markdown'" key="markdown" class="tab-pane">
+                    <div class="section-header">
+                        <h2>Markdown</h2>
+                        <p>文章裡每一種語法的寫法、實際呈現，以及為什麼這樣呈現。</p>
+                    </div>
+                    <div class="design-system__markdown vp-doc">
+                        <slot name="markdown" />
+                    </div>
+                </div>
             </Transition>
         </main>
     </div>
@@ -304,6 +316,19 @@
                     font-size: 1.5rem;
                     font-weight: 700;
                     letter-spacing: 1.2px;
+                }
+            }
+
+            // 這一頁沒有文章版型的寬度限制：內文收在閱讀寬度，右邊再留一欄給語法圖鑑停靠的導覽。
+            // 吸頂線要讓開上面那條設計系統分頁列
+            .design-system__markdown {
+                --md-guide-sticky-top: calc(var(--vp-nav-height) + 96px);
+                max-width: 1120px;
+                margin: 0 auto;
+
+                // 手機上設計系統的分頁列會折成兩行，吸頂線再往下讓
+                @media (width <= 640px) {
+                    --md-guide-sticky-top: calc(var(--vp-nav-height) + 136px);
                 }
             }
 

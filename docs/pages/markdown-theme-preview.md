@@ -1,151 +1,18 @@
 ---
-title: Opshell's mumur about vitepress
+title: Markdown 語法圖鑑：一行字怎麼折射成一篇文章
+description: 這個部落格用到的每一種 Markdown 語法與自訂外掛：怎麼寫、長什麼樣、為什麼這樣呈現、讀的時候怎麼理解。
 author: Opshell
 createdAt: '2024-07-26'
 categories: demo
 tags:
   - demo
-  - Archive
+  - Markdown
+  - VitePress
 editLink: true
 isPublished: true
 ---
 <script setup lang="ts">
-  import { useData } from 'vitepress';
-
+    import { MdGuide, MdSpec, MdUsageSpectrum } from '@features/markdown-guide';
 </script>
 
-## Vitepress Markdown Demo
-This page demonstrates some of the built-in markdown extensions provided by VitePress.
-
-## Syntax Highlighting
-
-VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shikijs/shiki), with additional features like line-highlighting:
-
-## 部落格快速鍵操作指南
-
-- 上一篇 ←
-- 下一篇 →
-
-- 上一章節 Ctrl + ↑
-- 下一章節 Ctrl + ↓
-
-Hight Light Demo
-::: code-group
-````md [Input]
-```js{4}
-export default {
-  data () {
-    return {
-      msg: 'Hight Light Demo!'
-    }
-  }
-}
-```
-````
-
-```js{4} [Output]
-export default {
-  data () {
-    return {
-      msg: 'Hight Light Demo!'
-    }
-  }
-}
-```
-:::
-
-## Add、Delete
-
-VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shikijs/shiki), with additional features like line-highlighting:
-
-Add、Delete Demo
-````md
-```js
-export default {
-  data () {
-    return {
-      msg: 'Hight Light Demo!' // [!code --]
-      msg: 'Add、Delete Demo!' // [!code ++]
-    }
-  }
-}
-```
-````
-
-::: code-group
-````md [Input]
-```js-vue
-export default {
-  data () {
-    return {
-      msg: 'Hight Light Demo!' // [!!code --]
-      msg: 'Add、Delete Demo!' // [!!code ++]
-    }
-  }
-}
-```
-````
-
-```js [Output]
-export default {
-  data () {
-    return {
-      msg: 'Hight Light Demo!' // [!code --]
-      msg: 'Add、Delete Demo!' // [!code ++]
-    }
-  }
-}
-```
-:::
-
-## Custom Containers
-
-**Input**
-
-```md
-::: info
-This is an info box.
-:::
-
-::: tip
-This is a tip.
-:::
-
-::: warning
-This is a warning.
-:::
-
-::: danger
-This is a dangerous warning.
-:::
-
-::: details
-This is a details block.
-:::
-```
-
-**Output**
-
-::: info
-This is an info box.
-:::
-
-::: tip
-This is a tip.
-:::
-
-::: warning
-This is a warning.
-:::
-
-::: danger
-This is a dangerous warning.
-:::
-
-::: details
-This is a details block.
-:::
-
-## More
-
-Check out the documentation for the [full list of markdown extensions](https://vitepress.dev/guide/markdown).
+<!--@include: @/features/markdown-guide/guide.md-->

@@ -414,15 +414,21 @@
         }
     }
 
-    // RWD：以前這裡寫的是 .blog-grid-container、.grid-area-*，頁面上根本沒有這些 class，
-    // 所以窄螢幕一直是三欄硬擠（2026-10 翻新時才發現）
+    // RWD：兩側欄收起來，只留文章（翻新分支與 markdown-guide 分支各修了一次，2026-10-06 整合時留這個：
+    // 跟上面「收起側欄」用同一套三欄、寬度 0 的寫法，區塊名稱不變）。
+    // 之前選擇器還是改名前的 .blog-grid-container／.grid-area-*，對不到元素，手機上維持 250px＋內文＋250px 三欄，內文被擠成一條
     @media (width <= 1024px) {
-        .article-layout__container {
-            grid-template: 'main' auto / minmax(0, 1fr);
-            padding: calc(var(--vp-nav-height) + 1.5rem) 1rem 2rem;
+        .article-layout {
+            &__container {
+                grid-template-columns: 0 minmax(0, 1fr) 0;
+                gap: 0;
+                padding: calc(var(--vp-nav-height) + 1.5rem) 1rem 2rem;
+
+                &-left,
+                &-right { display: none; }
+            }
+
+            &__article { padding: 1.25rem; }
         }
-        .article-layout__container-left,
-        .article-layout__container-right { display: none; }
-        .article-layout__article { padding: 1.5rem 1.25rem; }
     }
 </style>

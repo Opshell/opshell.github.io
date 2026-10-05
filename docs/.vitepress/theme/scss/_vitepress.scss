@@ -105,17 +105,30 @@
     a[href*='://'],
     a[target='_blank']):not(.no-icon)::after {
         --icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z"/></svg>');
-        @include setSize(24px, 24px);
-        transform: translateY(6px);
+
+        // 原本 24px 比字還大、又往下掉 6px，一行裡一個連結就把行距撐開；縮成跟字一樣大
+        @include setSize(1em, 1em);
+        transform: translateY(.125em);
+        opacity: .7;
     }
 
+    // 粗體＝術語膠囊。底色用 currentColor 調淡，{.info}／{.vue} 這些換了字色，膠囊底也跟著換色。
+    // 原本是 400 字重、0.85em，在中文裡比內文還不顯眼；也跟行內程式碼同底同色，讀者分不出差別
     strong {
-        background-color: var(--vp-code-bg);
-        padding: 3px 6px;
-        border-radius: 5px;
-        color: var(--vp-c-brand-1);
-        font-size: 0.85em;
-        font-weight: 400;
+        background-color: color-mix(in srgb, currentcolor 12%, transparent);
+        padding: .1em .4em;
+        border-radius: 4px;
+        color: var(--color-ink-brand);
+        font-size: .95em;
+        font-weight: 600;
+        box-decoration-break: clone;
+    }
+
+    // 刪除線在這裡多半是作者的小聲吐槽：字降一階、線淡一點，劃掉但讀得到
+    :is(del, s) {
+        color: var(--vp-c-text-2);
+        text-decoration-color: color-mix(in srgb, currentcolor 60%, transparent);
+        text-decoration-thickness: 1px;
     }
 
     .custom-block {
