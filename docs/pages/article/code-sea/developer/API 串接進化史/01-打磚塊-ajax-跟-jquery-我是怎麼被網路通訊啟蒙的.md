@@ -17,7 +17,8 @@ isPublished: false
 ---
 ::: warning 草稿
 這篇是 Claude 照 git 歷史與對話記錄寫的草稿。第一篇幾乎都是倉庫裡沒有的記憶，下面標 ✍️ 的地方要你自己補：
-- 打磚塊對戰當時怎麼傳資料？定時輪詢 `XMLHttpRequest`？還是那時候已經碰到 WebSocket？
+- 打磚塊是原生 JS＋HTML5 手刻、沒用套件（10-05 你說的，已寫進去）。那段 `XMLHttpRequest` 範例是我照當年的寫法憑印象寫的，不是你的程式碼，有原始碼的話換成真的
+- 兩邊的狀態怎麼同步？定時輪詢？球的物理誰算？
 - 打包成 App 的那個案子是什麼？用 PhoneGap／Cordova 嗎？
 - 第一次覺得「每頁都寫一次 `$.ajax` 不對勁」是哪個瞬間？
 補完把這個區塊刪掉，發文工具才會放行。
@@ -49,20 +50,40 @@ isPublished: false
 所以這個系列不是教你怎麼封裝 axios。網路上那種文章太多了，我自己也寫過幾篇。這個系列是回頭看這十幾年，每一次「終於」之後，是什麼事情逼我把它推翻重來。
 
 ## 一切從打磚塊開始
-✍️ **這段要你補。** 我只知道：大學、國科會計畫、HTML5 剛紅、AJAX 剛出來、打磚塊對戰。
-
 那是 HTML5 剛被喊得滿天飛的年代。`<canvas>` 是新玩具，Flash 還沒死透但大家已經開始寫它的訃聞，而「AJAX」這個詞還會被拿來當履歷上的技能寫。我報了個國科會的大專生計畫，題目是用 HTML5 加 AJAX 做網頁連線遊戲——打磚塊對戰。
 
 兩個人，兩個瀏覽器，一顆球。
 
-✍️ 當時怎麼同步兩邊的狀態？我猜是用 `setInterval` 定時去 poll 伺服器，把對方的板子位置跟球的座標抓回來。那個年代 WebSocket 的規格才剛定下來，瀏覽器支援參差不齊，應該不會用。但這段要你確認。
+沒有用任何套件。不是不想用，是那時候我根本不知道有套件這回事。整個遊戲是原生 JS 加 HTML5 手刻的：`<canvas>` 畫球畫板子畫磚塊、`requestAnimationFrame`（或者是 `setInterval`，記不清了）跑遊戲迴圈，然後網路的部分——
+
+```js
+var xhr = new XMLHttpRequest();
+xhr.open('GET', 'state.php?room=' + roomId, true);
+xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+        var state = JSON.parse(xhr.responseText);
+        opponent.x = state.paddleX;
+        ball.x = state.ballX;
+        ball.y = state.ballY;
+    }
+};
+xhr.send();
+```
+
+就是這樣。`new XMLHttpRequest()`、`open`、`onreadystatechange`、`readyState === 4`——這四行後來被 jQuery 包成一個 `$.ajax`，再後來被 axios 包成一個 `axios.get`，再後來被我包成一支 `sendRequest`。但第一次寫的時候，每一行都是自己敲的，每一個 `readyState` 的數字都是查了才知道是什麼。
+
+✍️ **當時怎麼同步兩邊的狀態？** 我猜是用 `setInterval` 定時去 poll 伺服器，把對方的板子位置跟球的座標抓回來。那個年代 WebSocket 的規格才剛定下來，瀏覽器支援參差不齊，應該不會用。這段要你確認——還有球的「真相」在誰手上？伺服器算物理還是兩邊各算各的？
 
 現在回頭看，那大概是我第一次感受到「網路通訊」這件事的重量：資料不是在你手上，它在另一台機器上，你要去要，要等它回來，而且它不一定會回來。當時沒有這麼清楚的體悟，只覺得球會跳。
 
 但那顆跳動的球，就是後來所有東西的起點。
 
+::: tip 回頭看
+從手寫 `XMLHttpRequest` 開始有一個好處：之後不管包了幾層，我都知道最底下是什麼。axios 的 `interceptors` 聽起來很神，拆開就是「在 `send()` 前後各塞一個函式」；`responseType: 'blob'` 也只是 `xhr.responseType = 'blob'`。這些在第三篇、第六篇會再遇到。
+:::
+
 ## jQuery 時代：$.ajax 寫到手軟
-畢業後進了業界，那是 jQuery 的黃金年代。
+畢業後進了業界，那是 jQuery 的黃金年代。第一次看到 `$.ajax` 把我那十行 `XMLHttpRequest` 變成三行的時候，心裡想的是：原來可以這樣。然後就再也沒有手寫過 `onreadystatechange`。
 
 ✍️ 這段也要你補：是什麼案子要打包成 App？用 PhoneGap 或 Cordova？
 
