@@ -1,7 +1,7 @@
 import type { Post } from '@shared/schemas/post.schema';
 import type { Chapter } from './contents';
 import { describe, expect, it } from 'vitest';
-import { aimFromPointer, buildRays, ORB, photonAt, refract, SOURCE_Y, stars } from './prism';
+import { aimFromPointer, bezierAt, buildRays, ORB, photonAt, rayEnd, refract, SOURCE_Y, stars, strandAt } from './prism';
 
 const post = (url: string, date = '2026-01-01'): Post => ({ title: url, url, date, category: [], tags: [], excerpt: '' } as unknown as Post);
 const chapter = (key: string, count: number, date?: string): Chapter => ({ key, label: key, count, first: post(`/${key}/1`), latest: post(`/${key}/2`, date) });
@@ -77,5 +77,42 @@ describe('光點與瞄準', () => {
     it('星塵每次都一樣（伺服器與瀏覽器畫同一片天空）', () => {
         expect(stars(5)).toEqual(stars(5));
         expect(stars(5)).toHaveLength(5);
+    });
+});
+
+describe('o 裡面的光絲', () => {
+    const { entry, exit } = refract(SOURCE_Y.rest);
+    const end = rayEnd({ y: 60 });
+
+    it('從入射點出發、到出射點結束', () => {
+        const { points } = strandAt(entry, exit, end, 1.2, 0);
+        expect(bezierAt(points, 0)).toEqual(entry);
+        expect(bezierAt(points, 1)).toEqual(exit);
+    });
+
+    it('出口的方向對準自己那道光：收束成光束，不是一出來才散開', () => {
+        const [c2, last] = strandAt(entry, exit, end, 3.4, 2).points.slice(-2);
+        const tangent = Math.atan2(last.y - c2.y, last.x - c2.x);
+        const toRay = Math.atan2(end.y - exit.y, end.x - exit.x);
+        expect(tangent).toBeCloseTo(toRay, 1);
+    });
+
+    it('會動：同一股在不同時間形狀不一樣；不同股同一時間也不一樣', () => {
+        expect(strandAt(entry, exit, end, 0, 0).d).not.toBe(strandAt(entry, exit, end, 0.8, 0).d);
+        expect(strandAt(entry, exit, end, 0.8, 0).d).not.toBe(strandAt(entry, exit, end, 0.8, 1).d);
+    });
+
+    it('漩渦點在 O 裡面，而且繞著轉：有的順時針、有的逆時針', () => {
+        const mid = (time: number, index: number) => strandAt(entry, exit, end, time, index).points[3];
+        for (const index of [0, 1, 2, 3]) {
+            const p = mid(1, index);
+            expect(Math.hypot(p.x - ORB.cx, p.y - ORB.cy)).toBeLessThan(ORB.r);
+        }
+        const turn = (index: number) => {
+            const a = mid(0, index);
+            const b = mid(0.1, index);
+            return Math.sign((a.x - ORB.cx) * (b.y - ORB.cy) - (a.y - ORB.cy) * (b.x - ORB.cx));
+        };
+        expect(turn(0)).not.toBe(turn(1));
     });
 });

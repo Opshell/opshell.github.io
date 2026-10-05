@@ -2,7 +2,7 @@
     import type { Ray } from '../prism';
     import { hueVar } from '@shared/utils/spectrum';
     import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-    import { aimFromPointer, LABEL_X, ORB, photonAt, rayPolygon, refract, SOURCE_X, SOURCE_Y, stars, VIEW } from '../prism';
+    import { aimFromPointer, bezierAt, LABEL_X, ORB, photonAt, rayEnd, rayPolygon, refract, SOURCE_X, SOURCE_Y, stars, strandAt, VIEW } from '../prism';
 
     // 首頁的光學台（2026-10 翻新第二版）：白光射進玻璃 O，散成各分類的光。取代舊版那張 AI 插畫。
     // - 滑鼠上下是瞄準入射光：O 的出射點反向偏一點，整把光跟著轉（幾何在 prism.ts）
@@ -73,12 +73,17 @@
     // #region [P] 幾何
     const rootRef = ref<HTMLElement>();
     const path = computed(() => refract(sourceY.value));
-    /** O 裡面那一段：入口細、出口寬，顏色從白到光譜 */
-    const inner = computed(() => {
-        const { entry, exit } = path.value;
-        return `${entry.x},${entry.y - 1.5} ${exit.x},${exit.y - 7} ${exit.x},${exit.y + 7} ${entry.x},${entry.y + 1.5}`;
-    });
     const focus = computed(() => hovered.value ?? selected);
+    /** O 裡面的光絲：每道光一股，在玻璃裡扭動，出口時對準自己那道光（形狀在 prism.ts 的 strandAt） */
+    const strands = computed(() => {
+        const { entry, exit } = path.value;
+        return rays.map((ray, index) => ({
+            key: ray.key,
+            hue: hueVar(ray.hue),
+            muted: !!focus.value && focus.value !== ray.key,
+            ...strandAt(entry, exit, rayEnd(ray), clock.value, index)
+        }));
+    });
 
     /** 光點：每道光幾顆，照各自的相位往外流；入射光上也有 */
     const photons = computed(() => {
@@ -92,6 +97,14 @@
                 const p = photonAt(exit, ray, t, lane);
                 const dim = focus.value && focus.value !== ray.key ? 0.25 : 1;
                 list.push({ key: `${ray.key}-${i}`, x: p.x, y: p.y, o: Math.sin(Math.PI * t) * dim, hue: hueVar(ray.hue), r: 1.6 + (i % 2) * 0.8 });
+            }
+        });
+        // O 裡面：光點沿著光絲走，比外面快一點、亮一點，像被攪動
+        strands.value.forEach((strand, index) => {
+            for (let i = 0; i < 2; i++) {
+                const t = (i / 2 + index * 0.21 + clock.value * 0.45) % 1;
+                const p = bezierAt(strand.points, t);
+                list.push({ key: `in-${strand.key}-${i}`, x: p.x, y: p.y, o: Math.sin(Math.PI * t) * (strand.muted ? 0.3 : 1), hue: strand.hue, r: 1.4 });
             }
         });
         for (let i = 0; i < 5; i++) {
@@ -135,11 +148,24 @@
                     <stop offset="70%" stop-color="var(--op-glass-edge)" />
                     <stop offset="100%" stop-color="var(--op-glass-rim)" />
                 </radialGradient>
-                <linearGradient id="op-bench-inner" gradientUnits="userSpaceOnUse" :x1="path.entry.x" :y1="path.entry.y" :x2="path.exit.x" :y2="path.exit.y">
-                    <stop offset="0%" stop-color="var(--op-beam)" stop-opacity=".9" />
-                    <stop offset="70%" stop-color="var(--op-beam)" stop-opacity=".5" />
-                    <stop offset="100%" stop-color="var(--pr-magenta)" stop-opacity=".8" />
+                <!-- 每股光絲：入口是白的，往裡面走才變成自己的顏色 -->
+                <linearGradient
+                    v-for="(strand, index) in strands"
+                    :id="`op-bench-strand-${index}`"
+                    :key="strand.key"
+                    gradientUnits="userSpaceOnUse"
+                    :x1="path.entry.x"
+                    :y1="path.entry.y"
+                    :x2="path.exit.x"
+                    :y2="path.exit.y"
+                >
+                    <stop offset="0%" stop-color="var(--op-beam)" />
+                    <stop offset="35%" :stop-color="strand.hue" stop-opacity=".9" />
+                    <stop offset="100%" :stop-color="strand.hue" />
                 </linearGradient>
+                <clipPath id="op-bench-orb-clip">
+                    <circle :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r - 3" />
+                </clipPath>
                 <linearGradient id="op-bench-beam" gradientUnits="userSpaceOnUse" :x1="SOURCE_X" :y1="sourceY" :x2="path.entry.x" :y2="path.entry.y">
                     <stop offset="0%" stop-color="var(--op-beam)" stop-opacity="0" />
                     <stop offset="35%" stop-color="var(--op-beam)" stop-opacity=".9" />
@@ -209,11 +235,33 @@
                 <text class="latest" :x="LABEL_X" :y="ray.y + 20" dominant-baseline="central" aria-hidden="true">最新：{{ shorten(ray.latest.title) }}</text>
             </g>
 
-            <!-- 玻璃 O：厚度是一圈淡淡的寬環，外緣是品牌漸層；裡面那道光從白折成光譜 -->
+            <!-- 玻璃 O：厚度是一圈淡淡的寬環，外緣是品牌漸層。白光進來就被拆成光絲、在裡面扭動，出口才收束成光束 -->
             <g class="op-bench__orb" aria-hidden="true" @click="emit('select', null)">
                 <circle class="body" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r" fill="url(#op-bench-glass)" />
                 <circle class="orbit" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r * 0.68" />
-                <polygon class="inner" :points="inner" fill="url(#op-bench-inner)" />
+                <g class="inner" clip-path="url(#op-bench-orb-clip)">
+                    <!-- 入口的漣漪：光打進來的地方一圈圈擴散 -->
+                    <circle v-for="n in 3" :key="n" class="ripple" :cx="path.entry.x" :cy="path.entry.y" r="16" :style="{ animationDelay: `${(n - 1) * 0.8}s` }" />
+                    <path
+                        v-for="(strand, index) in strands"
+                        :key="`glow-${strand.key}`"
+                        class="strand-glow"
+                        :class="{ 'is-muted': strand.muted }"
+                        :d="strand.d"
+                        :stroke="strand.hue"
+                        filter="url(#op-bench-blur)"
+                        :style="{ '--i': index }"
+                    />
+                    <path
+                        v-for="(strand, index) in strands"
+                        :key="strand.key"
+                        class="strand"
+                        :class="{ 'is-muted': strand.muted }"
+                        :d="strand.d"
+                        :stroke="`url(#op-bench-strand-${index})`"
+                        :style="{ '--i': index }"
+                    />
+                </g>
                 <circle class="thick" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r - 9" stroke="url(#op-bench-ring)" />
                 <circle class="ring" :cx="ORB.cx" :cy="ORB.cy" :r="ORB.r" stroke="url(#op-bench-ring)" />
                 <circle class="caustic" :cx="path.exit.x" :cy="path.exit.y" r="9" filter="url(#op-bench-blur)" />
@@ -347,13 +395,36 @@
                 stroke-dasharray: 2 9;
                 stroke-width: 1;
             }
-            .inner { opacity: .85; }
+            .strand,
+            .strand-glow {
+                fill: none;
+                stroke-linecap: round;
+                transition: opacity .3s var(--cubic-FiSo);
+            }
+            .strand {
+                stroke-width: 2.2;
+                opacity: .95;
+            }
+            .strand-glow {
+                stroke-width: 7;
+                opacity: .35;
+            }
+            .is-muted { opacity: .15; }
+            .ripple {
+                transform-origin: center;
+                transform-box: fill-box;
+                opacity: 0;
+                fill: none;
+                stroke: var(--op-beam);
+                stroke-width: 1.5;
+            }
             .caustic {
                 fill: var(--op-beam);
                 opacity: .8;
             }
         }
         &.is-motion &__orb .orbit { animation: op-bench-orbit 60s linear infinite; }
+        &.is-motion &__orb .ripple { animation: op-bench-ripple 2.4s ease-out infinite; }
 
         // #endregion
 
@@ -398,6 +469,16 @@
     }
     @keyframes op-bench-orbit {
         to { transform: rotate(360deg); }
+    }
+    @keyframes op-bench-ripple {
+        from {
+            transform: scale(.2);
+            opacity: .7;
+        }
+        to {
+            transform: scale(4.5);
+            opacity: 0;
+        }
     }
     @keyframes op-bench-draw {
         from { stroke-dashoffset: 1; }

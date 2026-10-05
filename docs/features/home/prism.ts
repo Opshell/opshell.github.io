@@ -78,6 +78,68 @@ export function photonAt(exit: Point, ray: Pick<Ray, 'y' | 'spread'>, t: number,
     };
 }
 
+// #region [P] O 裡面的光絲（2026-10-05，使用者：「進入圓玻璃時好像受到魔法干擾一樣，動態變化，直到出圓玻璃才收束成這些光束」）
+// 白光一進 O 就拆成每個分類一股光絲，在玻璃裡扭動、交纏（中段最亂），出口前被拉直，
+// 出去的方向剛好對準自己那道光——所以光是在出口「收束」成光束，不是一出來才突然散開。
+
+export interface Strand {
+    /** 給 <path d> */
+    d: string;
+    /** 兩段三次貝茲（入口 → 漩渦點 → 出口）的七個點，算光點位置用 */
+    points: Point[];
+}
+
+const unit = (v: Point): Point => {
+    const length = Math.hypot(v.x, v.y) || 1;
+    return { x: v.x / length, y: v.y / length };
+};
+
+/**
+ * 第 index 股光絲在時間 time（秒）的形狀：入口 → 漩渦點 → 出口，兩段三次貝茲，接點平滑。
+ * - 漩渦點繞著 O 的中心轉，每股的速度與方向不同（有順有逆），半徑也會呼吸：光絲被拉著繞圈、互相穿過
+ * - 出口最後一個控制點在「那道光的反方向」：曲線在出口的切線就是那道光的方向，所以是收束成光束
+ */
+export function strandAt(entry: Point, exit: Point, rayEnd: Point, time: number, index: number): Strand {
+    const flow = unit({ x: exit.x - entry.x, y: exit.y - entry.y });
+    const spin = (index % 2 ? -1 : 1) * (0.55 + 0.17 * (index % 3));
+    const angle = time * spin + index * 2.1;
+    const radius = ORB.r * (0.42 + 0.14 * Math.sin(time * 0.8 + index * 1.3));
+    const mid = { x: ORB.cx + radius * Math.cos(angle), y: ORB.cy + radius * Math.sin(angle) };
+    // 在漩渦點的方向：一半跟著轉、一半往出口流，光絲才不會原地打結
+    const around = { x: -Math.sin(angle) * Math.sign(spin), y: Math.cos(angle) * Math.sign(spin) };
+    const tangent = unit({ x: around.x * 0.8 + flow.x * 0.6, y: around.y * 0.8 + flow.y * 0.6 });
+    const reach = ORB.r * 0.42;
+    const out = unit({ x: rayEnd.x - exit.x, y: rayEnd.y - exit.y });
+    const points = [
+        entry,
+        { x: entry.x + flow.x * reach, y: entry.y + flow.y * reach },
+        { x: mid.x - tangent.x * reach, y: mid.y - tangent.y * reach },
+        mid,
+        { x: mid.x + tangent.x * reach, y: mid.y + tangent.y * reach },
+        { x: exit.x - out.x * ORB.r * 0.5, y: exit.y - out.y * ORB.r * 0.5 },
+        exit
+    ].map(round2);
+    const [a, b, c, m, e, f, z] = points;
+    return { d: `M${a.x},${a.y} C${b.x},${b.y} ${c.x},${c.y} ${m.x},${m.y} C${e.x},${e.y} ${f.x},${f.y} ${z.x},${z.y}`, points };
+}
+
+/** 光絲上第 t（0～1）的點：前半段在第一段曲線、後半段在第二段 */
+export function bezierAt(points: readonly Point[], t: number): Point {
+    const second = t >= 0.5;
+    const [a, b, c, d] = second ? points.slice(3, 7) : points.slice(0, 4);
+    const k = second ? (t - 0.5) * 2 : t * 2;
+    const u = 1 - k;
+    return {
+        x: u * u * u * a.x + 3 * u * u * k * b.x + 3 * u * k * k * c.x + k * k * k * d.x,
+        y: u * u * u * a.y + 3 * u * u * k * b.y + 3 * u * k * k * c.y + k * k * k * d.y
+    };
+}
+
+/** 一道光在終點的中心：光絲出口要對準它 */
+export const rayEnd = (ray: Pick<Ray, 'y'>): Point => ({ x: END_X, y: ray.y });
+
+// #endregion
+
 /** 滑鼠在光學台上的高度（0～1）→ 入射光的高度 */
 export const aimFromPointer = (ratio: number) => SOURCE_Y.min + (SOURCE_Y.max - SOURCE_Y.min) * Math.min(1, Math.max(0, ratio));
 
