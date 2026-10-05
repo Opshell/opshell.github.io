@@ -10,10 +10,14 @@ tags:
   - VS Code
   - Git Graph
 editLink: true
-isPublished: true
+isPublished: false
 description: ''
 keywords: ''
 ---
+::: danger 標記：無意義
+只有大綱（目標、內容條列、預估字數），還沒寫成文章，2026-10-05 取消公開。主題本身可以之後照大綱補完。
+:::
+
 # 文章 1：初探 VS Code 的 Git Graph 和 Git History：開始你的 Git 之旅
 
 ### 目標：介紹 Git Graph 和 Git History 擴充功能，幫助初學者建立基礎環境並理解 Git 的核心概念。

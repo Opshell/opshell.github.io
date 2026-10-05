@@ -10,10 +10,14 @@ tags:
   - VS Code
   - Git Graph
 editLink: true
-isPublished: true
+isPublished: false
 description: ''
 keywords: ''
 ---
+::: danger 標記：無意義
+只有大綱（目標、內容條列、預估字數），還沒寫成文章，2026-10-05 取消公開。主題本身可以之後照大綱補完。
+:::
+
 # 推送分支與拉取請求：團隊協作的起點
 
 ## 目標：展示如何將分支推送至遠端儲存庫並建立拉取請求（Pull Request, PR），使用 Git Graph 和 Git History 監控進度。

@@ -10,10 +10,14 @@ tags:
   - VS Code
   - Git Graph
 editLink: true
-isPublished: true
+isPublished: false
 description: ''
 keywords: ''
 ---
+::: danger 標記：無意義
+只有大綱（目標、內容條列、預估字數），還沒寫成文章，2026-10-05 取消公開。主題本身可以之後照大綱補完。
+:::
+
 # 目標：教導如何使用 Git Graph 和 Git History 建立、切換和管理分支，為多人協作奠定基礎。
 內容：
 分支的核心概念：

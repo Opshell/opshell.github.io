@@ -236,3 +236,15 @@
 - `phone`（1、8、9、11、12、28）與 `diagram`（4、10、39）照舊；功能地圖連到的演示 id 都還在（測試會檢查）。
 - 驗證：抽查影片與縮圖 200；開發伺服器打開 #16 能播；`pnpm check` 全過。
 - #0089（重看導覽）是上架開給前端的，網頁不用動。
+
+# 2026-10-05：取消公開沒有內容的已發佈文章
+
+**使用者**：哲學意義 copy、Git 的 stage-0（只有 `#`）、教學大綱（AI 回答原文）、stage.1～6（只有大綱）這種幾乎沒有價值的，先取消公開。
+
+- 另外掃了所有已發佈文章（依內文字數與 AI 殘留語句），同類的再加兩篇：`git/Git.md`（兩個連結）、`typescript/sandbox-test.md`（sandbox 測試頁）。
+  `how-is-this`、`string-replacement` 雖短但有內容，留著。
+- 共 11 篇改成 `isPublished: false`，開頭加 `::: danger 標記：…` 寫理由，內文不動。
+- 哲學意義 copy 不是逐字複本：比 life-murmurs 那篇多了「O／P／Shell 說文解字」幾段，內容都還在。
+- 沒有導覽或其他頁面連到這幾篇；Git 資料夾在 `config.mts` 沒有側欄 key，不受影響。
+- 驗證：`pnpm docs:build` 通過；sitemap 裡這 11 篇都不見了，只剩 `life-murmurs/opshell-的哲學意義`。
+- 從 `drafts-2026-10` 單獨挑上 main 先上線；同分支的草稿補完（133 篇）還在那邊等作者看。

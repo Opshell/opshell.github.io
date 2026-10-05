@@ -10,10 +10,14 @@ tags:
   - VS Code
   - Git Graph
 editLink: true
-isPublished: true
+isPublished: false
 description: ''
 keywords: ''
 ---
+::: danger 標記：無意義
+只有大綱（目標、內容條列、預估字數），還沒寫成文章，2026-10-05 取消公開。主題本身可以之後照大綱補完。
+:::
+
 # 目標：變基與進階分支管理：打造乾淨的提交歷史
 目標：介紹變基（Rebase）作為合併的替代方案，使用 Git Graph 和 Git History 管理複雜分支結構和乾淨的提交歷史。
 內容：

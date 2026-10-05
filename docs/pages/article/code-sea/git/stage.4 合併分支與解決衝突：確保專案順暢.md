@@ -10,10 +10,14 @@ tags:
   - VS Code
   - Git Graph
 editLink: true
-isPublished: true
+isPublished: false
 description: ''
 keywords: ''
 ---
+::: danger 標記：無意義
+只有大綱（目標、內容條列、預估字數），還沒寫成文章，2026-10-05 取消公開。主題本身可以之後照大綱補完。
+:::
+
 # 合併分支與解決衝突：確保專案順暢
 目標：教導如何使用 Git Graph 和 Git History 執行分支合併，並解決合併衝突，適用於大型專案的協作。
 內容：

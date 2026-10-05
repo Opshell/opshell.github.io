@@ -12,8 +12,12 @@ tags:
   - murmur
   - Philosophy
 editLink: true
-isPublished: true
+isPublished: false
 ---
+::: danger 標記：過時
+跟 `life-murmurs/opshell-的哲學意義.md` 同題，2026-10-05 取消公開。這篇多了「O／P／Shell 說文解字」幾段，要保留的話併進那篇。
+:::
+
 
 ## "Opshell" 生命與宇宙的對接模型
 

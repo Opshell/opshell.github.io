@@ -10,10 +10,14 @@ tags:
   - VS Code
   - Git Graph
 editLink: true
-isPublished: true
+isPublished: false
 description: ''
 keywords: ''
 ---
+::: danger 標記：無意義
+AI 回答的原文直接貼上（開頭「好的，這是一個很棒的主題！」），是系列的寫作計畫不是文章，2026-10-05 取消公開。
+:::
+
 #
 
 好的，這是一個很棒的主題！在 VS Code 中使用 Git Graph 和 Git History 這類視覺化工具，確實能大大提升大型專案的 Git 操作效率和理解度。

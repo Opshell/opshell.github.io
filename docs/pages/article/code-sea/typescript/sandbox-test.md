@@ -8,11 +8,15 @@ tags:
   - TypeScript
   - vue
 editLink: true
-isPublished: true
+isPublished: false
 image: ''
 description: ''
 keywords: ''
 ---
+::: danger 標記：無意義
+測試 `::: sandbox` 語法用的頁面，2026-10-05 取消公開。
+:::
+
 ::: sandbox {template=vue3-ts}
 ```vue /src/App.vue
 <script setup lang="ts">

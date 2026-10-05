@@ -10,10 +10,14 @@ tags:
   - VS Code
   - Git Graph
 editLink: true
-isPublished: true
+isPublished: false
 description: ''
 keywords: ''
 ---
+::: danger 標記：無意義
+只有大綱（目標、內容條列、預估字數），還沒寫成文章，2026-10-05 取消公開。主題本身可以之後照大綱補完。
+:::
+
 # 目標：複雜分支合併與大型專案的 Git 策略
 目標：探討大型專案中複雜分支合併的策略，結合 Git Graph 和 Git History 優化多人協作。
 內容：
