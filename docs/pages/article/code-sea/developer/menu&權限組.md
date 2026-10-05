@@ -1,233 +1,350 @@
 ---
-title: menu&權限組
+title: '後台的選單與權限：樹狀還是平面？誰來組？'
 image: ''
-description: ''
+description: '後端該給樹狀還是平面的選單？權限表要不要存？改了權限怎麼生效？從一段群組討論整理出後台權限的設計：以權限表為唯一來源長出路由與選單，最後接上 refresh token。'
 keywords: ''
 author: Opshell
 createdAt: '2024-09-09'
 categories:
+  - Developer
 tags:
+  - 權限
+  - 後台
+  - Vue Router
+  - refresh token
 editLink: true
 isPublished: false
 ---
-底層問題
-資料交換問題
-打包問題
-框架使用問題
-GC相關問題
-效能優化問題
-人與人協作問題
+::: warning 草稿
+Claude 於 2026-10-05 補完：把原本的群組對話紀錄改寫成文章（拿掉對話者名字，論點全部保留），補上權限表、組樹、麵包屑、動態路由與 refresh token 的範例程式碼。看過、改成自己的話之後刪掉這個區塊，發佈工具才會放行。
+:::
 
-14:49 Mesak 阿米 好累 沒一個標準的前端 後端選單都亂刻QQ
-14:50 Mesak 阿米已收回訊息
-14:50 Mesak 阿米 只能自己下來幹 Q_Q
-14:51 Mesak 阿米 後端正常吐 給前端 動態 MENU  要樹狀還是平面
-14:52 Astolfo 後台的話我是依照登入後給我的權限表去生
-14:52 Astolfo 這樣比較不用擔心要一直把v-if拿去綁
-14:52 Mesak 阿米 前端控權限 給你全部清單嗎
-14:52 Astolfo 就，menu內容要顯示什麼完全依照權限表ˇ
-14:52 Mesak 阿米 那就是已經驗過一次的MENU吧
-14:53 Mesak 阿米 這通常回來都是平面吧?
-14:53 Astolfo 後台的話權限表的存放我也會放Local
-14:53 Astolfo 不一定，看後端怎麼給，我通常會拿到樹狀結構的資料
-14:53 Mesak 阿米 children 應該是前端自己組起來
-14:53 Mesak 阿米已收回訊息
-14:53 Mesak 阿米 樹狀那麵包屑這個 功能
-14:54 Mesak 阿米 是怎麼組
-14:54 Astolfo ```
+::: info 這篇的脈絡
+前端會遇到的問題，大概可以分成這幾類：底層問題、資料交換問題、打包問題、框架使用問題、GC 相關問題、效能優化問題，以及人與人協作問題。
+後台的「選單＋權限」很有趣，它一口氣踩中了資料交換、效能和人與人協作三類。
+
+這篇來自前端群組裡的一段討論：起因是有位後端大大要下來自己刻後台選單，問「後端吐動態 menu 給前端，要給樹狀還是平面？」結果一路聊到麵包屑、路由、快取、重登和 refresh token。
+我把討論整理成文章，寫給要設計後台權限的前端，也寫給要下來寫前端的後端。
+:::
+
+## 懶人包
+- **權限表是唯一的事實來源**：路由和選單都依它渲染，沒拿到權限表之前，前端只有 login 這一條路由。
+- **樹狀還是平面，真正的問題是「誰負責整理層級」**：後端組樹、排序通常比前端容易；大型、要賣給客戶的 SaaS 後台，建議後端直接給樹。
+- **平面加 `parent_id` 前端自己組也可以**，自用的小系統前後端講好就好，但顯示邏輯容易散落各處。
+- **選單不是隨時會變的資料**：存起來，不用每次重新整理都打一次；權限變了，就讓那個帳號強制重登。
+- **想讓客服、營運長時間不用重登**，就要開始設計 refresh token。
+
+## 觀點拆解
+
+### 先分清楚：選單、路由、權限是三件事
+
+討論一開始大家常把它們混在一起，其實要先拆開：
+
+- **權限表**：這個身分能做什麼。後端依登入者的 role 算出來。
+- **路由**：前端有哪些頁面可以進。
+- **選單**：畫面上那排可以點的東西。
+
+選單的結構**不一定**跟權限表一樣。有時候要做伸縮、特效，需要節點；有的 PM 明知道 B 是 A 的後代，還是會把它設計在選單的同一層給客戶用。所以「選單長什麼樣」是 UI 的事，「能不能進」是權限的事。
+
+權限本身也不只一種，系統越肥，種類越多：
+
+| 種類 | 管什麼 | 例子 |
+|---|---|---|
+| 進入權限 | 能不能進這一頁 | 能不能看到「代理商列表」 |
+| 功能權限 | 頁面上能做哪些操作 | 代理商可以 CRUD 嗎？可以看月、週、日報表嗎？ |
+| 閱讀權限 | 能看到哪些資料 | 某些報表只有股東身分才能看 |
+
+### 樹狀 vs 平面：兩邊都有道理
+
+| | 後端給樹狀 | 後端給平面，前端自己組 |
+|---|---|---|
+| 誰處理層級 | 後端（直接遞迴查詢組好） | 前端（用 `parent_id` 兜回去） |
+| 麵包屑 | 樹本身就有節點，往上找就有 | 拿 `parent_id` 去 map，一層層兜出父層 |
+| 前端知道多少 | 只拿到「這個人能看的」那一份 | 拿到清單，自己決定怎麼長 |
+| 適合 | 大型專案、SaaS | 自用、小型系統 |
+
+偏好平面的理由很實在：一次 API 全部丟給前端，要不要組成樹是前端的事；而且「找不到爸爸的節點後端本來就不會給」。
+偏好樹狀的理由也很實在：如果編輯畫面的結構是 `dashboard >> vendor list >> monthly >> edit`，資料全部在同一層，誰是誰的後代？最後還是得做一次轉換。權限管理的資料處理，說穿了就是在做 DFS 查詢。
+
+我的做法是偏向**權限表為基礎、拿樹狀**的那一派。不過我身邊做後端的朋友比較偏向平面，這很正常：從後端的角度看，比較體驗不到前端的思考方向。
+但也要老實說，**後端處理樹狀和排序，真的會比前端容易很多**。資料庫一個遞迴查詢就組好了，前端拿到的已經是整理過的結果。
+
+說到底，這跟誰比較資深沒什麼關係，就是**誰要去處理那張表的層級**，前後端要先講好。前端來做的話，就變成 login 後拿到權限總表，得先生好所有層級，才能讓路由 `next()`。
+
+### 權限表為基礎：路由和選單一起長出來
+
+如果前端「已經有全部路由」，只用權限去 `v-if` 擋，會變成每個畫面都要問「這個身分能不能操作現在的 UI」，顯示邏輯散落在不同地方，很難集中管理。而且一旦要把某個畫面跟某個權限的綁定拿掉，就得改前端程式。
+
+比較乾淨的做法是反過來：**前端的路由一開始只有 login**，登入拿到權限表之後，路由和選單都照那張表渲染。沒有的路由就是無法訪問，因為沒有權限。
+頁面裡的元件需要知道「能不能編輯、能不能刪」，就由 props 把權限依賴注入進去，而不是元件自己到處去查。
+
+這樣做還有一個 SaaS 才在意的好處：客戶拿不到完整的路由清單，比較難反向工程把你的系統邏輯摸清楚、再找人複刻一個。
+
+### 前端擋的是體驗，後端擋的是安全
+
+討論中有人問了一個好問題：「如果沒驗證身分，直接打這支 API 能取到資料嗎？」
+
+答案是：**後端一定要擋**，依登入身分在 role 表裡是哪一組來判斷。前端路由也要先擋，但那是為了體驗，不是為了安全。
+權限表存在瀏覽器裡，使用者打開 DevTools 就改得到；前端照它長畫面沒問題，真正的把關永遠在後端。
+
+### 權限表要存哪？重新整理要不要重打？
+
+放 Pinia 的 store，重新整理就不見了。每次重新整理就重打一次權限表或 menu 的 API，專案不大沒關係；系統大了，每次都打就是浪費資源，還會吃掉 Redis 的存取，資源應該留給真正需要高頻請求的地方。
+
+想清楚一件事：**menu 不是隨時會更新的東西**。你重新整理的頁面可能是報表或有 CRUD 的功能，那些才需要重新 fetch；選單已經生好了，就不用重戳。
+
+所以權限表可以存起來，常見的選擇：
+
+| 存在哪 | 生命週期 | 要注意 |
+|---|---|---|
+| Pinia（記憶體） | 重新整理就沒了 | 每次重整都要重打 |
+| `sessionStorage` | 關掉分頁就沒了 | 「請關閉瀏覽器再試一次」這招有效 |
+| `localStorage` | 一直都在 | 權限變了要有機制讓它失效 |
+
+快取有好有壞。最常見的客訴長這樣：這一秒說登入進不去，登出再登入也不行；下一秒幫他開通了，還是不行……然後就被念了，只好說「請關閉瀏覽器」。
+
+解法是把「權限變更」變成明確的事件：**權限管理介面一變更成功，就讓那個帳號強制重新登入**，重登時拿到新身分對應的表。快取就不會跟現實對不上。
+
+### 選單的渲染成本
+
+選單如果有很多 children，一定是靠 `v-for` 長出來的。父層一重新渲染，整串 `v-for` 的 vnode 都會重新產生、比對一次。幾個工具可以用：
+
+- `v-memo`：指定的資料沒變，那一項就直接跳過。
+- `<KeepAlive>`：把已經渲染好的元件保持在快取裡，切回來不用重來。
+- 非同步元件：頁面用 `() => import()` 載入，沒權限的頁面連程式碼都不會下載。
+
+如果你只負責後端，這段留給前端去想沒關係；但如果你得下來寫前端，就要考慮剛剛說的集中管理問題了。
+
+### 不想一直重登？那就是 refresh token 的事了
+
+權限是後台最麻煩的 top 3 之一。而且只要有客服參與後台使用，營運也會跟他們一樣，希望長期可以不用重登。
+
+這時候「權限變了就強制重登」跟「最好永遠不用重登」就打架了。解法是把 token 拆成兩支：
+
+- **access token**：壽命短（例如十幾分鐘），每支 API 都帶。
+- **refresh token**：壽命長，只拿來換新的 access token，最好放在 `httpOnly` cookie，JavaScript 讀不到。
+
+權限變更時，後端讓那個帳號的 refresh token 失效（或在 token 裡帶一個權限版本號）。下一次換 token 失敗，前端才請使用者重登；沒有變更的人，就一路無感續命。
+
+## 例子與對比
+
+### 權限表長什麼樣子
+
+適合大型專案的權限表，裡面要有符合 role 的結構。這是後端依權限管理算好、直接給樹的版本（`title` 是為了組選單和麵包屑加的）：
+
+```json
 [
-  {
-    route: "vendorList",
-    edit: "1",
-    children: [{...}]
-  }
+    {
+        "id": "200",
+        "routeName": "vendor-list",
+        "title": "代理商列表",
+        "permissions": ["read", "edit", "del"],
+        "children": [
+            {
+                "id": "201",
+                "routeName": "vendor-list-monthly",
+                "title": "月報表",
+                "permissions": ["read"]
+            }
+        ]
+    }
 ]
 ```
-14:54 Astolfo 一樣
-14:54 Mesak 阿米 也是後端在給一個API?
-14:55 Astolfo 你如果回傳的全都是同一層平面，最後還是得做一個轉換
-14:55 Astolfo 不用，一開始就是有層級的話比較好做
-14:55 Astolfo 只要判別還有沒有CHILD
-14:55 Mesak 阿米 我覺得打一次API  就全部拋給前端作就好了
-14:55 Astolfo 對阿
-14:56 Mesak 阿米 至於是不是樹狀好像都是前端的事情
-14:56 Astolfo 如果改了權限，那就是強制重登
-14:56 Astolfo 沒錯
-14:56 Mesak 阿米 所以我是覺得我後端給你 平面的
-14:56 Mesak 阿米 前端自己組樹
-14:56 Astolfo 事實上權限管理的資料處理就是在做DFS查詢
-14:56 Mesak 阿米 給平面的 也比較好組麵包屑吧
-14:57 Astolfo 平面其實不會比較好組
-14:57 Astolfo已收回訊息
-14:57 Astolfo 萬一你的編輯畫面結構是
 
-dashboard >> vendor list >> monthly >> edit
-14:58 Astolfo 都在同一層的資料要怎麼組?
-14:58 Astolfo 誰是誰的後代?
-14:58 Mesak 阿米 到該頁面的時候路由應該已經組出 dashboard >> vendor list >> monthly 這層了吧?
-14:58 Mesak 阿米 因為到該目錄的時候已經只有該 元件的 路由 跟ID
-14:58 Astolfo 路由其實也是跟著權限綁出來的
-14:58 Astolfo 這裡要講好前後端怎麼配合
-14:59 Mesak 阿米 如果把平面的MENU拿去 MAP 應該可以拿 ID去把父曾兜出來
-14:59 Astolfo 沒有的路由就無法訪問，因為沒有權限
-14:59 Astolfo 你講的是前端自己已經有路由的前題
-14:59 Astolfo 但我這邊說的是，權限表為基礎，路由和menu都由那張表為準去渲染
-14:59 Mesak 阿米 我比較疑惑的是樹狀怎麼組麵包屑
-15:00 Astolfo 可以組，撈路由
-15:00 Astolfo 樹狀一定會有節點
-15:00 Mesak 阿米 撈路由不撈 MENU嗎
-15:00 Astolfo menu的結構不一定和你原本給我的權限表一樣
-15:01 Astolfo 有時候你要做一些特效
-15:01 Astolfo 或者是伸縮的基礎，都需要節點
-15:01 Astolfo 有的PM會把選單的某蠍子層設計在同一層
-15:01 Mesak 阿米 蠍子層 是什麼
-15:01 Astolfo 即便我們知道B是A的後代，他還是會設計成同一層給客戶使用
-15:02 Opshell 是  我的做法和福大是一樣的
-不過 我有朋友是資深後端他會偏向米大的做法
-15:02 Mesak 阿米 後端來作前端就會這樣想
-15:02 Astolfo 那跟是不是資深後端沒什麼關係
-15:02 Opshell 不過  後端處理 樹狀和排序真的會比前端容易很多
-15:02 Mesak 阿米 前端來規劃選單就是會說 前端的路由前端控，後端給權限
-15:02 Astolfo 就是誰要去處理那張表的層級
-15:03 Astolfo已收回訊息
-15:03 Mesak 阿米 我主要是想 根據撈取出來的結果 來長畫面
-15:03 Mesak 阿米 系統越肥權限表就越大
-15:03 Astolfo 前端要做的話就變成login後拿到權限總表，就得生好所有層級才開始route next()
-15:03 Opshell 是  所以 後端會先把資料整理好對吧
-15:04 Mesak 阿米 我會覺得 前端越少知道權限表的範圍 只要把畫面呈現出來  資料的流動也會變小
-15:04 Mesak 阿米 YES
-15:04 Mesak 阿米 我覺得兩者其實都可以真的就是 每個人作法不同 XD
-15:04 Astolfo 這樣會變成我們每次要針對特定身分是不是可以操作現在的ui，把顯示邏輯散落在不同地方，比較不好集中管理
-15:05 Opshell 這樣的話   要顯示的東西  跟資料階層不是都會一起整理出來嗎？ 所以看起來應該會是樹狀
-15:05 Opshell 的確
-15:05 Astolfo 不，實際上是專案大小決定的
-15:05 Mesak 阿米 我比較喜歡 組平面 給前端組樹狀
-15:06 Opshell 平面的話   資料階層之間的邏輯關係不會很難管理嗎?
-15:06 Mesak 阿米 都有 parent_id
-15:06 Mesak 阿米 找不到爸爸後端應該不會給
-15:06 前端小萌新 我也喜歡拿到攤平的資料XD
-15:07 Mesak 阿米 早期我看 element ui 他的 admin 是根據 role給 menu的
-15:07 Astolfo 那個就是權限表
-15:07 Astolfo 他只是分類出ROLE當中可以做什麼
-15:07 Mesak 阿米 這樣的問題是
-15:08 Mesak 阿米 當一個人被拔掉權限
-15:08 Mesak 阿米 或是一個選單沒有了某個權限
-15:08 Mesak 阿米 前端要重新打包
-15:08 Opshell 恩?權限不都是API 從後端拉  為什麼要重新打包?
-15:09 Astolfo 權限變更以後應該是要強制讓他登出回來再登一次
-15:09 Astolfo 所以這段不是重新打包，是ES MODULE重新組成
-15:09 Astolfo 早期WEBPACK才有這問題
-15:09 Mesak 阿米 應該是說 我某個畫面要跟某個權限 綁在一起
-15:09 Mesak 阿米 後面 如果取消這個權限跟元件的邏輯
-15:09 Mesak 阿米 需要改前端
-15:12 Astolfo 適合大型專案的權限表裡面應該要有符合ROLE的結構:
+```ts
+type Permission = 'read' | 'edit' | 'del';
 
-```
-{
-  id: "200",
-  routeName: "vendor-list",
-  permissions: ["edit", "del", "read"],
-  children: [{
-    id: "201",
-    routeName: "vendor-list-monthly",
-    permissions: ["edit", "del", "read"],
-  }]
+interface PermissionNode {
+    id: string;
+    routeName: string;
+    title: string;
+    permissions: Permission[];
+    children?: PermissionNode[];
 }
 ```
-15:12 Astolfo 這方式是由後端去依照權限管理控制
-15:12 Astolfo 這樣頁面上的組件可以由PROPS注入他的權限依賴
-15:13 Astolfo 一旦權限管理介面有變更成功，這時候就會讓該帳號重新登入
-15:13 Astolfo 取得新的身分相應的表
-15:13 ipph 這是能修改文章的API嗎?
-15:14 Astolfo vendor是代理商
-15:14 Astolfo 可以crud代理商、看月週日報表等行為，或者一些閱讀權限，有的是股東身分才能看
-15:15 ipph 那要注意 如果沒驗證身分打這支能娶到資料嗎?
-15:16 轉職成功 Ａ大讚讚
-15:16 Mesak 阿米 這個是功能權限
-15:16 Astolfo 這就看你服務要怎麼設計
-15:16 Mesak 阿米 基本後端會檔掉
-15:16 Astolfo 是，但由登入身分在你的role表中他是哪個類組
-15:16 Mesak 阿米 但是前端路由應該也要先檔掉
-15:16 Astolfo 前端的路由其實一開始只有login
-15:16 Astolfo 沒有拿到權限表以前不會去渲染路由
-15:16 Astolfo 這是最安全的方式
-15:18 Amber 會搭配router guard對嗎
-15:18 Mesak 阿米 我現在要設計 進入權限 功能權限 之後還有閱讀權限 (Capoo crying)
-15:18 Astolfo 所以我說阿
-15:18 Astolfo 你第一個考慮的點
-15:18 Mesak 阿米 前面的專案前端根本沒這些邏輯
-15:18 Astolfo 這系統是自己用，還是要賣客戶做成saas
-15:18 Astolfo saas就是我的方法
-15:20 Astolfo 也可以避免客戶反向工程找到你太多route邏輯
-15:20 Astolfo 然後找人去複刻一個
-15:21 Astolfo 如果是自己用的，那你在使用扁平化資料時，想怎麼組當然沒問題
-15:21 Astolfo 靈活性是比較高沒錯，也容易造成組件狀態管理code上的耦合
-15:21 Astolfo 因為這種code很容易重複
-15:21 Astolfo 集中管理也要拉一隻middleware處理
-15:21 Mesak 阿米 平面當然是取回來的時候
-15:21 Mesak 阿米 store就組好了
-15:22 Astolfo store? 刷新頁面就不見啦，可能要存local
-15:22 Astolfo 不然你權限刷新一次就要打一次
-15:22 Astolfo 我覺得那太大包
-15:22 Mesak 阿米 刷新頁面重新打一次 menu
-15:22 Astolfo 這樣有點浪費資源
-15:22 Mesak 阿米 所以 MENU要存喔?
-15:22 Astolfo 專案不大沒關係
-15:22 Mesak 阿米 我倒是沒考慮過這個
-15:22 Astolfo 少一點redis存取吧
-15:23 Astolfo 把資源挪給需要高頻繁請求的地方
-15:23 Astolfo log清理很麻煩的
-15:23 Mesak 阿米 因為權限是跟著menu走的 所以我想說每次 REQUEST都會打一次驗證權限
-15:24 Astolfo 你每次渲染menu會把ui在onMounted的時候掛進來，這時候其實已經吃掉一些ram了
-15:24 Astolfo 一直重複打就會為了把資料取回
-15:24 Astolfo 可能要改成設計異步組件
-15:26 Astolfo 綁上keep alive也可以cache住
-15:26 Astolfo 如果你只處理後端，那這個留給前端去思考沒關係
-15:26 Astolfo 但要是你得下來寫前端，我覺得你可能要考慮一下我剛講的集中管理問題
-15:27 Astolfo @Opshell 看得懂問題在哪嗎
-15:28 Mesak 阿米 這個不懂 xd
-15:28 Mesak 阿米 不RELOAD的情況下 可以CACHE
-15:28 Mesak 阿米 這個沒問題
-15:28 Astolfo VUE的KEEP ALIVE可以把你已經渲染好的組件保持CACHE
-15:28 Mesak 阿米 但是 RELOAD的時候應該也是會 重新打一次API吧
-15:28 Astolfo 而你的選單如果有很多CHILD
-15:28 Astolfo 那應該會依賴v-for
-15:28 Astolfo 除了keep alive，也有v-memo
-15:29 Astolfo 特定的資料沒變他就不會重新渲染
-15:29 Astolfo 因為v-for預設會整批更新喔
-15:29 Opshell 等等  突然被 cub  我錯過了什麼?
-15:29 Mesak 阿米 我的問題是這個 XD
-15:29 Astolfo 你剛不是說之前你是這種做法，但你的資深後端覺得不妥嗎
-15:30 Astolfo reload打api，會看你當前在哪
-15:30 Astolfo 如果是已經生好的menu，不用重戳
-15:31 Astolfo 剛才你一直在說的是每次刷新都請求menu的api或者權限表，這樣其實很浪費資源
-15:31 Opshell 是沒有不妥  他只是從後端的角度看  比較體驗不到前端的思考方向
-15:31 Astolfo menu不是個會隨時更新的東西
-15:31 Astolfo 但你重新整理的頁面可能是報表或者其他有CRUD的功能
-15:31 Astolfo 那些才會需要重新FETCH
-15:32 Astolfo 重點在於你要想想這些東西
-15:32 Mesak 阿米 下次我放 sessionStoreage
-15:32 Astolfo 是不是一直都得拿最新狀態
-15:32 Astolfo 也是個方法
-15:32 Mesak 阿米 但我覺得會被其他單位念
-15:32 Astolfo 但你有任何需要V-FOR渲染的操作，記得剛才我說的v-memo和v-for重新渲染的問題
-15:33 Astolfo 人家不懂嘛
-15:33 Astolfo 當然你還是可以選用你認為最不會被靠北的方法
-15:33 Mesak 阿米 通常都是 這一秒你說登入進不去登出登入也不行
-15:33 Mesak 阿米 下一秒開通 還是不行
-15:33 Mesak 阿米 就被念
-15:33 Mesak 阿米 請關閉瀏覽器
-15:33 Mesak 阿米 貼圖
-15:34 Mesak 阿米 快取有好有壞...
-15:34 Astolfo 看怎麼用
-15:34 Astolfo 總之大型專案的後台，我是不太接受扁平資料自己組
-15:34 Astolfo 畢竟saas很講求安全性，要賣給客戶的
-15:34 Astolfo 自用的就算了，前後端講好就好
-15:35 Astolfo 被雷過才有這些體驗心得
-15:35 Mesak 阿米 說到這個讓我想到後端的組樹方法
-15:36 Mesak 阿米 直接QUERY 遞迴
-15:36 Mesak 阿米 害我又要花時間改 (Capoo rolling eyes)
-15:36 Astolfo 翻回去看整串對話，這個可以當精華了
-15:36 Astolfo 權限事後台最麻煩的top3之一
-15:37 Astolfo 而且如果有客服參與後台使用，運營也會跟他們一樣，希望長期可以不用重登
-15:37 Astolfo 那就是要考慮refresh
+
+### 平面資料自己組樹
+
+如果後端給的是平面加 `parent_id`，前端組樹其實不難，兩趟迴圈就好：
+
+```ts
+interface FlatPermission {
+    id: string;
+    parentId: string | null;
+    routeName: string;
+    title: string;
+    permissions: Permission[];
+}
+
+function buildTree(list: FlatPermission[]): PermissionNode[] {
+    const nodes = new Map<string, PermissionNode>();
+    for (const item of list) {
+        const { id, routeName, title, permissions } = item;
+        nodes.set(id, { id, routeName, title, permissions, children: [] });
+    }
+
+    const roots: PermissionNode[] = [];
+    for (const item of list) {
+        const node = nodes.get(item.id);
+        if (!node) continue;
+
+        const parent = item.parentId === null ? undefined : nodes.get(item.parentId);
+        if (parent) {
+            (parent.children ??= []).push(node);
+        } else {
+            roots.push(node); // 找不到爸爸的，後端理論上不會給；這裡當成根節點，也可以選擇直接丟掉
+        }
+    }
+
+    return roots;
+}
+```
+
+難的不是組樹，是**排序和層級的商業規則**（誰排前面、哪些子層要攤平到同一層）。這些規則寫在後端的 SQL 裡，通常比寫在前端好維護。
+
+### 樹狀資料組麵包屑：DFS 找路徑
+
+「樹狀要怎麼組麵包屑？」其實就是一次深度優先搜尋，找到目標節點，沿路經過的節點就是麵包屑：
+
+```ts
+function findPath(nodes: PermissionNode[], routeName: string): PermissionNode[] {
+    for (const node of nodes) {
+        if (node.routeName === routeName) return [node];
+
+        const childPath = findPath(node.children ?? [], routeName);
+        if (childPath.length) return [node, ...childPath];
+    }
+    return [];
+}
+
+// findPath(tree, 'vendor-list-monthly').map(node => node.title)
+// → ['代理商列表', '月報表']
+```
+
+### 路由跟著權限表長出來
+
+前端只保留「`routeName` 對應哪個頁面元件」這張對照表，要不要加進路由，由權限表決定：
+
+```ts
+import type { PermissionNode } from './permission';
+import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+
+// 前端只知道「有哪些頁面」，不知道「誰能進」
+const pageLoaders = new Map([
+    ['vendor-list', () => import('@/pages/VendorListPage.vue')],
+    ['vendor-list-monthly', () => import('@/pages/VendorMonthlyPage.vue')]
+]);
+
+export const router = createRouter({
+    history: createWebHistory(),
+    routes: [
+        { path: '/login', name: 'login', component: () => import('@/pages/LoginPage.vue') },
+        { path: '/', name: 'layout', component: () => import('@/layouts/AdminLayout.vue') }
+    ]
+});
+
+export function addPermissionRoutes(nodes: PermissionNode[]) {
+    for (const node of nodes) {
+        const loader = pageLoaders.get(node.routeName);
+        if (loader) {
+            router.addRoute('layout', {
+                path: node.routeName,
+                name: node.routeName,
+                component: loader,
+                props: { permissions: node.permissions }, // 權限依賴由 props 注入頁面
+                meta: { title: node.title }
+            });
+        }
+        addPermissionRoutes(node.children ?? []);
+    }
+}
+
+router.beforeEach(async (to) => {
+    if (to.name === 'login') return true;
+
+    const auth = useAuthStore();
+    if (!auth.token) return { name: 'login', query: { redirect: to.fullPath } };
+
+    if (!auth.isRoutesReady) {
+        await auth.loadPermissions(); // 先讀 sessionStorage，沒有才打 API；拿到後呼叫 addPermissionRoutes
+        return to.fullPath; // 路由剛加進來，讓 router 重新解析一次
+    }
+
+    return true;
+});
+```
+
+頁面元件只看自己拿到的權限，不用去問 store：
+
+```vue
+<script setup lang="ts">
+    import type { Permission } from '@/features/auth';
+    import { computed } from 'vue';
+
+    const props = defineProps<{ permissions: Permission[] }>();
+
+    const canEdit = computed(() => props.permissions.includes('edit'));
+    const canDelete = computed(() => props.permissions.includes('del'));
+</script>
+
+<template>
+    <div class="vendor-list">
+        <button v-if="canEdit" class="vendor-list__btn">編輯</button>
+        <button v-if="canDelete" class="vendor-list__btn">刪除</button>
+    </div>
+</template>
+```
+
+### refresh token：同時好幾支 401，只換一次
+
+access token 過期時，常常是好幾支 API 一起回 401。重點是**只送一次 refresh**，其他請求排隊等新的 token：
+
+```ts
+import axios, { isAxiosError } from 'axios';
+import { useAuthStore } from '@/stores/auth';
+
+declare module 'axios' {
+    interface InternalAxiosRequestConfig {
+        _retried?: boolean;
+    }
+}
+
+export const http = axios.create({ baseURL: '/api' });
+
+let refreshing: Promise<string> | null = null;
+
+async function refreshAccessToken(): Promise<string> {
+    // refresh token 放在 httpOnly cookie，用另一個 axios 實例送，避免繞回自己的攔截器
+    const { data } = await axios.post<{ accessToken: string }>('/api/auth/refresh', null, { withCredentials: true });
+    useAuthStore().setToken(data.accessToken);
+    return data.accessToken;
+}
+
+http.interceptors.response.use(undefined, async (error: unknown) => {
+    if (!isAxiosError(error) || error.response?.status !== 401 || !error.config || error.config._retried) {
+        throw error;
+    }
+
+    const original = error.config;
+    original._retried = true; // 換過一次還是 401，就不要無限重試
+
+    refreshing ??= refreshAccessToken().finally(() => {
+        refreshing = null;
+    });
+
+    // refresh 也失敗（例如權限變更被撤銷），錯誤會往外丟，這時才請使用者重登
+    const token = await refreshing;
+    original.headers.Authorization = `Bearer ${token}`;
+    return http(original);
+});
+```
+
+## 結論
+
+選單與權限沒有標準答案，樹狀、平面兩派都有人用得很開心。真正要先想的是：**這個系統是自己用，還是要賣給客戶做成 SaaS？**
+
+自用的系統，用平面資料想怎麼組都沒問題，靈活性比較高，前後端講好就好；但要注意這種程式碼很容易重複，組件的狀態管理容易耦合，要集中管理還得再拉一支 middleware。
+大型、要賣的後台，我會選權限表為基礎、後端給樹、路由跟選單一起長、權限變了就重登，再用 refresh token 把「重登」的痛降到最低。
+
+這些心得，都是有人被雷過才換來的。下次後端大大問你「menu 要給樹狀還是平面」，先別急著回答，反問他：「那層級誰要整理？」~~通常這時候會議就會再多開半小時。~~

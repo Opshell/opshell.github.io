@@ -13,6 +13,10 @@ isPublished: false
 description: ''
 keywords: ''
 ---
+::: danger 標記：待補素材
+有 SVG 動畫 Banner、客製 Slide 演算法、RWD 衝突修正這幾個點，但缺技術棧、演算法在解什麼問題、衝突怎麼修，硬寫技術拆解就是編造。
+:::
+
 ## [允成建設(全端)](http://www.yun-cheng.com.tw/)
 
 ## Summary

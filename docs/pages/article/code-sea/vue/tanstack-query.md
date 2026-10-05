@@ -1,77 +1,159 @@
 ---
-title: tanstack query
+title: TanStack Query 是非同步狀態管理，不是 axios 的替代品
 image: ''
-description: ''
+description: 'axios 負責把請求送出去，TanStack Query 負責管理「這份伺服器資料現在是什麼狀態」。從 useQuery 不再有 onSuccess 講起，整理 useQuery 是同步機不是請求機、表單初始值怎麼接、樂觀更新與 queryOptions 封裝。'
 keywords: ''
 author: Opshell
 createdAt: '2025-07-24'
 categories:
-  - 未分類
+  - vue
 tags:
-  - null
+  - vue
+  - tanstack-query
+  - vue-query
+  - axios
+  - 狀態管理
 editLink: true
 isPublished: false
 ---
-#
+::: warning 草稿
+Claude 於 2026-10-05 補完：把群組討論與 AI 回答整理成全文，補上懶人包、脈絡、Vue 版範例與結論，並修正 v5 已改名或移除的 API。看過、改成自己的話之後刪掉這個區塊，發佈工具才會放行。
+:::
 
-TanStack Query 是非同步狀態管理
-axios 和 Tanstack Query 功能不衝突不重疊
+::: info 這篇的脈絡
+常見的情況是：專案已經是 `Vite` + `Vue 3.5` + `TypeScript` + `Pinia` + `axios`，聽說 `TanStack Query` 很香，第一個反應卻是「我都有 `axios` 了，為什麼還要再裝一個打 API 的東西？」接著真的用下去，又會撞到「`useQuery` 怎麼沒有 `onSuccess` 了」「表單初始值要怎麼塞」這種問題。
 
-Tanstack Query 是狀態管理
-axios 是 Http Fetcher
+這篇是群組裡一串討論的整理，寫給已經會用 `axios`、想知道 `TanStack Query` 到底在管什麼的人。姊妹篇 [伺服器狀態 vs 客戶端狀態](./store/論%20pinia%20vuex%20與%20vue-query) 講的是「那 `Pinia` 還要放什麼」，可以一起看。
+:::
 
-tanstack 控管的是發動查詢的時機和快取，異步行為都可以用它
-有類似在寫useasyncdata那種寫法
+## 懶人包
+- `axios` 是 Http Fetcher，`TanStack Query` 是-|非同步狀態管理|-，兩個不衝突、也不重疊，`axios` 照用，丟進 `queryFn` 就好。
+- `useQuery` 不是請求機，是-|同步機|-：你不該關心資料「什麼時候回來」，只關心它「同步到了沒」，所以 v5 把 `useQuery` 的 `onSuccess` 拿掉了。
+- 需要在「成功的那一刻」做事的，通常是寫入，那是 `useMutation` 的工作。
+- 表單的狀態不要依賴 query 的狀態：資料到之前先畫骨架，拿到資料再渲染表單，初始值就不會需要「更新」。
+- 不是每個專案都要上：資料要跨元件共用、要快取、要背景重抓、要樂觀更新，才值得付這個學習成本；封裝的單位也從「包一個 `useXxx`」改成 `queryOptions`。
 
-(useAsyncData 更新的越來越像了 useQuery 了)
+## 技術拆解
 
-Tanstack Query 其實用到很多高超技巧
-要花很多時間吸收理解
-懂了之後更能理解他節省了多少麻煩
+### 它管的是狀態，不是請求
+先把分工講清楚：
 
-不用太刻意練習沒關係，先弄懂它的useQuery再去看useMutation
+| | 負責什麼 |
+|---|---|
+| `axios`／`fetch` | 把 HTTP 請求送出去、把回應拿回來（Http Fetcher） |
+| `TanStack Query` | 什麼時候發查詢、結果快取多久、什麼時候算過期、載入中／錯誤這些狀態 |
 
-把他當成pipeline+狀態管理工具來看就會比較容易進入狀況
-google搜useQuery會出現 @Alex Liu 大大的文章，我有存起來XDD
+`TanStack Query` 控管的是-|發動查詢的時機和快取|-，只要是非同步行為都可以交給它，不一定是 HTTP。寫起來有點像 `Nuxt` 的 `useAsyncData`，而且 `useAsyncData` 這幾版更新下來，是越來越像 `useQuery` 了。
 
-// [-] -------------------------------------------------------
+如果要給它一個比較好入門的心智模型：把它當成 -|pipeline + 狀態管理工具|- 來看，就比較容易進入狀況。它用到很多高超的技巧，要花時間吸收，但懂了之後才會發現它幫你省了多少麻煩。不用太刻意練習，先把 `useQuery` 弄懂，再去看 `useMutation`。（Google 搜 `useQuery` 會看到 Alex Liu 大大的文章，我有存起來 XDD）
 
-引入 Tanstack Query (也稱為 React Query，但在 Vue 生態中通常稱為 Vue Query 或 Tanstack Query for Vue) 是一個值得考慮的選擇，特別是如果你專案中需要處理大量的非同步資料請求（如 API 呼叫）並希望簡化狀態管理和資料快取。以下是對 Tanstack Query 的解釋以及它是否適合你當前的技術棧 (Vite + Vue 3.5 + TypeScript + Pinia + Axios) 的分析。
+### 它幫你做掉了哪些事
+官方叫它跨框架的資料層，`Vue` 用的是 `@tanstack/vue-query`，跟 Composition API 整合得很好。核心功能大概是這些：
 
-Tanstack Query 是什麼？
-Tanstack Query 是一個強大的資料獲取與管理庫，主要用於處理非同步資料（如 API 請求）的獲取、快取、同步和更新。它並非專為某個框架設計，而是跨框架的資料層解決方案，支援 Vue、React、Svelte 等。對於 Vue，它提供了 @tanstack/vue-query 套件，與 Vue 3 的 Composition API 高度整合。
+- **快取**：同一個查詢不會重複打，可以設定多久算過期（`staleTime`）、多久沒人用就清掉（`gcTime`，v4 叫 `cacheTime`）。
+- **狀態**：`data`、`error`、`isPending`、`isFetching`、`isError` 直接給你，不用自己宣告一堆 `isLoading`。
+- **自動重抓**：視窗重新聚焦、網路重新連線時自動同步。
+- **Query Key**：用一組 key 唯一識別一份資料，快取、失效、預抓都靠它。
+- **Mutation**：修改資料（POST／PUT／DELETE），完成後可以讓相關查詢失效重抓。
+- **樂觀更新**：先改畫面，失敗再回滾。
+- **進階場景**：無限捲動（infinite queries）、依賴查詢（dependent queries）、Devtools。
+- **TypeScript**：查詢資料的型別可以靠泛型或 `queryFn` 的回傳推導出來。
 
-Tanstack Query 的核心功能包括：
+### 為什麼 useQuery 沒有 onSuccess 了
+這是最多人卡住的地方。v5 把 `useQuery` 的 `onSuccess`／`onError`／`onSettled` 拿掉了（討論在 [TanStack/query#5279](https://github.com/TanStack/query/discussions/5279)），理由是 -|UI 狀態與 API 狀態混在一起|- 一直被詬病。
 
-資料獲取與快取：
-自動管理 API 請求的快取，減少不必要的重複請求。
-提供快取過期、重新獲取（refetching）和背景資料同步的機制。
-狀態管理：
-提供即時的資料狀態（如 isLoading, isError, data, error），讓你輕鬆處理非同步狀態。
-無需手動管理 loading 或 error 狀態，減少樣板程式碼。
-自動重新獲取：
-支援在特定條件下自動重新獲取資料，例如視窗重新聚焦（refetch on window focus）或網路重新連線。
-查詢鍵（Query Keys）：
-使用查詢鍵來唯一識別每個 API 請求，方便快取管理和依賴更新。
-突變（Mutations）：
-除了查詢資料（GET 請求），也支援資料修改（POST/PUT/DELETE），並能自動觸發相關查詢的更新。
-樂觀更新（Optimistic Updates）：
-支援在資料更新前先更新 UI，失敗時自動回滾，提升使用者體驗。
-Devtools：
-提供開發者工具，方便除錯和監控查詢狀態。
-Tanstack Query 的優勢
-與 Vue 3 和 Pinia 的整合：
-Tanstack Query 與 Vue 3 的 Composition API 無縫整合，透過 @tanstack/vue-query 提供 reactive 的查詢結果，與 Vue 的響應式系統相容。
-它專注於伺服器端狀態管理，與 Pinia（專注於客戶端狀態）形成互補。Pinia 負責本地狀態（如表單資料、UI 狀態），而 Tanstack Query 負責 API 資料的獲取與快取。
-減少 Axios 的樣板程式碼：
-目前你使用 Axios 進行 API 請求，可能需要手動處理 loading、error 狀態，並自行實現快取邏輯。Tanstack Query 將這些功能封裝起來，減少重複程式碼。
-例如，原本的 Axios 請求可能需要這樣寫：
+群組裡幾種說法放在一起看就很清楚：
+
+- 會想要用 `useQuery` 去抓 `onSuccess`，代表還沒懂 `useQuery`。這也是 `TanStack` 難學的地方，它要大家突然轉換思維。
+- 把 `useQuery` 當成類似 `useEffect + fetch` 的組合，本來就不符合它的核心，他們認為這違反框架的響應式原則。
+- `useQuery` 和 `useMutation` 已經是再一層抽象，它不對應 HTTP Method。`useQuery` 很像 `Vue` 的響應式資料：定義好之後資料流會自動處理，資料自己會來，是很純粹的狀態機；`useMutation` 則是有副作用、要你主動呼叫才會執行的操作，所以才需要關注成功或失敗的當下。
+- `useQuery` 的功能是讓你跟某個資料源-|進行同步|-。因為是同步，所以你不關心什麼時候做完，只關心同步到了沒。你在回應上交雜邏輯的時候，就已經扭曲了「同步」這件事：`queryFn` 是一支 sync function，不是 get function。
+- 就像你用 store 的時候，不會沒事去監聽「`setStoreState` 這個函式有沒有人呼叫」，你只關心狀態有沒有改變。
+
+換句話說：
+
+- `queryKey` = 訂閱這個資料來源的聲明。
+- Query = 把 Server State 帶進來，只讀、負責快取同步。
+- Mutation = 修改 Server State。
+
+`useQuery` 看起來就像是：「我對這份資料有需求，但我要指定什麼時候抓、要不要抓，然後把結果推回來給我」。純讀取機，只在你給的條件成立時去重新訂閱。
+
+基本上，我覺得 `useQuery` 絕對不需要 `onSuccess`；你覺得需要，八成是心智模型錯了，這個非常抽象。~~（我自己就是被點醒的那個）~~
+
+### 用了它，還要 store 嗎
+這段討論的結論是：-|server state 交給 `TanStack Query` 之後，就不該再存一份到 store|-，不然等於把資料存到兩個 store。
+
+- 想對資料顆粒度做更細的控制？可以在 `queryFn` 裡面組，沒人規定一支 `queryFn` 只能有一個 API 來源。
+- 分清楚什麼是 client state、什麼是 server state，就不會有顆粒度的阻礙。client state 與 server state 都只該有一個 single source of truth。
+
+`Pinia` 還是有用，它負責的是本地狀態（表單輸入、UI 設定、登入後的 userInfo、WebSocket 連線這類），細節寫在 [伺服器狀態 vs 客戶端狀態](./store/論%20pinia%20vuex%20與%20vue-query)。
+
+### 樂觀更新是什麼
+「樂觀更新」其實是後端比較常用的詞，後端把資料庫當成狀態機，才會有這種說法。它就是為了即時更新 UI：先拿快取改好給你看，等 server 回應了再修正。代價是有資料不一致的風險，就像 Redis 咬著你一部分的狀態，你怎麼刷就是看不到入帳了沒。
+
+如果把整個前後端當成一個 observable system，所有「畫面顯示」表現的都是「資料庫狀態」，改變狀態就等於要先改資料庫：
+
+```txt
+Mutation => API => DB => Response => Query => State => UI
+```
+
+這是很標準的 Flux（單向資料流）。
+
+### 什麼時候才值得用
+有人會覺得「一般進入頁面 GET 資料、編輯欄位、送出更新，這種根本不需要 vue query」。比較保守的判斷標準是，有下面這些需求才用：
+
+1. 會被多個元件／頁面重複讀取，需要共享。
+2. 要考慮 `staleTime`、背景 refetch、視窗重新聚焦後打一次 API。
+3. retry／error 邏輯要統一。
+4. 離線／重新連線要自動恢復。
+5. 需要樂觀更新（`onMutate`／rollback）。
+
+但也有反方意見：其實不一定要共享才用 `useQuery`。使用者在兩個畫面切來切去，API 就瘋狂打打打，多浪費；`staleTime` 幫你管快取、減少請求次數，這個商業價值多高啊～～說它是 QPS 優化神器也不為過。
+
+它比 `AbortController` 好的地方在於：Abort 以後你在 Network 看到 status 是 canceled，但部分封包其實早就跑到後端去了；`TanStack Query` 則是在事件內直接取用快取，根本沒發出去。`useQuery` 連同元件掛載、卸載的生命週期都幫你想好了，手動打 API 還得自己 Abort。
+
+::: tip 小補充
+`TanStack Query` 預設不會幫你中斷已經發出去的請求。它會把 `signal` 傳進 `queryFn`，你把它接給 `axios`（`axios.get(url, { signal })`），元件卸載、沒人訂閱時才會真的取消。
+:::
+
+真要講缺點，就是-|概念太抽象，不好學|-。另外也要老實面對 AI 回答裡提到的幾個成本：
+
+- 學習曲線：查詢鍵、快取策略、突變這些概念，團隊要花時間熟悉。
+- 重構成本：專案已經有大量 `axios` 邏輯的話，要一支一支搬。好在 `axios` 可以直接當 `queryFn` 用，遷移成本可控。
+- 殺雞用牛刀：API 很單純、只有少量 GET 的話，短期內看不到收益。
+- 多一個依賴：體積不算大，但還是要維護。
+
+所以遇到使用上的問題，可以先排解一下：是不是真的有必要用到 vue query？
+
+### 怎麼降低導入門檻
+- **從最常被取用的資料下手**：例如 meta options、site config、進入後台以後一定要的那些資料，先掛在 vue query 上快取，小部分實作。
+- **用 `ts-rest` 逐步採用**：它的 client 同時提供普通 client（fetch）與 vue query，一般情況用普通 client，有效能需求的地方再換成 vue query，就不怕複雜度一下子太高。有一些網頁真的很單純，硬加 Vue Query 只會徒增團隊協作的困擾 XD
+- **以 `queryOptions` 為單位封裝**：下面細講。
+
+### 封裝：從包 useXxx 到 queryOptions
+以前很經典的做法是自己包一層 `useUserProfile()`，官方也曾經推薦過（[Cosden Solutions 的影片](https://www.youtube.com/watch?v=0NU9aCTLopo) 是 React 版的經典示範，用了 react-query 就不需要 zustand）。但-|封裝 `useQuery` 已經是舊做法|-，官方現在推薦以 [`queryOptions`](https://tanstack.com/query/v5/docs/framework/react/guides/query-options) 為單位來封裝。
+
+一開始我以為 `queryOptions` 只是個 type helper，但 type helper 只是順帶的好處，真正有價值的有兩個：
+
+1. **options 不是 hook／composable**，所以重用的邏輯就從框架中解耦了：可以在純 JS 裡拿 `queryClient` 做各種操作（操作特定 key group、prefetch），也可以在元件裡交給 `useQuery`、`useMutation`。
+2. **客製化變得很自由**：以往封裝 `useQuery`，想客製化某些規則（像 `enabled`）就要額外開參數傳進去；現在直接展開 options 再加客製化參數就好。
+
+這確實是有客製化需求時很好的做法，可以少很多樣板程式碼。不過我自己的偏好是：資料層封多一點，最好使用的人不用管 query 要改什麼參數。
+
+## 例子與對比
+
+### 從 axios 手刻到 useQuery
+手刻版，每支 API 都要自己顧三個狀態：
 
 ```ts
+const data = ref<Data>();
+const error = ref<unknown>();
+const isLoading = ref(false);
+
 async function fetchData() {
     try {
         isLoading.value = true;
-        const response = await axios.get('/api/data');
+        const response = await axios.get<Data>('/api/data');
         data.value = response.data;
     } catch (err) {
         error.value = err;
@@ -80,82 +162,37 @@ async function fetchData() {
     }
 }
 ```
-使用 Tanstack Query 後，簡化為：
+
+`useQuery` 版，`axios` 還在，只是被放進 `queryFn`：
 
 ```ts
 import { useQuery } from '@tanstack/vue-query';
-const { data, isLoading, error } = useQuery({
+
+const { data, isPending, error } = useQuery({
     queryKey: ['data'],
-    queryFn: () => axios.get('/api/data').then(res => res.data)
+    queryFn: () => axios.get<Data>('/api/data').then(res => res.data)
 });
 ```
-TypeScript 支援：
-Tanstack Query 對 TypeScript 有良好的支援，查詢鍵和資料類型可以透過泛型嚴格定義，與你當前的 TypeScript 技術棧契合。
-靈活性和擴展性：
-支援進階場景，如分頁查詢（infinite queries）、依賴查詢（dependent queries）、樂觀更新等，適合中大型專案。
-與 Vite 的快速開發體驗相容，無需額外配置。
-是否適合你的專案？
-根據你的技術棧 (Vite + Vue 3.5 + TypeScript + Pinia + Axios)，以下是引入 Tanstack Query 的考量：
 
-引入的理由
-簡化非同步邏輯：
-如果你的專案涉及大量 API 請求（特別是需要快取或頻繁更新的場景），Tanstack Query 可以大幅減少樣板程式碼，提升開發效率。
-例如，當使用者在不同頁面間切換時，Tanstack Query 可以自動從快取提供資料，無需重複請求。
-與 Pinia 的分工：
-Pinia 適合管理本地的應用狀態（如表單輸入、UI 設定），而 Tanstack Query 專注於伺服器端資料的獲取與同步。兩者可以很好地共存，互不衝突。
-例如，Pinia 管理表單資料，Tanstack Query 負責從後端獲取選項資料或提交表單。
-提升使用者體驗：
-Tanstack Query 的自動重新獲取和樂觀更新功能可以讓 UI 更流暢。例如，當使用者提交表單後，UI 可以立即反映更新，無需等待伺服器回應。
-TypeScript 友好：
-你的專案使用 TypeScript，而 Tanstack Query 提供強類型支援，確保查詢和突變的資料類型安全。
-潛在挑戰
-學習曲線：
-雖然 Tanstack Query 的 API 相對直觀，但需要一些時間熟悉其概念（如查詢鍵、快取策略、突變等）。
-如果團隊成員不熟悉，可能需要額外的學習成本。
-初期重構成本：
-如果你的專案已經有大量基於 Axios 的邏輯，遷移到 Tanstack Query 需要重構部分程式碼，尤其是 API 請求的處理方式。
-不過，由於你已經使用 Axios，Tanstack Query 可以直接與 Axios 整合，遷移成本相對可控。
-功能重疊：
-如果你的專案目前對 API 請求的需求較簡單（例如，僅有少量 GET 請求，無需複雜快取或自動更新），Tanstack Query 的強大功能可能顯得過於重量級，短期內收益可能不明顯。
-額外依賴：
-引入 @tanstack/vue-query 會增加專案的依賴，雖然它的 bundle 大小相對較小（約 20-30KB minified），但仍需考慮維護成本。
-建議
-評估專案需求：
-如果你的專案有以下需求，強烈建議引入 Tanstack Query：
-頻繁的 API 請求，需要快取以提升性能。
-複雜的非同步狀態管理（loading、error、data）。
-需要自動重新獲取資料（例如，當使用者重新聚焦視窗或資料過期時）。
-需要支援分頁查詢、樂觀更新或依賴查詢。
-如果目前 API 請求簡單，且 Pinia + Axios 已足夠應對，則可以暫緩引入，待需求增加時再考慮。
-逐步引入：
-可以先在專案的某個模組（例如，資料列表或表單）試用 Tanstack Query，評估其效果。
-例如，將某個 Axios 請求改為使用 useQuery，並觀察是否顯著減少程式碼量或提升性能。
-與現有技術棧整合：
-繼續使用 Axios 作為底層 HTTP 客戶端，將其傳入 Tanstack Query 的 queryFn。
-Pinia 負責本地狀態，Tanstack Query 負責伺服器端資料，保持清晰的分工。
-學習資源：
-參考官方文件：https://tanstack.com/query/latest/docs/framework/vue/overview
-學習查詢鍵、快取策略和突變的使用方式。
-使用 Tanstack Query Devtools 來除錯，方便監控查詢狀態。
-簡單範例
-假設你有一個 API 請求用於獲取用戶列表，原本使用 Axios 和 Pinia 的程式碼可能是：
+### 從 Pinia action 到 queryOptions
+以前很流行「拉 API 都進 store」：
 
 ```ts
-// store/users.ts
+// stores/user.ts（舊做法）
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
 export const useUserStore = defineStore('user', {
     state: () => ({
-        users: [],
+        users: [] as User[],
         isLoading: false,
-        error: null
+        error: null as unknown
     }),
     actions: {
         async fetchUsers() {
             this.isLoading = true;
             try {
-                const response = await axios.get('/api/users');
+                const response = await axios.get<User[]>('/api/users');
                 this.users = response.data;
             } catch (err) {
                 this.error = err;
@@ -166,375 +203,92 @@ export const useUserStore = defineStore('user', {
     }
 });
 ```
-改用 Tanstack Query 後：
+
+改用 `queryOptions`，store 裡就不用放這包 server state 了：
 
 ```ts
-// composables/useUsers.ts
-import { useQuery } from '@tanstack/vue-query';
+// queries/user.ts
+import { queryOptions } from '@tanstack/vue-query';
 import axios from 'axios';
 
-export function useUsers() {
-    return useQuery({
+export const userQueries = {
+    list: () => queryOptions({
         queryKey: ['users'],
-        queryFn: () => axios.get('/api/users').then(res => res.data)
-    });
-}
+        queryFn: ({ signal }) => axios.get<User[]>('/api/users', { signal }).then(res => res.data)
+    }),
+    profile: () => queryOptions({
+        queryKey: ['userProfile'],
+        queryFn: ({ signal }) => axios.get<User>('/user/profile', { signal }).then(res => res.data),
+        staleTime: 5 * 60 * 1000, // 5 分鐘內都算新鮮，不重抓
+        gcTime: 30 * 60 * 1000 // 30 分鐘沒人用就清掉快取（v4 叫 cacheTime）
+    })
+};
 ```
 
-```ts
-// 在組件中使用
-<script setup>
-import { useUsers } from '@/composables/useUsers';
+```vue
+<script setup lang="ts">
+    import { useQuery } from '@tanstack/vue-query';
+    import { userQueries } from '@/queries/user';
 
-const { data: users, isLoading, error } = useUsers();
+    const { data: users, isPending, error } = useQuery(userQueries.list());
 </script>
 
 <template>
-  <div>
-    <div v-if="isLoading">Loading...</div>
+    <div v-if="isPending">Loading...</div>
     <div v-else-if="error">{{ error.message }}</div>
     <ul v-else>
-      <li v-for="user in users" :key="user.id">{{ user.name }}</li>
+        <li v-for="user in users" :key="user.id">{{ user.name }}</li>
     </ul>
-  </div>
 </template>
 ```
-這種方式減少了手動管理狀態的程式碼，且自動提供快取和重新獲取功能。
 
-結論
-Tanstack Query 是一個強大的工具，特別適合需要高效管理非同步資料的專案。它與你的技術棧 (Vue 3.5 + TypeScript + Pinia + Axios) 高度相容，能顯著簡化 API 請求的處理並提升使用者體驗。如果你的專案有複雜的資料獲取需求（例如快取、分頁、樂觀更新），引入 Tanstack Query 是一個明智的選擇。建議從小規模試用開始，逐步遷移，並充分利用其 TypeScript 支援和 Devtools 來提升開發效率。
+要客製化就展開再加，例如只在登入後才抓：
 
-如果你有更具體的場景或問題（例如，某個特定的 API 請求場景），可以提供更多細節，我可以幫你設計更精確的整合方案！
-
-## 取得資料
-想問問一般怎麼塞給 vee validate 初始值從 useQuery 取得的資料？
-
-> 等資料取得後再重設表單值
-
-onSuccess?
-> mutation才是onSuccess
-> useQuery 要棄用 onSuccess 所以我才困擾
-> 他改用reactive effects
-
-所以是直接 setup 裡判斷 ！data?
-> 不是
-> computed
-> 你可以computed 或 watchEffect自動收集 (不推薦watchEffect 請參閱文章)
 ```ts
-const { data, isSuccess } = useQuery({
+const { data } = useQuery({
+    ...userQueries.profile(),
+    enabled: computed(() => isLoggedIn.value)
+});
+```
+
+在元件外面也能用同一份 options 預抓：
+
+```ts
+await queryClient.prefetchQuery(userQueries.list());
+```
+
+### 表單初始值：從 useQuery 拿資料給 VeeValidate
+問題是這樣：「一般怎麼把 `useQuery` 取得的資料塞給 `vee-validate` 當初始值？」第一個直覺是 `onSuccess`，但它在 `useQuery` 上已經被拿掉了，只剩 mutation 有。
+
+討論中出現過幾種做法，由差到好排：
+
+**1. `watchEffect` 或在 `select` 裡 `setValues`**：最直覺，也比較旁門。`select` 是拿來轉換資料格式的，在裡面改表單等於在同步機裡塞副作用。`watchEffect` 自動收集依賴，不推薦的原因是你很難一眼看出它到底在追誰。
+
+```ts
+const { data } = useQuery({
     queryKey: ['user'],
     queryFn: fetchUser
 });
 
-const formConfig = computed(() => {
-    if (isSuccess.value && data.value) {
-        return useForm({
-            initialValues: data.value
-        });
-    }
-    return null;
-});
-```
-> 也沒什麼好困惑，你還是得針對isSuccess給的狀態處理
-
-當然watchEffect相對簡單啦：
-```ts
-const { data } = useQuery({
-  queryKey: ['user'],
-  queryFn: fetchUser,
-  select: (data) => {
-    // 處理資料格式或etc...
-    return data
-  }
-})
-
-const { data, isSuccess } = useQuery({
-  queryKey: ['user'],
-  queryFn: fetchUser,
-  enabled: computed(() => someCondition.value)
-})
-
 watchEffect(() => {
-  if (data.value) {
-    setValues(data.value)
-  }
-})
-```
-
-我是有用一個比較可能旁門的做法是在 useQuery 的 select 去 setValue
-
-我是建議如果要重設表單值的話不要依賴那個 data 更新
-
-表單的重設最簡單的方式就是建立一包預設直的同樣結構資料覆蓋
-
-你可以 await queryClient.invalidQuery或 await queryClient.fetchQuery 再更新
-
-你依賴那個資料更新等於 你 api state 跟 ui state 是同步的 只有簡單的情境適用
-
-為什麼要棄用onSuccess?
-> https://github.com/TanStack/query/discussions/5279 ?
-> useQuery 不應該有 onSuccess
-
-UI 狀態與 API 狀態混在一起這點被詬病
-那我也要改成上下文以外的地方處理了
-看起來我需要把UI變化在業務邏輯層先處理完
-
-然而有時候商業邏輯需求
-=> [竹]
-會想要用 useQuery 去抓 onSuccess ， 代表沒有懂 useQuery
-
-=> [福]
-我記得有個說法
-useQuery 當作類似 useEffect + fetch 的組合本來就不符合他們的核心
-他們認為這違反框架的響應式原則
-
-=> [竹]
-沒錯，這也是 tanstack 難學的地方
-要大家突然轉換思維
-使用 useQuery 你就不該關心資料什麼時候回來
-你要回頭關心的是「狀態」
-useQuery 不是請求機，是同步機
-所以不關心什麼時候 onSuccess
-當你需要 onSuccess。你可能需要的是 useMutaion
-
-=> [福]
-useQuery看起來像是，我對這個請求的資料有需求，但我要指定什麼時候抓、要不要抓、以及把結果推回來
-queryKey = 訂閱這個資料來源的聲明
-他看著就是query純讀，mutation才是寫
-
-=> [竹]
-你用了 tanstack 就不需要 store
-等於你把資料存到兩個 store
-
-我想對資料顆粒度做更細微的控制
-> 所以用了 tanstack + store 但這樣等於把資料存到兩個 store(X)
-=> [竹]
-可以在 queryFn 做顆粒化，沒人規定一隻 queryFn 只有一個 api 來源
-=> [竹]
-基本上我覺得 useQuery 絕對不需要 onSuccess 你需要肯定是心智模型錯了，讓你誤以為需要 這非常抽象
-
-=> [Ethan 高傑]
-分清楚什麼client state/server state就應該不會有細微度的阻礙
-client state與server state都該只有一個single source of truth
-
-=> [鱈]
-我的理解是 useQuery 與 useMutation 已經是再一層抽象，他不對應 HTTP Method
-useQuery 和 Vue 的響應式資料很像，當你定義好後，資料流會自動處理，資料會自己來，就是很純粹的狀態機
-useMutation 就是各種有副作用的被動操作，就像 Method 那樣需要主動呼叫才會執行，所以才需要關注成功或失敗的當下
-
-=> [竹]
-useQuery 的功能是讓你跟某個目標的資料源進行資料同步
-因為是同步，所以不關心什麼時候做完同步，你只關心他同步到了沒。
-所以你需要交雜一些邏輯在回應上時，你就已經扭曲「同步這件事」，因為 queryFn 是一個 sync function，不是 get function
-useQuery 是狀態機，不是請求用的方法。
-就像你使用 store 不會去沒事監聽「setStoreState」這個 function 有沒有人去使用，你只關心他的狀態有沒有改變。
-
-=> [福]
-```ts
-import { computed, reactive, Ref } from 'vue';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-
-type User = { id: string; name: string; email: string; role: number };
-type UpdateUser = Partial<Pick<User, 'name' | 'email' | 'role'>> & { id: string };
-
-const qc = useQueryClient();
-
-// server state 訂閱
-const userQuery = useQuery<User>({
-  queryKey: computed(() => ['user', userId.value]),
-  queryFn: () => api.user.get(userId.value!), // enabled = true 時執行
-  enabled: computed(() => !!userId.value),
-  // select 需要讓給 form 的輸位 / 型別
-  select: (userData) => ({ ...userData }),
-  staleTime: 5 * 60 * 1000,
-});
-
-// 表單
-const form = reactive<UpdateUser>({
-  id: '',
-  name: '',
-  email: '',
-  role: 0,
-});
-
-// update事件更新
-const updateUser = useMutation<User, unknown, UpdateUser>({
-  mutationKey: ['updateUser'],
-  mutationFn: (payload) => api.user.update(payload),
-
-  onMutate: async (payload) => {
-    await qc.cancelQueries({ queryKey: ['user', payload.id] });
-    const prev = qc.getQueryData<User>(['user', payload.id]);
-
-    // 把快取 patch UI 馬上更新
-    qc.setQueryData<User>(['user', payload.id], (old) =>
-      old ? { ...old, ...payload } as User : (payload as unknown as User)
-    );
-
-    // 回傳 context 給下面的 err fallback
-    return { prev };
-  },
-
-  onError: (_err, vars, ctx) => {
-    if (ctx?.prev) {
-      qc.setQueryData(['user', vars.id], ctx.prev); // fallback
+    if (data.value) {
+        setValues(data.value);
     }
-  },
-
-  onSuccess: (updated) => {
-    // 以最終狀態覆蓋快取避免資料與實際不一致
-    qc.setQueryData(['user', updated.id], updated);
-    // 若有依賴此user資料的查詢，一起失效重抓
-    qc.invalidateQueries({ queryKey: ['users'] });
-  },
-
-  onSettled: (_res, _err, vars) => {
-    qc.invalidateQueries({ queryKey: ['user', vars.id] });
-  },
-});
-
-const submit = () => updateUser.mutate(form);
-const submitAsync = () => updateUser.mutateAsync(form);
-```
-Query = 把 Server State 帶進來，只讀和快取同步
-Mutation = 修改 Server State
-所以表單的狀態其實不應該依賴query狀態是這意思嗎?
-=> [竹]
-對啊，這就是精華ＸＤ
-
-=> [福]
-我會看他API回來的某個值決定要不要保護特定欄位
-這樣的話我最好拉到mutation或者以外的地方去處理UI
-結論就是把useQuery看成單純的讀取機
-他只在你提供的特定條件才去重取訂閱
-同一份資料要在不同路由間共享，或者一個頁面有不同tabs對欄位做設定那種情況才去用比較好
-一般進入頁面取回GET資料，然後編輯欄位更新送出，這種根本不需要vue query
-
-1. 會被多個元件/頁面做重複讀取，需要共享
-2. 考慮staleTime / 背景 refetch / 視窗重新聚焦後打一次API
-3. retry / error 邏輯統一
-4. 離線/重新連線自動恢復
-5. 樂觀更新（onMutate/rollback）機制
-有這些需要的話才用
-
-=> [竹]
-另外，大家得到的 useQuery 回傳的那個物件不要拿去傳 props
-更不要去解構它
-{ ...query }
-
-精確地去取得並使用它
-他會正確的去響應更新你的 component
-
-舉例
-A 元件只有使用 data
-B 元件只有使用 isLoading
-C 元件只有使用 isPending
-當使用了一個 queryKey 為 getUser 的 useQuery
-
-當你初始化後，資料回來，A,B,C 都會響應
-接著你在 B 元件呼叫 refetch
-當發出請求時，只有 C 元件會響應更新
-回來的資料如果有變化，A, C 元件響應更新
-回來的資料如果沒變化，只有 C 元件響應更新
-
-所以 useQuery 會根據你使用的情況去觸發元件響應的
-
-=> [福]
-`樂觀更新`
-後端比較常用這詞彙
-後端把資料庫當作狀態機
-那就會有 「樂觀更新」這種詞彙出現
-
-這種狀態管理會有資料不一致的風險
-他就是為了即時更新UI
-先把快取拿來給你顯示server那邊回應了以後再去修正
-這就是樂觀更新
-
-跟redis咬著你部分狀態一樣，你怎麼刷就是看不到入帳了沒
-
-=> [竹]
-如果把整個前後端都當作一個 observable system
-那所有的「畫面顯示」表現的是「資料庫狀態」
-改變狀態等於你要先去修改資料庫
-所以
-Mutaion => API => DB => Response => Query => State => UI
-
-這是一個很標準的 Flux (單向資料流)
-
-總的說，會遇到使用上的問題可能要先排解一下是不是有必要用到vue query
-
-=> [竹]
-其實不一定要共享才去用 useQuery
-你使用者會在那兩個地方切來切去，API 就瘋狂打打打，多浪費。
-useQuery staleTime 幫你管理快取，減少請求次數。這個商業價值多高啊～～
-=> [福]
-ＱＰＳ優化 神器
-他比Abort Controller好的地方就在於，Abort以後你看到http status雖然是canceled
-但部分封包其實早就跑到後端去了
-這個tanstack是直接在事件內就取用快取
-
-=> [竹]
-useQuery 連同 onMount, onUnmount 的生命週期他都幫你想好了，根本不需要 Abort
-手動打你還要手動 Abort
-真要講 useQuery 缺點就是概念太抽象了...
-不好學
-
-=> [福]
-我在思考怎麼降低門檻，但我自己的舊寫法都是依賴query那個壞習慣
-所以我打算從最常被取用的meta options、site config下手
-小部分實作
-進入後台以後必要的那些資料先掛在vue query上快取
-
-=> [鱈]
-ts-rest 的 client 同時提供普通的 client(fetch) 與 vue query，一般情況用普通 client 即可，有需要性能改進的部分再替換成 vue query，逐步採用就不怕複雜度過高了
-ts-rest 讚讚
-=> [福]
-```ts
-import { initClient } from '@ts-rest/core';
-import { initQueryClient } from '@ts-rest/vue-query';
-import { userContract } from '@/contracts/user';
-
-export const api = initClient(userContract, {
-    baseUrl: '/api',
-    baseHeaders: {}
-});
-
-export const apiQ = initQueryClient(userContract, {
-    baseUrl: '/api',
-    baseHeaders: {}
 });
 ```
-initQueryClient本身就是了
-=> [鱈]
-就算你是用 initQueryClient，也有 query 與 useQuery 可以用，query 就是一般的 client
-我覺得 ts-rest 這個設計滿不錯的，因為有一些網頁真的就很單純，加上 Vue Query 真的很不必要，徒增團隊協作的困擾 XD
 
-=> [竹]
-https://www.youtube.com/watch?v=0NU9aCTLopo&ab_channel=CosdenSolutions
-這是很經典的封裝方式
-用了 react-query 就不需要 zustand
-封裝 useQuery是舊的做法，官方也不推薦了
-雖然曾經官方推薦過就是了:p
-最新的作法就是以 queryOption 為單位來封裝
+**2. 依 `isSuccess` 用 `computed` 處理**：也沒什麼好困惑的，你還是得針對 `isSuccess` 給的狀態處理。但注意 `useForm` 是 composable，要在 `setup` 同步呼叫，不能放進 `computed` 裡面建。
 
-## 亂世將至
+**3. 不要讓表單去追 data 的更新**：-|表單的狀態不應該依賴 query 的狀態|-。你依賴那個資料更新，等於 API state 跟 UI state 是同步的，只有簡單情境適用。要重設表單，最簡單的方式是準備一包同樣結構的預設值整包覆蓋；需要最新資料時，`await queryClient.invalidateQueries(...)` 或 `await queryClient.fetchQuery(...)` 之後再更新。
 
-請先蛋雕你以前打 API 的邏輯
-該做的就得做
-雖然看起來對我們目前來講直接拿ts-rest內建的query可以搞定
-但有些牽涉到keep狀態，同一隻API硬要設計四個不同tab畫面
-這時候就得處理
+**4. 拆元件：資料到之前不渲染表單**：這是最乾淨的。拿到 query 資料之前先把子表單渲染成 skeleton，拿到資料才真正渲染，這時子表單一出生就有初始值，不用在 `onSuccess` 或 `useEffect` 裡再去操作一次。
 
-=> [竹]
-如果是 useQuery 那我的做法比較輕像是在取得資料之前，把 ChidlForm 渲染成 skelton，拿到 query 資料，才去真正渲染 ChildForm ，這時 ChildForm 就有初始直可以渲染，而不是在 onSuccess 或 useEffect 再去操作一次 ChildForm 的 init values
-這裡有一個坑
-就是很多人想要去更新 initValue
-但既然是 initValue 就不應該改變
-所以邏輯是，資料拿到前不應該渲染畫面，或是用 key 強迫重新掛載/
+這裡有一個坑：很多人想要去「更新」initValue，但既然叫 initValue，就不應該改變。所以邏輯是-|資料拿到前不應該渲染畫面，或是用 `key` 強迫重新掛載|-。比較多問題其實是大家習慣一個元件裡同時做完 form 跟 `useQuery`，拆開之後會單純很多。
 
-我覺得比較多問題是，大家習慣直接一個元件做完 form 跟 useQuery ，但其實拆開之後會比較單純
-// BadForm.jsx
+討論時用的是 React 範例：
+
 ```jsx
+// BadForm.jsx：在元件內部用 useEffect 處理初始化，耦合性高
 import React, { useEffect } from 'react';
 
 function BadForm() {
@@ -557,8 +311,9 @@ function BadForm() {
 
 export default BadForm;
 ```
-// GoodForm.jsx
+
 ```jsx
+// GoodForm.jsx：表單與資料解耦，父層傳 initData 與 onSubmit，好維護也好測試
 function SkeletonForm() {
     return 'skeleton form';
 }
@@ -586,22 +341,142 @@ function FormWithQuery() {
 
 export default FormWithQuery;
 ```
-這裡展示了兩種常見表單處理方式的差異：
-BadForm: 直接在元件內部 useEffect 處理初始化邏輯，耦合性高。
-GoodForm: 將表單與資料解耦，透過父層傳遞 initData 與 onSubmit，更容易維護與測試。
-如需幫你改寫 BadForm 成類似 GoodForm 的寫法，也可以告訴我
 
-https://tanstack.com/query/v5/docs/framework/react/guides/query-options
-看起來 queryOptions 是比較偏向 type helper 的功能
-> type helper 只是順帶的好處
+換成 `Vue` 是同一個道理：
 
-> 我個人覺得特別有價值的有兩個部分
-> options 不是 hook、composable，所以復用的邏輯就從框架中解耦，可以在 vanillaJS 用 queryClient進行各種操作（像操作特定 key group，或是prefetch），也可以在框架中透過 useQuery、useMutation使用
+```vue
+<!-- UserFormWithQuery.vue -->
+<script setup lang="ts">
+    import { useQuery } from '@tanstack/vue-query';
+    import { userQueries } from '@/queries/user';
+    import UserForm from './UserForm.vue';
+    import UserFormSkeleton from './UserFormSkeleton.vue';
 
-> 另外以往對於 useQuery 的封裝，你想客製化某些規則（像是enable、onsucsess)，你就要額外寫 params 傳進去
-> 現在直接解構options再添加客製化參數就可以了，自由度拉伸很多
+    const { data: user } = useQuery(userQueries.profile());
+    const { mutate: updateUser } = useUpdateUser();
+</script>
 
-> 還有其他的礙於篇幅就不提
+<template>
+    <UserFormSkeleton v-if="!user" />
+    <UserForm v-else :key="user.id" :init-data="user" @submit="updateUser" />
+</template>
+```
 
-> btw useQuery沒有onsuccess了，隨意成別的參數，我只是隨意舉例，意思到就好
-確實是在有客製化參數需求時，滿好的做法，可以少很多樣板代碼，但我希望可以不要客製化（Ｘ，資料層封多點，最好不要管 query 要改什麼參數
+```vue
+<!-- UserForm.vue：只管表單，一出生就有初始值 -->
+<script setup lang="ts">
+    import { useForm } from 'vee-validate';
+
+    const props = defineProps<{ initData: User }>();
+    const emit = defineEmits<{ submit: [payload: User] }>();
+
+    const { handleSubmit } = useForm<User>({ initialValues: props.initData });
+    const onSubmit = handleSubmit(values => emit('submit', values));
+</script>
+```
+
+至於「我會看 API 回來的某個值決定要不要保護特定欄位」這種需求，就拉到 mutation 或 query 以外的地方處理 UI，把 UI 變化在業務邏輯層先處理完，不要塞回 `useQuery` 的上下文裡。
+
+### 樂觀更新完整範例
+這段是討論裡貼的範例，整理成 `<script setup>` 版本，並補上 context 的型別（`useMutation` 第四個泛型），不然 `ctx?.prev` 在 TypeScript 會是 `unknown`：
+
+```vue
+<script setup lang="ts">
+    import { computed, reactive, toRef } from 'vue';
+    import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
+
+    type User = { id: string; name: string; email: string; role: number };
+    type UpdateUser = Partial<Pick<User, 'name' | 'email' | 'role'>> & { id: string };
+
+    const props = defineProps<{ userId: string }>();
+    const qc = useQueryClient();
+    const userId = toRef(props, 'userId');
+
+    // server state 訂閱：只讀、負責同步
+    const userQuery = useQuery({
+        queryKey: ['user', userId], // key 裡放 ref，id 變了就自動換一份資料
+        queryFn: () => api.user.get(userId.value),
+        enabled: computed(() => !!userId.value),
+        staleTime: 5 * 60 * 1000
+    });
+
+    // 表單：自己的 client state，不去追 userQuery.data
+    const form = reactive<UpdateUser>({ id: '', name: '', email: '', role: 0 });
+
+    const updateUser = useMutation<User, Error, UpdateUser, { prev?: User }>({
+        mutationKey: ['updateUser'],
+        mutationFn: payload => api.user.update(payload),
+
+        onMutate: async (payload) => {
+            await qc.cancelQueries({ queryKey: ['user', payload.id] });
+            const prev = qc.getQueryData<User>(['user', payload.id]);
+
+            // 先 patch 快取，UI 馬上更新
+            qc.setQueryData<User>(['user', payload.id], old => (old ? { ...old, ...payload } : old));
+
+            // 回傳 context 給 onError 回滾用
+            return { prev };
+        },
+
+        onError: (_err, vars, ctx) => {
+            if (ctx?.prev) {
+                qc.setQueryData(['user', vars.id], ctx.prev); // 回滾
+            }
+        },
+
+        onSuccess: (updated) => {
+            // 以最終狀態覆蓋快取，避免跟實際資料不一致
+            qc.setQueryData(['user', updated.id], updated);
+            // 依賴這份 user 的列表一起失效重抓
+            qc.invalidateQueries({ queryKey: ['users'] });
+        },
+
+        onSettled: (_res, _err, vars) => {
+            qc.invalidateQueries({ queryKey: ['user', vars.id] });
+        }
+    });
+
+    const submit = () => updateUser.mutate(form);
+    const submitAsync = () => updateUser.mutateAsync(form);
+</script>
+```
+
+看到沒，`onSuccess` 還在，只是活在 `useMutation` 身上，因為「寫入成功的那一刻」才是真的需要你做事的時間點。
+
+### 不要把整包 query 物件丟來丟去
+另一個建議：`useQuery` 回傳的那個物件，不要整包拿去傳 props，要精確地取用你需要的欄位，它才會精準地觸發元件更新。
+
+舉例，三個元件都用同一個 `['user']` 的查詢：A 只用 `data`、B 只用 `isPending`、C 只用 `isFetching`。
+
+- 初始化、資料回來：A、B、C 都會更新。
+- 在 B 呼叫 `refetch`，請求發出去時：只有 C 更新（背景重抓，`isPending` 不會變回 true）。
+- 回來的資料有變化：A、C 更新；沒變化：只有 C 更新。
+
+::: tip Vue 的版本
+原本討論裡的例子 C 用的是 `isPending`，但在 v5 裡 `isPending` 的意思是「還沒有任何資料」，背景重抓時變的是 `isFetching`，所以這裡改成 `isFetching`。另外在 `@tanstack/vue-query` 裡解構出來的每個欄位都是 ref，`const { data, isPending } = useQuery(...)` 是官方範例的寫法，沒問題；要避免的是把它們 `.value` 拆成普通值再傳出去，或整包物件塞進 props，這樣誰動到什麼就看不清楚了。
+:::
+
+### ts-rest：普通 client 與 query client 並存
+
+```ts
+import { initClient } from '@ts-rest/core';
+import { initQueryClient } from '@ts-rest/vue-query';
+import { userContract } from '@/contracts/user';
+
+export const api = initClient(userContract, {
+    baseUrl: '/api',
+    baseHeaders: {}
+});
+
+export const apiQ = initQueryClient(userContract, {
+    baseUrl: '/api',
+    baseHeaders: {}
+});
+```
+
+就算用的是 `initQueryClient`，上面也同時有 `query`（一般 client）和 `useQuery` 可以用，單純的頁面就用一般的，不用為了一致而硬上。
+
+## 結論
+亂世將至，請先忘掉你以前打 API 的邏輯，該做的還是得做。很多情況直接拿 `ts-rest` 內建的 query 就搞定，但只要牽涉到要 keep 狀態、同一支 API 硬要撐四個不同 tab 畫面，就得好好處理。
+
+最後收一句：`axios` 是送信的郵差，`TanStack Query` 是幫你管信箱的管理員，你不會因為請了管理員就把郵差開除。~~（但你會發現自己再也不用每天站在信箱前面等信。）~~

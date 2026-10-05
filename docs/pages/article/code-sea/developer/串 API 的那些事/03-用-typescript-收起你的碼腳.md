@@ -15,6 +15,10 @@ tags:
 editLink: true
 isPublished: false
 ---
+::: warning 草稿
+Claude 於 2026-10-05 補完：只加了懶人包，內文與原本的總結都沒動。看過、改成自己的話之後刪掉這個區塊，發佈工具才會放行。
+:::
+
 ::: info 系列：串 API 的那些事
 這個系列從群組裡一段別人貼出來的 axios 封裝開始，一路改到型別安全，每一篇都在收拾上一篇留下的問題。
 1. [Axios 封裝，從「能用」到「好用」](./01-axios-封裝-從能用到好用)
@@ -24,6 +28,13 @@ isPublished: false
 
 **這篇的脈絡**：前兩篇把封裝改好用、名字取清楚了，這篇處理剩下的型別漏洞。前半是我當時卡住的程式碼，後半是怎麼用函式重載收緊它。
 :::
+
+## 懶人包
+- `data: I = [] as I` 是假的預設值：POST 忘了傳 body，後端就會收到一個空陣列。
+- `axios<iResult>(config)` 假設回傳永遠是 JSON，但 `responseType: 'blob'` 時根本不是。
+- 用函式重載把 GET／DELETE（不帶 body）跟 POST／PUT／PATCH（一定要帶 body）分成兩組簽名，傳錯編輯器當場報錯。
+- 先依 `responseType` 分支、再做斷言，blob 跟 json 兩種回傳才能在型別上和平共存。
+- 檔案下載要讀 header 拿檔名，做成同一支 composable 裡的 `downloadFile`，不要為了它改壞 `sendRequest` 的回傳格式。
 
 
 ## 起點：想用 unknown 收束 any

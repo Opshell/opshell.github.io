@@ -10,6 +10,10 @@ tags:
 editLink: true
 isPublished: false
 ---
+::: danger 標記：待補素材
+只有 Google 登入與 Google Calendar API 的參考連結清單，缺 Flowmodoro 實際怎麼串、踩了什麼坑；另外第一個連結（舊版 Google Sign-In JavaScript 用戶端）已被 Google Identity Services 取代，寫的時候要以官方文件為準。
+:::
+
 [Google 登入 JavaScript 用戶端參考資料](https://developers.google.com/identity/sign-in/web/reference?hl=zh-tw)
 [Google Calendar API](https://developers.google.com/calendar/api/v3/reference?hl=zh-tw)
 

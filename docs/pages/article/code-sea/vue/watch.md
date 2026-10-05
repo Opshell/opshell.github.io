@@ -1,22 +1,57 @@
 ---
-title: watch
+title: Vue 3 的 watch：新舊值為什麼一模一樣？
 image: ''
-description: ''
+description: 'watch 一個物件，callback 拿到的 newValue 和 oldValue 卻永遠相等？從 ref、reactive、getter 三種來源講 watch 到底在看什麼，再整理出 deep、getter、手動複製三種解法與它們的代價。'
 keywords: ''
 author: Opshell
 createdAt: '2024-09-10'
 categories:
+  - vue
 tags:
+  - vue
+  - watch
+  - 響應式
 editLink: true
 isPublished: false
 ---
-總之待會我會考Vue3的底層
+::: warning 草稿
+Claude 於 2026-10-05 補完：把原本的上課筆記整理成全文，「watch 物件時新舊值為什麼一樣」獨立成一段講清楚，順手修正了原本貼上的解釋裡「watch 預設一律淺層」的說法（`reactive` 來源其實是隱式 deep）。原本筆記開頭的面試題清單收在文末。看過、改成自己的話之後刪掉這個區塊，發佈工具才會放行。
+:::
 
-其實上禮拜開始我們都有探討過
-大致上如果你是資深開發者，必須要知道Watch、WatchEffect、computed、以及響應式底層
+::: info 這篇的脈絡
+`watch`、`watchEffect`、`computed` 加上響應式的底層，大致上是資深 Vue 開發者一定要能講清楚的東西。這篇從一個很常見的卡關開始：資料明明變了，`watch` 卻沒反應；或者有反應了，callback 裡的新值和舊值卻一模一樣。寫給已經會用 `watch`、但還沒想過「它到底在看什麼」的人。
+:::
 
-Watch、WatchEffect
-底層響應邏輯?
+## 懶人包
+
+- `watch` 看的是「來源」：`ref` 只看 `.value` 有沒有被換掉，`reactive` 物件會隱式 deep，getter 只看回傳值有沒有變。
+- 改物件裡面的屬性（mutate）不會產生新物件，所以 `newValue` 和 `oldValue` 指向同一個 Proxy，-|印出來永遠一樣|-，加 `deep: true` 也一樣。
+- 想要正確的新舊值，就盯「值」不要盯「箱子」：用 getter 監聽單一欄位；真的要整包舊值，才在 getter 裡自己複製一份。
+- `deep` 和整包複製都是要付錢的，大物件一直深層走訪，記憶體跟 CPU 都會很有感。
+
+## 技術拆解
+
+### 先搞懂：watch 到底在看什麼
+
+`watch` 的第一個參數叫「來源」，同樣是「一包物件」，用不同方式傳進去，行為差很多：
+
+| 來源 | 什麼時候觸發 | callback 的新舊值 |
+|---|---|---|
+| `ref(物件)` | 只有 `.value` 整個被換掉 | 換掉時是兩個不同物件 |
+| `ref(物件)` + `deep: true` | 裡面任何屬性變動 | 屬性變動時是**同一個**物件 |
+| `reactive(物件)` | 裡面任何屬性變動（隱式 deep） | **同一個**物件 |
+| `() => obj.name`（回傳基本型別） | 那個值變了 | 正確的新值與舊值 |
+| `() => obj.nested`（回傳物件） | 只有 `nested` 被換掉 | 換掉時是兩個不同物件 |
+
+打個比方，`watch` 是在顧一個箱子：`ref` 的預設是「箱子有沒有被換掉」，不管裡面的東西；`reactive` 和 `deep` 是「箱子裡有東西動了就叫我」；getter 則是「我只盯箱子裡的這一樣東西」。
+
+::: tip
+Vue 3.5 之後 `deep` 也可以給數字，例如 `deep: 1` 只往下看一層，不用為了一個淺層屬性把整棵樹走完。
+:::
+
+### 情境：ref 包的資料，watch 為什麼沒反應？
+
+假設 API 回來的資料長這樣，要把 `diseases` 轉成純陣列給 `el-select` 用：
 
 ```json
 "data" : {
@@ -32,6 +67,8 @@ Watch、WatchEffect
     },
 }
 ```
+
+當時試了三種寫法：
 
 ```ts
 // 轉成純 Array 給 el-select 用
@@ -52,17 +89,46 @@ watchEffect(() => {
 });
 ```
 
-computed 會響應  但是在後續的操作會有問題所以只能考慮 watch 和 watchEffect
+`computed` 會響應，但在後續的操作會有問題，所以只能考慮 `watch` 和 `watchEffect`。（`computed` 預設是唯讀的，`el-select` 的 `v-model` 要寫回去就卡住了。）
 
-這個情境下 為什麼  watch 不會響應
+那問題來了：這個情境下，為什麼 `watch` 不會響應，`watchEffect` 卻可以正常運作？
 
-watchEffect 卻可以正常操作呢?
+答案就在上面那張表。`tempData` 是個 `ref`，`watch(tempData, ...)` 只在 `tempData.value` 整個被換掉時觸發；如果後續只是改了 `tempData.value.diseases` 裡面的東西，箱子沒換，`watch` 當然不會叫。
+
+`watchEffect` 不一樣，它會把執行過程中「讀到的每一個響應式屬性」都收集成依賴：`tempData.value`、`.diseases`、每一筆的 `.disease` 都讀了，所以裡面任何一個變動都會重跑。
 
 `後來用watch deep / watchEffect 來處理...`
 
-watchEffect：
-不用指定目標，可以自行收集依賴的 watch，只是因為很容易發生來源不明的問題，所以實務上真的滿少用
-沒有 return 而且可能會有副作用的 computed
+::: warning
+注意這份資料的 `diseases` 其實是「用 id 當 key 的物件」，不是陣列，物件沒有 `.map()`。真的要轉陣列記得先 `Object.values(tempData.value.diseases)`。
+:::
+
+### 重點：watch 物件時新舊值為什麼一樣？
+
+這個坑在表單特別常見。用 `VeeValidate` 的 `useForm` 拿到的 `values`、或自己用 `reactive` 包的表單，丟進 `watch` 之後，callback 裡印出來的 `newValue` 和 `oldValue` 永遠一樣。這不是 `VeeValidate` 或 `Zod` 的 bug，是 Vue 響應式系統處理物件的方式。
+
+拆開來看就三件事：
+
+1. `reactive` 回傳的是一個 **Proxy**。你在表單裡改一個欄位，是在**改這個 Proxy 的屬性**（mutate），不是生出一個新物件。
+2. `watch` 監聽 `reactive` 物件時是隱式 deep，所以屬性一動就會觸發，這部分沒問題。
+3. 但觸發時 Vue 手上只有一個物件：改之前是它，改之後還是它。`newValue` 和 `oldValue` 拿到的是**同一個參考**，-|它沒有幫你拍一張「改之前」的快照|-。
+
+所以你印出來看到「兩個都是新值」，`newValue === oldValue` 是 `true`。`deep: true` 的作用只是「裡面有變就叫我」，不是「幫我留一份舊的」。~~(箱子裡的東西被換了，你問箱子之前長怎樣，箱子也只能給你看現在的樣子。)~~
+
+### deep 的代價：記憶體與效能
+
+`watch` 如果一直把整包資料丟進去監聽，會發生很可怕的記憶體消耗。
+
+deep 監聽每次都要把整棵物件樹走一遍來收集依賴；表單欄位一多、或者資料是一大包 API 回應，每打一個字就走一次。再加上很多人為了拿舊值會在 callback 裡 `cloneDeep`，就變成每打一個字複製一整包，資料量大的頁面一下就感覺得出來。
+
+能用 getter 盯單一欄位就不要盯整包，真的要 deep 就考慮用數字限制深度。
+
+參考資料：https://codlin.me/blog-vue/hang-tight-for-a-sec-before-you-start-watch
+
+### 順便：watchEffect
+
+`watchEffect`：不用指定目標，可以自行收集依賴的 watch，只是因為很容易發生來源不明的問題，所以實務上真的滿少用。可以把它想成「沒有 return、而且可能有副作用的 `computed`」。
+
 ```ts
 const count = ref(0); // 響應式狀態
 const anotherCount = ref(5); // 另一個響應式狀態
@@ -72,113 +138,102 @@ watchEffect(() => {
 });
 ```
 
-像這例子就只會抓count.value的變化而不會把anotherCount當作監聽對象
+像這個例子就只會抓 `count.value` 的變化，而不會把 `anotherCount` 當作監聽對象。為什麼我不愛用它，另外寫在 `watchEffect` 那篇。
+
+## 例子與對比
+
+同一個表單，三種需求，三種寫法。以下用 `reactive` 示範，`VeeValidate` 的 `useForm()` 回傳的 `values` 也是響應式物件，行為一樣（schema 怎麼接 `Zod` 以官方文件為準）。
+
+```ts
+import { reactive, watch } from 'vue';
+
+const form = reactive({
+    name: '',
+    email: ''
+});
+// 用 VeeValidate 的話：const { values } = useForm({ validationSchema });
+```
+
+### 做法一：只要知道「有變」
+
+```ts
+watch(form, (newValue, oldValue) => {
+    console.log('表單值已變更:', newValue);
+    console.log('新舊值是否相同:', newValue === oldValue); // true
+});
+```
+
+`reactive` 本來就是隱式 deep，不用另外寫 `deep: true`（如果來源是 `ref` 包的物件才需要）。適合「有動就自動暫存草稿」這種不在乎舊值的情境。
+
+### 做法二：只盯特定欄位（最推薦）
+
+```ts
+watch(
+    () => form.name,
+    (newName, oldName) => {
+        console.log(`姓名從 "${oldName}" 變更為 "${newName}"`);
+    }
+);
+
+// 要盯好幾個欄位，可以給陣列
+watch(
+    [() => form.name, () => form.email],
+    ([newName, newEmail], [oldName, oldEmail]) => {
+        console.log(oldName, '→', newName, oldEmail, '→', newEmail);
+    }
+);
+```
+
+getter 回傳的是字串，字串是值不是參考，新舊值自然就對了，而且只有這個欄位變才會觸發，最省。
+
+### 做法三：真的需要整包舊值
+
+```ts
+import { cloneDeep } from 'lodash-es';
+
+watch(
+    () => cloneDeep(form), // 在監聽來源中就進行深層複製
+    (newValue, oldValue) => {
+        console.log('舊值:', oldValue);
+        console.log('新值:', newValue);
+        console.log('新舊值是否相同:', newValue === oldValue); // false
+    }
+);
+```
+
+`cloneDeep` 讀過每一個屬性，所以每個欄位都會被收集成依賴；每次觸發都回傳一個新物件，`oldValue` 就是上一次的快照。這裡不需要再加 `deep: true`，加了只是讓 Vue 多走一遍複製出來的物件。
+
+::: warning
+不要寫成 `() => structuredClone(toRaw(form))`：`toRaw` 拿到的是原始物件，讀它不會被追蹤，結果就是一個依賴都沒收集到、永遠不會觸發。
+:::
+
+代價前面講過了：每次變動都深層複製一次，大型表單請三思。
+
+| 需求 | 寫法 | 新舊值正確 | 成本 |
+|---|---|---|---|
+| 有動就好 | `watch(form, cb)` | 否（同一個物件） | 中 |
+| 盯某幾個欄位 | `watch(() => form.name, cb)` | 是 | 低 |
+| 要整包比對 | `watch(() => cloneDeep(form), cb)` | 是 | 高 |
+
+## 結論
+
+`watch` 新舊值一樣不是 bug，是你盯著箱子，而箱子從頭到尾都是同一個。想清楚自己要的是「有變就好」、「某個欄位的前後值」還是「整包快照」，再挑對應的寫法，九成的情況用 getter 盯欄位就夠了。
+
+理解響應式盯的是「參考」還是「值」，這類問題基本上就不會再咬到你。箱子不會說謊，只是它記性很差。
+
+::: details 原本的筆記開頭
+原本筆記的開頭是一段關於 Vue 3 底層的題目清單，跟這篇主題不完全相關，原話留著當之後的寫作題庫：
+
+總之待會我會考Vue3的底層
+
+其實上禮拜開始我們都有探討過
+大致上如果你是資深開發者，必須要知道Watch、WatchEffect、computed、以及響應式底層
+
+Watch、WatchEffect
+底層響應邏輯?
 
 還有2更新到3以後最重大的改變，以及你用了這麼久，有沒有一些自己的感受
 對於效能調校、打包優化、長時間使用網頁造成的記憶體消耗如何釋放
 
 再來是前端共通的知識領域，通訊方式與協定、不同部門協作的溝通、短時間內有高壓力剛性需求心態如何調整
-
-## 記憶體消耗
-watch如果一直把整包資料丟進去監聽會發生很可怕的記憶體消耗
-
-參考資料：https://codlin.me/blog-vue/hang-tight-for-a-sec-before-you-start-watch
-
-## watch 新舊值為什麼會一樣
-在使用 Vue 3 的 Composition API 搭配 VeeValidate 進行表單處理，並結合 Zod 進行結構驗證時，開發者常會利用 watch 來監聽表單值的變化以觸發特定操作。然而，一個常見的困擾是，在 watch 的回呼函式中，接收到的新值（newValue）和舊值（oldValue）卻是相同的。這個現象並非 VeeValidate 或 Zod 的 bug，而是源於 Vue 的響應式系統處理物件時的特性。
-
-問題根源：物件的響應式與 watch 的淺層監聽
-在 Vue 中，當我們使用 reactive 或 VeeValidate 的 useForm 回傳的 values 物件時，我們得到的是一個響應式的 Proxy 物件。當您修改表單中的任何一個欄位時，您是在變動 (mutate) 這個 Proxy 物件的屬性，而不是替換掉整個物件。
-
-Vue 的 watch 函式在預設情況下是淺層監聽的。這意味著它只會追蹤被監聽的來源（例如 values 物件）的參考是否發生變化。由於您只是修改物件的內部屬性，values 物件本身的記憶體參考位址並未改變。因此，在 watch 的回呼函式中，newValue 和 oldValue 都指向同一個物件參考，導致它們的值看起來總是一樣的。
-
-簡單來說，watch 預設只看「整個箱子有沒有被換掉」，而不關心「箱子裡面的東西有沒有變化」。
-
-解決方案：深度監聽與值複製
-要解決這個問題，您需要明確告知 Vue 您想要監聽的是物件內部的屬性變化。這可以透過以下幾種方式實現：
-
-1. 使用 deep: true 進行深度監聽
-這是最直接且常用的解決方案。透過在 watch 的選項中設定 deep: true，您可以強制 watch 遞迴地檢查被監聽物件中的所有巢狀屬性。
-
-```ts
-import { useForm } from 'vee-validate';
-import { toTypedSchema } from '@vee-validate/zod';
-import * as z from 'zod';
-import { watch } from 'vue';
-
-// 您的 Zod schema
-const validationSchema = toTypedSchema(
-    z.object({
-        name: z.string().min(2, '姓名至少需要兩個字'),
-        email: z.string().email('請輸入有效的電子郵件')
-    })
-);
-
-const { values } = useForm({
-    validationSchema
-});
-
-// 使用 watch 監聽 values 的變化
-watch(
-    values,
-    (newValue, oldValue) => {
-    // 在這裡，newValue 和 oldValue 仍然會是同一個物件參考
-    // 但是這個 watch 會在任何屬性變動時被觸發
-        console.log('表單值已變更:', newValue);
-
-        // 注意：即使有 deep: true，oldValue 仍然會與 newValue 相同
-        // 因為它們指向同一個被修改的物件
-        console.log('新舊值是否相同:', newValue === oldValue); // true
-    },
-    {
-        deep: true // 關鍵設定：啟用深度監聽
-    }
-);
-```
-請注意： 即使使用了 deep: true，在回呼函式中 newValue 和 oldValue 仍然會是同一個物件的參考。deep: true 的作用是確保在物件內部屬性變化時能夠觸發監聽，而不是提供一個變更前的物件複本。如果您需要一個真正的「舊值」複本進行比較，您需要在 watch 觸發時手動處理。
-
-2. 監聽回傳新物件的 Getter 函式
-如果您只想在特定欄位變更時觸發 watch，而不是整個表單，一個更高效的方式是監聽一個回傳該欄位值的 getter 函式。對於基本型別（如 string, number）的欄位，這會自然地提供正確的新舊值。
-
-```ts
-watch(
-    () => values.name,
-    (newName, oldName) => {
-        console.log(`姓名從 "${oldName}" 變更為 "${newName}"`);
-    }
-);
-```
-3. 手動複製舊值
-如果您確實需要一個完整的、變更前的表單物件複本來進行比較，您可以在 watch 的來源中使用一個 getter 函式，並在其中對 values 物件進行深層複製。
-
-```ts
-import { cloneDeep } from 'lodash-es'; // 建議使用如 lodash 的工具庫來進行深層複製
-
-watch(
-    () => cloneDeep(values), // 在監聽來源中就進行深層複製
-    (newValue, oldValue) => {
-    // 這樣 oldValue 就會是變更前的物件複本
-        console.log('舊值:', oldValue);
-        console.log('新值:', newValue);
-        console.log('新舊值是否相同:', newValue === oldValue); // false
-    },
-    {
-    // 由於我們監聽的是一個 getter 函式的回傳值（一個新的複製物件），
-    // 每次變動都會產生新的物件參考，因此理論上不再需要 deep: true。
-    // 但若 values 內部有非常複雜的巢狀結構，保留它可能更為保險。
-        deep: true
-    }
-);
-```
-然而，這種方法在每次表單值變動時都會進行一次深層複製，對於大型且複雜的表單可能會有效能上的考量，建議謹慎使用。
-
-總結
-當您在使用 VeeValidate 和 Zod 時，遇到 watch 監聽 values 物件新舊值相同的情況，請記住這通常是 Vue 響應式機制的預期行為。最佳的解決方案是根據您的具體需求來選擇：
-
-若只想在表單有任何變動時觸發操作： 使用 watch(values, callback, { deep: true })。
-
-若只想監聽特定欄位的變化： 使用 watch(() => values.fieldName, callback)。
-
-若需要完整的舊值物件進行比較： 考慮在監聽來源中手動進行深層複製，但需注意效能影響。
-
-理解 Vue 的響應式原理，將能幫助您更有效地解決這類問題，並更精準地控制您的表單邏輯。
+:::

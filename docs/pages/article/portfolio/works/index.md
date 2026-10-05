@@ -10,4 +10,8 @@ tags:
 editLink: true
 isPublished: false
 ---
+::: danger 標記：無意義
+空白的索引頁，只有 frontmatter，沒有內容。
+:::
+
 
