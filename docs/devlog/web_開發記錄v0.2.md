@@ -248,3 +248,23 @@
 - 沒有導覽或其他頁面連到這幾篇；Git 資料夾在 `config.mts` 沒有側欄 key，不受影響。
 - 驗證：`pnpm docs:build` 通過；sitemap 裡這 11 篇都不見了，只剩 `life-murmurs/opshell-的哲學意義`。
 - 從 `drafts-2026-10` 單獨挑上 main 先上線；同分支的草稿補完（133 篇）還在那邊等作者看。
+
+# 2026-10-05：「API 串接進化史」系列草稿（八篇，不上線）
+
+**使用者**：`WWW/axios/` 放了四個舊專案的倉庫（醫療後台 2023-11 起、供餐系統 2024-03 起、查核系統 2025-01 起、flowmodoro side project）
+跟四份 Gemini 對話的 PDF。從大學用 HTML5＋AJAX 做打磚塊對戰、jQuery 時代的純前端，到 2023～2026 自己封裝 axios、
+導入 TanStack Query，整個歷程寫成一個小系列：每一次進化是被什麼情境推的、學到什麼。口吻照 `day12-prettier-is-not-that-great.md`。不上線。
+
+- **素材**：四個代理各挖一個倉庫的 git 歷史（`git log -S`、分水嶺 commit、`git show` 當時的封裝檔），PDF 用 pypdf 抽文字。
+  關鍵發現：`useApi.ts` 從醫療後台複製到供餐系統再到查核系統，連寫反的 `if (!token)` 一起帶走；兩個專案 2024-11 都把攔截器塞進
+  composable 函式裡（每呼叫一次多註冊一個），供餐 15 天搬回去、醫療後台 16 個月後才加 flag；查核系統 2025-09-02 手刻 `useAsyncState`、
+  三天後導入 TanStack Query，`useAsyncState.ts` 變成沒人 import 的死碼；供餐系統至今兩套 `useApi` 並存（23 vs 15 個檔）、
+  同事 2026-03 開的第三代 `src/http/` 分支叫「統一替換」但一個呼叫端都沒換、沒合回去。
+- **跟既有系列的關係**：`developer/串 API 的那些事/` 四篇是「評群組裡別人貼的 useApi」，視角是評論者；這個系列是當事人的時間線。
+  重疊的技術細節（全域旗標、重載、useAsyncState 的寫法）只連過去不重講。
+- **寫了**：`docs/pages/article/code-sea/developer/API 串接進化史/01～08.md`，共約 5.1 萬字元，`isPublished: false`，
+  每篇開頭有 `::: warning 草稿`（發文工具會擋）列出要使用者補或確認的地方。專案用「醫療後台／供餐系統／查核系統」代稱，
+  沒寫 Jira 編號、內網 IP、client secret。側欄照資料夾掃，不用改 `config.mts`。
+- **要使用者補的**：第一篇的打磚塊（怎麼同步、輪詢還是 WebSocket）與 jQuery 打包 App 那段幾乎都是倉庫外的記憶；
+  第三篇供餐系統 24 天後刪 token 刷新的真正原因；第七篇那個查不到來源的第二次 GET 後來有沒有結案。
+- 發文排程加進「二、有料的半成品」。build 通過才 commit，沒 push。
