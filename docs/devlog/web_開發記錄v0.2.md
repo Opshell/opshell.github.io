@@ -310,22 +310,22 @@
 
 # 2026-10-05：「API 串接進化史」系列草稿（八篇，不上線）
 
-**使用者**：`WWW/axios/` 放了四個舊專案的倉庫（醫療後台 2023-11 起、供餐系統 2024-03 起、查核系統 2025-01 起、flowmodoro side project）
+**使用者**：本機放了四個舊專案的倉庫（三個工作專案以 A／B／C 代稱，加上 flowmodoro side project）
 跟四份 Gemini 對話的 PDF。從大學用 HTML5＋AJAX 做打磚塊對戰、jQuery 時代的純前端，到 2023～2026 自己封裝 axios、
 導入 TanStack Query，整個歷程寫成一個小系列：每一次進化是被什麼情境推的、學到什麼。口吻照 `day12-prettier-is-not-that-great.md`。不上線。
 
 - **素材**：四個代理各挖一個倉庫的 git 歷史（`git log -S`、分水嶺 commit、`git show` 當時的封裝檔），PDF 用 pypdf 抽文字。
-  關鍵發現：`useApi.ts` 從醫療後台複製到供餐系統再到查核系統，連寫反的 `if (!token)` 一起帶走；兩個專案 2024-11 都把攔截器塞進
-  composable 函式裡（每呼叫一次多註冊一個），供餐 15 天搬回去、醫療後台 16 個月後才加 flag；查核系統 2025-09-02 手刻 `useAsyncState`、
-  三天後導入 TanStack Query，`useAsyncState.ts` 變成沒人 import 的死碼；供餐系統至今兩套 `useApi` 並存（23 vs 15 個檔）、
+  關鍵發現：`useApi.ts` 從 A 專案複製到 B 專案再到 C 專案，連寫反的 `if (!token)` 一起帶走；兩個專案同一個月都把攔截器塞進
+  composable 函式裡（每呼叫一次多註冊一個），B 專案 15 天搬回去、A 專案 16 個月後才加 flag；C 專案手刻 `useAsyncState`、
+  三天後導入 TanStack Query，`useAsyncState.ts` 變成沒人 import 的死碼；B 專案至今兩套 `useApi` 並存（23 vs 15 個檔）、
   同事 2026-03 開的第三代 `src/http/` 分支叫「統一替換」但一個呼叫端都沒換、沒合回去。
 - **跟既有系列的關係**：`developer/串 API 的那些事/` 四篇是「評群組裡別人貼的 useApi」，視角是評論者；這個系列是當事人的時間線。
   重疊的技術細節（全域旗標、重載、useAsyncState 的寫法）只連過去不重講。
 - **寫了**：`docs/pages/article/code-sea/developer/API 串接進化史/01～08.md`，共約 5.1 萬字元，`isPublished: false`，
-  每篇開頭有 `::: warning 草稿`（發文工具會擋）列出要使用者補或確認的地方。專案用「醫療後台／供餐系統／查核系統」代稱，
+  每篇開頭有 `::: warning 草稿`（發文工具會擋）列出要使用者補或確認的地方。專案用 A／B／C 代稱，
   沒寫 Jira 編號、內網 IP、client secret。側欄照資料夾掃，不用改 `config.mts`。
 - **要使用者補的**：第一篇的打磚塊（怎麼同步、輪詢還是 WebSocket）與 jQuery 打包 App 那段幾乎都是倉庫外的記憶；
-  第三篇供餐系統 24 天後刪 token 刷新的真正原因；第七篇那個查不到來源的第二次 GET 後來有沒有結案。
+  第三篇 B 專案 24 天後刪 token 刷新的真正原因；第七篇那個查不到來源的第二次 GET 後來有沒有結案。
 - 發文排程加進「二、有料的半成品」。build 通過才 commit，沒 push。
 
 # 2026-10-05：部落格首頁第二版（光學台、最近在忙的）
@@ -677,7 +677,7 @@
   - 金鑰／token、Email、電話、身分證、內部 IP：沒有。命中的都是假 JWT、網址裡的數字、自己的公開信箱、`192.168.1.1`。
   - 截圖：都是程式碼或圖解，沒有人名、頭像或公司畫面。
   - 客戶網域只在作品集（公開成品網站）；履歷上的公司名只在履歷兩篇（已標過時）。
-  - **醫療系統的名稱與真實 API 路徑**（`/api/present_pat/…`、`/api/surgery/clinic/`、`outpatientSurgeryModel`、`diseases`）在 6 篇：
+  - **工作專案的業務名詞與真實 API 路徑**在 6 篇：
     `early-return`、`try_vs_then`、`router/不合法的導向`、`router/同步`、`setup 的那些事`、`watch`。改成會員／訂單／tags 的中性名稱。
   - **已發佈的 `typescript/enum.md` 結尾貼了約 200 行群組對話**（13 個人的暱稱、時間、別人的 Notion 連結）：刪掉，正文 1～67 行不動。
     對話裡的論點已經去名字改寫進 `as-const-與-satisfies`、`zod-與-ts…` 兩篇草稿。`二元樹` 引用的公開 Threads 貼文留著（等於標出處）。
@@ -687,9 +687,9 @@
 - **補漏（重跑全站掃描）**：第一次掃描在草稿分支上跑，漏了後來其他對話加進 main 的文章。在 main 上重跑後再處理：
   - `object-keys-偷偷幫你轉型了`、`透過-set-優化性能-2`：Meal／grade 系列改 category／product／variant；`grid`：校園供餐的 class 名稱改中性（`c665621`）。
   - **〈API 串接進化史〉八篇**是讀四個舊工作專案的 git 歷史寫的，含 commit 訊息原文、精確日期、分支名稱、內部 API 路徑，配上作品集就認得出客戶。
-    使用者選「就地去識別化」：醫療後台／供餐系統／查核系統 → A／B／C 專案；commit 訊息改轉述；日期只留年份或季節（相對時間保留）；
-    `origin/master` 等改「正式分支」；`/mapi/user/login`、`/oauth/token`、`/api/patients` 改通用；`__DOCKING__` → `VITE_USE_MOCK`（真假值與散文一起反過來）；
-    `auditSchedule` 等改 order；06 篇的群組發言原文 quote 改成轉述。01 篇只講大學作品，沒改。AI 專區那篇提到三個專案名稱的一句也改成 A／B／C。
+    使用者選「就地去識別化」：三個專案改成 A／B／C 專案；commit 訊息改轉述；日期只留年份或季節（相對時間保留）；
+    分支名改「正式分支」；內部 API 路徑與環境變數改通用名稱（`VITE_USE_MOCK` 的真假值與散文一起反過來）；
+    業務味道的識別字改 order；06 篇的群組發言原文 quote 改成轉述。01 篇只講大學作品，沒改。AI 專區那篇提到三個專案名稱的一句也改成 A／B／C。
   - 驗證：系列與全站再搜業務關鍵字、日期格式、分支名都沒有命中（作品集與履歷是刻意公開的，不算）；`pnpm docs:build` 通過。
 
 # 2026-10-08：叮咚頁面跟上 App 0.7.19；宣傳頁開頭「一天的帳」、功能地圖開頭的三段介紹
