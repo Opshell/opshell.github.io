@@ -13,10 +13,11 @@
     import SeriesTracks from './SeriesTracks.vue';
 
     // 首頁（2026-10「稜鏡」翻新，第三版 2026-10-06）。使用者：首頁可以放開來，多一點動態、互動、特效，不用像讀文章時那麼拘謹。
-    // - 開場（HomeIntro，約 4.7 秒）：LOGO、名字、Slogan → 打散成光點飛到首頁各區 → 光從天上射進 O、一道道落到文章的分隔線 → 極光
+    // - 開場（HomeIntro＋這裡＋LightStage，約 7.3 秒，故事見 intro.ts）：LOGO、名字、Slogan → 收成一個光點 → 光點飛過來綻開成 O →
+    //   白光從天上射進 O → 一道道落到分類 → 最近在忙的、文章依序出現
     // - 定格：左邊「最近在忙的」三張大卡；右邊玻璃 O，光從畫面上方射進來（LightStage 是蓋在上半部的畫布）
-    // - 光往下落在文章區塊的分隔線上，每一道對準底下的分類標籤；分隔線亮起、極光從那裡往下籠罩整個文章區塊
-    //   （使用者：「光束從天上下來、透過圓玻璃、連結到下方文章區塊應該更合理；分隔線給動態光樣式，像極光一樣由分隔線開始籠罩整個區塊」）
+    // - 光往下落在文章區的分隔線上（標題與卡片之間），每一道對準一個分類標籤；標籤集中在 O 的下方，光自然地散開、不硬鋪滿整個寬
+    //   （使用者：「光束從天上下來、透過圓玻璃、連結到下方文章區塊應該更合理」；後來：「不要極光背景，分隔線回到文字與卡片之間，光線不用特地鋪平」）
     // - 卡片樣式統一，只換顏色（那一類的光的顏色）；滑過卡片那道光亮，滑過光或標籤那一類的卡片亮
     // - 兩個三十天、為什麼叫 Opshell 照舊
     const siteData = useSiteData();
@@ -37,8 +38,8 @@
     const cards = computed(() => shown.value.map(post => ({ post, ray: rayFor(rays.value, post.category[0]) })));
     const hueOf = (ray: Ray | undefined, category: string[]) => hueVar(ray?.hue ?? categoryHue(category[0] ?? ''));
 
-    /** 極光的三種顏色：白光時是品牌的光譜，選了一道光就是那一類的顏色深深淺淺 */
-    const aurora = computed(() => {
+    /** 分隔線的三種顏色：白光時是品牌的光譜，選了一道光就是那一類的顏色深深淺淺 */
+    const lineColors = computed(() => {
         const ray = selectedRay.value;
         if (!ray) return { '--a1': 'var(--pr-amber)', '--a2': 'var(--pr-magenta)', '--a3': 'var(--pr-violet)' };
         const hue = hueVar(ray.hue);
@@ -129,7 +130,7 @@
                     </nav>
                 </div>
                 <div class="op-home__pads">
-                    <a v-spotlight class="op-pad op-pad--dindon" :href="launchpads.dindon.href" data-intro style="--d: 0ms">
+                    <a v-spotlight class="op-pad op-pad--dindon" :href="launchpads.dindon.href" style="--i: 0">
                         <span class="op-pad__head">
                             <img :src="launchpads.dindon.icon" alt="" width="40" height="40" />
                             <span class="op-pad__status"><span class="pulse" aria-hidden="true" />{{ launchpads.dindon.status }}</span>
@@ -141,7 +142,7 @@
                         </span>
                         <img class="op-pad__screen" :src="launchpads.dindon.screen" alt="" loading="lazy" width="240" height="520" />
                     </a>
-                    <a v-spotlight class="op-pad op-pad--timeline" :href="launchpads.timeline.href" data-intro style="--d: 90ms">
+                    <a v-spotlight class="op-pad op-pad--timeline" :href="launchpads.timeline.href" style="--i: 1">
                         <span class="op-pad__title">{{ launchpads.timeline.title }}</span>
                         <span class="op-pad__text">
                             寫了 {{ counts?.published ?? posts.length }} 篇<template v-if="counts">，坑裡還有 {{ counts.unpublished }} 篇</template>。
@@ -154,7 +155,7 @@
                             </span>
                         </span>
                     </a>
-                    <a v-spotlight class="op-pad op-pad--resume" :href="launchpads.resume.href" data-intro style="--d: 180ms">
+                    <a v-spotlight class="op-pad op-pad--resume" :href="launchpads.resume.href" style="--i: 2">
                         <span class="op-pad__head">
                             <img class="op-pad__portrait" :src="launchpads.resume.portrait" alt="" loading="lazy" width="40" height="40" />
                             <span class="op-pad__title">{{ launchpads.resume.title }}</span>
@@ -172,7 +173,7 @@
 
             <div class="op-home__sky">
                 <p class="op-home__caption op-home__appear">
-                    白光從天上來，在 O 裡演化，落成底下寫的每一類。光越寬文章越多；<span class="op-home__hint">滑鼠左右移動可以瞄準，</span>點一道光或分類看那一類。
+                    白光從天上來，在 O 裡演化，落成底下寫的每一類。光越寬，文章越多；點一道光或分類，看那一類。
                 </p>
                 <!-- 玻璃 O：點了回到全部。裡面的光絲畫在 LightStage 的畫布上（量這顆的位置） -->
                 <button
@@ -181,8 +182,6 @@
                     :class="{ 'is-selected': selected === null }"
                     :aria-pressed="selected === null"
                     aria-label="全部分類（白光）"
-                    data-intro
-                    style="--d: 60ms"
                     @click="pick(null)"
                 >
                     <svg viewBox="0 0 240 240" aria-hidden="true">
@@ -214,45 +213,44 @@
         <!-- #endregion -->
 
         <!-- #region [P] 文章：光落在分隔線上、每一道對準一個分類；極光從分隔線往下籠罩整區 -->
-        <section ref="latestRef" class="op-home__latest" aria-labelledby="op-home-latest" :style="aurora">
-            <div :key="selected ?? 'white'" class="op-home__aurora" aria-hidden="true">
-                <span /><span /><span />
-            </div>
-            <span :key="`line-${selected ?? 'white'}`" class="op-home__divider" aria-hidden="true" />
-            <div class="op-home__labels" role="group" aria-label="分類" :style="{ '--n': rays.length }">
-                <button
-                    v-for="(ray, index) in rays"
-                    :key="ray.key"
-                    type="button"
-                    class="op-home__label"
-                    :class="{ 'is-selected': selected === ray.key, 'is-focused': focusRay === ray.key, 'is-muted': !!focusRay && focusRay !== ray.key }"
-                    :style="{ '--hue': hueVar(ray.hue), '--d': `${200 + index * 40}ms` }"
-                    :aria-pressed="selected === ray.key"
-                    :title="`最新：${ray.latest.title}`"
-                    data-intro
-                    @click="pick(ray.key)"
-                    @pointerenter="hoverRay = ray.key"
-                    @pointerleave="hoverRay = null"
-                    @focus="hoverRay = ray.key"
-                    @blur="hoverRay = null"
-                >
-                    <span class="name">{{ ray.label }}</span>
-                    <span class="count">{{ ray.count }}</span>
-                </button>
-            </div>
-            <div class="op-home__section-head op-home__appear">
-                <h2 id="op-home-latest" aria-live="polite">
-                    {{ selectedRay ? selectedRay.label : '最近寫的' }}
-                    <span v-if="selectedRay" class="count">{{ selectedRay.count }} 篇</span>
-                </h2>
-                <div class="op-home__section-links">
-                    <button v-if="selectedRay" type="button" @click="pick(null)">看全部分類</button>
-                    <a v-if="selectedRay && selectedRay.key !== '其他'" :href="selectedRay.href">從第一篇讀起</a>
-                    <a v-else href="/timeline.html">看全部 {{ counts?.published ?? posts.length }} 篇</a>
+        <section ref="latestRef" class="op-home__latest" aria-labelledby="op-home-latest" :style="lineColors">
+            <div class="op-home__latest-head">
+                <div class="op-home__latest-title">
+                    <h2 id="op-home-latest" aria-live="polite">
+                        {{ selectedRay ? selectedRay.label : '最近寫的' }}
+                        <span v-if="selectedRay" class="count">{{ selectedRay.count }} 篇</span>
+                    </h2>
+                    <div class="op-home__section-links">
+                        <button v-if="selectedRay" type="button" @click="pick(null)">看全部分類</button>
+                        <a v-if="selectedRay && selectedRay.key !== '其他'" :href="selectedRay.href">從第一篇讀起</a>
+                        <a v-else href="/timeline.html">看全部 {{ counts?.published ?? posts.length }} 篇</a>
+                    </div>
+                </div>
+                <!-- 每一類一個標籤，光從 O 落在它正下方的分隔線上（LightStage 量標籤的中心） -->
+                <div class="op-home__labels" role="group" aria-label="分類">
+                    <button
+                        v-for="(ray, index) in rays"
+                        :key="ray.key"
+                        type="button"
+                        class="op-home__label"
+                        :class="{ 'is-selected': selected === ray.key, 'is-focused': focusRay === ray.key, 'is-muted': !!focusRay && focusRay !== ray.key }"
+                        :style="{ '--hue': hueVar(ray.hue), '--i': index }"
+                        :aria-pressed="selected === ray.key"
+                        :title="`最新：${ray.latest.title}`"
+                        @click="pick(ray.key)"
+                        @pointerenter="hoverRay = ray.key"
+                        @pointerleave="hoverRay = null"
+                        @focus="hoverRay = ray.key"
+                        @blur="hoverRay = null"
+                    >
+                        <span class="name">{{ ray.label }}</span>
+                        <span class="count">{{ ray.count }}</span>
+                    </button>
                 </div>
             </div>
+            <span :key="`line-${selected ?? 'white'}`" class="op-home__divider" aria-hidden="true" />
             <TransitionGroup tag="ol" name="op-card" class="op-home__cards">
-                <li v-for="({ post, ray }, index) in cards" :key="post.url" data-intro :style="{ '--d': `${320 + index * 50}ms` }">
+                <li v-for="({ post, ray }, index) in cards" :key="post.url" :style="{ '--i': index }">
                     <a
                         v-spotlight
                         class="op-home__card"
@@ -354,10 +352,15 @@
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             gap: 2.5rem;
             align-items: end;
-            @include setRWD(960px) {
-                grid-template-columns: minmax(0, 1fr);
-                gap: 2rem;
-            }
+
+            // 窄螢幕一欄：拆開 hero，順序改成 O → 文章 → 最近在忙的 → 其他，
+            // 光才能從 O 直直落到文章（中間不隔著大卡），開場時 O 也在第一個畫面裡
+            @include setRWD(960px) { display: contents; }
+        }
+        @include setRWD(960px) {
+            &__sky { order: -1; }
+            &__now { order: 1; }
+            &__section { order: 2; }
         }
         &__sr {
             position: absolute;
@@ -375,15 +378,15 @@
             align-self: stretch;
             pointer-events: none; // 空的地方讓給畫布的滑鼠（點光、瞄準）
         }
+
+        // 說明放左上，讓開正中間垂直落下的白光
         &__caption {
             align-self: flex-start;
-            max-width: 24em;
+            max-width: 15em;
             color: var(--vp-c-text-2);
+            @include setRWD(600px) { display: none; } // 手機太窄，會壓到白光；標籤本身就看得懂
             font-size: var(--font-size-s);
             line-height: 1.8;
-        }
-        @media (hover: none) {
-            &__hint { display: none; }
         }
 
         // 玻璃 O：光絲畫在畫布上，這裡只有玻璃（不動）
@@ -508,15 +511,46 @@
         &__latest {
             position: relative;
             @include setFlex(flex-start, stretch, 1.25rem, column);
-            margin-top: 3rem; // 光從 O 往下散開的空間
+            margin-top: 2.5rem; // 光從 O 往下散開的空間
             scroll-margin-top: calc(var(--vp-nav-height) + 1rem);
         }
-        &__latest > :not(.op-home__aurora) {
-            position: relative;
-            z-index: 1;
+        &__latest-head {
+            @include setFlex(space-between, flex-end, 1rem 2rem);
+            flex-wrap: wrap;
+        }
+        &__latest-title {
+            @include setFlex(flex-start, baseline, .5rem 1.25rem);
+            flex-wrap: wrap;
+
+            h2 {
+                @include setFlex(flex-start, baseline, .75rem);
+                font-size: var(--font-size-xl);
+                font-weight: 800;
+
+                .count {
+                    color: var(--vp-c-text-2);
+                    font-family: var(--vp-font-family-mono);
+                    font-size: var(--font-size-s);
+                    font-weight: 500;
+                }
+            }
+            a,
+            button {
+                background: none;
+                padding: 0;
+                border: 0;
+                color: var(--vp-c-brand-1);
+                font: inherit;
+                font-size: var(--font-size-s);
+                font-weight: 600;
+                text-decoration: none;
+                cursor: pointer;
+
+                &:hover { text-decoration: underline; }
+            }
         }
 
-        // 分隔線：一道會流動的光，顏色跟極光一樣
+        // 分隔線：標題與卡片之間（原本的位置），一道光譜上一顆光點來回跑；光從 O 落在這條線上
         &__divider {
             position: relative;
             display: block;
@@ -535,60 +569,20 @@
             }
         }
 
-        // 極光：三幕光簾，從分隔線往下長、慢慢飄；只動 transform 與 opacity（交給合成器），不用模糊濾鏡
-        &__aurora {
-            position: absolute;
-            inset: 0 -2rem -3rem;
-            pointer-events: none;
-            transform-origin: top;
-            overflow: hidden;
-            z-index: 0;
-
-            // 往下淡掉、左右兩邊也淡掉（不然超出內容寬的地方會切出直邊）
-            mask-image: linear-gradient(to bottom, #000, #000 40%, transparent), linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-            mask-composite: intersect;
-            @include setRWD(768px) { inset: 0 -1rem -2rem; }
-
-            span {
-                position: absolute;
-                top: 0;
-                background: linear-gradient(to bottom, color-mix(in srgb, var(--a) 60%, transparent), color-mix(in srgb, var(--a) 18%, transparent) 45%, transparent 85%);
-                width: 55%;
-                height: 100%;
-                transform-origin: top;
-                opacity: var(--aurora-alpha);
-
-                // 一條條直的光簾紋路，左右兩邊淡掉
-                mask-image:
-                    repeating-linear-gradient(90deg, rgb(0 0 0 / 95%) 0, rgb(0 0 0 / 55%) 14px, rgb(0 0 0 / 85%) 23px, rgb(0 0 0 / 40%) 38px, rgb(0 0 0 / 95%) 52px),
-                    linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
-                mask-composite: intersect;
-            }
-            span:nth-child(1) {
-                --a: var(--a1);
-                left: -8%;
-            }
-            span:nth-child(2) {
-                --a: var(--a2);
-                left: 24%;
-            }
-            span:nth-child(3) {
-                --a: var(--a3);
-                left: 52%;
-            }
-        }
+        // 分類標籤靠右、集中在 O 的下方：光自然地散開落下，不鋪滿整個寬
         &__labels {
-            display: grid;
-            grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-            gap: .25rem;
-            margin-top: -.5rem;
-            @include setRWD(600px) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            @include setFlex(flex-end, center, .15rem);
+            flex-wrap: wrap;
+            @include setRWD(960px) {
+                justify-content: flex-start;
+                width: 100%;
+            }
         }
         &__label {
             @include setFlex(center, baseline, .4rem);
             flex-wrap: wrap;
             background: none;
-            padding: .35rem .25rem;
+            padding: .3rem .55rem;
             border: 0;
             border-radius: 8px;
             color: var(--vp-c-text-1);
@@ -629,13 +623,13 @@
             li { display: flex; }
         }
 
-        // 卡片樣式統一，只有顏色跟著那一類的光；底色半透明，透出後面的極光
+        // 卡片樣式統一，只有顏色跟著那一類的光
         &__card {
             @include setFlex(flex-start, flex-start, .6rem, column);
             flex: 1;
             background:
                 radial-gradient(280px circle at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--hue) 16%, transparent), transparent 70%),
-                color-mix(in srgb, var(--vp-c-bg-soft) 78%, transparent);
+                var(--vp-c-bg-soft);
             padding: 1.25rem 1.5rem 1.5rem;
             border: 1px solid color-mix(in srgb, var(--hue) 30%, transparent);
             border-radius: 14px;
@@ -688,19 +682,10 @@
             }
         }
 
-        // 會一直動的只有分隔線上的光與極光（都只動 transform／opacity）；換一道光時極光重新從分隔線長出來
+        // 會一直動的只有分隔線上那顆光點（只動 transform）；換一道光時分隔線從中間重新畫出來
         @media (prefers-reduced-motion: no-preference) {
+            &__divider { animation: op-home-draw .6s var(--cubic-FiSo) both; }
             &__divider::after { animation: op-home-run 5s 1s linear infinite; }
-            &__aurora { animation: op-home-grow 1.2s var(--cubic-FiSo) both; }
-            &__aurora span { animation: op-home-sway 13s ease-in-out infinite alternate; }
-            &__aurora span:nth-child(2) {
-                animation-duration: 17s;
-                animation-delay: -6s;
-            }
-            &__aurora span:nth-child(3) {
-                animation-duration: 11s;
-                animation-delay: -3s;
-            }
         }
 
         // #endregion
@@ -784,25 +769,27 @@
             &__card:hover { transform: none; }
         }
 
-        // #region [P] 開場（時間照 intro.ts 的 INTRO，從 JS 接手、加上 is-playing 算起）：
-        // 1.9s 光點打散 → 光點到哪一區、那一區就出現（data-intro，--d 錯開）→ 2.5s 光從天上射進 O → 3.1s 光往下落 → 3.7s 分隔線亮、極光往下長
+        // #region [P] 開場的後半段（時間照 intro.ts 的 INTRO，從 JS 接手、加上 is-playing 算起；前半段在 HomeIntro）：
+        // 4.0s 光點綻開成 O → 4.3s 白光從天上射進來（畫布）→ 5.0s 一道道光往下落 → 5.0s 起最近在忙的從左邊滑進來 →
+        // 5.6s 分類一個個亮（光正好落到）→ 5.9s 分隔線從中間畫出來 → 6.1s 起文章一張張浮上來 → 7.3s 定格
         // 播完拿掉 is-playing；中途點一下、捲一下也是。拿掉之後就是沒有動畫的定格樣子，所以不會跳
         @media (prefers-reduced-motion: no-preference) {
             &.is-playing {
-                [data-intro] { animation: op-home-arrive .7s calc(2.45s + var(--d, 0ms)) var(--cubic-FiSo) both; }
-                .op-home__appear { animation: op-home-fade .6s 2.8s both; }
-                .op-home__divider { animation: op-home-draw .8s 3.5s var(--cubic-FiSo) both; }
-                .op-home__aurora { animation: op-home-grow 1.4s 3.7s var(--cubic-FiSo) both; }
+                .op-home__orb { animation: op-home-bloom .7s 4s var(--cubic-SiRo) both; }
+                .op-home__caption { animation: op-home-fade .8s 4.6s both; }
+                .op-home__now > .op-home__appear { animation: op-home-fade .6s 5s both; }
+                .op-pad { animation: op-home-slide .7s calc(5.1s + var(--i) * .12s) var(--cubic-FiSo) both; }
+                .op-home__latest-title { animation: op-home-fade .6s 5.5s both; }
+                .op-home__label { animation: op-home-light .5s calc(5.6s + var(--i) * .08s) var(--cubic-FiSo) both; }
+                .op-home__divider { animation: op-home-draw .8s 5.9s var(--cubic-FiSo) both; }
+                .op-home__cards li { animation: op-home-rise .6s calc(6.1s + var(--i) * .08s) var(--cubic-FiSo) both; }
             }
         }
 
         // #endregion
     }
 
-    .op-home {
-        --op-origin: #FFF8E7;
-        --aurora-alpha: .55;
-    }
+    .op-home { --op-origin: #FFF8E7; }
     html:not(.dark) .op-home {
         --op-amber-ink: #A86A00;
         --op-origin: #3A2A5C;
@@ -810,33 +797,39 @@
         --op-star: #7B61FF;
         --op-glass-core: rgb(255 255 255 / 60%);
         --op-glass-rim: rgb(244 185 54 / 22%);
-        --aurora-alpha: .35;
     }
-    @keyframes op-home-arrive {
+    @keyframes op-home-bloom {
         from {
-            transform: scale(.94);
+            transform: scale(.06);
             opacity: 0;
         }
     }
     @keyframes op-home-fade {
         from { opacity: 0; }
     }
+    @keyframes op-home-slide {
+        from {
+            transform: translateX(-28px);
+            opacity: 0;
+        }
+    }
+    @keyframes op-home-light {
+        from {
+            filter: brightness(2.2);
+            opacity: 0;
+        }
+    }
+    @keyframes op-home-rise {
+        from {
+            transform: translateY(16px);
+            opacity: 0;
+        }
+    }
     @keyframes op-home-draw {
         from { clip-path: inset(0 50%); }
     }
     @keyframes op-home-run {
         to { transform: translateX(725%); }
-    }
-    @keyframes op-home-grow {
-        from {
-            transform: scaleY(0);
-            opacity: 0;
-        }
-    }
-    @keyframes op-home-sway {
-        0% { transform: translateX(-6%) skewX(-10deg) scaleY(.85); }
-        50% { transform: translateX(3%) skewX(5deg) scaleY(1.05); }
-        100% { transform: translateX(8%) skewX(-3deg) scaleY(.92); }
     }
 
     // #region [P] 「最近在忙的」大卡：游標的光（--mx／--my）與傾斜（--rx／--ry）由 v-spotlight 寫進來

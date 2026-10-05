@@ -5,14 +5,14 @@
     import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { evolve, ribbon } from '../elements';
     import { easeOut, INTRO, phase } from '../intro';
-    import { aimFromPointer, along, ORB, SOURCE_Y, stars } from '../prism';
+    import { along, ORB, stars } from '../prism';
     import { hitRay, landingHalf, lightPath, localMatrix } from '../stage';
 
     // 首頁的光（2026-10-06 第三版）：一張蓋在首頁上半部的畫布，光從畫面最上面射進玻璃 O，在裡面演化成元素的光絲，
     // 從 O 的下緣分開出去，一道道落在文章區塊的分隔線上、每一類的標籤正上方。幾何在 stage.ts，O 裡的演化在 elements.ts。
     // - 位置量 DOM：O（.op-home__orb）、標籤（.op-home__label）、分隔線（.op-home__divider），版面一變就重量
     // - 畫布不吃滑鼠（底下的大卡、連結照常點得到）：滑鼠移動時自己算有沒有在一道光上，有的話游標變手指、點了選那一類
-    // - 滑鼠左右是瞄準：光從天上斜進來的角度跟著變，出口、光跟著轉
+    // - 白光垂直從上面射下來，不跟著滑鼠（2026-10-06，使用者：「從上至下 90 度、不用隨滑鼠變化，光束感強烈一點」）
     // - 開場時（introAt 有值）照 intro.ts 的時間軸：光從天上落下 → O 裡亮起 → 一道道往下長到分隔線
     // 效能：每秒 30 張、沒有模糊濾鏡；捲出畫面、切到別的分頁就停；關閉動態時只畫一張。
     const { rays = [], focus = null, introAt = null } = defineProps<{
@@ -41,14 +41,16 @@
         const canvas = canvasRef.value;
         if (!root || !canvas) return;
         const base = root.getBoundingClientRect();
-        const orb = root.querySelector('.op-home__orb')?.getBoundingClientRect();
+        const orbEl = root.querySelector<HTMLElement>('.op-home__orb');
+        const orb = orbEl?.getBoundingClientRect();
         const divider = root.querySelector('.op-home__divider')?.getBoundingClientRect();
         const labels = [...root.querySelectorAll('.op-home__label')].map(label => label.getBoundingClientRect());
-        if (!orb || !divider || labels.length !== rays.length) return;
+        if (!orbEl || !orb || !divider || labels.length !== rays.length) return;
         const line = divider.top + divider.height / 2 - base.top;
         layout = {
-            // 玻璃的圈在 240 的方格裡半徑 112（HomeContents 的 SVG）
-            orb: { x: orb.left + orb.width / 2 - base.left, y: orb.top + orb.height / 2 - base.top, r: orb.width * 112 / 240 },
+            // 玻璃的圈在 240 的方格裡半徑 112（HomeContents 的 SVG）。
+            // 大小用 offsetWidth：開場時 O 正在從小綻開（transform: scale），getBoundingClientRect 量到的是縮小後的；中心不受縮放影響
+            orb: { x: orb.left + orb.width / 2 - base.left, y: orb.top + orb.height / 2 - base.top, r: orbEl.offsetWidth * 112 / 240 },
             landings: labels.map(label => ({ x: label.left + label.width / 2 - base.left, y: line }))
         };
         width = base.width;
@@ -111,19 +113,83 @@
     }
     const lerp = (a: Point, b: Point, t: number): Point => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
 
-    let sourceY: number = SOURCE_Y.rest;
+    /** 一段一段：depth 符合條件的連續區間（頭尾多帶一點，接得起來） */
+    function runs(depths: readonly number[], front: boolean): [number, number][] {
+        const result: [number, number][] = [];
+        let start = -1;
+        depths.forEach((depth, i) => {
+            const inside = front ? depth >= 0.5 : depth < 0.5;
+            if (inside && start < 0) start = Math.max(0, i - 1);
+            if (!inside && start >= 0) {
+                result.push([start, i]);
+                start = -1;
+            }
+        });
+        if (start >= 0) result.push([start, depths.length - 1]);
+        return result;
+    }
+
+    /**
+     * 木的雙螺旋要有立體感（使用者：「雙股螺旋沒有 3D 感」）：照深度分三層畫——
+     * 先畫兩股在後面的部分（暗、細）→ 鹼基對（靠前的那一半亮、靠後的那一半暗）→ 兩股在前面的部分（亮、粗、外面一層光、中間一條高光）。
+     */
+    function drawHelix(strand: ReturnType<typeof evolve>[number], hue: string, gradient: CanvasGradient, dim: number) {
+        const c = ctx!;
+        const part = (thread: (typeof strand.threads)[number], [from, to]: [number, number], widen = 1) =>
+            fillRibbon(thread.points.slice(from, to + 1), thread.widths.slice(from, to + 1), widen);
+        c.fillStyle = gradient;
+        for (const thread of strand.threads) {
+            c.globalAlpha = 0.32 * dim;
+            for (const range of runs(thread.depths!, false)) part(thread, range);
+        }
+        c.strokeStyle = hue;
+        c.lineCap = 'round';
+        for (const rung of strand.rungs) {
+            const middle = lerp(rung.a, rung.b, 0.5);
+            c.lineWidth = 1.3;
+            c.globalAlpha = (0.25 + 0.6 * rung.depth) * dim;
+            c.beginPath();
+            c.moveTo(rung.a.x, rung.a.y);
+            c.lineTo(middle.x, middle.y);
+            c.stroke();
+            c.lineWidth = 0.7;
+            c.globalAlpha = (0.1 + 0.25 * rung.depth) * dim;
+            c.beginPath();
+            c.moveTo(middle.x, middle.y);
+            c.lineTo(rung.b.x, rung.b.y);
+            c.stroke();
+        }
+        for (const thread of strand.threads) {
+            const fronts = runs(thread.depths!, true);
+            c.fillStyle = gradient;
+            c.globalAlpha = 0.22 * dim;
+            for (const range of fronts) part(thread, range, 2.6);
+            c.globalAlpha = dim;
+            for (const range of fronts) part(thread, range);
+            c.strokeStyle = colors.beam;
+            c.lineWidth = 0.5;
+            c.globalAlpha = 0.7 * dim;
+            for (const [from, to] of fronts) {
+                polyline(thread.points.slice(from, to + 1));
+                c.stroke();
+            }
+        }
+    }
+
+    /** 入射高度＝O 的圓心：O 裡的座標是水平射進來，對調之後就是垂直往下 */
+    const SOURCE = ORB.cy;
     let time = 2; // 光絲的動畫時間（秒）；關閉動態時畫這一刻
     let path: ReturnType<typeof lightPath> | null = null;
 
     function draw(now: number) {
         const c = ctx;
         if (!c || !layout) return;
-        path = lightPath(layout, sourceY);
+        path = lightPath(layout, SOURCE);
         const { sky: top, entry, exits, localEntry, localExits, localEnds } = path;
-        const beamP = easeOut(phase(introAt, now, INTRO.beam, 500));
-        const innerP = phase(introAt, now, INTRO.inner, 600);
-        const rayP = easeOut(phase(introAt, now, INTRO.rays, 700));
-        const glowP = phase(introAt, now, INTRO.aurora - 200, 500);
+        const beamP = easeOut(phase(introAt, now, INTRO.beam, 600));
+        const innerP = phase(introAt, now, INTRO.inner, 700);
+        const rayP = easeOut(phase(introAt, now, INTRO.rays, 900));
+        const glowP = phase(introAt, now, INTRO.land, 600);
         const t = time;
 
         c.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -136,30 +202,51 @@
             dot(star.x, star.y, star.r);
         }
 
-        // 天上來的白光：先一條寬而淡的，再一條細而亮的；光點往下流
+        // 天上來的白光：由外而內四層（很寬很淡 → 細而亮的芯），芯上一段段亮光往下衝；開場時從上面一路長下來，最前端一團閃光
         const reach = lerp(top, entry, beamP);
         const beam = c.createLinearGradient(top.x, top.y, entry.x, entry.y);
         beam.addColorStop(0, clear(colors.beam));
-        beam.addColorStop(0.45, colors.beam);
+        beam.addColorStop(0.3, colors.beam);
         beam.addColorStop(1, colors.beam);
         c.strokeStyle = beam;
         c.lineCap = 'round';
-        for (const [lineWidth, alpha] of [[12, 0.1], [2.5, 0.95]]) {
-            c.globalAlpha = alpha;
+        const breathe = 0.85 + 0.15 * Math.sin(t * 1.6);
+        for (const [lineWidth, alpha] of [[56, 0.04], [24, 0.09], [9, 0.26], [3.2, 1]]) {
+            c.globalAlpha = alpha * (lineWidth > 4 ? breathe : 1);
             c.lineWidth = lineWidth;
             c.beginPath();
             c.moveTo(top.x, top.y);
             c.lineTo(reach.x, reach.y);
             c.stroke();
         }
-        if (beamP >= 1) {
-            c.fillStyle = colors.beam;
-            for (let i = 0; i < 6; i++) {
-                const k = (i / 6 + t * 0.2) % 1;
-                const p = lerp(top, entry, 0.3 + 0.7 * k);
-                c.globalAlpha = Math.sin(Math.PI * k) * 0.9;
-                dot(p.x, p.y, 1.8);
+        if (beamP > 0 && beamP < 1) {
+            const flare = c.createRadialGradient(reach.x, reach.y, 0, reach.x, reach.y, 26);
+            flare.addColorStop(0, colors.beam);
+            flare.addColorStop(1, clear(colors.beam));
+            c.fillStyle = flare;
+            c.globalAlpha = 1;
+            dot(reach.x, reach.y, 26);
+        } else if (beamP >= 1) {
+            // 一段段亮光往下衝（像能量灌進 O）
+            c.strokeStyle = colors.beam;
+            c.lineWidth = 5;
+            for (let i = 0; i < 3; i++) {
+                const k = (i / 3 + t * 0.35) % 1;
+                const head = lerp(top, entry, k);
+                const tail = lerp(top, entry, Math.max(0, k - 0.08));
+                c.globalAlpha = Math.sin(Math.PI * k) * 0.55;
+                c.beginPath();
+                c.moveTo(tail.x, tail.y);
+                c.lineTo(head.x, head.y);
+                c.stroke();
             }
+            // 打在 O 上的那一點
+            const hit = c.createRadialGradient(entry.x, entry.y, 0, entry.x, entry.y, 20);
+            hit.addColorStop(0, colors.beam);
+            hit.addColorStop(1, clear(colors.beam));
+            c.fillStyle = hit;
+            c.globalAlpha = 0.7 * breathe;
+            dot(entry.x, entry.y, 20);
         }
 
         // O 裡面：用 O 的座標畫（x、y 對調的矩陣），裁在玻璃圓裡
@@ -191,16 +278,9 @@
                 const dim = (focus && focus !== ray.key ? 0.18 : 1) * innerP;
                 const flicker = strand.element === 'fire' ? 0.7 + 0.3 * Math.sin(t * 13 + index) : 1;
                 c.fillStyle = gradient;
-                if (strand.rungs.length) {
-                    c.strokeStyle = hue;
-                    c.lineWidth = 0.8;
-                    for (const rung of strand.rungs) {
-                        c.globalAlpha = (0.12 + 0.45 * rung.depth) * dim;
-                        c.beginPath();
-                        c.moveTo(rung.a.x, rung.a.y);
-                        c.lineTo(rung.b.x, rung.b.y);
-                        c.stroke();
-                    }
+                if (strand.element === 'wood') {
+                    drawHelix(strand, hue, gradient, dim);
+                    return;
                 }
                 for (const thread of strand.threads) {
                     c.globalAlpha = 0.2 * dim * flicker;
@@ -272,7 +352,7 @@
                 // 落地：分隔線上一團光，慢慢呼吸
                 if (glowP > 0) {
                     const pulse = 0.75 + 0.25 * Math.sin(t * 2 + index);
-                    const radius = half * 2 + 16;
+                    const radius = half * 1.4 + 10;
                     const glow = c.createRadialGradient(landing.x, landing.y, 0, landing.x, landing.y, radius);
                     glow.addColorStop(0, hue);
                     glow.addColorStop(1, clear(hue));
@@ -288,10 +368,8 @@
     }
     // #endregion
 
-    // #region [P] 滑鼠：瞄準、在哪一道光上（畫布不吃滑鼠，自己算）
+    // #region [P] 滑鼠：在哪一道光上（畫布不吃滑鼠，自己算）
     let pointer: Point | null = null;
-    let target: number | null = null;
-    let current: number = SOURCE_Y.rest;
     let rayHover: string | null = null;
 
     function onMove(event: PointerEvent) {
@@ -299,12 +377,10 @@
         const base = root.getBoundingClientRect();
         const interactive = (event.target as Element).closest('a, button, [role="button"], input');
         pointer = interactive ? null : { x: event.clientX - base.left, y: event.clientY - base.top };
-        if (motion.value && event.pointerType === 'mouse') target = aimFromPointer((event.clientX - base.left) / base.width);
         if (!frame) updateHover();
     }
     function onLeave() {
         pointer = null;
-        target = null;
         updateHover();
     }
     function updateHover() {
@@ -342,9 +418,6 @@
         const dt = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0;
         lastFrame = now;
         time += dt;
-        const goal = target ?? SOURCE_Y.rest;
-        if (Math.abs(goal - current) > 0.3) current += (goal - current) * Math.min(1, dt * 4);
-        sourceY = current;
         if (now - lastDraw < FRAME_MS) return;
         lastDraw = now;
         draw(now);

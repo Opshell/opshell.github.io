@@ -72,6 +72,15 @@ describe('evolve：白光在玻璃裡演化成元素', () => {
         expect(Math.min(...diffs)).toBeLessThan(-0.5);
     });
 
+    it('木有深度：同一點一股在前、另一股就在後（畫的時候前後分開畫，才有立體感）', () => {
+        const [wood] = setup(['wood']).run(0.8);
+        const [a, b] = wood.threads;
+        expect(a.depths).toHaveLength(a.points.length);
+        a.depths!.forEach((depth, i) => expect(depth + b.depths![i]).toBeCloseTo(1, 5));
+        expect(Math.max(...a.depths!)).toBeGreaterThan(0.9);
+        expect(Math.min(...a.depths!)).toBeLessThan(0.1);
+    });
+
     it('風三縷、水一股；會動', () => {
         const { run } = setup(['wind', 'water']);
         const [wind, water] = run(1);

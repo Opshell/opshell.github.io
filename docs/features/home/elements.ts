@@ -16,6 +16,8 @@ export interface Thread {
     points: Point[];
     /** 每一點的粗細（畫成一條帶子） */
     widths: number[];
+    /** 木：每一點離觀眾多近（0 在後面、1 在前面）；畫的時候先畫後面的、再畫鹼基對、最後畫前面的，才有立體感 */
+    depths?: number[];
 }
 
 export interface Strand {
@@ -116,6 +118,7 @@ function flowing(element: Exclude<ElementKey, 'metal'>, entry: Point, exit: Poin
     const result = threads.map((thread) => {
         const points: Point[] = [];
         const widths: number[] = [];
+        const depths: number[] = [];
         for (let i = 0; i <= SAMPLES; i++) {
             const s = i / SAMPLES;
             const e1 = sin(PI * s);
@@ -137,11 +140,12 @@ function flowing(element: Exclude<ElementKey, 'metal'>, entry: Point, exit: Poin
                 offset += thread * 0.08 * r * e2 * (1 + 0.5 * sin(time * 0.9 + thread * 3 + seed));
                 width = 0.6 + 0.6 * sin(PI * 2 * s + time + thread) ** 2;
             } else if (element === 'wood') {
-                // 雙螺旋：兩股反相；cos 是「在前面還是後面」，前面粗、後面細
+                // 雙螺旋：兩股反相；cos 是「在前面還是後面」，前面粗、後面細（透視）
                 const phase = PI * 5 * s + time * 1.4 + seed;
-                offset += thread * 0.16 * r * sin(phase) * spread(s);
+                offset += thread * 0.2 * r * sin(phase) * spread(s);
                 const front = 0.5 + 0.5 * cos(phase) * thread;
-                width = 0.7 + 1.8 * front;
+                width = 0.5 + 2.9 * front;
+                depths.push(front);
             } else {
                 // 土：沉、厚，厚度慢慢起伏；不太動
                 rise = -r * 0.78 * e2 * (0.96 + 0.04 * sin(time * 0.4 + seed));
@@ -151,11 +155,11 @@ function flowing(element: Exclude<ElementKey, 'metal'>, entry: Point, exit: Poin
             points.push({ x: point.x + normal.x * offset, y: point.y + normal.y * offset - rise });
             widths.push(width * taper(s));
         }
-        return { points, widths };
+        return element === 'wood' ? { points, widths, depths } : { points, widths };
     });
     if (element === 'wood') {
         const [a, b] = result;
-        for (let i = 3; i < SAMPLES - 2; i += 3) {
+        for (let i = 2; i < SAMPLES - 1; i += 2) {
             const phase = PI * 5 * (i / SAMPLES) + time * 1.4 + seed;
             rungs.push({ a: a.points[i], b: b.points[i], depth: abs(sin(phase)) });
         }
