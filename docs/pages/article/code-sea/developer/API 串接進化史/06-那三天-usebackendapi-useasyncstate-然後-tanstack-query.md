@@ -1,7 +1,7 @@
 ---
 title: 'API 串接進化史（六）：那三天，useBackendApi、useAsyncState，然後 TanStack Query'
 image: ''
-description: '2025 年 9 月 2 日到 5 日：先把 useApi 改成永不回傳 null 的 useBackendApi，手刻一支 useAsyncState 管 loading 與 error，三天後導入 TanStack Query，useAsyncState 變成沒人 import 的化石。API 函式從「回傳結果」變成「成功回傳資料、失敗 throw」，再用 Zod 守住型別邊界。'
+description: '2025 年秋天的三天：先把 useApi 改成永不回傳 null 的 useBackendApi，手刻一支 useAsyncState 管 loading 與 error，三天後導入 TanStack Query，useAsyncState 變成沒人 import 的化石。API 函式從「回傳結果」變成「成功回傳資料、失敗 throw」，再用 Zod 守住型別邊界。'
 keywords: ''
 author: Opshell
 createdAt: '2026-10-05'
@@ -17,7 +17,7 @@ editLink: true
 isPublished: false
 ---
 ::: warning 草稿
-這篇是 Claude 照 git 歷史寫的草稿。「查核系統」是代稱。useBackendApi 的細節（重載、options）前一個系列寫過，這裡只講跟 TanStack Query 接軌的部分。看完改成自己的話再刪掉這個區塊。
+這篇是 Claude 照 git 歷史寫的草稿。專案以 A／B／C 代稱；commit 訊息、日期、分支、API 路徑已在 10-06 去識別化。useBackendApi 的細節（重載、options）前一個系列寫過，這裡只講跟 TanStack Query 接軌的部分。看完改成自己的話再刪掉這個區塊。
 :::
 
 ::: info 系列：API 串接進化史
@@ -31,10 +31,10 @@ isPublished: false
 7. [TanStack Query 之後我踩的坑](./07-tanstack-query-之後我踩的坑)
 8. [回頭看：兩套並存的 useApi，跟我現在會怎麼起手](./08-回頭看-兩套並存的-useapi-跟我現在會怎麼起手)
 
-**這篇的脈絡**：查核系統 2025 年 6 月開案，9 月初功能還不多，是最好動刀的時候。9 月 2 日到 5 日三個 commit，把 API 層整個翻掉。這篇講那三天做了什麼、為什麼手刻的 `useAsyncState` 只活了三天，以及 TanStack Query 進來之後，API 函式的契約為什麼非改不可。
+**這篇的脈絡**：C 專案 2025 年夏天開案，入秋時功能還不多，是最好動刀的時候。三天、三個 commit，把 API 層整個翻掉。這篇講那三天做了什麼、為什麼手刻的 `useAsyncState` 只活了三天，以及 TanStack Query 進來之後，API 函式的契約為什麼非改不可。
 :::
 
-## 9 月 2 日：useBackendApi
+## 第一天：useBackendApi
 第一刀砍的是 `useApi.ts` 本身。這部分在[前一個系列](../串%20API%20的那些事/03-用-typescript-收起你的碼腳)寫得很細，這裡只列結論：
 
 - 改名 `useBackendApi`。這個專案只有一個後端，但名字要回答「哪個 API」。
@@ -118,14 +118,12 @@ const { data: users, isLoading, execute: fetchUsers } = useAsyncState(getUserLis
 
 我在加第二個東西的時候停下來，去看了一下 TanStack Query 的文件。
 
-## 9 月 5 日：TanStack Query
-三天後的 commit：「Fix.5 框架導入 Tanstack query模式」。
+## 三天後：TanStack Query
+三天後，一個 commit 把 TanStack Query 導進了整個框架。
 
-::: quote 群組裡某位大大的說法
-TanStack Query 是非同步狀態管理，axios 是 HTTP fetcher。兩個功能不衝突不重疊。
-:::
+那陣子群組裡有人點過一個觀念，大意是：TanStack Query 管的是非同步狀態，axios 只負責發 HTTP 請求，兩者分工不同，不會互相取代。
 
-這句話把我之前想錯的地方點出來了。我一直把 TanStack Query 當成「另一種 axios」在評估，想說我已經有 `useBackendApi` 了幹嘛再裝一個。但它不是 fetcher，它管的是**什麼時候要抓、抓回來放哪、放多久、誰在用**。這些事 `useAsyncState` 想做但做不好，而 axios 根本不管。
+這個觀念把我之前想錯的地方點出來了。我一直把 TanStack Query 當成「另一種 axios」在評估，想說我已經有 `useBackendApi` 了幹嘛再裝一個。但它不是 fetcher，它管的是**什麼時候要抓、抓回來放哪、放多久、誰在用**。這些事 `useAsyncState` 想做但做不好，而 axios 根本不管。
 
 裝上去的設定很簡單：
 ```ts
@@ -157,7 +155,7 @@ export function useCommonData() {
 ## 化石
 `useAsyncState.ts` 沒有被刪。
 
-它還在 `shared/hooks/` 裡，到 2026 年 3 月都還在。但從 9 月 5 日之後，整個專案沒有任何一個檔 `import` 它。它是一支寫了三天、用了三天、然後被遺忘的 composable。
+它還在 `shared/hooks/` 裡，到 2026 年春天都還在。但從導入 TanStack Query 那天之後，整個專案沒有任何一個檔 `import` 它。它是一支寫了三天、用了三天、然後被遺忘的 composable。
 
 為什麼不刪？一開始是想說「說不定有些地方不適合用 Query 會用到」。後來是忘了。再後來是看到它會想起那三天，就留著當紀念。~~其實就是懶。~~
 
@@ -179,7 +177,7 @@ export async function getUserList(params) {
 ```
 把它塞進 `queryFn`，`data` 會是整個 `iResult`，`status: false` 的時候 Query 以為成功了，`isError` 永遠是 `false`。
 
-所以 9 月 5 日同一個 commit，所有 API 函式改成：
+所以導入 TanStack Query 的同一個 commit，所有 API 函式改成：
 ```ts
 export async function getUserList(params: GetUserListParams) {
     const res = await sendRequest<UserList>('/api/users', 'GET', params);
@@ -205,7 +203,7 @@ export class Errors extends Error {
 為什麼要自訂？因為後端的驗證錯誤是一個陣列，`Error.message` 只能放一個字串。Dialog 要顯示多行，就得把陣列留著。這個類別後來還加了一個 `_tag`，原因很離奇，下一篇講。
 
 ## API 搬家：從 shared/apis 到 features/*/apis
-同一個 commit 還做了一件事：`shared/apis/user.ts`、`shared/apis/auditForm.ts` 刪掉，搬成 `features/user/apis/user.ts`、`features/auditForm/apis/auditForm.ts`。
+同一個 commit 還做了一件事：`shared/apis/user.ts`、`shared/apis/order.ts` 刪掉，搬成 `features/user/apis/user.ts`、`features/order/apis/order.ts`。
 
 這跟 TanStack Query 沒有直接關係，但有間接關係。改成「失敗 throw」之後，API 函式變得**只跟一個 endpoint 有關**：它知道這個 endpoint 的 URL、參數型別、回傳型別、以及 `status: false` 時要丟什麼。這種東西不該放在 `shared/`——它不是共用的，它是某個 feature 專屬的。
 
@@ -221,7 +219,7 @@ features/user/
 `services/` 就是第五篇 flowmodoro 那層的正式版。登入流程要 reCAPTCHA → login → 存 token → 取使用者資料，四步，塞進一個 `loginUseCase`，元件只管 `useMutation({ mutationFn: loginUseCase })`。
 
 ## 兩週後：Zod 守住邊界
-9 月 18 日，`shared/utils/zod.ts` 進來。
+導入 TanStack Query 大約兩週後，`shared/utils/zod.ts` 進來。
 
 TanStack Query 解決了「什麼時候抓」，`Errors` 解決了「失敗怎麼辦」，剩下一個問題：**後端回來的東西，真的是我 interface 裡寫的那樣嗎？**
 
@@ -229,11 +227,11 @@ TanStack Query 解決了「什麼時候抓」，`Errors` 解決了「失敗怎�
 
 Zod 的用法是在 API 函式裡加一道驗證：
 ```ts
-export async function getAuditScheduleList(input: GetAuditScheduleListInput) {
-    const params = GetAuditScheduleListParams.parse(input);   // 驗證 + camelCase → snake_case
-    const res = await sendRequest<GetAuditScheduleListOutput>(eUrls.base, 'GET', params);
+export async function getOrderList(input: GetOrderListInput) {
+    const params = GetOrderListParams.parse(input);   // 驗證 + camelCase → snake_case
+    const res = await sendRequest<GetOrderListOutput>(eUrls.base, 'GET', params);
     if (!res.status) { throw new Errors(res.messages); }
-    return parseWithSchema(GetAuditScheduleListParser, res.data); // 驗證 + snake_case → camelCase
+    return parseWithSchema(GetOrderListParser, res.data); // 驗證 + snake_case → camelCase
 }
 ```
 `Params` 驗進去的、`Parser` 驗回來的。型別不再手寫 interface，用 `z.input<typeof Params>` 跟 `z.output<typeof Parser>` 推出來。後端改了格式，`parseWithSchema` 會在 DEV 環境的 console 印出「哪個欄位、期望什麼、拿到什麼」，然後 throw——Query 會接到，`isError` 變 `true`，頁面跳錯誤。
@@ -249,8 +247,8 @@ export async function getAuditScheduleList(input: GetAuditScheduleListInput) {
 :::
 
 ## 那三天之後
-查核系統從 9 月 5 日之後，所有新功能都照這個結構長。10 月查核排程、11 月改善報告、12 月的時候 `QueryClient` 多了 `refetchOnWindowFocus: false` 跟 `retry: 1`——因為使用者切回視窗時整頁重抓太煩，而且預設重試 3 次對一個會回 422 的後端來說只是多等三倍時間。
+C 專案從那三天之後，所有新功能都照這個結構長。那年秋冬陸續加了好幾個大功能，到了年底 `QueryClient` 多了 `refetchOnWindowFocus: false` 跟 `retry: 1`——因為使用者切回視窗時整頁重抓太煩，而且預設重試 3 次對一個會回 422 的後端來說只是多等三倍時間。
 
-供餐系統晚了兩個月跟進：10 月 31 日 `useBackendApi` 進來，11 月 27 日 TanStack Query 進來。但供餐系統已經有 40 個檔在用舊的 `useApi`，沒辦法像查核系統那樣一刀換掉。這件事第八篇講。
+B 專案晚了兩個月跟進：先換上 `useBackendApi`，大約一個月後 TanStack Query 進來。但 B 專案已經有 40 個檔在用舊的 `useApi`，沒辦法像 C 專案那樣一刀換掉。這件事第八篇講。
 
 下一篇先講 TanStack Query 進來之後踩的坑。有幾個坑的形狀我到現在都覺得很怪。

@@ -1,7 +1,7 @@
 ---
 title: 'API 串接進化史（五）：三個專案，三份一模一樣的 useApi'
 image: ''
-description: '2025 年上半年，我手上有三份 useApi.ts：醫療後台、供餐系統、新開的查核系統，外加一個 side project。每一份都是複製來的，連 bug 都一樣。直到在群組裡看到別人貼出的 useApi，才真的回頭看自己的。'
+description: '2025 年上半年，我手上有三份 useApi.ts：A 專案、B 專案、新開的 C 專案，外加一個 side project。每一份都是複製來的，連 bug 都一樣。直到在群組裡看到別人貼出的 useApi，才真的回頭看自己的。'
 keywords: ''
 author: Opshell
 createdAt: '2026-10-05'
@@ -16,7 +16,7 @@ editLink: true
 isPublished: false
 ---
 ::: warning 草稿
-這篇是 Claude 照 git 歷史寫的草稿。「醫療後台」「供餐系統」「查核系統」是代稱，flowmodoro 是你自己的 side project 所以直接寫。群組討論那段接的是你已經寫好的「串 API 的那些事」四篇，我只連過去不重講。看完改成自己的話再刪掉這個區塊。
+這篇是 Claude 照 git 歷史寫的草稿。專案以 A／B／C 代稱；commit 訊息、日期、分支、API 路徑已在 10-06 去識別化。flowmodoro 是你自己的 side project 所以直接寫。群組討論那段接的是你已經寫好的「串 API 的那些事」四篇，我只連過去不重講。看完改成自己的話再刪掉這個區塊。
 :::
 
 ::: info 系列：API 串接進化史
@@ -30,27 +30,27 @@ isPublished: false
 7. [TanStack Query 之後我踩的坑](./07-tanstack-query-之後我踩的坑)
 8. [回頭看：兩套並存的 useApi，跟我現在會怎麼起手](./08-回頭看-兩套並存的-useapi-跟我現在會怎麼起手)
 
-**這篇的脈絡**：2025 年 6 月開了查核系統，起手式照舊：把供餐系統的 `useApi.ts` 複製過去。這已經是第三次了。這篇講複製貼上的封裝會發生什麼事、side project 裡那個意外長出來的三層結構，以及群組裡一段別人的程式碼怎麼讓我回頭看自己的。
+**這篇的脈絡**：2025 年夏天開了 C 專案，起手式照舊：把 B 專案的 `useApi.ts` 複製過去。這已經是第三次了。這篇講複製貼上的封裝會發生什麼事、side project 裡那個意外長出來的三層結構，以及群組裡一段別人的程式碼怎麼讓我回頭看自己的。
 :::
 
 ## 複製貼上的族譜
 先把族譜畫出來：
 
 ```
-2023-11  醫療後台  useApi.ts 誕生（getData → sendRequest）
+2023 年底  A 專案  useApi.ts 誕生（getData → sendRequest）
             │
-2024-04     ├──複製──→  供餐系統  useApi.ts
+2024 春     ├──複製──→  B 專案  useApi.ts
             │               │
-2024-10     │（攔截器）      │（攔截器、刷新、刪刷新、composable 化、搬回去、旗標）
+2024 秋     │（攔截器）      │（攔截器、刷新、刪刷新、composable 化、搬回去、旗標）
             │               │
-2025-02     │               ├──複製──→  flowmodoro（side project）
+2025 初     │               ├──複製──→  flowmodoro（side project）
             │               │
-2025-06     │               └──複製──→  查核系統  useApi.ts
+2025 夏     │               └──複製──→  C 專案  useApi.ts
 ```
 
 每一次複製，都是「新專案開起來，先把能用的拿過來」。沒有人會在專案第一天重寫 API 層，有的話那個人大概不用趕進度。
 
-複製的內容是什麼？2025 年 6 月查核系統第一個 commit 的 `useApi.ts`，跟供餐系統 2024 年 12 月那份比，差異只有：
+複製的內容是什麼？C 專案第一個 commit 的 `useApi.ts`，跟 B 專案前一年年底那份比，差異只有：
 - import 路徑
 - `eResponseStatus` 多了兩個值
 - 一個 `getImage` 的訊息文字
@@ -62,14 +62,14 @@ isPublished: false
 
 舉三個：
 
-**假設一：後端回的是 `{ status, messages, data }`。** 供餐系統的後端是這樣，查核系統的後端也是這樣——因為是同一家公司的後端團隊。但 flowmodoro 的「後端」是 Google Calendar API，它回的是 `{ items: [...] }`，根本沒有 `status`。於是 flowmodoro 的 `sendRequest` 裡 `iResult` 的轉換整段形同虛設，每個呼叫端都直接去讀 `response?.data.items`。
+**假設一：後端回的是 `{ status, messages, data }`。** B 專案的後端是這樣，C 專案的後端也是這樣——因為是同一家公司的後端團隊。但 flowmodoro 的「後端」是 Google Calendar API，它回的是 `{ items: [...] }`，根本沒有 `status`。於是 flowmodoro 的 `sendRequest` 裡 `iResult` 的轉換整段形同虛設，每個呼叫端都直接去讀 `response?.data.items`。
 
-**假設二：401 代表登入逾時，要跳 Dialog 登出。** 醫療後台的 401 是 token 過期可以刷新；供餐系統的 401 是真的過期要登出；Google 的 401 是 scope 不夠或 token 過期，而且 Google 的 token 是一小時，沒有 refresh 的話每小時都要重新授權。同一段攔截器，在三個專案裡做的是三件不一樣的事。
+**假設二：401 代表登入逾時，要跳 Dialog 登出。** A 專案的 401 是 token 過期可以刷新；B 專案的 401 是真的過期要登出；Google 的 401 是 scope 不夠或 token 過期，而且 Google 的 token 是一小時，沒有 refresh 的話每小時都要重新授權。同一段攔截器，在三個專案裡做的是三件不一樣的事。
 
-**假設三：`sendRequest` 不會 throw。** 這個假設在 2025 年 9 月之前都沒人挑戰，因為每個呼叫端都乖乖判 `null` 再判 `status`。但它決定了一件事：這份 `useApi.ts` 跟 TanStack Query **天生不相容**。下一篇講。
+**假設三：`sendRequest` 不會 throw。** 這個假設在 2025 年秋天之前都沒人挑戰，因為每個呼叫端都乖乖判 `null` 再判 `status`。但它決定了一件事：這份 `useApi.ts` 跟 TanStack Query **天生不相容**。下一篇講。
 
 ## flowmodoro：意外長出來的三層
-2025 年 2 月的 side project 值得單獨講一下，因為它是四個專案裡唯一一個 API 層長出三層的，而且不是刻意設計的。
+2025 年初的 side project 值得單獨講一下，因為它是四個專案裡唯一一個 API 層長出三層的，而且不是刻意設計的。
 
 flowmodoro 是一個番茄鐘的變體，任務存在 Google Calendar 裡（一個任務對應多個 event，用 `extendedProperties.private.taskId` 串起來）。它的資料流：
 
@@ -108,7 +108,7 @@ export const calendarService = {
 };
 ```
 
-這個 side project 兩個月就停了，但「service 層」這個概念留了下來。半年後在查核系統裡正式長出 `features/*/services/`，就是從這裡來的。
+這個 side project 兩個月就停了，但「service 層」這個概念留了下來。半年後在 C 專案裡正式長出 `features/*/services/`，就是從這裡來的。
 
 ::: tip 回頭看
 公司專案裡沒長出 service 層，是因為後端已經把「一個任務是什麼」算好了，前端拿到的 `data` 直接能用。side project 的「後端」是 Google Calendar，它不知道什麼是任務，所以前端被迫自己算。
@@ -117,7 +117,7 @@ export const calendarService = {
 :::
 
 ## 群組裡的那段 useApi
-2025 年 8 月，有人在前端群組貼了他專案裡的 `useApi` composable，問大家怎麼看。
+2025 年夏天，有人在前端群組貼了他專案裡的 `useApi` composable，問大家怎麼看。
 
 我點開一看：全域旗標、`return null`、攔截器把 400 resolve 回去、`getImage` 跟 `sendRequest` 各自處理 token。
 
@@ -133,9 +133,9 @@ export const calendarService = {
 
 那四篇寫的是「別人的程式碼該怎麼改」。寫完回頭看自己三個專案裡的 `useApi.ts`，每一條都中。
 
-## 然後就是九月
-8 月 26 日寫完第四篇。9 月 2 日，查核系統的 commit：「Fix.3 優化 useApi (資料獲取層)」。`useApi.ts` 刪掉，`useBackendApi.ts` 跟 `useAsyncState.ts` 進來。
+## 然後就是那年秋天
+第四篇寫完大約一週，C 專案進了一個「優化資料獲取層」的 commit：`useApi.ts` 刪掉，`useBackendApi.ts` 跟 `useAsyncState.ts` 進來。
 
-三天後，9 月 5 日：「Fix.5 框架導入 Tanstack query模式」。
+三天後，又一個 commit 把 TanStack Query 導進了整個框架。
 
 那三天改掉的東西，比前面兩年加起來還多。下一篇講。
