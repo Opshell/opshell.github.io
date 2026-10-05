@@ -51,18 +51,18 @@ Vue 3.5 之後 `deep` 也可以給數字，例如 `deep: 1` 只往下看一層�
 
 ### 情境：ref 包的資料，watch 為什麼沒反應？
 
-假設 API 回來的資料長這樣，要把 `diseases` 轉成純陣列給 `el-select` 用：
+假設 API 回來的資料長這樣，要把 `tags` 轉成純陣列給 `el-select` 用：
 
 ```json
 "data" : {
-    "diseases": {
+    "tags": {
         "2": {
             "id": 2767,
-            "disease": 15
+            "tag": 15
         },
         "3": {
             "id": 2768,
-            "disease": 16
+            "tag": 16
         }
     },
 }
@@ -72,20 +72,20 @@ Vue 3.5 之後 `deep` 也可以給數字，例如 `deep: 1` 只往下看一層�
 
 ```ts
 // 轉成純 Array 給 el-select 用
-const diseases: Ref<number[]> = ref([]);
+const tags: Ref<number[]> = ref([]);
 
-// 把 diseases 分割成多個 單select
+// 把 tags 分割成多個 單select
 
-const diseases = computed(() => {
-    return tempData.value.diseases.map(disease => disease.disease);
+const tags = computed(() => {
+    return tempData.value.tags.map(tag => tag.tag);
 });
 
 watch(tempData, (val) => {
-    diseases.value = val.diseases.map(disease => disease.disease);
+    tags.value = val.tags.map(tag => tag.tag);
 });
 
 watchEffect(() => {
-    diseases.value = tempData.value.diseases.map(disease => disease.disease);
+    tags.value = tempData.value.tags.map(tag => tag.tag);
 });
 ```
 
@@ -93,14 +93,14 @@ watchEffect(() => {
 
 那問題來了：這個情境下，為什麼 `watch` 不會響應，`watchEffect` 卻可以正常運作？
 
-答案就在上面那張表。`tempData` 是個 `ref`，`watch(tempData, ...)` 只在 `tempData.value` 整個被換掉時觸發；如果後續只是改了 `tempData.value.diseases` 裡面的東西，箱子沒換，`watch` 當然不會叫。
+答案就在上面那張表。`tempData` 是個 `ref`，`watch(tempData, ...)` 只在 `tempData.value` 整個被換掉時觸發；如果後續只是改了 `tempData.value.tags` 裡面的東西，箱子沒換，`watch` 當然不會叫。
 
-`watchEffect` 不一樣，它會把執行過程中「讀到的每一個響應式屬性」都收集成依賴：`tempData.value`、`.diseases`、每一筆的 `.disease` 都讀了，所以裡面任何一個變動都會重跑。
+`watchEffect` 不一樣，它會把執行過程中「讀到的每一個響應式屬性」都收集成依賴：`tempData.value`、`.tags`、每一筆的 `.tag` 都讀了，所以裡面任何一個變動都會重跑。
 
 `後來用watch deep / watchEffect 來處理...`
 
 ::: warning
-注意這份資料的 `diseases` 其實是「用 id 當 key 的物件」，不是陣列，物件沒有 `.map()`。真的要轉陣列記得先 `Object.values(tempData.value.diseases)`。
+注意這份資料的 `tags` 其實是「用 id 當 key 的物件」，不是陣列，物件沒有 `.map()`。真的要轉陣列記得先 `Object.values(tempData.value.tags)`。
 :::
 
 ### 重點：watch 物件時新舊值為什麼一樣？

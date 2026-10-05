@@ -71,7 +71,7 @@ async function deleteHandeler() {
         const confirmed = await proxy.$notify('warning', '警告！', '確定要刪除嗎？', 0, true);
         if (!confirmed) { return; }
 
-        const result = await sendRequest(`/api/surgery/clinic/${surgeryId.value}`, 'DELETE')
+        const result = await sendRequest(`/api/orders/${orderId.value}`, 'DELETE')
             .then((res) => {
                 const notifyType = res?.status ? 'success' : 'error';
                 const notifyData = {
@@ -126,7 +126,7 @@ async function deleteHandeler() {
         const confirmed = await proxy.$notify('warning', '警告！', '確定要刪除嗎？', 0, true);
         if (!confirmed) { return; }
 
-        const result = await sendRequest(`/api/surgery/clinic/${surgeryId.value}`, 'DELETE')
+        const result = await sendRequest(`/api/orders/${orderId.value}`, 'DELETE')
             .then((res) => {
                 // ...同上
                 return Boolean(res?.status);

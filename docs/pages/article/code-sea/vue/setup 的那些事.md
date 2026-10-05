@@ -20,7 +20,7 @@ Claude 於 2026-10-05 補完：依原本「await 遇到問題」的筆記與程�
 :::
 
 ::: info 這篇的脈絡
-常見的情況是：進到某個病患、訂單、商品的詳細頁，第一件事就是拿網址上的 id 去打 API。`<script setup>` 支援直接 `await`，寫起來超順手，一存檔——畫面整個空白，console 只留一句看不太懂的警告。
+常見的情況是：進到某個會員、訂單、商品的詳細頁，第一件事就是拿網址上的 id 去打 API。`<script setup>` 支援直接 `await`，寫起來超順手，一存檔——畫面整個空白，console 只留一句看不太懂的警告。
 
 這篇記錄 `setup` 裡用 `await` 會遇到的問題，寫給剛從 Options API 或 `setup()` 函式轉到 `<script setup>` 的人。延伸閱讀：[iThome 這篇](https://ithelp.ithome.com.tw/articles/10304992)。
 :::
@@ -39,10 +39,10 @@ Claude 於 2026-10-05 補完：依原本「await 遇到問題」的筆記與程�
 ```vue
 <script setup lang="ts">
     const route = useRoute();
-    const patientId = route.params.id as string;
+    const memberId = route.params.id as string;
 
-    const res = await sendRequest(`/api/present_pat/simpledata/${patientId}`);
-    patientStore.updatePatient(res.data);
+    const res = await sendRequest(`/api/member/detail/${memberId}`);
+    memberStore.updateMember(res.data);
 </script>
 ```
 
@@ -53,19 +53,19 @@ Claude 於 2026-10-05 補完：依原本「await 遇到問題」的筆記與程�
 ### 錯誤也會跟著卡住
 就算包了 `<Suspense>`，還有第二個問題：`await` 的請求失敗時，錯誤會從 setup 裡丟出去，這個元件就掛了。你得在父層用 `onErrorCaptured` 接住，或在 `await` 外面自己包 `try/catch`。
 
-而「抓不到病患資料」這種情況，常見的需求其實很單純：印個錯誤、把使用者帶回列表頁。為了這件事把整個頁面變成非同步元件，有點殺雞用牛刀。
+而「抓不到會員資料」這種情況，常見的需求其實很單純：印個錯誤、把使用者帶回列表頁。為了這件事把整個頁面變成非同步元件，有點殺雞用牛刀。
 
 ### 改用 then/catch：不擋住 setup
 所以最後改成這樣，`setup` 照常同步跑完，畫面先出來，資料回來再更新 store，失敗就導回列表：
 
 ```ts
-sendRequest(`/api/present_pat/simpledata/${patientId}`).then((res) => {
-    if (!res?.status) { throw new Error('取得病患資料錯誤!'); }
+sendRequest(`/api/member/detail/${memberId}`).then((res) => {
+    if (!res?.status) { throw new Error('取得會員資料錯誤!'); }
 
-    patientStore.updatePatient(res.data);
+    memberStore.updateMember(res.data);
 }).catch((error) => {
-    console.error('取得病患資料錯誤', error);
-    router.push({ name: 'PatientList' });
+    console.error('取得會員資料錯誤', error);
+    router.push({ name: 'MemberList' });
 });
 ```
 
@@ -73,7 +73,7 @@ sendRequest(`/api/present_pat/simpledata/${patientId}`).then((res) => {
 
 - `router` 要在 setup 最上層先用 `useRouter()` 拿好，不能在 `.then()`／`.catch()` 的 callback 裡才呼叫 `useRouter()`，那時候已經不在 setup 的同步流程裡了。
 - 回應的 `status` 不對就主動 `throw`，讓「API 成功但資料不對」和「網路錯誤」走同一條 `catch`，處理邏輯只寫一次。
-- 資料到之前，畫面要能處理「還沒有病患資料」的狀態（骨架、loading 或 `v-if`）。
+- 資料到之前，畫面要能處理「還沒有會員資料」的狀態（骨架、loading 或 `v-if`）。
 
 ### 補充：`setup()` 函式裡的 await 更危險
 如果你寫的不是 `<script setup>`，而是傳統的 `setup()` 函式，`await` 之後還有一個坑：`Vue` 靠「目前正在 setup 的元件實例」來註冊 `onMounted`、`inject` 這些東西，`await` 之後這個實例就不見了，寫在 `await` 後面的生命週期鉤子會註冊失敗（會有警告）。
@@ -100,18 +100,18 @@ sendRequest(`/api/present_pat/simpledata/${patientId}`).then((res) => {
 ```
 
 ```vue
-<!-- PatientDetail.vue -->
+<!-- MemberDetail.vue -->
 <script setup lang="ts">
     const router = useRouter();
     const route = useRoute();
 
-    const res = await sendRequest(`/api/present_pat/simpledata/${route.params.id}`)
+    const res = await sendRequest(`/api/member/detail/${route.params.id}`)
         .catch(() => null);
 
     if (!res?.status) {
-        router.push({ name: 'PatientList' });
+        router.push({ name: 'MemberList' });
     } else {
-        patientStore.updatePatient(res.data);
+        memberStore.updateMember(res.data);
     }
 </script>
 ```
@@ -128,21 +128,21 @@ sendRequest(`/api/present_pat/simpledata/${patientId}`).then((res) => {
     const route = useRoute();
     const isLoading = ref(true);
 
-    sendRequest(`/api/present_pat/simpledata/${route.params.id}`).then((res) => {
-        if (!res?.status) { throw new Error('取得病患資料錯誤!'); }
+    sendRequest(`/api/member/detail/${route.params.id}`).then((res) => {
+        if (!res?.status) { throw new Error('取得會員資料錯誤!'); }
 
-        patientStore.updatePatient(res.data);
+        memberStore.updateMember(res.data);
     }).catch((error) => {
-        console.error('取得病患資料錯誤', error);
-        router.push({ name: 'PatientList' });
+        console.error('取得會員資料錯誤', error);
+        router.push({ name: 'MemberList' });
     }).finally(() => {
         isLoading.value = false;
     });
 </script>
 
 <template>
-    <PatientSkeleton v-if="isLoading" />
-    <PatientInfo v-else />
+    <MemberSkeleton v-if="isLoading" />
+    <MemberInfo v-else />
 </template>
 ```
 
