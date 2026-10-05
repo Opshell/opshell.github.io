@@ -42,9 +42,9 @@ Claude 於 2026-10-05 補完：只加了懶人包，內文與原本的總結都�
 
 ```typescript
 // Component.vue
-const { result, errors, getMealDayTypeOptions } = useSendApi();
+const { result, errors, getCategoryOptions } = useSendApi();
 
-const apiResult = await getMealDayTypeOptions();
+const apiResult = await getCategoryOptions();
 
 if (apiResult) { // 我明明就判斷 apiResult 是 true 了啊！
   // TypeScript: 「不行，我還是覺得 result.value 可能是 null」
@@ -73,9 +73,9 @@ export function useSendApi() {
   const data = ref(null);
   const errors = ref([]);
 
-  async function getMealDayTypeOptions() {
+  async function getCategoryOptions() {
     // ...
-    return getSchedule().then((res) => {
+    return getCategoryList().then((res) => {
       // 成功邏輯
       result.value = res;
       data.value = res.data;
@@ -87,11 +87,11 @@ export function useSendApi() {
     });
   }
 
-  return { result, data, errors, getMealDayTypeOptions }
+  return { result, data, errors, getCategoryOptions }
 }
 ```
 
-這個設計的核心問題在於：**`getMealDayTypeOptions` 的回傳值 `Promise<boolean>` 與 `result`、`data` 的狀態變更，這兩者之間的關聯性只存在於我們的腦中，並不存在於 TypeScript 的型別系統中。**
+這個設計的核心問題在於：**`getCategoryOptions` 的回傳值 `Promise<boolean>` 與 `result`、`data` 的狀態變更，這兩者之間的關聯性只存在於我們的腦中，並不存在於 TypeScript 的型別系統中。**
 
 TypeScript 的**控制流分析 (Control Flow Analysis)** 很強大，但它無法跨越函式的邊界去理解：「哦，當這個函式回傳 `true` 時，另一個在它作用域內的 `ref` 就一定會有值」。
 
@@ -148,15 +148,15 @@ export function useSendApi<T>() {
     // ... 其他 reset 等輔助函式
 
     // <--- 關鍵改動：回傳值從 Promise<boolean> 改為 Promise<ApiResult<T>>
-    async function getMealDayTypeOptions(): Promise<ApiResult<T>> {
+    async function getCategoryOptions(): Promise<ApiResult<T>> {
         isLoading.value = true;
         error.value = null; // 重置錯誤狀態
         try {
-            const res: ApiResult<T> = await getSchedule(); // 假設 getSchedule 是一個發起請求的函式
+            const res: ApiResult<T> = await getCategoryList(); // 假設 getCategoryList 是一個發起請求的函式
 
             if (!res) {
                 // 處理網路層級或 fetch 失敗的錯誤
-                throw new ApiError(['取得供餐日類別失敗，請檢查網路狀況！']);
+                throw new ApiError(['取得分類失敗，請檢查網路狀況！']);
             }
 
             if (!res.status) {
@@ -180,7 +180,7 @@ export function useSendApi<T>() {
         }
     }
 
-    return { result, data, error, isLoading, getMealDayTypeOptions };
+    return { result, data, error, isLoading, getCategoryOptions };
 }
 ```
 
@@ -192,23 +192,23 @@ export function useSendApi<T>() {
 // Component.vue (新版)
 import { useSendApi } from './useSendApi';
 
-interface MealDayType {
+interface Category {
     id: number;
     name: string;
 }
 
 // ...
 setup(props, { emit }) {
-    // 傳入 MealDayType[] 作為 T 的具體型別，TypeScript 就知道 data 的型別了
-    const { error, getMealDayTypeOptions } = useSendApi<MealDayType[]>();
+    // 傳入 Category[] 作為 T 的具體型別，TypeScript 就知道 data 的型別了
+    const { error, getCategoryOptions } = useSendApi<Category[]>();
 
     async function handleFetch() {
         try {
-            // 如果 getMealDayTypeOptions 拋出錯誤，程式會直接跳到 catch 區塊
-            const apiResult = await getMealDayTypeOptions();
+            // 如果 getCategoryOptions 拋出錯誤，程式會直接跳到 catch 區塊
+            const apiResult = await getCategoryOptions();
 
             // --- 執行到這裡，TypeScript 100% 確定 apiResult 是存在的 ---
-            // 它知道 apiResult 的型別是 ApiResult<MealDayType[]>
+            // 它知道 apiResult 的型別是 ApiResult<Category[]>
             // 再也不需要 if 判斷，更不需要可惡的 !
             responseActions(apiResult);
             emit('finishAction');
@@ -278,9 +278,9 @@ export function useAsyncState<T, E = Error>(
 API 的邏輯可以獨立成一個 service 函式，然後用 `useAsyncState` 來包裝它。
 
 ```typescript
-// services/mealService.ts
-async function getMealDayTypeOptionsAPI(): Promise<MealDayType[]> {
-    const res = await getSchedule(); // 假設這是你的 api client
+// services/categoryService.ts
+async function getCategoryOptionsAPI(): Promise<Category[]> {
+    const res = await getCategoryList(); // 假設這是你的 api client
     if (!res || !res.status) {
         throw new ApiError(res?.messages || ['取得資料失敗']);
     }
@@ -289,33 +289,33 @@ async function getMealDayTypeOptionsAPI(): Promise<MealDayType[]> {
 
 // Component.vue (終極版)
 import { useAsyncState } from './useAsyncState';
-import { getMealDayTypeOptionsAPI } from '@/services/mealService';
+import { getCategoryOptionsAPI } from '@/services/categoryService';
 
 // ...
 setup() {
     const {
-        state: mealDayTypes,
+        state: categories,
         error,
         isLoading,
-        execute: fetchMealDayTypes // 可以解構時重新命名
+        execute: fetchCategories // 可以解構時重新命名
     } = useAsyncState(
-        getMealDayTypeOptionsAPI, // <--- 把 API 函式當作參數傳入
-        [] // <--- 提供初始狀態，型別自動推斷為 MealDayType[]
+        getCategoryOptionsAPI, // <--- 把 API 函式當作參數傳入
+        [] // <--- 提供初始狀態，型別自動推斷為 Category[]
     );
 
     onMounted(async () => {
         try {
-            await fetchMealDayTypes();
-            // 成功了！資料就在 mealDayTypes.value
-            console.log('資料載入成功:', mealDayTypes.value);
+            await fetchCategories();
+            // 成功了！資料就在 categories.value
+            console.log('資料載入成功:', categories.value);
         } catch (e) {
             // 失敗了！
             errorDialog(error.value?.messages || ['未知錯誤']);
         }
     });
 
-    // 你可以輕易地將 mealDayTypes, isLoading, error 綁定到模板上
-    return { mealDayTypes, isLoading, error };
+    // 你可以輕易地將 categories, isLoading, error 綁定到模板上
+    return { categories, isLoading, error };
 }
 ```
 
