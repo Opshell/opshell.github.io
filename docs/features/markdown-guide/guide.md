@@ -10,8 +10,10 @@
 
 這一頁把部落格裡**用過的每一種語法**都攤開來。每張卡片由上往下讀：先是寫法，再來是這個站**實際渲染**出來的樣子
 （不是截圖，改了主題這裡會跟著變），最後說明為什麼這樣呈現，以及讀文章的時候該怎麼理解它。
+點稜鏡的任何一道光就會切到那一層；往下讀的時候，導覽會跟著停在旁邊。
 
-<MdPrism />
+<MdGuide>
+<template v-slot:overview>
 
 ## 先看光譜：哪些語法真的在用 {#spectrum}
 
@@ -24,6 +26,9 @@
 - **程式碼層很粗**：這是一個技術部落格，程式碼區塊與增刪標記是主角，所以程式碼的呈現花最多心思。
 - **提示容器和一般引用一樣常用**：比起「引用別人」，我同樣常需要「提醒你」，所以五種容器各有一套形狀，讓你不用讀字就知道輕重。
 - **螢光標記是 0**：規則寫好了，但渲染那一步一直沒掛上 class、也沒有樣式，寫了看不出差別，所以沒人用。這次修好了，下面會看到它。
+
+</template>
+<template v-slot:text>
 
 ## 文字層：一句話裡的強調 {#text}
 
@@ -180,6 +185,9 @@ IE 8 不支援 MaxAge ~~(但是現在沒人在管 IE 了啦)~~
 
 </MdSpec>
 
+</template>
+<template v-slot:block>
+
 ## 區塊層：一段話的外框 {#block}
 
 區塊層決定**一整段**是什麼性質。這裡最重要的設計是**形狀語言**：邊框越多，越需要停下來。
@@ -195,7 +203,7 @@ IE 8 不支援 MaxAge ~~(但是現在沒人在管 IE 了啦)~~
 
 <template v-slot:render>
 
-往上看——這一節的標題本身就是範例。`##` 上面有一條分隔線、`###` 沒有；兩層都會出現在右邊的目錄裡。
+往上看——這一頁的標題本身就是範例。一般文章裡 `##` 上面有一條分隔線、`###` 沒有（這裡是分頁的第一個標題，分頁本身就是分隔，所以省掉）；兩層都會出現在目錄裡。
 後面的 `{#block}` 是自訂錨點，網址 `#block` 不會因為改了標題文字就失效。
 
 </template>
@@ -442,6 +450,9 @@ IE 8 不支援 MaxAge ~~(但是現在沒人在管 IE 了啦)~~
 
 </MdSpec>
 
+</template>
+<template v-slot:code>
+
 ## 程式碼層：讓程式碼自己說話 {#code}
 
 這是一個技術部落格，程式碼層是最粗的那道光。所有程式碼區塊都用 Shiki 上色、主題是 **one-dark-pro**、一律有行號。
@@ -598,6 +609,9 @@ npm i vitepress
 
 </MdSpec>
 
+</template>
+<template v-slot:live>
+
 ## 互動層：會動的文章 {#live}
 
 VitePress 的 markdown 最後會編譯成 Vue 元件，所以文章裡可以直接放**活的東西**。
@@ -608,18 +622,18 @@ VitePress 的 markdown 最後會編譯成 Vue 元件，所以文章裡可以直�
 
 ```md
 <script setup>
-import { MdPrism } from '@features/markdown-guide';
+import { MdUsageSpectrum } from '@features/markdown-guide';
 </script>
 
 <ElTag tag="Markdown" />
-<MdPrism />
+<MdUsageSpectrum />
 ```
 
 <template v-slot:render>
 
 <ElTag tag="Markdown" style="display: inline-flex;" />
 
-這一頁最上面的稜鏡、還有語法光譜，都是用這個方法放進來的元件。
+這一頁最上面的稜鏡、分頁、還有語法光譜，都是用這個方法放進來的元件。
 
 </template>
 
@@ -674,11 +688,14 @@ import { MdPrism } from '@features/markdown-guide';
 
 </MdSpec>
 
+</template>
+<template v-slot:off>
+
 ## 還沒折射的光 {#off}
 
 有些語法寫在文章裡、或套件裝了，但還沒啟用。誠實列出來，免得你以為是自己眼花。
 
-### 腳註與數學式
+### 腳註與數學式 {#footnote-math}
 
 <MdSpec layer="off" origin="未啟用" :posts="2">
 
@@ -709,7 +726,7 @@ Cookie 的規格在 RFC 6265[^1]。
 
 </MdSpec>
 
-### VitePress 內建、但還沒用過的
+### VitePress 內建、但還沒用過的 {#builtin-unused}
 
 這些不用裝任何東西就能用，只是還沒有文章用到。之後用上了，會加進上面的光譜。
 
@@ -721,6 +738,9 @@ Cookie 的規格在 RFC 6265[^1]。
 | `// [!code focus]` | 其他行變模糊，只留這行 | 長程式碼裡只講一行 |
 | `<<< @/snippets/a.ts` | 從檔案匯入程式碼 | 文章與範例程式碼同步 |
 | `<Badge type="tip" text="new" />` | 標題旁的小徽章 | 標示版本、新功能 |
+
+</template>
+</MdGuide>
 
 ## 附錄：在這個部落格讀文章 {#shortcuts}
 

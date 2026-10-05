@@ -12,7 +12,7 @@ editLink: true
 isPublished: true
 ---
 <script setup lang="ts">
-    import { MdPrism, MdSpec, MdUsageSpectrum } from '@features/markdown-guide';
+    import { MdGuide, MdSpec, MdUsageSpectrum } from '@features/markdown-guide';
 </script>
 
 <!--@include: @/features/markdown-guide/guide.md-->

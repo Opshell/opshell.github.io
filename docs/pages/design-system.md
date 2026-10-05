@@ -9,7 +9,7 @@ aside: false
 
 <script setup>
 import { DesignSystem } from '@features/design-system';
-import { MdPrism, MdSpec, MdUsageSpectrum } from '@features/markdown-guide';
+import { MdGuide, MdSpec, MdUsageSpectrum } from '@features/markdown-guide';
 </script>
 
 <DesignSystem>

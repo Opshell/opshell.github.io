@@ -1,5 +1,15 @@
 <script setup lang="ts">
+    import type { TabKey } from '../constants';
+    import { computed } from 'vue';
     import { LAYER_OFF, LAYERS, USAGES } from '../constants';
+
+    // 稜鏡本身也是分頁按鈕：點哪一層就切到哪一頁，選中的那道光亮著、其他的變淡
+    const { active } = defineProps<{
+        active: TabKey;
+    }>();
+    const emit = defineEmits<{
+        select: [key: TabKey];
+    }>();
 
     // 每道光的高度固定，SVG 的光線終點才對得上右邊每一列的中心
     const ROW_HEIGHT = 64;
@@ -12,6 +22,7 @@
         y: index * (ROW_HEIGHT + ROW_GAP) + ROW_HEIGHT / 2,
         count: USAGES.filter(usage => usage.layer === layer.key).length
     }));
+    const isLayerActive = computed(() => rays.some(ray => ray.key === active));
 </script>
 
 <template>
@@ -38,7 +49,7 @@
                     v-for="(ray, index) in rays"
                     :key="ray.key"
                     class="md-prism__ray"
-                    :class="`is-${ray.key}`"
+                    :class="[`is-${ray.key}`, { 'is-dim': isLayerActive && active !== ray.key }]"
                     :style="{ '--delay': `${index * 90}ms` }"
                     :d="`M ${EXIT.x} ${EXIT.y} C 104 ${EXIT.y}, 104 ${ray.y}, 120 ${ray.y}`"
                 />
@@ -51,19 +62,29 @@
 
             <ol class="md-prism__layers">
                 <li v-for="ray in rays" :key="ray.key">
-                    <a class="md-prism__layer" :class="`is-${ray.key}`" :href="`#${ray.key}`">
+                    <button
+                        type="button"
+                        class="md-prism__layer"
+                        :class="[`is-${ray.key}`, { 'is-active': active === ray.key }]"
+                        :aria-pressed="active === ray.key"
+                        @click="emit('select', ray.key)"
+                    >
                         <span class="md-prism__layer-name">
                             {{ ray.name }}<small>{{ ray.en }} · {{ ray.count }} 種</small>
                         </span>
                         <span class="md-prism__layer-desc">{{ ray.desc }}</span>
-                    </a>
+                    </button>
                 </li>
             </ol>
         </div>
 
         <figcaption class="md-prism__footer">
-            <span>讀者看到的四道光</span>
-            <a class="is-off" :href="`#${LAYER_OFF.key}`">還有一道{{ LAYER_OFF.name }}的光 →</a>
+            <button type="button" :class="{ 'is-active': active === 'overview' }" @click="emit('select', 'overview')">
+                ← 先看光譜總覽
+            </button>
+            <button type="button" :class="{ 'is-active': active === LAYER_OFF.key }" @click="emit('select', LAYER_OFF.key)">
+                還有一道{{ LAYER_OFF.name }}的光 →
+            </button>
         </figcaption>
     </figure>
 </template>
@@ -89,11 +110,13 @@
 
             // 固定用 one-dark 的底色：淺色模式的程式碼底是淺灰，這行淡色字放上去會看不清楚
             background-color: #282C34 !important;
+            max-width: 100%;
             padding: .5rem .875rem !important;
             border-radius: 6px;
             color: #ABB2BF !important;
             font-family: var(--font-monospace);
             font-size: var(--font-size-s) !important;
+            white-space: normal;
         }
 
         &__body {
@@ -122,7 +145,10 @@
             stroke-dashoffset: 0;
             stroke-linecap: round;
             stroke-width: 3;
+            transition: opacity .3s var(--cubic-FiSo);
             animation: md-prism-ray .6s var(--cubic-FiSo) var(--delay) backwards;
+
+            &.is-dim { opacity: .25; }
         }
 
         &__layers {
@@ -146,18 +172,30 @@
             gap: .125rem;
             justify-content: center;
             background-color: var(--vp-c-bg);
+            width: 100%;
             height: var(--row-height);
             padding: 0 1rem;
+            border: none;
             border-left: 4px solid var(--md-layer);
             border-radius: 4px 8px 8px 4px;
-            color: var(--vp-c-text-1) !important;
-
-            // 設計系統頁沒有文章版型，.vp-doc 預設會給連結畫底線
-            text-decoration: none !important;
-            transition: transform .2s var(--cubic-FiSo);
+            color: var(--vp-c-text-1);
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+            transition:
+                transform .25s var(--cubic-FiSo),
+                background-color .25s var(--cubic-FiSo);
             overflow: hidden;
 
-            &:hover { transform: translateX(4px); }
+            &:hover,
+            &:focus-visible {
+                background-color: color-mix(in srgb, var(--md-layer) 8%, var(--vp-c-bg));
+                transform: translateX(4px);
+            }
+
+            &.is-active {
+                background-color: color-mix(in srgb, var(--md-layer) 16%, var(--vp-c-bg));
+            }
         }
 
         &__layer-name {
@@ -188,12 +226,26 @@
             gap: .5rem;
             justify-content: space-between;
             margin-top: 1rem;
-            color: var(--vp-c-text-2);
-            font-size: var(--font-size-s);
 
-            a {
-                color: var(--vp-c-text-2) !important;
-                text-decoration: none !important;
+            button {
+                background: none;
+                padding: .25rem .5rem;
+                border: none;
+                border-radius: 6px;
+                color: var(--vp-c-text-2);
+                font: inherit;
+                font-size: var(--font-size-s);
+                cursor: pointer;
+                transition:
+                    color .25s var(--cubic-FiSo),
+                    background-color .25s var(--cubic-FiSo);
+
+                &:hover,
+                &:focus-visible,
+                &.is-active {
+                    background-color: var(--vp-c-default-soft);
+                    color: var(--vp-c-text-1);
+                }
             }
         }
     }
@@ -202,5 +254,6 @@
     }
     @media (prefers-reduced-motion: reduce) {
         .md-prism__ray { animation: none; }
+        .md-prism__layer { transition: none; }
     }
 </style>

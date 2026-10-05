@@ -319,10 +319,17 @@
                 }
             }
 
-            // 這一頁沒有文章版型的寬度限制，長文太寬不好讀，收在閱讀寬度
+            // 這一頁沒有文章版型的寬度限制：內文收在閱讀寬度，右邊再留一欄給語法圖鑑停靠的導覽。
+            // 吸頂線要讓開上面那條設計系統分頁列
             .design-system__markdown {
-                max-width: 860px;
+                --md-guide-sticky-top: calc(var(--vp-nav-height) + 96px);
+                max-width: 1120px;
                 margin: 0 auto;
+
+                // 手機上設計系統的分頁列會折成兩行，吸頂線再往下讓
+                @media (width <= 640px) {
+                    --md-guide-sticky-top: calc(var(--vp-nav-height) + 136px);
+                }
             }
 
             .card {

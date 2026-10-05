@@ -11,6 +11,15 @@ export interface Layer {
     desc: string;
 }
 
+export type TabKey = 'overview' | LayerKey;
+
+export interface GuideTab {
+    key: TabKey;
+    name: string;
+    // 這一頁裡面的小節（h3 的 id），照頁面上的順序；側邊導覽拿來當目錄
+    items: { id: string; name: string }[];
+}
+
 export interface Usage {
     id: string;
     name: string;
@@ -49,6 +58,26 @@ export const USAGES: Usage[] = [
     { id: 'quote', name: '引言 ::: quote', layer: 'block', posts: 2 },
     { id: 'sandbox', name: '沙盒 ::: sandbox', layer: 'live', posts: 2 },
     { id: 'task', name: '任務清單 [ ]', layer: 'block', posts: 1 },
-    { id: 'off', name: '腳註、數學式', layer: 'off', posts: 2 },
+    { id: 'footnote-math', name: '腳註、數學式', layer: 'off', posts: 2 },
     { id: 'mark', name: '螢光標記', layer: 'text', posts: 0 }
+];
+
+// 頁面分頁：總覽放光譜，其他照四道光＋還沒折射。items 的 id 要跟 guide.md 裡 h3 的 {#id} 一致
+const name = (id: string) => USAGES.find(usage => usage.id === id)?.name ?? id;
+const items = (...ids: string[]) => ids.map(id => ({ id, name: name(id) }));
+
+export const GUIDE_TABS: GuideTab[] = [
+    { key: 'overview', name: '光譜總覽', items: [] },
+    { key: 'text', name: '文字層', items: items('bold', 'attrs', 'mark', 'strike', 'inline-code') },
+    { key: 'block', name: '區塊層', items: items('heading', 'container', 'quote', 'blockquote', 'table', 'task', 'image') },
+    { key: 'code', name: '程式碼層', items: items('code-block', 'diff', 'highlight', 'code-group') },
+    { key: 'live', name: '互動層', items: items('vue', 'sandbox') },
+    {
+        key: 'off',
+        name: '還沒折射',
+        items: [
+            { id: 'footnote-math', name: '腳註、數學式' },
+            { id: 'builtin-unused', name: '內建但還沒用過的' }
+        ]
+    }
 ];

@@ -2,6 +2,8 @@
 // 用 dataviz 的 validate_palette 驗過（色盲相鄰差 ΔE ≥ 10、一般視覺 ≥ 15、對背景 ≥ 3:1），
 // 深色模式是另一組值，不是同一組直接沿用。改色要重跑驗證。
 :root {
+    // 語法圖鑑導覽的吸頂線：預設在 VitePress 導覽列下面。放 :root 才能讓外層頁面覆寫（設計系統頁上面多一條分頁列）
+    --md-guide-sticky-top: calc(var(--vp-nav-height) + 1rem);
     --md-layer-text: #A87408;
     --md-layer-block: #D2387A;
     --md-layer-code: #8A45D8;
@@ -22,3 +24,6 @@
 .is-code { --md-layer: var(--md-layer-code); }
 .is-live { --md-layer: var(--md-layer-live); }
 .is-off { --md-layer: var(--md-layer-off); }
+
+// 光譜總覽不屬於任何一層，用部落格的琥珀
+.is-overview { --md-layer: var(--color-primary-1); }
