@@ -172,6 +172,8 @@
             </section>
 
             <div class="op-home__sky">
+                <!-- 白光：從頁面最上面垂直打進 O -->
+                <span class="op-home__beam" aria-hidden="true" />
                 <p class="op-home__caption op-home__appear">
                     白光從天上來，在 O 裡演化，落成底下寫的每一類。光越寬，文章越多；點一道光或分類，看那一類。
                 </p>
@@ -374,9 +376,53 @@
             @include setFlex(flex-start, stretch, 1rem, column);
         }
         &__sky {
+            --orb-size: 260px;
+            position: relative;
             @include setFlex(space-between, center, 1.5rem, column);
             align-self: stretch;
             pointer-events: none; // 空的地方讓給畫布的滑鼠（點光、瞄準）
+        }
+        @include setRWD(600px) {
+            &__sky { --orb-size: 220px; }
+        }
+
+        // 白光（2026-10-06 從畫布搬出來，使用者：「太吃效能」）：一個元素、幾層 CSS 漸層——中間細而亮的芯，兩邊越來越淡；
+        // 上面淡進來，停在玻璃圈的上緣（圈在 240 的方格裡從 8 開始）。不動：任何一直跑的 CSS 動畫都會讓整頁每秒合成 60 次
+        &__beam {
+            position: absolute;
+            top: -2rem; // 首頁最外層的上緣（扣掉 padding）
+            bottom: calc(var(--orb-size) * (1 - 8 / 240));
+            left: 50%;
+            background:
+                linear-gradient(90deg, transparent 30.4px, var(--op-beam) 30.4px 33.6px, transparent 33.6px),
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    color-mix(in srgb, var(--op-beam) 6%, transparent) 20%,
+                    color-mix(in srgb, var(--op-beam) 16%, transparent) 38%,
+                    color-mix(in srgb, var(--op-beam) 45%, transparent) 50%,
+                    color-mix(in srgb, var(--op-beam) 16%, transparent) 62%,
+                    color-mix(in srgb, var(--op-beam) 6%, transparent) 80%,
+                    transparent
+                );
+            width: 64px;
+            margin-left: -32px;
+            pointer-events: none;
+            transform-origin: top;
+            z-index: -1;
+            mask-image: linear-gradient(to bottom, transparent, #000 30%);
+
+            // 打在玻璃上的那一點
+            &::before {
+                content: '';
+                position: absolute;
+                bottom: -16px;
+                left: 50%;
+                background: radial-gradient(closest-side, var(--op-beam), transparent);
+                width: 48px;
+                height: 32px;
+                margin-left: -24px;
+            }
         }
 
         // 說明放左上，讓開正中間垂直落下的白光
@@ -391,17 +437,15 @@
 
         // 玻璃 O：光絲畫在畫布上，這裡只有玻璃（不動）
         &__orb {
-            --size: 260px;
             display: block;
             background: none;
-            width: var(--size);
-            height: var(--size);
+            width: var(--orb-size);
+            height: var(--orb-size);
             padding: 0;
             border: 0;
             border-radius: 50%;
             pointer-events: auto;
             cursor: pointer;
-            @include setRWD(600px) { --size: 220px; }
 
             svg {
                 display: block;
@@ -550,23 +594,13 @@
             }
         }
 
-        // 分隔線：標題與卡片之間（原本的位置），一道光譜上一顆光點來回跑；光從 O 落在這條線上
+        // 分隔線：標題與卡片之間（原本的位置），一道光譜；光從 O 落在這條線上
         &__divider {
             position: relative;
             display: block;
             background: linear-gradient(90deg, transparent, var(--a1) 12%, var(--a2) 50%, var(--a3) 88%, transparent);
             height: 2px;
             box-shadow: 0 0 14px color-mix(in srgb, var(--a2) 55%, transparent);
-            overflow: hidden;
-
-            &::after {
-                content: '';
-                position: absolute;
-                inset: 0 auto 0 0;
-                background: linear-gradient(90deg, transparent, var(--op-origin), transparent);
-                width: 16%;
-                transform: translateX(-100%);
-            }
         }
 
         // 分類標籤靠右、集中在 O 的下方：光自然地散開落下，不鋪滿整個寬
@@ -682,10 +716,10 @@
             }
         }
 
-        // 會一直動的只有分隔線上那顆光點（只動 transform）；換一道光時分隔線從中間重新畫出來
+        // 首頁上一直在動的只有 LightStage 的畫布（每秒 20 張）：CSS 的無限動畫（就算只動 transform）會讓整頁每秒合成 60 次，
+        // 量過拿掉它們，合成器的負擔少九成（2026-10-06，使用者：「電腦要燒起來了」）。換一道光時分隔線從中間重新畫出來（點了才動）
         @media (prefers-reduced-motion: no-preference) {
             &__divider { animation: op-home-draw .6s var(--cubic-FiSo) both; }
-            &__divider::after { animation: op-home-run 5s 1s linear infinite; }
         }
 
         // #endregion
@@ -776,6 +810,7 @@
         @media (prefers-reduced-motion: no-preference) {
             &.is-playing {
                 .op-home__orb { animation: op-home-bloom .7s 4s var(--cubic-SiRo) both; }
+                .op-home__beam { animation: op-home-drop .6s 4.3s var(--cubic-FiSo) both; }
                 .op-home__caption { animation: op-home-fade .8s 4.6s both; }
                 .op-home__now > .op-home__appear { animation: op-home-fade .6s 5s both; }
                 .op-pad { animation: op-home-slide .7s calc(5.1s + var(--i) * .12s) var(--cubic-FiSo) both; }
@@ -804,6 +839,9 @@
             opacity: 0;
         }
     }
+    @keyframes op-home-drop {
+        from { transform: scaleY(0); }
+    }
     @keyframes op-home-fade {
         from { opacity: 0; }
     }
@@ -827,9 +865,6 @@
     }
     @keyframes op-home-draw {
         from { clip-path: inset(0 50%); }
-    }
-    @keyframes op-home-run {
-        to { transform: translateX(725%); }
     }
 
     // #region [P] 「最近在忙的」大卡：游標的光（--mx／--my）與傾斜（--rx／--ry）由 v-spotlight 寫進來
@@ -909,10 +944,13 @@
                     inset: 0;
                     background: var(--pr-amber);
                     border-radius: 50%;
-                    animation: op-pad-pulse 2s ease-out infinite; // 只動 transform 與 opacity：交給合成器，不重畫
+                    opacity: 0;
                 }
             }
         }
+
+        // 「開發中」的脈衝只在游標進來時跳：一直跳的話整頁每秒合成 60 次
+        &--dindon:hover &__status .pulse::after { animation: op-pad-pulse 2s ease-out infinite; }
         &__screen {
             position: absolute;
             right: 5%;
