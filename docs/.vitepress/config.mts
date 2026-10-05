@@ -5,7 +5,7 @@ import container from 'markdown-it-container';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons-ng';
 import { DefaultTheme, defineConfig } from 'vitepress';
 import { renderSandbox } from 'vitepress-plugin-sandpack';
 
@@ -422,9 +422,14 @@ export default defineConfig({
             createSvgIconsPlugin({
                 iconDirs: [path.resolve(__dirname, '../', 'public/icons')], // 指定需要占存的Icon目錄
                 // iconDirs: [`${new URL('../public/icons', import.meta.url).href}`], // 指定需要占存的Icon目錄
-                symbolId: '[name]', // 指定symbolId格式 預設：'icon-[dir]-[name]
+                // 根目錄的 icon 就是檔名（開頭多的 - 會被去掉）；子資料夾是 colorful-css。
+                // 舊外掛是 colorful/css，-ng 不允許 id 有斜線，所以履歷的 icon 名稱跟著改成 colorful-xxx
+                symbolId: '[dir]-[name]',
                 inject: 'body-last', // | 'body-first' sprite插入位置
-                customDomId: '__svg__icons__dom__' // 自訂 Dom ID
+                // VitePress 自己產生 HTML，不走 Vite 的 index.html，預設的 inline 注入不會生效；
+                // sprite 由主題的 virtual:svg-icons/register 在瀏覽器裡掛上去
+                htmlMode: 'none',
+                customDomId: '__svg__icons__dom__' // 自訂 Dom ID，設計系統的 IconGallery 用它找 sprite
             })
         ],
         // 代理伺服器

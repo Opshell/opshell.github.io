@@ -19,11 +19,7 @@
             const svgList = Array.from(spriteSvg.children);
 
             svgList.forEach((svgDom) => {
-                // The id is usually 'icon-filename' or just 'filename' depending on config.
-                // Config says symbolId: '[name]', so it should be just the filename.
-                // However, let's check what the actual IDs are.
-                // If the ID is 'icon-foo', we might want to strip 'icon-'.
-                // But based on config `symbolId: '[name]'`, it should be exact.
+                // id 就是 <ElSvgIcon name> 要填的值：根目錄是檔名，子資料夾是 colorful-css（config.mts 的 symbolId: '[dir]-[name]'）
                 iconList.value.push(svgDom.id);
             });
         }

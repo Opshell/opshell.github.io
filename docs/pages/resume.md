@@ -26,22 +26,22 @@ contact:
 skills:
   - type: Languages
     items:
-      - { icon: colorful/typescript, text: TypeScript, color: 3178C6 }
-      - { icon: colorful/javascript, text: JavaScript (ES6+), color: FFBB00 }
-      - { icon: colorful/html, text: HTML, color: E24B2A }
-      - { icon: colorful/css, text: CSS, color: 1872B7 }
-      - { icon: colorful/scss, text: SCSS, color: CC6699 }
-      - { icon: colorful/php, text: PHP, color: 8993BE }
-      - { icon: colorful/sql, text: SQL, color: F16529 }
+      - { icon: colorful-typescript, text: TypeScript, color: 3178C6 }
+      - { icon: colorful-javascript, text: JavaScript (ES6+), color: FFBB00 }
+      - { icon: colorful-html, text: HTML, color: E24B2A }
+      - { icon: colorful-css, text: CSS, color: 1872B7 }
+      - { icon: colorful-scss, text: SCSS, color: CC6699 }
+      - { icon: colorful-php, text: PHP, color: 8993BE }
+      - { icon: colorful-sql, text: SQL, color: F16529 }
   - type: Frameworks
     items:
-      - { icon: colorful/vue, text: Vue 3, color: 4da986 }
-      - { icon: colorful/vite, text: Vite, color: 9B5FFC }
+      - { icon: colorful-vue, text: Vue 3, color: 4da986 }
+      - { icon: colorful-vite, text: Vite, color: 9B5FFC }
       - { text: Pinia, color: FFD859 }
       - { text: Zod, color: 3E67B1 }
       - { text: TanStack Query, color: FF4154 }
       - { text: Quasar, color: 00B4FF }
-      - { icon: colorful/laravel, text: Laravel, color: F35045 }
+      - { icon: colorful-laravel, text: Laravel, color: F35045 }
   - type: Tools
     items:
       - { text: Git, color: F05032 }
@@ -50,9 +50,9 @@ skills:
       - { text: CI/CD }
       - { text: Postman }
       - { text: JIRA / Trello }
-      - { icon: colorful/figma, text: Figma, color: A259FF }
-      - { icon: colorful/photoshop, text: Photoshop, color: 31A8FF }
-      - { icon: colorful/illustrator, text: Illustrator, color: FF9A00 }
+      - { icon: colorful-figma, text: Figma, color: A259FF }
+      - { icon: colorful-photoshop, text: Photoshop, color: 31A8FF }
+      - { icon: colorful-illustrator, text: Illustrator, color: FF9A00 }
   - type: Others
     items:
       - { text: RESTful API }
