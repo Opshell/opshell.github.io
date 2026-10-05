@@ -236,3 +236,53 @@
 - `phone`（1、8、9、11、12、28）與 `diagram`（4、10、39）照舊；功能地圖連到的演示 id 都還在（測試會檢查）。
 - 驗證：抽查影片與縮圖 200；開發伺服器打開 #16 能播；`pnpm check` 全過。
 - #0089（重看導覽）是上架開給前端的，網頁不用動。
+
+# 2026-10-05：套件評估、不蒜子換成自家後端
+
+**使用者**：檢查部落格目前用的所有套件，過時的、有更好同功能替代品的做評估與比較文件，先不動手。
+不蒜子應該完全用不到了，我們有自己的後端，重新蓋自己的訪客系統，需要後端配合的開單。
+
+- 評估文件：`docs/devlog/套件評估-2026-10-05.md`。重點：`axios`、`@types/fs-extra`、直接相依的 `postprocessing` 沒在用；
+  `vite-plugin-svg-icons` 2022 年就停更、帶進舊 svgo，建議換相容的 `vite-plugin-svg-icons-ng`；
+  TypeScript 7（Go 原生版，沒有 `vue-tsc`／`typescript-eslint` 要的 JS API）、Vitest 5、VitePress 2（還在 alpha）都先不升；
+  `pnpm audit` 53 個全在開發工具鏈，網站是靜態檔不受影響。
+- 不蒜子實測：腳本載得到，計數 API 回 **502**，站上數字全是 `--`，舊數字也拿不回來。
+  另外發現 `AsideWidget.vue` 輪詢的是 `busuanzi_value_site_pv_hidden`，不蒜子只填 `busuanzi_value_site_pv`，側欄數字本來就不會出現。
+- 開溝通板 **#0090** 給後端：公開計數端點（記一次、回這頁 PV／全站 PV／全站 UV），不用 cookie、不存 IP（每天換鹽的雜湊），
+  擋爬蟲、驗路徑、限流。後端寫進 api.md 後網頁再接：新 feature `visitor`、拿掉 `reloadBusuanzi` 與所有 `busuanzi_*` id。
+- 等使用者決定：要不要給起始值（記得的舊總數）、後台要不要看熱門頁面。
+- 後端當天就回了 #0090（api.md 第 22 節 `POST /v1/blog/hit`，**還沒部署**），網頁接好：
+  - 新 feature `features/visitor/`：`path.ts` 正規化路徑（去 query／hash、`index.html`→`/`、先解碼再 `encodeURI`，
+    因為後端不收空白而文章檔名有 40 個帶空白；同一頁永遠送同一個字串）、`api.ts`（Zod，用到才載入，不進主題 JS）、
+    `useVisitorStats` 全站共用一組 ref，連續換頁只採用最後一頁的回應。
+  - 計數的後端在第一次呼叫時決定並記住：`?api=` 只在進站那頁的網址上，換頁後就沒了。正式站 opshell.me 才送；localhost 只有 `?api=` 時送。
+  - `theme/index.ts` 拿掉 `reloadBusuanzi` 與 `NO_THIRD_PARTY_PATHS`（後台與帳號頁不計數改在 `path.ts` 的 `SKIP_PREFIXES`）。
+    `ArticleMeta`、`AsideWidget`、`ExpandLayout` 改讀 ref；側欄的 2 秒輪詢與隱藏 span 拿掉。
+  - `apiBase.ts` 從 `features/dindon/` 搬到 `shared/utils/`（叮咚與訪客共用），CLAUDE.md 與兩份 skill 跟著改。
+  - 補 `public/icons/visibility.svg`：瀏覽數前的眼睛圖示一直是空白，sprite 裡根本沒有這個檔。
+- 驗證：`pnpm check` 全過（新增 `path.test.ts` 6 個，改壞確認會紅）。本機後端連的是正式 Neon、migration 還沒經使用者同意，
+  所以沒起後端，改用照第 22 節回應的假伺服器＋`docs:preview`＋Playwright：文章頁 1,235、側欄 1k／321、站內換頁第二頁照樣送到
+  `?api=` 的後端、後台與沒帶 `?api=` 的頁面不送，送出的路徑是百分比編碼。
+- 上正式站要等：後端部署 #0090、這個分支（`redesign-2026-10`）併回 main。
+
+# 2026-10-05：Markdown 語法圖鑑（重構 markdown-theme-preview）
+
+**使用者**：檢查部落格裡用到的 markdown 語法與各種客製化套件，整理出來，放進並重構 `docs/pages/markdown-theme-preview.md`，
+要好看、有創意、易懂，也讓讀者知道每個語法為什麼這樣呈現、該怎麼理解。（中途補充：新增檔案不需要他同意。）
+
+- 盤點：grep 掃 `pages/article` 262 個 md（含草稿），數每種語法「幾篇用過」；對照 `config.mts` 的 `markdown` 設定與 `_basic.scss`、`_vitepress.scss` 的樣式。
+- 頁面改名〈Markdown 語法圖鑑：一行字怎麼折射成一篇文章〉，主題是稜鏡（出自〈Opshell 的哲學意義〉）：一行原始碼折射成文字／區塊／程式碼／互動四道光，
+  加一道「還沒折射」。新 feature `features/markdown-guide/`：`MdPrism`（主視覺）、`MdUsageSpectrum`（使用篇數長條圖，點了跳到說明）、
+  `MdSpec`（一個語法一張卡：寫法 → 實際渲染 → 為什麼這樣呈現 → 讀者怎麼讀）。卡片的「呈現」是 md 原文直接渲染，主題改了會跟著變。
+  四色用 dataviz 的 `validate_palette` 驗過色盲與深淺色（`layers.scss`）。
+- 順手修的 bug：
+  - **`-|螢光|-` 從來沒生效**：`config.mts` 的 inline 規則 push 的是 `mark_open`，渲染規則卻寫 `span_open`，輸出的是沒有 class 的 `<span>`，也沒有 `.mark` 樣式。
+    改成 `mark_open`／`mark_close`，`_basic.scss` 補螢光筆樣式（限定 `.vp-doc span.mark`，叮咚功能地圖也有自己的 `.mark`）。
+  - **`{.typescript}` 淺色模式沒顏色**：`--color-tag-typescript` 只在深色定義，加退回 `--color-mdtag-typescript`。
+- 盤點時看到、沒動的：
+  - 淺色模式的程式碼區塊底是淺灰（`_basic.scss` 的 `div[class*=language-]`），one-dark-pro 的淡色字對比偏低。
+  - `markdown-it-footnote` 沒掛（〈01-session-cookie〉的 7 個 `[^1]` 照原文印）；`markdown.math` 沒開。
+  - 〈Opshell 的哲學意義 copy.md〉在 `article/` 根目錄，也是 `isPublished: true`，跟 `life-murmurs/` 那篇重複。
+  - 〈fsd-是什麼.md〉整篇的換行不見了，擠成一行。
+- 驗證：`pnpm check` 全過；`docs:preview` 用 Edge 無頭截圖看 1440 淺／深色與 390 深色，手機寬 `scrollWidth` = 390。
+- 在 `redesign-2026-10` 分支，還沒 commit。
