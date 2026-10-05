@@ -9,6 +9,13 @@ aside: false
 
 <script setup>
 import { DesignSystem } from '@features/design-system';
+import { MdPrism, MdSpec, MdUsageSpectrum } from '@features/markdown-guide';
 </script>
 
-<DesignSystem />
+<DesignSystem>
+<template v-slot:markdown>
+
+<!--@include: @/features/markdown-guide/guide.md-->
+
+</template>
+</DesignSystem>

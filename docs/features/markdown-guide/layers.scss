@@ -1,0 +1,24 @@
+// 四道光的顏色：從部落格的琥珀出發，往桃紅、紫、青綠展開。
+// 用 dataviz 的 validate_palette 驗過（色盲相鄰差 ΔE ≥ 10、一般視覺 ≥ 15、對背景 ≥ 3:1），
+// 深色模式是另一組值，不是同一組直接沿用。改色要重跑驗證。
+:root {
+    --md-layer-text: #A87408;
+    --md-layer-block: #D2387A;
+    --md-layer-code: #8A45D8;
+    --md-layer-live: #008C78;
+    --md-layer-off: var(--vp-c-text-3);
+}
+
+.dark {
+    --md-layer-text: #BE8A1E;
+    --md-layer-block: #E0508E;
+    --md-layer-code: #A06EF0;
+    --md-layer-live: #24A08F;
+}
+
+// 元件用 is-<層> 拿到自己的顏色，之後一律寫 var(--md-layer)
+.is-text { --md-layer: var(--md-layer-text); }
+.is-block { --md-layer: var(--md-layer-block); }
+.is-code { --md-layer: var(--md-layer-code); }
+.is-live { --md-layer: var(--md-layer-live); }
+.is-off { --md-layer: var(--md-layer-off); }

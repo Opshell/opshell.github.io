@@ -256,10 +256,11 @@ export default defineConfig({
                 state.pos = end;
                 return true;
             });
-            md.renderer.rules.span_open = (tokens, idx, options, env, slf) => {
+            // 規則名稱要對上上面 push 的 token type（mark_open），寫成 span_open 不會被呼叫，class 就掛不上去
+            md.renderer.rules.mark_open = (tokens, idx, options, env, slf) => {
                 return `<span class="mark">`; // 這裡可以自定義 class
             };
-            md.renderer.rules.span_close = (tokens, idx, options, env, slf) => {
+            md.renderer.rules.mark_close = (tokens, idx, options, env, slf) => {
                 return `</span>`;
             };
 

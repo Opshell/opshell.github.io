@@ -49,7 +49,17 @@ html {
 .success { color: var(--vp-c-green-2) !important; }
 
 .vue { color: #4AA985 !important; }
-.typescript { color: var(--color-tag-typescript) !important; }
+
+// --color-tag-typescript 只有深色模式有定義，淺色退回 mdtag 那一色，不然淺色模式整個沒顏色
+.typescript { color: var(--color-tag-typescript, var(--color-mdtag-typescript)) !important; }
+
+// -|文字|- 的螢光筆（config.mts 的 mark 規則）：只塗下半截，像真的拿螢光筆畫過，跟粗體的膠囊分得開。
+// 限定在 .vp-doc 的 span，叮咚功能地圖也有自己的 .mark
+.vp-doc span.mark {
+    background: linear-gradient(transparent 55%, color-mix(in srgb, var(--color-primary-1) 45%, transparent) 55%);
+    padding: 0 .125em;
+    box-decoration-break: clone;
+}
 
 .vp-doc {
     // basic
