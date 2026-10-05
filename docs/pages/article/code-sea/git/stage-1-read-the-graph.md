@@ -1,6 +1,6 @@
 ---
 title: '關於 VS Code Git GUI 的那些事（一）：看懂那張圖：點、便利貼、站的地方'
-image: /images/article/git/commit-chain.svg
+image: /images/article/git/refs-and-head.svg
 description: 'git 的圖只有三種東西：commit 是一個點，分支是貼在點上的便利貼，HEAD 是你現在站的那張。把這三個詞記住，之後所有指令都只是在圖上搬便利貼。'
 keywords: ''
 author: Opshell

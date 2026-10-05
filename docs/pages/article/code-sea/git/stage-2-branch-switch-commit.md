@@ -1,6 +1,6 @@
 ---
 title: '關於 VS Code Git GUI 的那些事（二）：開分支、切分支、commit：便利貼的日常'
-image: /images/article/git/branch-create.svg
+image: /images/article/git/wrong-branch-fix.svg
 description: '開分支是貼便利貼，切分支是換一張站，commit 是把站著的那張往前推。三個動作在 VS Code 裡各在哪裡按、指令是什麼，以及不小心 commit 到 main 上怎麼辦。'
 keywords: ''
 author: Opshell

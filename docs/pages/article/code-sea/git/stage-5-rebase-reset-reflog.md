@@ -1,6 +1,6 @@
 ---
 title: '關於 VS Code Git GUI 的那些事（五）：整理與救援：rebase、reset、reflog'
-image: /images/article/git/rebase.svg
+image: /images/article/git/reset-modes.svg
 description: 'rebase 是剪下貼上，貼過去的是複製品；reset 是把便利貼往回撕，三種力道差在哪幾層跟著退；reflog 是「我剛剛到底做了什麼」的黑盒子。三個指令都在改歷史，所以都有一條「推出去就不要碰」的線。'
 keywords: ''
 author: Opshell
