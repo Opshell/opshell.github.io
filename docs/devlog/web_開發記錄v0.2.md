@@ -616,3 +616,21 @@
 - **事實核對**：撞號那次沒記錄號碼（文裡不寫號碼）；#0064 是 09-28、當時還沒有 worktree、有鏡像與對照表（照實寫）；使用者全域沒設 `pull.rebase` 與 `lg` 別名（改成建議）；worktree 裡都沒有 `.env.local`（寫成「要用就複製」）；Android 與後端各只有一條 main（寫成 trunk-based 極簡版）。
 - 九篇都 `isPublished: false`，開頭有 `::: warning 草稿` 列要確認的地方。`pnpm check` 通過才 commit，沒 push、沒併 main。
 - **要使用者決定的**：`GitLens.md`、`Git.md` 兩個舊檔留著沒動（內容已收進第五篇，可刪）；第零篇連到 GitHub 上的產圖腳本，要併進 main 後連結才會通；hook／branch protection 是提案，還沒做。
+
+# 2026-10-06：所有開發分支整合進 main
+
+**使用者**：現在有很多分支和開發項目，應該都已經完成了。檢查一下，沒問題就整合到 main，檢查有沒有問題、修正優化一下，沒問題就 push。
+
+- **盤點**：比 main 多東西的分支有七條——`redesign-2026-10`（翻新，35 個 commit）、`redesign-home`（首頁第三版，從翻新分出來）、
+  `feat/markdown-guide`（語法圖鑑與文章版型檢修）、`deps-2026-10`（套件整理、不蒜子換自家後端的前置）、`perf/font-subset`（Noto Sans TC 切 108 片）、
+  `drafts-2026-10`（草稿盤點，133 篇補完、43 篇標記未公開）、`docs/git-series`（Git 系列重寫＋AI 兩篇，不上線）。
+  其他分支（`dashboard-1002`、`dindon-guide`、`fix-detail-overlap`、`develop_galaxy_tags`）早就在 main 裡了。每個 worktree 都沒有沒 commit 的東西。
+- **做法**：從 main 開 `integrate-2026-10`（worktree `../opshell-integrate`），照「翻新 → 首頁 → 語法圖鑑 → 套件 → 字型 → 草稿 → Git 系列」一條條 `--no-ff` 合進來，不動任何人正在用的工作目錄。
+- **衝突**：
+  - 開發記錄（每條分支都往後加段落）：兩邊都留，按合併順序接起來。
+  - `ArticleLayout.vue` 的窄螢幕規則：翻新與語法圖鑑各修了一次同一個 bug（選擇器對不到、手機上三欄擠成一條）。留語法圖鑑那版：跟「收起側欄」用同一套三欄、寬度 0 的寫法。
+  - `pnpm-lock.yaml`：拿一邊、照合併後的 `package.json` 重跑 `pnpm install`，再用 `--frozen-lockfile` 確認一致（CI 用這個）。
+- **檢查**：`pnpm check` 全過（152 個測試、build 完成）；production build 用 `vitepress preview` 逛首頁、文章（桌面與手機）、語法圖鑑、設計系統、時間軸、標籤、履歷、叮咚各頁、作品集：
+  沒有新的錯誤。剩下的都不是這次造成的——鐵人賽文章裡 iThome 的外連圖被它的防盜連擋掉、設計系統與隱私權頁在本機 build 有 hydration mismatch（main 自己在本機 build 也有，正式站沒有）、
+  後台的 Google 登入在 localhost 403、作品集的 WebGL 在無頭瀏覽器開不起來。
+- **修正**：sitemap 的網址還是 `opshell.github.io`（會 301 到 `opshell.me`），改成 `opshell.me`。

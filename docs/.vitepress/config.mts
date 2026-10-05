@@ -34,7 +34,8 @@ export default defineConfig({
     title: 'Opshell\'s Blog',
     description: 'Opshell\'s work and life records.',
     sitemap: {
-        hostname: 'https://opshell.github.io',
+        // 網站的實際網址是 opshell.me（github.io 會 301 轉過去）；sitemap 寫轉址的網址，搜尋引擎每一條都要多跳一次
+        hostname: 'https://opshell.me',
         transformItems: (items) => {
             return items.map((item) => {
                 const { url } = item;
