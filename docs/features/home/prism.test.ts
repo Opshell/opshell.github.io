@@ -1,14 +1,14 @@
 import type { Post } from '@shared/schemas/post.schema';
 import type { Chapter } from './contents';
 import { describe, expect, it } from 'vitest';
-import { aimFromPointer, along, buildRays, END_X, exitsFor, ORB, photonAt, refract, SOURCE_Y, stars } from './prism';
+import { aimFromPointer, along, buildRays, exitsFor, ORB, rayFor, refract, SOURCE_Y, stars } from './prism';
 
 const post = (url: string, date = '2026-01-01'): Post => ({ title: url, url, date, category: [], tags: [], excerpt: '' } as unknown as Post);
 const chapter = (key: string, count: number, date?: string): Chapter => ({ key, label: key, count, first: post(`/${key}/1`), latest: post(`/${key}/2`, date) });
 const fromCenter = (p: { x: number; y: number }) => Math.hypot(p.x - ORB.cx, p.y - ORB.cy);
 
 describe('buildRays', () => {
-    it('照光譜順序由上往下排，少於兩篇的併成「其他」', () => {
+    it('照光譜順序排，少於兩篇的併成「其他」', () => {
         const rays = buildRays([
             chapter('typescript-thirty-days', 31),
             chapter('vitepress-thirty-days', 30),
@@ -19,8 +19,6 @@ describe('buildRays', () => {
         expect(rays.map(ray => ray.key)).toEqual(['vitepress-thirty-days', 'Git', 'typescript-thirty-days', '其他']);
         expect(rays.at(-1)).toMatchObject({ count: 2, href: '/timeline.html', members: ['vue', '未分類'] });
         expect(rays.at(-1)!.latest.url).toBe('/vue/2');
-        const ys = rays.map(ray => ray.y);
-        expect([...ys].sort((a, b) => a - b)).toEqual(ys);
     });
 
     it('由上往下照順序分到不同的元素，顏色重複也不會重複元素', () => {
@@ -78,23 +76,23 @@ describe('along', () => {
     });
 });
 
-describe('光點、瞄準、星塵', () => {
-    it('光點從出口走到終點，越遠越散', () => {
-        const exit = { x: 340, y: 262 };
-        const ray = { y: 100, spread: 10 };
-        expect(photonAt(exit, ray, 0, 1)).toEqual(exit);
-        const end = photonAt(exit, ray, 1, 1);
-        expect(end.x).toBe(END_X);
-        expect(end.y).toBeCloseTo(108);
-    });
-
+describe('瞄準、星塵、文章屬於哪道光', () => {
     it('滑鼠的高度換成入射光的高度，超出範圍的夾住', () => {
         expect(aimFromPointer(0)).toBe(SOURCE_Y.min);
         expect(aimFromPointer(1.4)).toBe(SOURCE_Y.max);
     });
 
     it('星塵每次都一樣', () => {
-        expect(stars(5)).toEqual(stars(5));
-        expect(stars(5)).toHaveLength(5);
+        expect(stars(5, 800, 400)).toEqual(stars(5, 800, 400));
+        expect(stars(5, 800, 400)).toHaveLength(5);
+        for (const star of stars(30, 800, 400)) expect(star.y).toBeLessThanOrEqual(400);
+    });
+
+    it('rayFor：找自己那道光；併進「其他」的也找得到；沒分類算未分類', () => {
+        const rays = buildRays([chapter('Git', 7), chapter('vue', 1), chapter('未分類', 1)]);
+        expect(rayFor(rays, 'Git')?.key).toBe('Git');
+        expect(rayFor(rays, 'vue')?.key).toBe('其他');
+        expect(rayFor(rays, undefined)?.key).toBe('其他');
+        expect(rayFor(rays, 'nope')).toBeUndefined();
     });
 });

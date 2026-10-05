@@ -1,14 +1,12 @@
 import type { SpectrumHue } from '@shared/utils/spectrum';
 import type { Chapter } from './contents';
-import { categoryHue, SPECTRUM } from '@shared/utils/spectrum';
+import { categoryHue, normalizeCategory, SPECTRUM } from '@shared/utils/spectrum';
 
-// 首頁的光學台（2026-10 翻新第二版，使用者：「概念很棒，但視覺粗糙，不一定要用 AI 生成的圖」）。
-// 一道白光（原初）從左邊射進玻璃 O，在裡面演化成六種元素的光絲，各自從 O 的右緣稍微分開的地方出去，成為各分類的光。
-// 滑鼠上下是在「瞄準」入射光：光從哪個高度進來，出射的位置就往反方向偏一點，整把光跟著轉。
-// 這裡只算幾何（純函式、有測試），畫在 components/LightBench.vue。
+// 首頁的光（2026-10 翻新第二版起，使用者：「概念很棒，但視覺粗糙，不一定要用 AI 生成的圖」）。
+// 一道白光（原初）射進玻璃 O，在裡面演化成六種元素的光絲，各自從 O 的邊緣稍微分開的地方出去，成為各分類的光。
+// 這裡是 O 裡面的座標：光由左往右流（第三版畫的時候把 x、y 對調成由上往下，見 stage.ts）。
+// 瞄準：入射光從哪個高度進來，出射的位置就往反方向偏一點，整把光跟著轉。純函式、有測試，畫在 components/LightStage.vue。
 
-/** SVG 與畫布共用的座標系：寬 760、高 520 */
-export const VIEW = { width: 760, height: 520 } as const;
 /** 玻璃 O */
 export const ORB = { cx: 236, cy: 262, r: 112 } as const;
 /** 入射光從畫面外的這個 x 射進來；高度可以變 */
@@ -19,12 +17,10 @@ export const SOURCE_Y = { min: 120, max: 420, rest: 360 } as const;
 const BEND = 0.55;
 /** 各道光的出口沿著 O 的右緣分開多少（弧度，全部加起來）：不擠在同一點 */
 const EXIT_FAN = 0.95;
+/** 測試用的光的終點 x（第三版的終點是分隔線上的標籤，由 stage.ts 換算） */
 export const END_X = 520;
-const TOP = 52;
-const BOTTOM = VIEW.height - 52;
 const MIN_WIDTH = 3;
 const MAX_WIDTH = 15;
-export const LABEL_X = END_X + 18;
 
 export interface Point {
     x: number;
@@ -37,9 +33,9 @@ export type ElementKey = 'metal' | 'earth' | 'fire' | 'wood' | 'wind' | 'water';
 
 export interface Element {
     key: ElementKey;
-    /** 一個字，標在光的標籤前面 */
+    /** 元素的名字（只在程式裡，畫面上不寫；使用者：「元素名稱不用顯示」） */
     glyph: string;
-    /** 在玻璃裡的樣子（給螢幕閱讀器與滑過時看） */
+    /** 在玻璃裡的樣子 */
     trait: string;
 }
 
@@ -69,9 +65,7 @@ export interface Ray {
     members: string[];
     /** 這一類最新的一篇：滑過那道光時顯示 */
     latest: { title: string; url: string; date: string };
-    /** 光的終點高度（標籤也對齊這裡） */
-    y: number;
-    /** 終點那一端的半寬 */
+    /** 光的粗細（落地那一端） */
     spread: number;
     /** 光點的數量：文章越多越熱鬧 */
     photons: number;
@@ -99,24 +93,6 @@ export function exitsFor(sourceY: number, count: number): Point[] {
     return Array.from({ length: count }, (_, index) => round2(onOrb(exitAngle - EXIT_FAN / 2 + (EXIT_FAN * index) / (count - 1))));
 }
 
-/** 一道光的多邊形：從自己的出口細細的，到終點張開 */
-export function rayPolygon(exit: Point, ray: Pick<Ray, 'y' | 'spread'>): string {
-    return [
-        `${round(exit.x)},${round(exit.y - 1.2)}`,
-        `${END_X},${round(ray.y - ray.spread)}`,
-        `${END_X},${round(ray.y + ray.spread)}`,
-        `${round(exit.x)},${round(exit.y + 1.2)}`
-    ].join(' ');
-}
-
-/** 光上的一顆光點在第 t（0～1）的位置：橫向在那道光的寬度裡（lane -1～1），越遠越散 */
-export function photonAt(exit: Point, ray: Pick<Ray, 'y' | 'spread'>, t: number, lane: number): Point {
-    return {
-        x: exit.x + (END_X - exit.x) * t,
-        y: exit.y + (ray.y - exit.y) * t + lane * ray.spread * t * 0.8
-    };
-}
-
 // #region [P] 光絲的形狀在 elements.ts（元素之間會互相影響，要一起算）
 
 /** 折線上第 t（0～1，照點的順序算）的位置：光點沿著光絲走用 */
@@ -134,7 +110,7 @@ export const aimFromPointer = (ratio: number) => SOURCE_Y.min + (SOURCE_Y.max - 
 
 /**
  * 篇數夠多的分類各一道光，其他併成「其他」一道（連到時間軸）。
- * 光照光譜的順序由上往下排（琥珀在上、靛在下），像真的三稜鏡；同色的照篇數。
+ * 光照光譜的順序排（琥珀在前、靛在後，畫面上由左往右），像真的三稜鏡；同色的照篇數。
  */
 export function buildRays(list: readonly Chapter[], maxRays = 6): Ray[] {
     const named = list.filter(chapter => chapter.key !== '未分類');
@@ -154,31 +130,34 @@ export function buildRays(list: readonly Chapter[], maxRays = 6): Ray[] {
     }
 
     const max = Math.max(...entries.map(entry => entry.count), 1);
-    const step = entries.length > 1 ? (BOTTOM - TOP) / (entries.length - 1) : 0;
     return entries.map((entry, index) => {
-        const y = entries.length > 1 ? TOP + step * index : ORB.cy;
         // 用開根號：31 篇跟 2 篇差 15 倍，直接比例的話小的會細到看不見
         const weight = Math.sqrt(entry.count / max);
         return {
             ...entry,
             element: ELEMENTS[index % ELEMENTS.length],
-            y: round(y),
             spread: round(MIN_WIDTH + (MAX_WIDTH - MIN_WIDTH) * weight),
             photons: Math.round(2 + 5 * weight)
         };
     });
 }
 
+/** 一篇文章屬於哪一道光（「其他」那道包含好幾個分類） */
+export function rayFor(rays: readonly Ray[], category: string | undefined): Ray | undefined {
+    const key = normalizeCategory(category ?? '未分類') || '未分類';
+    return rays.find(ray => ray.members.includes(key));
+}
+
 /** 背景的星塵：固定的亂數（每次渲染同一片天空） */
-export function stars(count: number, seed = 7): { x: number; y: number; r: number; delay: number }[] {
+export function stars(count: number, width: number, height: number, seed = 7): { x: number; y: number; r: number; delay: number }[] {
     let state = seed;
     const next = () => {
         state = (state * 1_103_515_245 + 12_345) % 2_147_483_648;
         return state / 2_147_483_648;
     };
     return Array.from({ length: count }, () => ({
-        x: round(next() * VIEW.width),
-        y: round(next() * VIEW.height),
+        x: round(next() * width),
+        y: round(next() * height),
         r: round(0.4 + next() * 1.2),
         delay: round(next() * 6)
     }));
