@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 280" width="700" height="280" role="img" aria-label="互動式 rebase 把三個小 commit 壓成一個">
+<title>互動式 rebase 把三個小 commit 壓成一個</title>
+<defs><marker id="parent-bg" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#282c34"/></marker><marker id="parent-text" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d7dae0"/></marker><marker id="parent-muted" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#7f848e"/></marker><marker id="parent-line" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4b5263"/></marker><marker id="parent-main" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#f4b936"/></marker><marker id="parent-blue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#61afef"/></marker><marker id="parent-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#98c379"/></marker><marker id="parent-purple" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c678dd"/></marker><marker id="parent-red" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e06c75"/></marker><marker id="parent-cyan" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#56b6c2"/></marker><marker id="parent-orange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d19a66"/></marker></defs>
+<rect width="700" height="280" rx="10" fill="#282c34"/>
+<text x="20" y="26" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="14" font-weight="600" fill="#d7dae0">git rebase -i：把「修錯字、再修錯字、真的修好了」三個 commit 壓成一個</text>
+<path d="M128 116 L56 116" fill="none" stroke="#61afef" stroke-width="3"/>
+<path d="M200 116 L128 116" fill="none" stroke="#61afef" stroke-width="3"/>
+<path d="M272 116 L200 116" fill="none" stroke="#61afef" stroke-width="3"/>
+<g><circle cx="56" cy="116" r="8" fill="#f4b936"/>
+<text x="56" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">F</text>
+</g>
+<g><circle cx="128" cy="116" r="8" fill="#61afef"/>
+<text x="128" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">C</text>
+<text x="128" y="155" text-anchor="middle" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#d7dae0">登入頁</text>
+</g>
+<g><circle cx="200" cy="116" r="8" fill="#61afef"/>
+<text x="200" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">D</text>
+<text x="200" y="155" text-anchor="middle" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#d7dae0">修錯字</text>
+</g>
+<g><circle cx="272" cy="116" r="8" fill="#61afef"/>
+<text x="272" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">E</text>
+<text x="272" y="155" text-anchor="middle" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#d7dae0">又修</text>
+</g>
+<rect x="228" y="82" width="88.00000000000001" height="20" rx="5" fill="#61afef"/><text x="272" y="96" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#282c34">feat/login</text>
+<path d="M508 116 L436 116" fill="none" stroke="#61afef" stroke-width="3"/>
+<g><circle cx="436" cy="116" r="8" fill="#f4b936"/>
+<text x="436" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">F</text>
+</g>
+<g><circle cx="508" cy="116" r="8" fill="#61afef"/>
+<text x="508" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">C'</text>
+<text x="508" y="155" text-anchor="middle" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#d7dae0">登入頁</text>
+</g>
+<rect x="464" y="82" width="88.00000000000001" height="20" rx="5" fill="#61afef"/><text x="508" y="96" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#282c34">feat/login</text>
+<defs><marker id="a8394000" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#7f848e"/></marker></defs><path d="M332 116 L406 116" fill="none" stroke="#7f848e" stroke-width="2" marker-end="url(#a8394000)"/>
+<text x="369" y="104" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">squash</text>
+<text x="20" y="262" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#7f848e">送 PR 前整理成「一個 commit 一件事」，看的人輕鬆很多；但一樣只能整理還沒推出去的</text>
+</svg>

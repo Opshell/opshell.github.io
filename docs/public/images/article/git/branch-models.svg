@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 340" width="840" height="340" role="img" aria-label="Git Flow、GitHub Flow、Trunk-based 三種分支模型的形狀">
+<title>Git Flow、GitHub Flow、Trunk-based 三種分支模型的形狀</title>
+<defs><marker id="parent-bg" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#282c34"/></marker><marker id="parent-text" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d7dae0"/></marker><marker id="parent-muted" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#7f848e"/></marker><marker id="parent-line" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4b5263"/></marker><marker id="parent-main" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#f4b936"/></marker><marker id="parent-blue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#61afef"/></marker><marker id="parent-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#98c379"/></marker><marker id="parent-purple" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c678dd"/></marker><marker id="parent-red" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e06c75"/></marker><marker id="parent-cyan" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#56b6c2"/></marker><marker id="parent-orange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d19a66"/></marker></defs>
+<rect width="840" height="340" rx="10" fill="#282c34"/>
+<text x="20" y="26" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="14" font-weight="600" fill="#d7dae0">三種分支模型的形狀：分支越多越安全，也越難看懂</text>
+<path d="M344 116 L56 116" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M200 176 L56 176" fill="none" stroke="#56b6c2" stroke-width="3"/>
+<path d="M293.6 176 L200 176" fill="none" stroke="#56b6c2" stroke-width="3"/>
+<path d="M128 236 C92 236 92 176 56 176" fill="none" stroke="#61afef" stroke-width="3"/>
+<path d="M171.2 236 L128 236" fill="none" stroke="#61afef" stroke-width="3"/>
+<path d="M200 176 C185.6 176 185.6 236 171.2 236" fill="none" stroke="#61afef" stroke-width="3"/>
+<path d="M344 116 C318.8 116 318.8 176 293.6 176" fill="none" stroke="#56b6c2" stroke-width="3"/>
+<path d="M56 176 C56 176 56 116 56 116" fill="none" stroke="#56b6c2" stroke-width="3"/>
+<g><circle cx="56" cy="116" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="344" cy="116" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="56" cy="176" r="8" fill="#56b6c2"/>
+</g>
+<g><circle cx="200" cy="176" r="8" fill="#56b6c2"/>
+</g>
+<g><circle cx="293.6" cy="176" r="8" fill="#56b6c2"/>
+</g>
+<g><circle cx="128" cy="236" r="8" fill="#61afef"/>
+</g>
+<g><circle cx="171.2" cy="236" r="8" fill="#61afef"/>
+</g>
+<rect x="321.6" y="82" width="44.8" height="20" rx="5" fill="#282c34" stroke="#f4b936" stroke-width="1.5"/><text x="344" y="96" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#f4b936">main</text>
+<rect x="260.40000000000003" y="142" width="66.4" height="20" rx="5" fill="#282c34" stroke="#56b6c2" stroke-width="1.5"/><text x="293.6" y="156" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#56b6c2">develop</text>
+<rect x="138" y="202" width="66.4" height="20" rx="5" fill="#282c34" stroke="#61afef" stroke-width="1.5"/><text x="171.2" y="216" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#61afef">feature</text>
+<text x="36" y="54" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="13" font-weight="600" fill="#d7dae0">Git Flow</text>
+<text x="36" y="282" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#7f848e">還有 release、hotfix</text>
+<path d="M500 146 L356 146" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M572 146 L500 146" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M406.4 206 C381.2 206 381.2 146 356 146" fill="none" stroke="#61afef" stroke-width="3"/>
+<path d="M449.6 206 L406.4 206" fill="none" stroke="#61afef" stroke-width="3"/>
+<path d="M500 146 C474.8 146 474.8 206 449.6 206" fill="none" stroke="#61afef" stroke-width="3"/>
+<path d="M536 206 C518 206 518 146 500 146" fill="none" stroke="#98c379" stroke-width="3"/>
+<path d="M572 146 C554 146 554 206 536 206" fill="none" stroke="#98c379" stroke-width="3"/>
+<g><circle cx="356" cy="146" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="500" cy="146" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="572" cy="146" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="406.4" cy="206" r="8" fill="#61afef"/>
+</g>
+<g><circle cx="449.6" cy="206" r="8" fill="#61afef"/>
+</g>
+<g><circle cx="536" cy="206" r="8" fill="#98c379"/>
+</g>
+<rect x="549.6" y="112" width="44.8" height="20" rx="5" fill="#282c34" stroke="#f4b936" stroke-width="1.5"/><text x="572" y="126" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#f4b936">main</text>
+<text x="336" y="54" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="13" font-weight="600" fill="#d7dae0">GitHub Flow</text>
+<text x="336" y="252" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#7f848e">短命分支，PR 回 main 就上線</text>
+<path d="M648.4 146 L616 146" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M680.8 146 L648.4 146" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M713.2 146 L680.8 146" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M745.6 146 L713.2 146" fill="none" stroke="#f4b936" stroke-width="3"/>
+<g><circle cx="616" cy="146" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="648.4" cy="146" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="680.8" cy="146" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="713.2" cy="146" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="745.6" cy="146" r="8" fill="#f4b936"/>
+</g>
+<rect x="723.2" y="112" width="44.8" height="20" rx="5" fill="#282c34" stroke="#f4b936" stroke-width="1.5"/><text x="745.6" y="126" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#f4b936">main</text>
+<text x="596" y="54" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="13" font-weight="600" fill="#d7dae0">Trunk-based</text>
+<text x="596" y="252" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#7f848e">直接進 main，靠 flag 與 CI 兜底</text>
+</svg>
