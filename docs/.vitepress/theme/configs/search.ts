@@ -43,7 +43,15 @@ export default {
 
             // 新增錨點
             const frontmatter = env.frontmatter as { title?: string } | undefined;
-            if (frontmatter?.title) { return md.render(`# ${frontmatter.title}`) + html; }
+            if (frontmatter?.title) {
+                const titleHtml = md.render(`# ${frontmatter.title}`);
+                const anchorId = titleHtml.match(/id="([^"]+)"/)?.[1];
+
+                // 內文的 # 標題跟 title 一樣時已經有這個錨點，再補一次 MiniSearch 會報 duplicate ID
+                if (anchorId && html.includes(`id="${anchorId}"`)) { return html; }
+
+                return titleHtml + html;
+            }
 
             return html;
         }
