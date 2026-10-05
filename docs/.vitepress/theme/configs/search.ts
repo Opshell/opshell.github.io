@@ -1,4 +1,5 @@
 import { DefaultTheme } from 'vitepress';
+import { isListed } from '../../../shared/utils/drafts';
 
 // 要排除的目錄
 const ignorePath = [
@@ -30,8 +31,8 @@ export default {
         },
         _render(src, env, md) {
             const html = md.render(src, env);
-            // 排除 有設定不給搜尋 或者 沒有發布的頁面
-            if (env.frontmatter?.search === false || !env.frontmatter?.isPublished) { return ''; }
+            // 排除 有設定不給搜尋 或者 沒有發布的頁面（本機開了 SHOW_DRAFTS 時草稿也搜得到）
+            if (env.frontmatter?.search === false || !isListed(env.frontmatter)) { return ''; }
 
             // 要排除特定的目錄
             for (const path of ignorePath) {

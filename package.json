@@ -41,6 +41,7 @@
   },
   "scripts": {
     "docs:dev": "vitepress dev docs",
+    "docs:drafts": "SHOW_DRAFTS=1 vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "check": "pnpm lint && pnpm lint:style && pnpm typecheck && pnpm test && pnpm docs:build",

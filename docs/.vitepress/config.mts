@@ -1,6 +1,7 @@
 /* eslint-disable antfu/no-top-level-await */
 import fs from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
 import container from 'markdown-it-container';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
@@ -12,6 +13,7 @@ import { renderSandbox } from 'vitepress-plugin-sandpack';
 import { buildSiteData, SiteData } from '../shared/hooks/useBuildSiteData';
 import { absolutePath, getFrontMatter, isDirectory } from '../shared/hooks/useFrontMatter';
 import { getSidebar } from '../shared/hooks/useGetSidebar';
+import { showDrafts } from '../shared/utils/drafts';
 
 import nav from './theme/configs/nav';
 import search from './theme/configs/search';
@@ -24,6 +26,10 @@ interface ThemeConfig extends DefaultTheme.Config {
     siteData: SiteData;
 }
 
+// 看草稿的開關只給本機的 dev server 用：開著 build 的話草稿會跟著上線，直接擋掉
+if (showDrafts() && process.argv.includes('build')) {
+    throw new Error('SHOW_DRAFTS=1 不能 build：草稿會被列進側欄、時間軸與搜尋。看草稿用 pnpm docs:drafts');
+}
 const siteData = await buildSiteData(startPathDir);
 // const themeLocalStorageKey = 'vitepress-theme-appearance';
 

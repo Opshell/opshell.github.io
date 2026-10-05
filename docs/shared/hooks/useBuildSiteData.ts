@@ -4,6 +4,7 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { z } from 'zod';
 import { PostFrontmatterParser } from '../schemas/post.schema';
+import { isListed, listedTitle } from '../utils/drafts';
 
 interface Tags {
     [key: string]: {
@@ -136,7 +137,9 @@ function processFile(fullPath: string, contentRoot: string): Post | null {
     const fileContent = fs.readFileSync(fullPath, 'utf-8');
     const { data: frontmatter, content } = matter(fileContent);
 
-    if (!frontmatter.isPublished) { return null; }
+    // 草稿只有在本機開了 SHOW_DRAFTS 才處理（shared/utils/drafts.ts）
+    if (!isListed(frontmatter)) { return null; }
+    const draft = frontmatter.isPublished !== true;
 
     // 計算相對於內容根目錄的路徑
     const relativePath = path.relative(contentRoot, fullPath);
@@ -151,9 +154,14 @@ function processFile(fullPath: string, contentRoot: string): Post | null {
     // 已發佈的文章格式不對就讓建置失敗並指出檔名，不讓壞資料進到瀏覽器（2026-09-25 Belief 標籤整頁空白就是這樣來的）
     const result = PostFrontmatterParser.safeParse({ ...frontmatter, url, excerpt: getExcerpt(content) });
     if (!result.success) {
+        // 草稿的 frontmatter 常常還沒整理好：本機看草稿時跳過它、印一行提醒，不讓整個 dev server 起不來
+        if (draft) {
+            console.warn(`[草稿] frontmatter 格式不對，先不列：${relativePath}`);
+            return null;
+        }
         throw new Error(`文章 frontmatter 格式不對：${relativePath}\n${z.prettifyError(result.error)}`);
     }
-    return result.data;
+    return draft ? { ...result.data, title: listedTitle(result.data.title, frontmatter) } : result.data;
 }
 
 export async function buildSiteData(contentRoot: string): Promise<SiteDataSerializable> {
@@ -186,6 +194,11 @@ export async function buildSiteData(contentRoot: string): Promise<SiteDataSerial
                     }
                 } else {
                     siteData.counts.unpublished++;
+                    // 本機看草稿時，草稿也進時間軸、標籤與列表（數字照舊只算已發佈的）
+                    const draft = processFile(fullPath, contentRoot);
+                    if (draft) {
+                        allPosts.push(draft);
+                    }
                 }
             }
         }

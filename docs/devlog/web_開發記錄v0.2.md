@@ -653,3 +653,16 @@
 想 `reset --soft` 重做被 auto mode 擋下（改歷史），等使用者同意後另補 `92837ae`，commit 訊息註明原因。
 原因還是同一個：`set -e` 在這個環境沒擋住，換行接著的指令照跑。**之後 add 與 commit 一律用 `&&` 串在同一行**，
 `git mv` 過的檔案只 add 新路徑。
+
+# 2026-10-06：本機看草稿的開關（pnpm docs:drafts）
+
+**使用者**：axios 的文章都先維持草稿。在本地端 run docs:dev 有辦法看到草稿嗎？——加本地端開關。
+
+- 原本草稿其實有建成網頁（網址打得開），只是側欄、時間軸、標籤、專區列表、站內搜尋都只收 `isPublished: true`，所以找不到入口。
+- 新指令 `pnpm docs:drafts`（＝ `SHOW_DRAFTS=1 vitepress dev docs`）：草稿也進上面那幾個地方，標題前面加「草稿｜」。
+  判斷收成一支 `shared/utils/drafts.ts` 的 `isListed`：已發佈的一定列；開關開著時，**明確寫了** `isPublished: false` 的才列——
+  沒寫的頁面（叮咚、履歷、專區首頁）不是文章，開關開著也不會被當成文章。
+- 用到的地方：`useGetSidebar`（側欄）、`useBuildSiteData`（時間軸、標籤、首頁、專區列表都吃它）、`search.ts`（站內搜尋）。
+  側欄上方的「已發佈／草稿」數字照舊只算已發佈的。草稿的 frontmatter 格式不對時跳過並印一行 `[草稿] …`，不讓 dev server 起不來（已發佈的照舊直接報錯）。
+- 防呆：開關開著時 `vitepress build` 直接拒絕（`config.mts`），草稿不會不小心上線；sitemap 與 noindex 本來就只看 `isPublished`，沒動。
+- 驗證：開關開著時時間軸有 392 個「草稿｜」、側欄 49 個；一般 build 的 sitemap 還是 72 條、時間軸 0 個草稿；`pnpm check` 全過（156 個測試）。

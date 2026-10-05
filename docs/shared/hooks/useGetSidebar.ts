@@ -3,6 +3,7 @@ import path from 'node:path';
 import matter from 'gray-matter';
 
 import { DefaultTheme } from 'vitepress';
+import { isListed, listedTitle } from '../utils/drafts';
 
 const PAGES_PATH = path.resolve(__dirname, '../../pages'); // 把pages 設定成根目錄
 const WHITE_LIST = ['index.md']; // 白名單，不需要顯示的文件或目錄
@@ -50,9 +51,9 @@ function getList(params: string[], absolutePath: string, startPath: string): Def
 
             const frontmatter = getFrontMatter(`${absolutePath}/${file}`);
 
-            if (frontmatter.isPublished) { // 判斷是否發布
+            if (isListed(frontmatter)) { // 已發佈的；本機開了 SHOW_DRAFTS 時草稿也列（shared/utils/drafts.ts）
                 res.push({
-                    text: frontmatter.title as string || fileName.replace('.md', ''),
+                    text: listedTitle(frontmatter.title as string || fileName.replace('.md', ''), frontmatter),
                     link: `${startPath}/${fileName.replace('.md', '')}`
                 });
             }
