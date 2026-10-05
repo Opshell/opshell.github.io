@@ -634,3 +634,22 @@
   沒有新的錯誤。剩下的都不是這次造成的——鐵人賽文章裡 iThome 的外連圖被它的防盜連擋掉、設計系統與隱私權頁在本機 build 有 hydration mismatch（main 自己在本機 build 也有，正式站沒有）、
   後台的 Google 登入在 localhost 403、作品集的 WebGL 在無頭瀏覽器開不起來。
 - **修正**：sitemap 的網址還是 `opshell.github.io`（會 301 到 `opshell.me`），改成 `opshell.me`。
+
+# 2026-10-06：#0090 後端上線並結案、套件第一批在另一個分支
+
+**使用者**：（10-05）加排程每半小時檢查工作；有其他網頁小精靈在工作，開新分支做套件第一批；（10-06）不用定期查看了。
+
+- **#0090 結案**：後端 10-06 部署（revision `dindon-backend-00034-thj`，資料庫版本 18）。用爬蟲 UA 打正式後端驗證（不會計數）：
+  百分比編碼的文章路徑 200 `{"page_pv":null,"site_pv":0,"site_uv":0}`、帶空白的路徑 400、`https://opshell.me` 的預檢 204 並放行。
+  後端沒有要再做的，單移到 `archive/`。網頁端還在這個分支，**併回 main 才會開始計數**；上線後數字若不合理（爬蟲沒擋掉）另開單。
+- **套件第一批**在 worktree `../opshell-deps`、分支 `deps-2026-10`（`ec32a3f`），細節記在那個分支的開發記錄；
+  評估文件開頭加了「處理進度」表。兩個分支都改了 `config.mts`、`theme/index.ts`、`resume.md` 與這份記錄，合併時要手動解衝突。
+- 每半小時的檢查排程（session 內的 cron）10-06 依使用者要求取消。
+
+## 坑：commit 只帶到一個檔案
+
+10-05 commit 訪客計數時，`git add` 清單裡放了已經 `git mv` 走的舊路徑 `features/dindon/apiBase.ts`，`git add` 整個失敗，
+但後面的 `git commit` 照樣執行，`bb330db feat(visitor)` 只帶到搬檔那一筆（之前 `git mv` 已經暫存）。
+想 `reset --soft` 重做被 auto mode 擋下（改歷史），等使用者同意後另補 `92837ae`，commit 訊息註明原因。
+原因還是同一個：`set -e` 在這個環境沒擋住，換行接著的指令照跑。**之後 add 與 commit 一律用 `&&` 串在同一行**，
+`git mv` 過的檔案只 add 新路徑。
