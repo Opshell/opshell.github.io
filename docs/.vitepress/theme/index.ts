@@ -17,7 +17,7 @@ import './fonts/font.css';
 import './scss/style.scss';
 
 // [-] Svg Icon引用
-import 'virtual:svg-icons-register';
+import 'virtual:svg-icons/register';
 
 const elComponents = import.meta.glob('../../shared/components/el/*.vue', { eager: true });
 

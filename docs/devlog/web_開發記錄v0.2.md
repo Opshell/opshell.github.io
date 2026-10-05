@@ -529,3 +529,20 @@
   localStorage `md-guide-split`。卡片容器 < 560px 上下排並收開關。
 - 驗證：`pnpm check` 全過；預覽版截圖看三種比例（寬度 571／245 這樣切）、深淺色的容器／刪除線／任務清單、手機 390（上下排、開關隱藏、`scrollWidth` 390）。
 - `.vitepress/` 底下的 scss 有一批既有的 stylelint 錯（`.VP*` 命名、空區塊），不在 `pnpm check` 的範圍，沒動。
+
+# 2026-10-05：套件升級第一批（低風險），分支 `deps-2026-10`
+
+**使用者**：有其他網頁小精靈在工作，開新分支處理比較安全。先做風險最低的一批：刪三個沒用的、換 svg 外掛、升小版本，跑 `pnpm check`，看星系頁和 icon。
+（評估文件 `套件評估-2026-10-05.md` 在 `redesign-2026-10` 分支。）
+
+- 用 worktree `../opshell-deps`（分支 `deps-2026-10`，從 main 開），不切換共用工作目錄的分支，不影響另一個小精靈。預覽改用 port 8097。
+- 刪：`axios`、`@types/fs-extra`、`postprocessing`（`@tresjs/post-processing` 自己會帶）。
+- 升：tres 三個、`three` 0.186.1、`sharp` 0.35.5、`sass` 1.105.1、`eslint` 10.12.0、`stylelint` 17.16.0、`vue-tsc` 3.3.12。`@types/three` 最新就是 0.186.0。
+- `vite-plugin-svg-icons` → `vite-plugin-svg-icons-ng` 1.10.0。**不是零改動**：
+  - 虛擬模組改名 `virtual:svg-icons/register`；設 `htmlMode: 'none'`（VitePress 不走 Vite 的 index.html，預設 inline 注入不會生效，照舊在主題裡掛）。
+  - **id 不能有斜線**：舊的 `colorful/css` 做不出來。`pnpm check` 與建置都沒抓到，是比對改前改後 sprite 的 id 才發現——履歷的 13 個技能圖示會全部空白。
+    `symbolId` 改 `[dir]-[name]`（根目錄的開頭 `-` 會被去掉，名稱不變），`resume.md` 的 `colorful/` 改 `colorful-`。
+- 驗證：改前改後都跑 `pnpm check`（全過，110 測試）；Playwright 比對 sprite id（47 個，只差 `colorful/`→`colorful-`）、
+  文章頁、履歷頁（26 個 icon 全找得到）、設計系統 Icons 分頁、星系頁（canvas 有畫、無錯誤）截圖。
+  `#visibility` 找不到是 main 原本就有的，`redesign-2026-10` 已補檔。
+- `pnpm audit`：53（29 high）→ 21（10 high），剩下的多半要等 VitePress 2 換掉 Vite 5 那條鏈。
