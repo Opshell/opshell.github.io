@@ -1,19 +1,29 @@
+<script lang="ts">
+    // 開場動畫一個分頁只播一次：在站內點回首頁時直接定格（模組層級的變數，重新整理才會再播）
+    </script>
+
 <script setup lang="ts">
+    import type { Ray } from '../prism';
     import { useSiteData } from '@shared/hooks/useSiteData';
     import { categoryHue, categoryLabel, hueVar } from '@shared/utils/spectrum';
     import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
     import { BLOG_INTRO, BLOG_MOTTO, BLOG_NAME, LATEST_COUNT, launchpads, moreLinks, nameParts, PHILOSOPHY_URL } from '../constants';
-    import { chapters, latestPosts, postsInCategories, seriesOf, yearlyCounts } from '../contents';
+    import { chapters, postsInCategories, seriesOf, yearlyCounts } from '../contents';
+    import { lineStyle, rayFor } from '../lines';
     import { buildRays } from '../prism';
     import { vSpotlight } from '../spotlight';
     import LightBench from './LightBench.vue';
     import SeriesTracks from './SeriesTracks.vue';
 
+let introPlayed = false;
+
     // 首頁（2026-10「稜鏡」翻新，第二版）。使用者：首頁可以放開來，多一點動態、互動、特效，不用像讀文章時那麼拘謹。
-    // - hero：左邊是名字與三句話，右邊是光學台（白光射進玻璃 O、散成各分類；滑鼠瞄準、點一道光篩下面的文章）
-    // - 最近在忙的：DinDon 記帳、Timeline、Resume 三張大卡，游標在上面時有一圈光、卡片微微朝游標傾斜
-    // - 最近寫的、兩個三十天：內容照舊（使用者說這兩段很好），卡片一樣有光
-    // - 為什麼叫 Opshell：捲到時 O、P、Shell 依序被點亮
+    // - 開場（約 4.5 秒）：左邊名字與三句話一句句出來，右邊白光射進 O、演化、散開；字被吸進白光後，換成「最近在忙的」
+    //   （2026-10-05，使用者：「定格版面已經不需要 Opshell's Blog 那一段，那邊變成放最近在忙的，右邊放圓玻璃，下面就可以放 6 塊文章」）
+    //   動畫寫在 CSS（媒體查詢）裡，一畫出來就開始、不等 JS；JS 只負責「點一下、捲一下就跳到定格」與時間到了拿掉 is-intro。
+    // - 定格：左邊 DinDon 記帳、Timeline、Resume 三張大卡，右邊光學台，底下六篇文章緊貼著光學台
+    // - 文章卡片與光學台連動：卡片頂端的線畫成那一類的元素（lines.ts），滑過卡片那道光亮，滑過光那一類的卡片亮
+    // - 兩個三十天、為什麼叫 Opshell 照舊
     const siteData = useSiteData();
 
     const posts = computed(() => [...(siteData.value?.posts.values() ?? [])].filter(post => post.date));
@@ -25,11 +35,47 @@
     const selected = ref<string | null>(null);
     const selectedRay = computed(() => rays.value.find(ray => ray.key === selected.value) ?? null);
     const shown = computed(() => postsInCategories(posts.value, selectedRay.value?.members ?? null, LATEST_COUNT));
-    const listLine = computed(() => (selectedRay.value ? `linear-gradient(90deg, ${hueVar(selectedRay.value.hue)}, transparent)` : 'var(--pr-brand-gradient)'));
+    const latestRef = ref<HTMLElement>();
+    /** 點了一道光：底下的文章不在畫面裡的話（窄螢幕時光學台與文章中間隔著大卡），捲過去 */
+    function pick(key: string | null) {
+        selected.value = key;
+        const top = latestRef.value?.getBoundingClientRect().top ?? 0;
+        if (key && top > window.innerHeight * 0.75) latestRef.value?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    }
     // #endregion
 
-    // #region [P] Timeline 卡片：最新一篇與每年寫幾篇
-    const newest = computed(() => latestPosts(posts.value, 1)[0]);
+    // #region [P] 文章卡片與光學台連動：卡片屬於哪一道光；滑過光（hoveredRay）亮那一類的卡片，滑過卡片（hintRay）亮那道光
+    const hoveredRay = ref<string | null>(null);
+    const hintRay = ref<string | null>(null);
+    const cards = computed(() => shown.value.map(post => ({ post, ray: rayFor(rays.value, post.category[0]) })));
+    function cardStyle(ray: Ray | undefined, category: string[]) {
+        return { '--hue': hueVar(ray?.hue ?? categoryHue(categoryOf(category))), ...(ray ? lineStyle(ray.element.key) : {}) };
+    }
+    // #endregion
+
+    // #region [P] 開場：時間到、或使用者點了／捲了／按了鍵，就拿掉 is-intro（定格的樣子就是沒有動畫時的樣子）
+    const INTRO_MS = 4800;
+    const SKIP_EVENTS = ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const;
+    const settled = ref(introPlayed);
+    let introTimer = 0;
+    function release() {
+        clearTimeout(introTimer);
+        for (const type of SKIP_EVENTS) window.removeEventListener(type, settle);
+    }
+    function settle() {
+        settled.value = true;
+        release();
+    }
+    onMounted(() => {
+        introPlayed = true;
+        if (settled.value || !window.matchMedia('(prefers-reduced-motion: no-preference)').matches) return settle();
+        introTimer = window.setTimeout(settle, INTRO_MS);
+        for (const type of SKIP_EVENTS) window.addEventListener(type, settle, { passive: true });
+    });
+    onBeforeUnmount(release);
+    // #endregion
+
+    // #region [P] Timeline 卡片：每年寫幾篇（最新的幾篇就在底下，卡片上不再寫）
     const years = computed(() => yearlyCounts(posts.value));
     const yearMax = computed(() => Math.max(1, ...years.value.map(y => y.count)));
     // #endregion
@@ -55,74 +101,90 @@
 </script>
 
 <template>
-    <div class="op-home">
-        <!-- #region [P] hero -->
+    <div class="op-home" :class="{ 'is-intro': !settled }">
+        <!-- 名字與介紹：開場動畫播完就收起來，螢幕閱讀器與搜尋引擎一直讀得到這一份 -->
+        <div class="op-home__sr">
+            <h1>{{ BLOG_NAME }}</h1>
+            <p>{{ BLOG_INTRO }}{{ BLOG_MOTTO }}</p>
+        </div>
+
+        <!-- #region [P] hero：左邊開場是名字，定格是最近在忙的（同一格疊著）；右邊光學台 -->
         <header class="op-home__hero">
-            <div class="op-home__intro">
-                <h1 class="op-home__name">{{ BLOG_NAME }}</h1>
-                <p class="op-home__text">{{ BLOG_INTRO }}</p>
-                <p class="op-home__motto">{{ BLOG_MOTTO }}</p>
-                <!-- 舊側欄的 Posts／Drafts：草稿多是事實，也是這個部落格的個性 -->
-                <p v-if="counts" class="op-home__counts">
-                    寫了 <strong>{{ counts.published }}</strong> 篇，還有 <strong>{{ counts.unpublished }}</strong> 篇在坑裡。
-                </p>
+            <div class="op-home__stack">
+                <div class="op-home__intro" aria-hidden="true">
+                    <p class="op-home__name" style="--i: 0">{{ BLOG_NAME }}</p>
+                    <p class="op-home__text" style="--i: 1">{{ BLOG_INTRO }}</p>
+                    <p class="op-home__motto" style="--i: 2">{{ BLOG_MOTTO }}</p>
+                    <!-- 舊側欄的 Posts／Drafts：草稿多是事實，也是這個部落格的個性（定格後寫在 Timeline 卡片上） -->
+                    <p v-if="counts" class="op-home__counts" style="--i: 3">
+                        寫了 <strong>{{ counts.published }}</strong> 篇，還有 <strong>{{ counts.unpublished }}</strong> 篇在坑裡。
+                    </p>
+                </div>
+
+                <section class="op-home__now" aria-labelledby="op-home-now">
+                    <div class="op-home__section-head" style="--i: 0">
+                        <h2 id="op-home-now">最近在忙的</h2>
+                        <nav class="op-home__more" aria-label="其他入口">
+                            <a v-for="link in moreLinks" :key="link.href" :href="link.href">{{ link.text }}</a>
+                        </nav>
+                    </div>
+                    <div class="op-home__pads">
+                        <a v-spotlight class="op-pad op-pad--dindon" :href="launchpads.dindon.href" style="--i: 1">
+                            <span class="op-pad__head">
+                                <img :src="launchpads.dindon.icon" alt="" width="40" height="40" />
+                                <span class="op-pad__status"><span class="pulse" aria-hidden="true" />{{ launchpads.dindon.status }}</span>
+                            </span>
+                            <span class="op-pad__title">{{ launchpads.dindon.title }}</span>
+                            <span class="op-pad__text">{{ launchpads.dindon.text }}</span>
+                            <span class="op-pad__chips">
+                                <span v-for="(feature, index) in launchpads.dindon.features" :key="feature" :style="{ '--c': index }">{{ feature }}</span>
+                            </span>
+                            <img class="op-pad__screen" :src="launchpads.dindon.screen" alt="" loading="lazy" width="240" height="520" />
+                        </a>
+                        <a v-spotlight class="op-pad op-pad--timeline" :href="launchpads.timeline.href" style="--i: 2">
+                            <span class="op-pad__title">{{ launchpads.timeline.title }}</span>
+                            <span class="op-pad__text">
+                                寫了 {{ counts?.published ?? posts.length }} 篇<template v-if="counts">，坑裡還有 {{ counts.unpublished }} 篇</template>。
+                            </span>
+                            <span class="op-pad__bars" aria-hidden="true">
+                                <span v-for="y in years" :key="y.year" class="bar" :style="{ '--h': y.count / yearMax }">
+                                    <span class="fill" />
+                                    <span class="n">{{ y.count || '' }}</span>
+                                    <span class="year">{{ y.year.slice(2) }}</span>
+                                </span>
+                            </span>
+                        </a>
+                        <a v-spotlight class="op-pad op-pad--resume" :href="launchpads.resume.href" style="--i: 3">
+                            <span class="op-pad__head">
+                                <img class="op-pad__portrait" :src="launchpads.resume.portrait" alt="" loading="lazy" width="40" height="40" />
+                                <span class="op-pad__title">{{ launchpads.resume.title }}</span>
+                            </span>
+                            <span class="op-pad__role">{{ launchpads.resume.role }}</span>
+                            <span class="op-pad__text">{{ launchpads.resume.text }}</span>
+                        </a>
+                    </div>
+                    <!-- 卡片整張是連結，裡面不能再放連結：DinDon 的兩個子頁放在卡片外 -->
+                    <p class="op-home__sublinks" style="--i: 4">
+                        DinDon 記帳還有
+                        <a v-for="link in launchpads.dindon.links" :key="link.href" :href="link.href">{{ link.text }}</a>
+                    </p>
+                </section>
             </div>
-            <LightBench class="op-home__bench" :rays="rays" :selected="selected" @select="selected = $event" />
+            <LightBench
+                class="op-home__bench"
+                :rays="rays"
+                :selected="selected"
+                :hint="hintRay"
+                :intro="!settled"
+                @select="pick"
+                @hover="hoveredRay = $event"
+            />
         </header>
         <!-- #endregion -->
 
-        <!-- #region [P] 最近在忙的 -->
-        <section class="op-home__section" aria-labelledby="op-home-now">
-            <div class="op-home__section-head">
-                <h2 id="op-home-now">最近在忙的</h2>
-                <nav class="op-home__more" aria-label="其他入口">
-                    <a v-for="link in moreLinks" :key="link.href" :href="link.href">{{ link.text }}</a>
-                </nav>
-            </div>
-            <div class="op-home__pads">
-                <a v-spotlight class="op-pad op-pad--dindon" :href="launchpads.dindon.href">
-                    <span class="op-pad__head">
-                        <img :src="launchpads.dindon.icon" alt="" width="44" height="44" />
-                        <span class="op-pad__status"><span class="pulse" aria-hidden="true" />{{ launchpads.dindon.status }}</span>
-                    </span>
-                    <span class="op-pad__title">{{ launchpads.dindon.title }}</span>
-                    <span class="op-pad__text">{{ launchpads.dindon.text }}</span>
-                    <span class="op-pad__chips">
-                        <span v-for="(feature, index) in launchpads.dindon.features" :key="feature" :style="{ '--i': index }">{{ feature }}</span>
-                    </span>
-                    <img class="op-pad__screen" :src="launchpads.dindon.screen" alt="" loading="lazy" width="240" height="520" />
-                </a>
-                <a v-spotlight class="op-pad op-pad--timeline" :href="launchpads.timeline.href">
-                    <span class="op-pad__title">{{ launchpads.timeline.title }}</span>
-                    <span v-if="newest" class="op-pad__text">
-                        {{ counts?.published ?? posts.length }} 篇，最新是 {{ newest.date }}〈{{ newest.title }}〉
-                    </span>
-                    <span class="op-pad__bars" aria-hidden="true">
-                        <span v-for="y in years" :key="y.year" class="bar" :style="{ '--h': y.count / yearMax }">
-                            <span class="fill" />
-                            <span class="n">{{ y.count || '' }}</span>
-                            <span class="year">{{ y.year.slice(2) }}</span>
-                        </span>
-                    </span>
-                </a>
-                <a v-spotlight class="op-pad op-pad--resume" :href="launchpads.resume.href">
-                    <img class="op-pad__portrait" :src="launchpads.resume.portrait" alt="" loading="lazy" width="64" height="64" />
-                    <span class="op-pad__title">{{ launchpads.resume.title }}</span>
-                    <span class="op-pad__role">{{ launchpads.resume.role }}</span>
-                    <span class="op-pad__text">{{ launchpads.resume.text }}</span>
-                </a>
-            </div>
-            <!-- 卡片整張是連結，裡面不能再放連結：DinDon 的兩個子頁放在卡片外 -->
-            <p class="op-home__sublinks">
-                DinDon 記帳還有
-                <a v-for="link in launchpads.dindon.links" :key="link.href" :href="link.href">{{ link.text }}</a>
-            </p>
-        </section>
-        <!-- #endregion -->
-
         <!-- #region [P] 光學台底下的文章：白光是最近寫的，選了一道光就是那一類 -->
-        <section class="op-home__section" aria-labelledby="op-home-latest" :style="{ '--list-line': listLine }">
-            <div class="op-home__section-head op-home__section-head--line">
+        <section ref="latestRef" class="op-home__section op-home__latest" aria-labelledby="op-home-latest">
+            <div class="op-home__section-head">
                 <h2 id="op-home-latest" aria-live="polite">
                     {{ selectedRay ? selectedRay.label : '最近寫的' }}
                     <span v-if="selectedRay" class="count">{{ selectedRay.count }} 篇</span>
@@ -133,9 +195,29 @@
                     <a v-else href="/timeline.html">看全部 {{ counts?.published ?? posts.length }} 篇</a>
                 </div>
             </div>
+            <!-- 分隔線：白光時是一道光譜，選了一道光就變成那一類的元素（換的時候從左邊畫過去） -->
+            <span
+                :key="selected ?? 'white'"
+                class="op-home__divider"
+                :class="{ 'is-element': selectedRay }"
+                :style="selectedRay ? cardStyle(selectedRay, []) : undefined"
+                aria-hidden="true"
+            />
             <TransitionGroup tag="ol" name="op-card" class="op-home__cards">
-                <li v-for="post in shown" :key="post.url">
-                    <a v-spotlight class="op-home__card" :href="post.url" :style="{ '--hue': hueVar(categoryHue(categoryOf(post.category))) }">
+                <li v-for="({ post, ray }, index) in cards" :key="post.url" :style="{ '--i': index }">
+                    <a
+                        v-spotlight
+                        class="op-home__card"
+                        :class="{ 'is-lit': !!hoveredRay && ray?.key === hoveredRay, 'is-dim': !!hoveredRay && ray?.key !== hoveredRay }"
+                        :data-element="ray?.element.key"
+                        :href="post.url"
+                        :style="cardStyle(ray, post.category)"
+                        @pointerenter="hintRay = ray?.key ?? null"
+                        @pointerleave="hintRay = null"
+                        @focus="hintRay = ray?.key ?? null"
+                        @blur="hintRay = null"
+                    >
+                        <span class="op-home__card-line" aria-hidden="true" />
                         <span class="op-home__card-cat">{{ categoryLabel(categoryOf(post.category)) }}</span>
                         <h3>{{ post.title }}</h3>
                         <p v-if="post.excerpt">{{ post.excerpt }}</p>
@@ -190,7 +272,7 @@
         @include setFlex(flex-start, stretch, 5rem, column);
         width: 100%;
         max-width: 1200px;
-        padding: 3rem 2rem 6rem;
+        padding: 2rem 2rem 6rem;
         margin: 0 auto;
         @include setRWD(768px) {
             gap: 3.5rem;
@@ -205,19 +287,45 @@
             outline-offset: 3px;
         }
 
-        // #region [P] hero
+        // #region [P] hero：左邊一格疊兩層（開場的名字、定格的最近在忙的），右邊光學台
         &__hero {
             display: grid;
-            grid-template-columns: minmax(0, .85fr) minmax(0, 1.3fr);
-            gap: 2rem;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+            gap: 2.5rem;
             align-items: center;
             @include setRWD(960px) {
                 grid-template-columns: minmax(0, 1fr);
-                gap: 1.5rem;
+                gap: 2rem;
             }
         }
+
+        // 窄螢幕一欄：光學台放最上面，開場時名字就在它底下、一起看得到
+        &__bench {
+            @include setRWD(960px) { order: -1; }
+        }
+        &__stack {
+            display: grid;
+
+            > * { grid-area: 1 / 1; }
+        }
+
+        // 開場的名字：定格時藏起來（螢幕閱讀器讀 __sr 那一份）
         &__intro {
-            @include setFlex(flex-start, flex-start, 1.25rem, column);
+            @include setFlex(center, flex-start, 1.25rem, column);
+            pointer-events: none;
+            visibility: hidden;
+            @include setRWD(960px) { justify-content: flex-start; }
+        }
+        &__sr {
+            position: absolute;
+            clip-path: inset(50%);
+            width: 1px;
+            height: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        &__now {
+            @include setFlex(flex-start, stretch, 1rem, column);
         }
 
         // 名字是舊首頁那道琥珀→紫的漸層：整道光譜從這裡開始
@@ -287,12 +395,6 @@
 
                 &:hover { text-decoration: underline; }
             }
-
-            // 光學台底下那一段的標題線：白光時是品牌漸層，選了一類就是那一類的光
-            &--line {
-                background: var(--list-line) left bottom / 100% 3px no-repeat;
-                padding-bottom: .75rem;
-            }
         }
         &__section-links,
         &__more {
@@ -310,7 +412,6 @@
         &__sublinks {
             @include setFlex(flex-start, baseline, .75rem);
             flex-wrap: wrap;
-            margin-top: -.5rem !important;
             color: var(--vp-c-text-2);
             font-size: var(--font-size-s);
 
@@ -325,43 +426,90 @@
 
         // #endregion
 
-        // #region [P] 最近在忙的：DinDon 一張大的，Timeline、Resume 疊在右邊
+        // #region [P] 最近在忙的：DinDon 一張橫的，Timeline、Resume 並排在下面
         &__pads {
             display: grid;
-            grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-            grid-template-rows: auto auto;
-            gap: 1.25rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
             perspective: 900px;
-            @include setRWD(768px) { grid-template-columns: minmax(0, 1fr); }
+            @include setRWD(560px) { grid-template-columns: minmax(0, 1fr); }
         }
 
         // #endregion
 
-        // #region [P] 文章卡片：頂端一道分類色的光；游標在上面時多一圈光
+        // #region [P] 文章卡片：頂端那條線是這一類的元素（跟光學台裡的光絲同一個樣子），圓角也照元素的性格
+        &__latest {
+            margin-top: -2rem;
+            scroll-margin-top: calc(var(--vp-nav-height) + 1rem);
+        }
+
+        // 分隔線：白光時是一道光譜；選了一道光就是那一類的元素，換的時候從左邊畫過去（回應點擊，不是自己在動）
+        &__divider {
+            display: block;
+            background: var(--pr-brand-gradient);
+            height: 3px;
+            border-radius: 2px;
+            margin-top: -.5rem;
+
+            &.is-element {
+                background: linear-gradient(90deg, var(--op-origin), var(--hue) 30%);
+                height: 14px;
+                border-radius: 0;
+                mask: var(--line-mask) repeat-x 0 50% / var(--line-w) 14px;
+            }
+        }
         &__cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
-            gap: 1.25rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.75rem 1.25rem;
             padding: 0;
             margin: 0;
             list-style: none;
+            @include setRWD(960px) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            @include setRWD(600px) { grid-template-columns: minmax(0, 1fr); }
 
             li { display: flex; }
         }
         &__card {
+            --radius: 12px;
+            --flow: 1.6s;
+            --lift: -3px;
+            position: relative;
             @include setFlex(flex-start, flex-start, .6rem, column);
             flex: 1;
             background:
                 radial-gradient(280px circle at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--hue) 16%, transparent), transparent 70%),
                 var(--vp-c-bg-soft);
-            padding: 1.25rem 1.5rem 1.5rem;
-            border: 1px solid var(--vp-c-divider);
-            border-top: 3px solid var(--hue);
-            border-radius: 12px;
+            padding: 1.4rem 1.5rem 1.5rem;
+            border: 1px solid color-mix(in srgb, var(--hue) 24%, var(--vp-c-divider));
+            border-top-color: color-mix(in srgb, var(--hue) 10%, transparent);
+            border-radius: var(--radius);
             color: var(--vp-c-text-1);
             text-decoration: none;
-            transition: border-color .2s var(--cubic-FiSo), transform .3s var(--cubic-FiSo);
+            transition: border-color .2s var(--cubic-FiSo), transform .3s var(--cubic-FiSo), opacity .3s var(--cubic-FiSo);
 
+            // 金：利（圓角最小、線上有一道白光掃過）；土：重（滑過時往下沉，線不流動）；火：快、閃；木：慢慢長；風：最快；水：圓
+            &[data-element=metal] {
+                --radius: 3px;
+                --flow: .9s;
+            }
+            &[data-element=earth] {
+                --radius: 8px;
+                --lift: 2px;
+            }
+            &[data-element=fire] {
+                --radius: 14px;
+                --flow: .8s;
+            }
+            &[data-element=wind] {
+                --radius: 20px;
+                --flow: .6s;
+            }
+            &[data-element=water] {
+                --radius: 26px;
+                --flow: 2.4s;
+            }
+            &:not([data-element]) { border-top: 3px solid var(--hue); }
             h3 {
                 font-size: var(--font-size-m);
                 font-weight: 700;
@@ -382,13 +530,37 @@
                 font-family: var(--vp-font-family-mono);
                 font-size: var(--font-size-xs);
             }
-            &:hover {
-                border-color: var(--hue);
-                transform: translateY(-3px);
+            &:hover,
+            &.is-lit {
+                border-color: color-mix(in srgb, var(--hue) 60%, transparent);
+                border-top-color: color-mix(in srgb, var(--hue) 10%, transparent);
+                transform: translateY(var(--lift));
 
                 h3 { color: var(--vp-c-brand-1); }
             }
+
+            // 滑過光學台的一道光：別類的卡片退後
+            &.is-dim { opacity: .4; }
         }
+
+        // 線疊在卡片上緣（上框很淡，這條線就是上框），兩端讓出圓角
+        &__card-line {
+            position: absolute;
+            top: -7px;
+            right: calc(var(--radius) * .7);
+            left: calc(var(--radius) * .7);
+            background: linear-gradient(90deg, var(--op-origin), var(--hue) 35%);
+            height: 14px;
+            mask: var(--line-mask) repeat-x 0 50% / var(--line-w) 14px;
+        }
+        [data-element=metal] &__card-line {
+            background:
+                linear-gradient(100deg, transparent 42%, var(--op-origin) 50%, transparent 58%) 150% 0 / 250% 100% no-repeat,
+                linear-gradient(90deg, var(--op-origin), var(--hue) 35%);
+            transition: background-position .8s var(--cubic-FiSo);
+        }
+        [data-element=metal]:hover &__card-line,
+        [data-element=metal].is-lit &__card-line { background-position: -50% 0, 0 0; }
         &__card-cat {
             @include setFlex(flex-start, center, .5rem);
             color: var(--vp-c-text-2);
@@ -401,6 +573,13 @@
                 background: var(--hue);
                 border-radius: 50%;
             }
+        }
+
+        // 游標在卡片上（或在那道光上）時，線往右流，像光從 O 流出來；土不動
+        @media (prefers-reduced-motion: no-preference) {
+            &__card:is(:hover, .is-lit):not([data-element=earth]) &__card-line { animation: op-home-flow var(--flow) linear infinite; }
+            &__card[data-element=fire]:is(:hover, .is-lit) &__card-line { animation: op-home-flow var(--flow) linear infinite, op-home-flicker .24s steps(2) infinite alternate; }
+            &__divider { animation: op-home-draw .7s var(--cubic-FiSo) both; }
         }
 
         // #endregion
@@ -483,9 +662,68 @@
             .op-card-enter-active { transition: none; }
             &__card:hover { transform: none; }
         }
+
+        // #region [P] 開場（約 4.5 秒，只動透明度、位移；名字那幾行多一點模糊）：
+        // 0～2s 名字與三句話一行行出來、右邊白光射進 O 散開 → 3s 字往右被吸進白光 → 3.4s 最近在忙的升上來 → 3.8s 底下的文章、4s 卡片的線畫出來
+        // 播完 JS 拿掉 is-intro；中途點一下、捲一下也是。拿掉之後就是沒有動畫的定格樣子，所以不會跳
+        @media (prefers-reduced-motion: no-preference) {
+            &.is-intro {
+                .op-home__intro { animation: op-home-hold 3.7s backwards; }
+                .op-home__intro > * {
+                    transform-origin: left center;
+                    animation:
+                        op-home-appear .8s calc(.15s + var(--i) * .4s) var(--cubic-FiSo) both,
+                        op-home-absorb .7s calc(2.9s + var(--i) * .08s) var(--cubic-FiSo) forwards;
+                }
+                .op-home__now > :not(.op-home__pads),
+                .op-pad { animation: op-home-rise .7s calc(3.4s + var(--i) * .1s) var(--cubic-FiSo) both; }
+                .op-home__latest > :not(.op-home__cards) { animation: op-home-rise .6s 3.8s var(--cubic-FiSo) both; }
+                .op-home__cards li { animation: op-home-rise .6s calc(3.9s + var(--i) * .07s) var(--cubic-FiSo) both; }
+                .op-home__card-line { animation: op-home-draw .9s calc(4.1s + var(--i) * .07s) var(--cubic-FiSo) both; }
+            }
+        }
+
+        // #endregion
     }
 
-    html:not(.dark) .op-home { --op-amber-ink: #A86A00; }
+    .op-home { --op-origin: #FFF8E7; }
+    html:not(.dark) .op-home {
+        --op-amber-ink: #A86A00;
+        --op-origin: #3A2A5C;
+    }
+    @keyframes op-home-hold {
+        from,
+        to { visibility: visible; }
+    }
+    @keyframes op-home-appear {
+        from {
+            transform: translateY(12px);
+            filter: blur(6px);
+            opacity: 0;
+        }
+    }
+    @keyframes op-home-absorb {
+        to {
+            transform: translateX(72px) scaleX(.8);
+            filter: blur(8px);
+            opacity: 0;
+        }
+    }
+    @keyframes op-home-rise {
+        from {
+            transform: translateY(16px);
+            opacity: 0;
+        }
+    }
+    @keyframes op-home-draw {
+        from { clip-path: inset(0 100% 0 0); }
+    }
+    @keyframes op-home-flow {
+        to { mask-position: var(--line-w) 50%; }
+    }
+    @keyframes op-home-flicker {
+        to { opacity: .7; }
+    }
 
     // #region [P] 「最近在忙的」大卡：游標的光（--mx／--my）與傾斜（--rx／--ry）由 v-spotlight 寫進來
     .op-pad {
@@ -494,7 +732,7 @@
         background:
             radial-gradient(360px circle at var(--mx, 30%) var(--my, 0%), color-mix(in srgb, var(--pad-hue) 22%, transparent), transparent 70%),
             var(--vp-c-bg-soft);
-        padding: 1.5rem 1.75rem;
+        padding: 1.25rem 1.5rem;
         border: 1px solid var(--vp-c-divider);
         border-radius: 18px;
         color: var(--vp-c-text-1);
@@ -510,7 +748,7 @@
             outline-offset: 3px;
         }
         &__title {
-            font-size: var(--font-size-xl);
+            font-size: var(--font-size-l);
             font-weight: 900;
             line-height: 1.2;
         }
@@ -521,11 +759,10 @@
             line-height: 1.7;
         }
 
-        // DinDon：大卡，App 的首頁截圖從右下角探出來，游標進來時升起一點
+        // DinDon：橫跨兩欄，App 的首頁截圖從右下角探出來，游標進來時升起一點
         &--dindon {
-            grid-row: span 2;
-            min-height: 340px;
-            padding-right: 44%;
+            grid-column: 1 / -1;
+            padding-right: 34%;
             @include setRWD(768px) {
                 min-height: 0;
                 padding-right: 1.75rem;
@@ -536,15 +773,14 @@
                 background: var(--pr-brand-gradient);
                 background-clip: text;
                 color: transparent;
-                font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+                font-size: clamp(1.6rem, 1.3rem + 1vw, 2.125rem);
             }
         }
         &__head {
             @include setFlex(flex-start, center, .75rem);
-            margin-bottom: .5rem;
-
-            img { border-radius: 12px; }
+            margin-bottom: .25rem;
         }
+        &--dindon &__head img { border-radius: 12px; }
         &__status {
             @include setFlex(flex-start, center, .45rem);
             background: color-mix(in srgb, var(--pr-amber) 16%, transparent);
@@ -572,10 +808,10 @@
         }
         &__screen {
             position: absolute;
-            right: 7%;
-            bottom: -28%;
-            width: 34%;
-            max-width: 240px;
+            right: 5%;
+            bottom: -48%;
+            width: 26%;
+            max-width: 200px;
             border: 6px solid #1B1815;
             border-radius: 26px;
             box-shadow: 0 18px 50px rgb(0 0 0 / 45%);
@@ -600,8 +836,8 @@
         &__bars {
             @include setFlex(flex-start, flex-end, 8px);
             width: 100%;
-            height: 76px;
-            margin: auto 0 18px;
+            height: 48px;
+            margin: auto 0 16px;
 
             .bar {
                 position: relative;
@@ -646,12 +882,12 @@
 
             span {
                 background: color-mix(in srgb, var(--pr-amber) 10%, transparent);
-                padding: .15rem .65rem;
+                padding: .1rem .55rem;
                 border: 1px solid color-mix(in srgb, var(--pr-amber) 25%, transparent);
                 border-radius: 999px;
                 color: var(--vp-c-text-2);
                 font-size: var(--font-size-xs);
-                transition: color .3s calc(var(--i) * 50ms), border-color .3s calc(var(--i) * 50ms);
+                transition: color .3s calc(var(--c) * 50ms), border-color .3s calc(var(--c) * 50ms);
             }
         }
         &--dindon:hover &__chips span {
@@ -662,9 +898,6 @@
         // Resume
         &--resume { --pad-hue: var(--pr-coral); }
         &__portrait {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.75rem;
             border: 2px solid color-mix(in srgb, var(--pr-coral) 60%, transparent);
             border-radius: 50%;
             object-fit: cover;

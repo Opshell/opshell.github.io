@@ -8,13 +8,14 @@
     // 首頁的光學台（2026-10 翻新第二版）：白光（原初）射進玻璃 O，在裡面演化成六種元素的光絲，
     // 從 O 的右緣稍微分開的地方各自出去，成為各分類的光。
     // - 滑鼠上下是瞄準入射光；滑過一道光，標籤底下出現那類最新的一篇；點了篩底下的文章，點白光或 O 回到全部
-    // - 進場一次：光射進來、O 亮、一道道散開
+    // - 進場（首頁開場動畫的一部分，intro 為 true 時）：光射進來、O 亮、裡面演化、一道道散開；左邊的字被吸進白光時白光亮一下
+    // - 跟底下的文章卡片互相連動：滑過一道光，那一類的卡片亮（emit hover）；滑過一張卡片，那一道光亮（hint）
     //
     // 效能（2026-10-05，使用者：「一到首頁電腦風扇直接狂轉」）：會動的東西（星塵、漣漪、光絲、光點）全畫在一張 <canvas> 上，
     // 每秒 30 張、沒有模糊濾鏡；SVG 只放不動的東西（光暈、光束、玻璃、標籤、點的範圍），只在瞄準時重畫。
     // 捲出畫面、切到別的分頁就停；關閉動態時只畫一張靜止的。
-    const { rays = [], selected = null } = defineProps<{ rays?: Ray[]; selected?: string | null }>();
-    const emit = defineEmits<{ select: [key: string | null] }>();
+    const { rays = [], selected = null, hint = null, intro = false } = defineProps<{ rays?: Ray[]; selected?: string | null; hint?: string | null; intro?: boolean }>();
+    const emit = defineEmits<{ select: [key: string | null]; hover: [key: string | null] }>();
 
     const FRAME_MS = 1000 / 30;
     const TAU = Math.PI * 2;
@@ -24,7 +25,8 @@
     const sourceY = ref<number>(SOURCE_Y.rest);
     const hovered = ref<string | null>(null);
     const motion = ref(false);
-    const focus = computed(() => hovered.value ?? selected);
+    const focus = computed(() => hovered.value ?? hint ?? selected);
+    watch(hovered, key => emit('hover', key));
     const entry = computed(() => refract(sourceY.value).entry);
     const exits = computed(() => exitsFor(sourceY.value, rays.length));
     let target: number | null = null;
@@ -285,7 +287,7 @@
 </script>
 
 <template>
-    <figure ref="rootRef" class="op-bench" :class="{ 'is-motion': motion }" @pointermove="aim" @pointerleave="target = null">
+    <figure ref="rootRef" class="op-bench" :class="{ 'is-motion': motion, 'is-intro': intro }" @pointermove="aim" @pointerleave="target = null">
         <div ref="stageRef" class="op-bench__stage">
             <svg
                 class="op-bench__svg"
@@ -515,19 +517,23 @@
             &__hint { display: none; }
         }
 
-        // #region [P] 進場：光射進來（0～.7s）→ O 亮起來 → 一道道散開 → 畫布淡入
-        &.is-motion {
-            .op-bench__white .core {
-                stroke-dasharray: 1;
-                animation: op-bench-draw .7s var(--cubic-FiSo) both;
+        // #region [P] 進場（跟首頁的開場動畫對時間）：光射進來 → O 亮 → 裡面演化 → 一道道散開 → 3s 左右左邊的字被吸進白光，白光亮一下
+        // 用媒體查詢而不是 JS 加的 class：首頁一畫出來就開始，不等 JS 接手（不然會先閃一下定格的版面）
+        @media (prefers-reduced-motion: no-preference) {
+            &.is-intro {
+                .op-bench__white .core {
+                    stroke-dasharray: 1;
+                    animation: op-bench-draw .8s .2s var(--cubic-FiSo) both;
+                }
+                .op-bench__white .soft { animation: op-bench-fade .6s .7s var(--cubic-FiSo) both, op-bench-flare 1.1s 3s var(--cubic-FiSo); }
+                .op-bench__orb { animation: op-bench-fade .7s .7s var(--cubic-FiSo) both; }
+                .op-bench__canvas { animation: op-bench-fade 1s .9s both; }
+                .op-bench__ray {
+                    transform-origin: var(--exit-x) var(--exit-y);
+                    animation: op-bench-burst .8s calc(1.8s + var(--i) * .09s) var(--cubic-SiRo) both;
+                }
+                figcaption { animation: op-bench-fade .6s 2.6s both; }
             }
-            .op-bench__white .soft,
-            .op-bench__orb { animation: op-bench-fade .6s .5s var(--cubic-FiSo) both; }
-            .op-bench__ray {
-                transform-origin: var(--exit-x) var(--exit-y);
-                animation: op-bench-burst .7s calc(.8s + var(--i) * .07s) var(--cubic-SiRo) both;
-            }
-            .op-bench__canvas { animation: op-bench-fade .8s .6s both; }
         }
 
         // #endregion
@@ -546,6 +552,12 @@
     }
     @keyframes op-bench-fade {
         from { opacity: 0; }
+    }
+    @keyframes op-bench-flare {
+        30% {
+            stroke-width: 22;
+            opacity: .45;
+        }
     }
     @keyframes op-bench-burst {
         from {
