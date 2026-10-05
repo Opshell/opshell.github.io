@@ -28,7 +28,7 @@ Claude 於 2026-10-05 補完：懶人包與結論。看過、改成自己的話�
 - 資料量大的時候把要比對的陣列先轉成 `Set`，`has()` 是 O(1)，整體從 O(n × m) 變 O(n + m)。
 - 中小型資料選好讀的方案一，上千筆再上 `Set` 的方案二。
 
-同一段勾選清單的程式碼，接著要從 `mealDataGroup` 篩出已勾選的項目，就撞上型別錯誤。這篇先修好它，再提供兩種寫法：一種為了好讀，一種為了資料量大的時候不卡。
+同一段勾選清單的程式碼，接著要從 `categoryGroup` 篩出已勾選的項目，就撞上型別錯誤。這篇先修好它，再提供兩種寫法：一種為了好讀，一種為了資料量大的時候不卡。
 
 ## 1. 原始程式碼與問題
 
@@ -37,12 +37,12 @@ Claude 於 2026-10-05 補完：懶人包與結論。看過、改成自己的話�
 **原始程式碼：**
 
 ```typescript
-const selectedIds = Object.keys(mealDataGroup.value)
-      .filter(key => coverMealNumberKeys.value.includes(key)) // <- 錯誤發生於此行
+const selectedIds = Object.keys(categoryGroup.value)
+      .filter(key => selectedCategoryIds.value.includes(key)) // <- 錯誤發生於此行
       .map((key) => {
-          return mealDataGroup.value[Number(key)]?.mealData.map((item: iMealNumberData) => {
-              if (item.grades.length > 0) {
-                  return item.grades.map(grade => grade.id);
+          return categoryGroup.value[Number(key)]?.products.map((item: iProductData) => {
+              if (item.variants.length > 0) {
+                  return item.variants.map(variant => variant.id);
               }
               return [];
           }).flat();
@@ -64,7 +64,7 @@ const selectedIds = Object.keys(mealDataGroup.value)
 
 1.  **`Object.keys()` 的回傳型別**：無論物件的鍵看起來是數字還是字串，`Object.keys()` 方法的回傳值**永遠是一個字串陣列 (`string[]`)**。例如，`Object.keys({ 101: 'a', 102: 'b' })` 會得到 `['101', '102']`。
 
-2.  **`Array.prototype.includes()` 的嚴格型別檢查**：假設 `coverMealNumberKeys.value` 是一個數字陣列 (`number[]`)，TypeScript 會在編譯時期進行嚴格的型別檢查。當你試圖在一個 `number[]` 中搜尋一個 `string` 型別的 `key` 時，TypeScript 會因為型別不匹配而報錯，以防止潛在的執行期 bug。
+2.  **`Array.prototype.includes()` 的嚴格型別檢查**：假設 `selectedCategoryIds.value` 是一個數字陣列 (`number[]`)，TypeScript 會在編譯時期進行嚴格的型別檢查。當你試圖在一個 `number[]` 中搜尋一個 `string` 型別的 `key` 時，TypeScript 會因為型別不匹配而報錯，以防止潛在的執行期 bug。
 
 簡單來說，程式碼試圖在一個**數字陣列**中尋找一個**字串**，導致了型別錯誤。
 
@@ -72,7 +72,7 @@ const selectedIds = Object.keys(mealDataGroup.value)
 
 ## 3. 程式碼重構與優化方案
 
-原始程式碼的目標是：從 `mealDataGroup` 中篩選出 key 存在於 `coverMealNumberKeys` 的項目，然後將這些項目中所有 `grades` 的 `id` 收集並扁平化成一個陣列。
+原始程式碼的目標是：從 `categoryGroup` 中篩選出 key 存在於 `selectedCategoryIds` 的項目，然後將這些項目中所有 `variants` 的 `id` 收集並扁平化成一個陣列。
 
 以下提供兩種優化方案。
 
@@ -82,25 +82,25 @@ const selectedIds = Object.keys(mealDataGroup.value)
 
 ```typescript
 // 假設的資料結構
-interface iGrade { id: number; }
-interface iMealNumberData { grades: iGrade[]; }
-const mealDataGroup = { value: { 101: { mealData: [{ grades: [{ id: 1 }, { id: 2 }] }] }, 102: { mealData: [{ grades: [] }, { grades: [{ id: 3 }] }] }, 201: { mealData: [{ grades: [{ id: 4 }] }] } } };
-const coverMealNumberKeys = { value: [101, 102] };
+interface iVariant { id: number; }
+interface iProductData { variants: iVariant[]; }
+const categoryGroup = { value: { 101: { products: [{ variants: [{ id: 1 }, { id: 2 }] }] }, 102: { products: [{ variants: [] }, { variants: [{ id: 3 }] }] }, 201: { products: [{ variants: [{ id: 4 }] }] } } };
+const selectedCategoryIds = { value: [101, 102] };
 
 // 優化後的寫法
-const selectedIds = Object.keys(mealDataGroup.value)
+const selectedIds = Object.keys(categoryGroup.value)
   // 1. 先將所有 string keys 轉成 number
   .map(Number)
   // 2. 現在型別正確，可以正常篩選
-  .filter(keyAsNumber => coverMealNumberKeys.value.includes(keyAsNumber))
+  .filter(keyAsNumber => selectedCategoryIds.value.includes(keyAsNumber))
   // 3. 使用 flatMap 處理第一層扁平化
   .flatMap(key => {
-    const mealGroup = mealDataGroup.value[key];
-    if (!mealGroup?.mealData) {
+    const group = categoryGroup.value[key];
+    if (!group?.products) {
       return [];
     }
     // 4. 再次使用 flatMap 處理內層，直接取出所有 id
-    return mealGroup.mealData.flatMap(item => item.grades.map(grade => grade.id));
+    return group.products.flatMap(item => item.variants.map(variant => variant.id));
   });
 
 console.log(selectedIds); // 輸出: [1, 2, 3]
@@ -113,16 +113,16 @@ console.log(selectedIds); // 輸出: [1, 2, 3]
 
 ### 方案二：兼顧性能的優化 (使用 `Set`)
 
-當資料量龐大時，在迴圈中重複呼叫 `Array.prototype.includes()`（時間複雜度 $O(n)$）會造成性能瓶頸。我們可以將 `coverMealNumberKeys` 轉換成 `Set`，讓查詢操作的時間複雜度降至 $O(1)$。
+當資料量龐大時，在迴圈中重複呼叫 `Array.prototype.includes()`（時間複雜度 $O(n)$）會造成性能瓶頸。我們可以將 `selectedCategoryIds` 轉換成 `Set`，讓查詢操作的時間複雜度降至 $O(1)$。
 
 ```typescript
 // (接續上面的型別定義)
 
 // 性能優化後的寫法
 // 1. 創建一個 Set 以便進行 O(1) 的快速查找
-const coverKeysSet = new Set(coverMealNumberKeys.value);
+const coverKeysSet = new Set(selectedCategoryIds.value);
 
-const selectedIdsPerf = Object.keys(mealDataGroup.value)
+const selectedIdsPerf = Object.keys(categoryGroup.value)
     .flatMap((key) => {
         const keyAsNumber = Number(key);
 
@@ -131,13 +131,13 @@ const selectedIdsPerf = Object.keys(mealDataGroup.value)
             return []; // 若 key 不匹配，flatMap 會自動移除此空陣列
         }
 
-        const mealGroup = mealDataGroup.value[keyAsNumber];
-        if (!mealGroup?.mealData) {
+        const group = categoryGroup.value[keyAsNumber];
+        if (!group?.products) {
             return [];
         }
 
-        // 3. 同樣使用 flatMap 提取所有 grade id
-        return mealGroup.mealData.flatMap(item => item.grades.map(grade => grade.id));
+        // 3. 同樣使用 flatMap 提取所有 variant id
+        return group.products.flatMap(item => item.variants.map(variant => variant.id));
     });
 
 console.log(selectedIdsPerf); // 輸出: [1, 2, 3]
@@ -161,7 +161,7 @@ console.log(selectedIdsPerf); // 輸出: [1, 2, 3]
 ### 建議
 
 - **一般情況**：對於中小型資料集，**方案一** 是最佳選擇。它在修正錯誤的同時，極大地提升了程式碼的可讀性和簡潔性。
-- **性能敏感場景**：如果 `coverMealNumberKeys` 或 `mealDataGroup` 的資料量可能很大（例如超過千筆），強烈建議採用**方案二**，以避免潛在的性能問題。
+- **性能敏感場景**：如果 `selectedCategoryIds` 或 `categoryGroup` 的資料量可能很大（例如超過千筆），強烈建議採用**方案二**，以避免潛在的性能問題。
 
 ## 結論
 型別錯誤常常不是 `TypeScript` 在找麻煩，而是它在提醒你：「你拿字串去數字堆裡找人，找不到的。」先在源頭把型別轉對，程式自然變好讀；真的遇到大資料，再請 `Set` 出場當櫃檯，報名字就直接告訴你在不在，不用從頭翻名冊。

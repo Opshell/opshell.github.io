@@ -94,7 +94,7 @@ grid-template-columns: minmax(auto, 1fr);
 ```scss
 .info-box {
     display: grid;
-    grid-template-areas: "datepicker schoolpicker meal-provider grade-setting status";
+    grid-template-areas: "datepicker storepicker supplier level-setting status";
     grid-template-columns: var(--col1, 0) var(--col2, 0) var(--col3, 0) var(--col4, 0) minmax(0, 1fr);
     grid-auto-rows: 1fr;
     @include setSize(100%, calc(100% - 63px));
@@ -103,28 +103,28 @@ grid-template-columns: minmax(auto, 1fr);
     &.datepicker {
         --col1: 440px;
         --col2: 0;
-        .meal-date-setting-block {
+        .date-setting-block {
             transform: translate3d(0, 0, 0);
         }
     }
-    &.schoolpicker {
+    &.storepicker {
         --col1: 0;
         --col2: 440px;
-        .school-picker-block {
+        .store-picker-block {
             transform: translate3d(0, 0, 0);
         }
     }
-    &.meal-provider {
+    &.supplier {
         --col3: 50%;
-        .meal-provider-setting-block {
+        .supplier-setting-block {
             transform: translate3d(0, 0, 0);
         }
     }
-    &.grade-setting {
+    &.level-setting {
         --col3: 50%;
         --col4: 50%;
-        .meal-provider-setting-block,
-        .grade-setting-block {
+        .supplier-setting-block,
+        .level-setting-block {
             transform: translate3d(0, 0, 0);
         }
     }
