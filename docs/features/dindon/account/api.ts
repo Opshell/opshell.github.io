@@ -3,7 +3,7 @@
 // 這一頁是公開的靜態網頁，沒有、也不能有祕密：身分完全由使用者當場登入 Google 拿到的 ID token 證明，
 // 後端自己驗簽章與 aud，再用 token 裡的帳號識別碼去找出那台裝置。網頁不知道、也不需要知道裝置 id。
 
-import { apiBase } from '../apiBase';
+import { apiBase } from '@shared/utils/apiBase';
 
 /** link = 只解除 Google 綁定（裝置照常用）；account = 清掉伺服器上跟本人有關的資料並停用那台裝置 */
 export type DeleteScope = 'link' | 'account';

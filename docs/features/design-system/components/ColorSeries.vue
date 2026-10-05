@@ -6,7 +6,7 @@
     const { frontmatter, page, isDark } = useData();
 
     interface Props {
-        category: 'brand' | 'gray' | 'functional' | 'community' | 'mdtag';
+        category: 'brand' | 'spectrum' | 'night' | 'gray' | 'functional' | 'community' | 'mdtag';
     }
 
     const colors = computed(() => {
@@ -19,6 +19,25 @@
                     { name: 'Primary soft', var: '--color-primary-soft', hex: 'rgb(185 148 54 / 16%)', darkHex: '#c4882c' },
 
                     { name: 'Adorn', var: '--color-adorn', hex: '#bd34fe' }
+                ];
+            // 2026-10「稜鏡」：琥珀→紫的品牌漸層攤開成六色，一個分類一色（對照表在 shared/utils/spectrum.ts）
+            case 'spectrum':
+                return [
+                    { name: 'Amber', var: '--pr-amber', hex: '#F4B936' },
+                    { name: 'Orange', var: '--pr-orange', hex: '#F08A24' },
+                    { name: 'Coral', var: '--pr-coral', hex: '#EC5B4B' },
+                    { name: 'Magenta', var: '--pr-magenta', hex: '#D6409F' },
+                    { name: 'Violet', var: '--pr-violet', hex: '#BD34FE' },
+                    { name: 'Indigo', var: '--pr-indigo', hex: '#7B61FF' }
+                ];
+            // 深色模式的夜空：帶一點紫，淺色模式沿用 VitePress 的白
+            case 'night':
+                return [
+                    { name: 'Night bg', var: '--vp-c-bg', hex: '#FFF', darkHex: '#17151E' },
+                    { name: 'Night alt', var: '--vp-c-bg-alt', hex: '#F6F6F7', darkHex: '#121018' },
+                    { name: 'Night soft', var: '--vp-c-bg-soft', hex: '#F6F6F7', darkHex: '#1E1B28' },
+                    { name: 'Night divider', var: '--vp-c-divider', hex: '#E2E2E3', darkHex: '#2C2839' },
+                    { name: 'Brand text', var: '--vp-c-brand-1', hex: '#B4600A', darkHex: '#DC8419' }
                 ];
             case 'gray':
                 return [

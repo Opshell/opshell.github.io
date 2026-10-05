@@ -3,8 +3,8 @@
     import type { HistoryEntry } from './history';
     import type { Attachment, Confirmation } from './request';
     import type { SendResult } from './send';
+    import { apiBase, isProductionApi } from '@shared/utils/apiBase';
     import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
-    import { apiBase, isProductionApi } from '../../apiBase';
     import { useGoogleAuth } from '../../useGoogleAuth';
     import { HTTP_METHODS } from './catalog.schema';
     import { ADMIN_RATE_LIMIT, adminCallsInLastMinute, recordAdminCall, sessionBodies } from './history';

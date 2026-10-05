@@ -1,7 +1,9 @@
 <script setup lang="ts">
+    import { useVisitorStats } from '@features/visitor';
     import { useData } from 'vitepress';
 
     const { frontmatter, page, isDark } = useData();
+    const { pagePv } = useVisitorStats();
 
     const lastUpdated = computed(() => {
         const timestamp = page.value.lastUpdated as number;
@@ -26,7 +28,7 @@
 
                 <div class="meta-item views">
                     <ElSvgIcon name="visibility" />
-                    <span id="busuanzi_value_page_pv" class="text">--</span>
+                    <span class="text">{{ pagePv?.toLocaleString() ?? '--' }}</span>
                 </div>
             </div>
 

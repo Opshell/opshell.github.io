@@ -24,7 +24,8 @@
 </template>
 
 <style lang="scss">
-    .date-badge {
+    // 時間軸也有一個 DateBadge、同樣叫 .date-badge：各自包在頁面的 class 底下，不然兩邊的樣式會互相蓋
+    .tags-page .date-badge {
         @include setFlex(flex-start, flex-end, 2px, column);
         line-height: 1;
 

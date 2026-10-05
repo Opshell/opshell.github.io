@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import type { Post } from '@shared/schemas/post.schema';
+    import { categoryHue, hueVar } from '@shared/utils/spectrum';
     import { computed } from 'vue';
     import DateBadge from './DateBadge.vue';
 
@@ -7,10 +8,12 @@
 
     // 「未分類」「雜談」是預設值，不是資訊，不顯示
     const categories = computed(() => (post.category ?? []).filter(c => c && !['未分類', '雜談'].includes(c)));
+    // 圓點是分類的顏色（跟首頁稜鏡上的光同色）
+    const hue = computed(() => hueVar(categoryHue(post.category?.[0])));
 </script>
 
 <template>
-    <li class="timeline-page__post-item">
+    <li class="timeline-page__post-item" :style="{ '--hue': hue }">
         <div class="timeline-page__post-marker" aria-hidden="true">
             <div class="dot" />
         </div>
@@ -48,6 +51,7 @@
             // hover：圓點與卡片之間拉一條線、卡片外圍亮一圈漸層
             &:hover {
                 .timeline-page__post-marker::after { transform: scaleX(1); }
+                .timeline-page__post-marker .dot { background: var(--hue); }
 
                 // 框從卡片左緣開始畫，寬度要扣掉左邊的圓點與間距，不然右邊會凸出去同樣的距離
                 &::before {
@@ -99,7 +103,7 @@
                 background: rgb(255 255 255 / 8%);
                 @include setSize(var(--op-post-dot-size), var(--op-post-dot-size));
                 backdrop-filter: blur(2px);
-                border: 2px solid var(--color-gray-900);
+                border: 3px solid var(--hue, var(--color-gray-900));
                 border-radius: 50%;
                 transition: .25s var(--cubic-FiSo);
                 z-index: 2;

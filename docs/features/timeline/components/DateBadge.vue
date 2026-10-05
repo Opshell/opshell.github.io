@@ -19,7 +19,8 @@
 </template>
 
 <style lang="scss">
-    .date-badge {
+    // 標籤頁也有一個 DateBadge、同樣叫 .date-badge：各自包在頁面的 class 底下，不然兩邊的樣式會互相蓋
+    .timeline-page .date-badge {
         display: block;
         padding: calc(1rem - 2px) 1rem 0 0;
         line-height: 1;

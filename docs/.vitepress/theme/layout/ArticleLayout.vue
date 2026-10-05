@@ -7,6 +7,7 @@
         useToc
     } from '@features/layout';
     import { useSiteData } from '@hooks/useSiteData';
+    import { categoryHue, hueVar } from '@shared/utils/spectrum';
     import { defaultWindow, useScroll } from '@vueuse/core';
 
     import { useData } from 'vitepress';
@@ -48,7 +49,23 @@
 
         return y.value > 200;
     });
+
+    // 讀到哪裡：導覽列底下一條光譜，從左往右亮（2026-10「稜鏡」翻新）。
+    // 高度每次捲動時重量：圖片載入後文章會變長
+    // 先讀 y：第一次算的時候文章還沒撐開（max 是 0），沒讀到 y 的話 computed 不會再重算
+    const progress = computed(() => {
+        const scrolled = y.value;
+        if (typeof document === 'undefined') return 0;
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        return max > 0 ? Math.min(scrolled / max, 1) : 0;
+    });
     // #endregion
+
+    // 標題底下那一小段是這篇分類的顏色（跟首頁稜鏡上的光、時間軸的圓點同色）
+    const hue = computed(() => {
+        const categories = frontmatter.value.categories as string[] | undefined;
+        return hueVar(categoryHue(categories?.[0]));
+    });
 
     // --- 1. TypeScript Fix & Data Logic ---
     // 修復：使用 computed 並處理 siteData 可能為 undefined 的情況
@@ -153,6 +170,7 @@
     >
         <header class="article-layout__header">
             <VPNav :is-sidebar-open="isSidebarOpen" @open-menu="openSidebar" />
+            <div class="article-layout__progress" :style="{ transform: `scaleX(${progress})` }" aria-hidden="true" />
         </header>
 
         <div class="article-layout__container">
@@ -174,7 +192,7 @@
                 <article class="article-layout__article">
                     <ArticleMeta />
 
-                    <header class="article-layout__article-header">
+                    <header class="article-layout__article-header" :style="{ '--hue': hue }">
                         <h1 class="title">{{ frontmatter.title }}</h1>
                     </header>
 
@@ -297,7 +315,29 @@
 
             &-header {
                 margin-bottom: 1.625rem;
+
+                // 標題底下一小段光：這篇分類的顏色
+                &::after {
+                    content: '';
+                    display: block;
+                    background: linear-gradient(90deg, var(--hue), transparent);
+                    @include setSize(6rem, 4px);
+                    border-radius: 2px;
+                    margin-top: 1rem;
+                }
             }
+        }
+
+        // 閱讀進度：固定在導覽列底下，用 scaleX 伸長（不動寬度，不會重排）
+        &__progress {
+            position: fixed;
+            top: var(--vp-nav-height);
+            left: 0;
+            background: var(--pr-spectrum);
+            @include setSize(100%, 3px);
+            transform-origin: left;
+            pointer-events: none;
+            z-index: 51;
         }
 
         // --- Focus Mode ---
@@ -374,12 +414,15 @@
         }
     }
 
-    // RWD
+    // RWD：以前這裡寫的是 .blog-grid-container、.grid-area-*，頁面上根本沒有這些 class，
+    // 所以窄螢幕一直是三欄硬擠（2026-10 翻新時才發現）
     @media (width <= 1024px) {
-        .blog-grid-container {
-            grid-template-columns: 0 minmax(0, 1fr) 0;
-            padding: 6rem 1rem 2rem;
+        .article-layout__container {
+            grid-template: 'main' auto / minmax(0, 1fr);
+            padding: calc(var(--vp-nav-height) + 1.5rem) 1rem 2rem;
         }
-        .grid-area-left, .grid-area-right { display: none; }
+        .article-layout__container-left,
+        .article-layout__container-right { display: none; }
+        .article-layout__article { padding: 1.5rem 1.25rem; }
     }
 </style>
