@@ -16,7 +16,7 @@ editLink: true
 isPublished: false
 ---
 ::: warning 草稿
-這篇是 Claude 照 git 歷史寫的草稿。程式碼片段都是從當時的 commit 抄出來改寫的，專案名稱我用「醫療後台」代替，要不要寫真名由你決定。看完改成自己的話再刪掉這個區塊。
+這篇是 Claude 照 git 歷史寫的草稿。程式碼片段都是從當時的 commit 抄出來改寫的。專案以 A／B／C 代稱；commit 訊息、日期、分支、API 路徑已在 10-06 去識別化。看完改成自己的話再刪掉這個區塊。
 :::
 
 ::: info 系列：API 串接進化史
@@ -30,11 +30,11 @@ isPublished: false
 7. [TanStack Query 之後我踩的坑](./07-tanstack-query-之後我踩的坑)
 8. [回頭看：兩套並存的 useApi，跟我現在會怎麼起手](./08-回頭看-兩套並存的-useapi-跟我現在會怎麼起手)
 
-**這篇的脈絡**：2023 年 11 月開了一個醫療後台的專案，Vite + Vue 3 + TypeScript + Pinia。這是我第一次認真封裝 axios，也是後來兩年所有專案的 `useApi.ts` 的祖先。翻 git 歷史回去看它第一天的樣子，有些地方現在看會笑出來。
+**這篇的脈絡**：2023 年秋天開了 A 專案（一個後台系統），Vite + Vue 3 + TypeScript + Pinia。這是我第一次認真封裝 axios，也是後來兩年所有專案的 `useApi.ts` 的祖先。翻 git 歷史回去看它第一天的樣子，有些地方現在看會笑出來。
 :::
 
 ## 第一天的 getData
-2023 年 11 月 9 日，專案建立。`src/hooks/useApi.ts` 從第一個 commit 就在了，裡面只有一支函式：
+2023 年秋天，專案建立。`useApi.ts` 從第一個 commit 就在了，裡面只有一支函式：
 ```ts
 export const getData = async function (
     url: string,
@@ -66,7 +66,7 @@ export const getData = async function (
             let result: iResult = { status: false, msg: '網路問題！', data: null };
             if (axiosResponse.status == 200) {
                 const response = axiosResponse.data;
-                if (url == '/oauth/token') { // 目前登入、刷新驗證 未調整，先用舊的
+                if (url == '/api/auth/token') { // 目前登入、刷新驗證 未調整，先用舊的
                     result = { /* ...OAuth 的特例... */ };
                 } else {
                     result = {
@@ -106,7 +106,7 @@ if (!token) {
 ```
 註解寫「有東西的話」，條件寫 `!token`。這段的意思是：store 裡沒有 token，就去 localStorage 撈，撈到的話寫回 store。但第二個 `if` 判斷反了，所以撈到的時候什麼都不做，撈不到的時候把 `null` 寫進 store。
 
-這個 bug 活了將近一年，到 2024 年 10 月把 token 邏輯抽成 `getToken()` 才順便修掉。為什麼能活這麼久？因為它沒有症狀。store 本來就空、localStorage 也空的時候，寫 `null` 進去跟不寫一樣；store 空、localStorage 有東西的時候，雖然沒寫回 store，但 `token` 這個區域變數已經拿到值了，header 還是帶得出去。下一次呼叫再撈一次 localStorage 就好。
+這個 bug 活了將近一年，到隔年秋天把 token 邏輯抽成 `getToken()` 才順便修掉。為什麼能活這麼久？因為它沒有症狀。store 本來就空、localStorage 也空的時候，寫 `null` 進去跟不寫一樣；store 空、localStorage 有東西的時候，雖然沒寫回 store，但 `token` 這個區域變數已經拿到值了，header 還是帶得出去。下一次呼叫再撈一次 localStorage 就好。
 
 **沒有症狀的 bug 最危險，因為它會跟著你複製到下一個專案。** 這件事第五篇會講。
 
@@ -123,7 +123,7 @@ if (!token) {
 
 **馬上遇到的**：每個呼叫端都要先判 `null` 再判 `status`。
 ```ts
-getData('/api/patients').then((res) => {
+getData('/api/users').then((res) => {
     if (!res) { /* 網路錯誤 */ return; }
     if (!res.status) { /* 業務錯誤 */ return; }
     // 終於可以用 res.data 了
@@ -152,27 +152,27 @@ if (typeof resMsg === 'object') {
 ```
 攤平成一個字串，用 `<br>` 隔開，丟給 `v-html`。
 
-這在當時完全合理，因為通知元件就是吃字串的。但這等於是在 API 層決定了「錯誤訊息要怎麼顯示」——HTML 標籤跑進了資料層。後來改成 `messages: string[]`，讓顯示的地方自己決定要用換行還是列表，是 2024 年 11 月的事。
+這在當時完全合理，因為通知元件就是吃字串的。但這等於是在 API 層決定了「錯誤訊息要怎麼顯示」——HTML 標籤跑進了資料層。後來改成 `messages: string[]`，讓顯示的地方自己決定要用換行還是列表，是 2024 年底的事。
 
-## __DOCKING__：一個全域常數的小聰明
+## VITE_USE_MOCK：一個全域常數的小聰明
 開專案的第一週，後端還沒好，所以用 `vite-plugin-mock` 假資料。問題是切換很煩：每個頁面的 URL 都要改。
 
 我的解法是在 `vite.config.ts` 定義一個全域常數：
 ```ts
 define: {
-    __DOCKING__: false, // API 串接的目標位置 (true: Docker Container, false: mockjs)
+    VITE_USE_MOCK: true, // API 串接的目標位置 (true: mockjs, false: Docker Container)
 },
 ```
 然後頁面裡這樣寫：
 ```ts
-const url = (import.meta.env.__DOCKING__) ? '/oauth/token' : '/mapi/user/login';
+const url = (import.meta.env.VITE_USE_MOCK) ? '/api/login' : '/api/auth/token';
 ```
-commit 訊息是「Add：全域常數 控制api 端點(才不用每次測試都要改一堆)」，括號裡那句很誠實。
+加這個常數的那個 commit，訊息裡還很誠實地用括號交代了動機：測試的時候不想每次都改一堆地方。
 
-兩週後後端接上了，`__DOCKING__` 改成 `true`，從此再也沒變回去。但這個常數跟那些三元運算式一直留在程式碼裡，到 2026 年都還在。每個專案都有這種東西：為了某個兩週的過渡期寫的，然後活了三年。
+兩週後後端接上了，`VITE_USE_MOCK` 改成 `false`，從此再也沒變回去。但這個常數跟那些三元運算式一直留在程式碼裡，到 2026 年都還在。每個專案都有這種東西：為了某個兩週的過渡期寫的，然後活了三年。
 
 ## 夭折的 ApiClient
-12 月初，專案一個月，我做了一次「架構開發」。commit 訊息寫「hooks & composable 權責切分、useApi.ts 重構 & 規則化命名」。
+專案滿一個月的時候，我做了一次「架構開發」。那個 commit 的訊息列了一串：hooks 跟 composable 的權責切分、`useApi.ts` 重構、命名規則化。
 
 `getData` 改名成 `sendRequest`——這個名字後來用了兩年。同一個 commit 還新增了一支 `apiClient.ts`：
 ```ts
@@ -201,7 +201,7 @@ export class ApiClient {
 
 它從來沒有被任何地方引用過。
 
-而且 `handleResponse` 裡面還引用了 `url` 跟 `data` 這兩個在它的 scope 裡根本不存在的變數——它是從 `sendRequest` 的 `.then` 直接剪過去的，剪完沒跑過。2024 年 3 月改了個方法名，7 月整支刪掉。
+而且 `handleResponse` 裡面還引用了 `url` 跟 `data` 這兩個在它的 scope 裡根本不存在的變數——它是從 `sendRequest` 的 `.then` 直接剪過去的，剪完沒跑過。隔年春天改了個方法名，夏天整支刪掉。
 
 為什麼寫了又不用？老實說我不記得了。我猜是寫完發現，在 Vue 3 的世界裡，一個 export 出去的 function 跟一個要 `new` 的 class 相比，前者好 import、好測、好跟 composable 搭。class 在這裡沒有帶來任何好處，只是看起來比較「工程」。
 
@@ -222,4 +222,4 @@ export class ApiClient {
 
 它能用。它比 jQuery 時代好太多了。而且接下來半年它幾乎沒動，因為專案在趕功能，沒人有空回頭看一支「能用」的函式。
 
-直到 2024 年 10 月，後端說：token 會過期，你們要自己刷新。
+直到 2024 年秋天，後端說：token 會過期，你們要自己刷新。
