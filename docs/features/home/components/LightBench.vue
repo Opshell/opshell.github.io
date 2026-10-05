@@ -2,7 +2,8 @@
     import type { ElementKey, Point, Ray } from '../prism';
     import { hueVar, SPECTRUM } from '@shared/utils/spectrum';
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-    import { aimFromPointer, along, END_X, exitsFor, LABEL_X, ORB, photonAt, rayPolygon, refract, SOURCE_X, SOURCE_Y, stars, strandPoints, VIEW } from '../prism';
+    import { evolve, ribbon } from '../elements';
+    import { aimFromPointer, along, END_X, exitsFor, LABEL_X, ORB, photonAt, rayPolygon, refract, SOURCE_X, SOURCE_Y, stars, VIEW } from '../prism';
 
     // 首頁的光學台（2026-10 翻新第二版）：白光（原初）射進玻璃 O，在裡面演化成六種元素的光絲，
     // 從 O 的右緣稍微分開的地方各自出去，成為各分類的光。
@@ -66,15 +67,25 @@
         draw(time);
     }
 
-    /** 每種元素的筆觸：粗細、外面那層光的寬度、亮度 */
-    const STROKE: Record<ElementKey, { width: number; glow: number; alpha: number }> = {
-        metal: { width: 1.8, glow: 5, alpha: 0.95 },
-        earth: { width: 3.2, glow: 9, alpha: 0.85 },
-        fire: { width: 2, glow: 8, alpha: 0.9 },
-        wood: { width: 1.6, glow: 5, alpha: 0.9 },
-        wind: { width: 1, glow: 4, alpha: 0.55 },
-        water: { width: 2.2, glow: 7, alpha: 0.9 }
+    /** 每種元素的亮度、外面那層光有多寬（乘在帶子的粗細上） */
+    const STYLE: Record<ElementKey, { alpha: number; glow: number }> = {
+        metal: { alpha: 0.95, glow: 2.4 },
+        earth: { alpha: 0.85, glow: 2 },
+        fire: { alpha: 0.9, glow: 2.8 },
+        wood: { alpha: 0.9, glow: 2.4 },
+        wind: { alpha: 0.55, glow: 3 },
+        water: { alpha: 0.9, glow: 2.6 }
     };
+
+    /** 一條帶子（每點粗細不同）填色 */
+    function fillRibbon(points: readonly Point[], widths: readonly number[], widen = 1) {
+        const outline = ribbon(points, widths, widen);
+        ctx!.beginPath();
+        ctx!.moveTo(outline[0].x, outline[0].y);
+        for (let i = 1; i < outline.length; i++) ctx!.lineTo(outline[i].x, outline[i].y);
+        ctx!.closePath();
+        ctx!.fill();
+    }
 
     function polyline(points: readonly Point[]) {
         ctx!.beginPath();
@@ -117,40 +128,61 @@
             c.arc(en.x, en.y, 3 + p * 62, 0, TAU);
             c.stroke();
         }
-        c.lineCap = 'round';
-        c.lineJoin = 'round';
-        const threadsOf: Point[][][] = [];
-        rays.forEach((ray, index) => {
-            const element = ray.element.key;
-            const threads = strandPoints(element, en, ex[index], { x: END_X, y: ray.y }, now, index * 1.37);
-            threadsOf.push(threads);
+        // 光絲：元素之間會互相影響，一次算全部（elements.ts）
+        const strands = evolve(rays.map(ray => ray.element.key), en, ex, rays.map(ray => ({ x: END_X, y: ray.y })), now);
+        strands.forEach((strand, index) => {
+            const ray = rays[index];
+            const hue = colors[ray.hue];
             const gradient = c.createLinearGradient(en.x, en.y, ex[index].x, ex[index].y);
             gradient.addColorStop(0, colors.beam);
-            gradient.addColorStop(0.4, colors[ray.hue]);
-            gradient.addColorStop(1, colors[ray.hue]);
-            const stroke = STROKE[element];
+            gradient.addColorStop(0.4, hue);
+            gradient.addColorStop(1, hue);
+            const style = STYLE[strand.element];
             const dim = lit && lit !== ray.key ? 0.18 : 1;
             // 火會閃
-            const flicker = element === 'fire' ? 0.7 + 0.3 * Math.sin(now * 13 + index) : 1;
-            c.strokeStyle = gradient;
-            c.lineJoin = element === 'metal' ? 'miter' : 'round';
-            for (const thread of threads) {
-                polyline(thread);
-                c.globalAlpha = 0.22 * dim * flicker;
-                c.lineWidth = stroke.glow;
+            const flicker = strand.element === 'fire' ? 0.7 + 0.3 * Math.sin(now * 13 + index) : 1;
+            c.fillStyle = gradient;
+            // 木：先畫鹼基對，再畫兩股
+            if (strand.rungs.length) {
+                c.strokeStyle = hue;
+                c.lineWidth = 0.8;
+                for (const rung of strand.rungs) {
+                    c.globalAlpha = (0.12 + 0.45 * rung.depth) * dim;
+                    c.beginPath();
+                    c.moveTo(rung.a.x, rung.a.y);
+                    c.lineTo(rung.b.x, rung.b.y);
+                    c.stroke();
+                }
+            }
+            for (const thread of strand.threads) {
+                c.globalAlpha = 0.2 * dim * flicker;
+                fillRibbon(thread.points, thread.widths, style.glow);
+                c.globalAlpha = style.alpha * dim * flicker;
+                fillRibbon(thread.points, thread.widths);
+            }
+            // 金：刀刃中間一條白色高光、反射點閃一下
+            if (strand.element === 'metal') {
+                c.strokeStyle = colors.beam;
+                c.lineWidth = 0.6;
+                c.globalAlpha = 0.85 * dim;
+                polyline(strand.threads[0].points);
                 c.stroke();
-                c.globalAlpha = stroke.alpha * dim * flicker;
-                c.lineWidth = stroke.width;
-                c.stroke();
+                c.fillStyle = colors.beam;
+                strand.glints.forEach((glint, k) => {
+                    const flash = Math.max(0, Math.sin(now * 2.2 + k * 1.6));
+                    c.globalAlpha = flash * 0.9 * dim;
+                    dot(glint.x, glint.y, 1.5 + flash * 2.5);
+                });
             }
         });
         // O 裡的光點：沿著光絲走，比外面快
-        rays.forEach((ray, index) => {
+        strands.forEach((strand, index) => {
+            const ray = rays[index];
             c.fillStyle = colors[ray.hue];
             const dim = lit && lit !== ray.key ? 0.3 : 1;
             for (let i = 0; i < 2; i++) {
                 const t = (i / 2 + index * 0.21 + now * 0.45) % 1;
-                const p = along(threadsOf[index][0], t);
+                const p = along(strand.threads[0].points, t);
                 c.globalAlpha = Math.sin(Math.PI * t) * dim;
                 dot(p.x, p.y, 1.4);
             }
@@ -319,7 +351,7 @@
                     tabindex="0"
                     :aria-pressed="selected === ray.key"
                     :style="{ '--hue': hueVar(ray.hue), '--i': index }"
-                    :aria-label="`${ray.label}，${ray.count} 篇，${ray.element.glyph}：${ray.element.trait}。最新：${ray.latest.title}`"
+                    :aria-label="`${ray.label}，${ray.count} 篇，最新：${ray.latest.title}`"
                     @click="toggle(ray.key)"
                     @keydown.enter.prevent="toggle(ray.key)"
                     @keydown.space.prevent="toggle(ray.key)"
@@ -332,8 +364,7 @@
                     <polygon v-if="focus === ray.key" class="glow" :points="rayPolygon(exits[index], ray)" filter="url(#op-bench-blur)" />
                     <polygon class="beam" :points="rayPolygon(exits[index], ray)" />
                     <text :x="LABEL_X" :y="ray.y" dominant-baseline="central" aria-hidden="true">
-                        <tspan class="glyph">{{ ray.element.glyph }}</tspan>
-                        <tspan class="label" dx="8">{{ ray.label }}</tspan>
+                        <tspan class="label">{{ ray.label }}</tspan>
                         <tspan class="count" dx="10">{{ ray.count }}</tspan>
                     </text>
                     <text class="latest" :x="LABEL_X" :y="ray.y + 20" dominant-baseline="central" aria-hidden="true">最新：{{ shorten(ray.latest.title) }}</text>
@@ -350,7 +381,7 @@
             <canvas ref="canvasRef" class="op-bench__canvas" aria-hidden="true" />
         </div>
         <figcaption id="op-bench-caption">
-            白光是原初，在 O 裡演化成金、土、火、木、風、水，散成這裡寫的每一類。光越寬文章越多；<span class="op-bench__hint">移動滑鼠瞄準入射光，</span>點一道光看那一類。
+            白光是原初，在 O 裡演化，散成這裡寫的每一類。光越寬文章越多；<span class="op-bench__hint">移動滑鼠瞄準入射光，</span>點一道光看那一類。
         </figcaption>
     </figure>
 </template>
@@ -422,10 +453,6 @@
                 font-size: 15px;
                 font-weight: 700;
                 transition: opacity .3s var(--cubic-FiSo);
-            }
-            .glyph {
-                fill: var(--hue);
-                font-size: 13px;
             }
             .count {
                 fill: var(--vp-c-text-3);

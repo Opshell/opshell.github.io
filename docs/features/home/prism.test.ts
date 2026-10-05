@@ -1,8 +1,7 @@
 import type { Post } from '@shared/schemas/post.schema';
 import type { Chapter } from './contents';
-import type { ElementKey } from './prism';
 import { describe, expect, it } from 'vitest';
-import { aimFromPointer, along, buildRays, END_X, exitsFor, ORB, photonAt, refract, SOURCE_Y, stars, strandPoints } from './prism';
+import { aimFromPointer, along, buildRays, END_X, exitsFor, ORB, photonAt, refract, SOURCE_Y, stars } from './prism';
 
 const post = (url: string, date = '2026-01-01'): Post => ({ title: url, url, date, category: [], tags: [], excerpt: '' } as unknown as Post);
 const chapter = (key: string, count: number, date?: string): Chapter => ({ key, label: key, count, first: post(`/${key}/1`), latest: post(`/${key}/2`, date) });
@@ -70,48 +69,8 @@ describe('入射與出口', () => {
     });
 });
 
-describe('光絲：白光在玻璃裡演化成元素', () => {
-    const { entry } = refract(SOURCE_Y.rest);
-    const [exit] = exitsFor(SOURCE_Y.rest, 1);
-    const end = { x: END_X, y: 80 };
-    const all: ElementKey[] = ['metal', 'earth', 'fire', 'wood', 'wind', 'water'];
-
-    it('每種元素都從入口出發、到自己的出口結束，最後一段對準那道光', () => {
-        for (const element of all) {
-            for (const thread of strandPoints(element, entry, exit, end, 2.3, 1)) {
-                expect(thread[0]).toEqual(entry);
-                expect(thread.at(-1)).toEqual(exit);
-                const before = thread.at(-2)!;
-                const tangent = Math.atan2(exit.y - before.y, exit.x - before.x);
-                expect(tangent, element).toBeCloseTo(Math.atan2(end.y - exit.y, end.x - exit.x), 0);
-            }
-        }
-    });
-
-    it('金是直線段（點很少）、在玻璃裡反射，不會跑出 O', () => {
-        const [path] = strandPoints('metal', entry, exit, end, 4, 0);
-        expect(path.length).toBeLessThan(8);
-        for (const p of path) expect(fromCenter(p)).toBeLessThanOrEqual(ORB.r + 0.5);
-    });
-
-    it('木兩股、風三縷、其他一股；土往下墜', () => {
-        expect(strandPoints('wood', entry, exit, end, 1)).toHaveLength(2);
-        expect(strandPoints('wind', entry, exit, end, 1)).toHaveLength(3);
-        expect(strandPoints('water', entry, exit, end, 1)).toHaveLength(1);
-        const [earth] = strandPoints('earth', entry, exit, end, 1);
-        const [water] = strandPoints('water', entry, exit, end, 0);
-        const middle = Math.floor(earth.length / 2);
-        expect(earth[middle].y).toBeGreaterThan(water[middle].y - 30);
-        expect(earth[middle].y - (entry.y + exit.y) / 2).toBeGreaterThan(ORB.r * 0.2);
-    });
-
-    it('會動：同一種元素在不同時間形狀不一樣', () => {
-        for (const element of all) {
-            expect(strandPoints(element, entry, exit, end, 0, 0), element).not.toEqual(strandPoints(element, entry, exit, end, 0.9, 0));
-        }
-    });
-
-    it('along 照折線取點', () => {
+describe('along', () => {
+    it('照折線取點', () => {
         const line = [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 10 }];
         expect(along(line, 0)).toEqual({ x: 0, y: 0 });
         expect(along(line, 0.5)).toEqual({ x: 10, y: 0 });

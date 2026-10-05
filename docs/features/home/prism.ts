@@ -18,7 +18,7 @@ export const SOURCE_Y = { min: 120, max: 420, rest: 360 } as const;
 /** 出射角是入射角的幾倍、反向：0.55 看得出偏折，又不會把光甩出畫面 */
 const BEND = 0.55;
 /** 各道光的出口沿著 O 的右緣分開多少（弧度，全部加起來）：不擠在同一點 */
-const EXIT_FAN = 0.62;
+const EXIT_FAN = 0.95;
 export const END_X = 520;
 const TOP = 52;
 const BOTTOM = VIEW.height - 52;
@@ -77,9 +77,9 @@ export interface Ray {
     photons: number;
 }
 
-const round = (n: number) => Math.round(n * 10) / 10;
-const round2 = (point: Point) => ({ x: round(point.x), y: round(point.y) });
-const unit = (v: Point): Point => {
+export const round = (n: number) => Math.round(n * 10) / 10;
+export const round2 = (point: Point) => ({ x: round(point.x), y: round(point.y) });
+export const unit = (v: Point): Point => {
     const length = Math.hypot(v.x, v.y) || 1;
     return { x: v.x / length, y: v.y / length };
 };
@@ -117,93 +117,7 @@ export function photonAt(exit: Point, ray: Pick<Ray, 'y' | 'spread'>, t: number,
     };
 }
 
-// #region [P] 光絲：白光在玻璃裡演化成元素，每種元素有自己的樣子
-
-const SAMPLES = 36;
-
-/**
- * 底線：入口 → 出口的三次貝茲。最後一個控制點在「那道光的反方向」，所以出口的切線就是光的方向（收束成光束）。
- * 元素的擾動疊在這條線的法線上，用 sin(πs)² 當包絡：兩端是 0、而且斜率也是 0，出入口的方向不會被擾動弄歪。
- */
-function baseCurve(entry: Point, exit: Point, rayEnd: Point) {
-    const flow = unit({ x: exit.x - entry.x, y: exit.y - entry.y });
-    const out = unit({ x: rayEnd.x - exit.x, y: rayEnd.y - exit.y });
-    const c1 = { x: entry.x + flow.x * ORB.r * 0.6, y: entry.y + flow.y * ORB.r * 0.6 };
-    const c2 = { x: exit.x - out.x * ORB.r * 0.6, y: exit.y - out.y * ORB.r * 0.6 };
-    return (s: number) => {
-        const u = 1 - s;
-        const point = {
-            x: u * u * u * entry.x + 3 * u * u * s * c1.x + 3 * u * s * s * c2.x + s * s * s * exit.x,
-            y: u * u * u * entry.y + 3 * u * u * s * c1.y + 3 * u * s * s * c2.y + s * s * s * exit.y
-        };
-        const tangent = unit({
-            x: 3 * u * u * (c1.x - entry.x) + 6 * u * s * (c2.x - c1.x) + 3 * s * s * (exit.x - c2.x),
-            y: 3 * u * u * (c1.y - entry.y) + 6 * u * s * (c2.y - c1.y) + 3 * s * s * (exit.y - c2.y)
-        });
-        return { point, normal: { x: -tangent.y, y: tangent.x } };
-    };
-}
-
-/** 各元素在第 s 的位置、第 time 秒，法線方向擾動多少（乘上 r） */
-const WAVES: Record<Exclude<ElementKey, 'metal'>, (s: number, time: number, seed: number) => number> = {
-    // 水：一個半波長的正弦，順著流
-    water: (s, time, seed) => 0.32 * Math.sin(Math.PI * 3 * s - time * 1.8 + seed),
-    // 火：短波長、快、兩個頻率疊起來的抖動
-    fire: (s, time, seed) => 0.16 * Math.sin(Math.PI * 7 * s - time * 6.5 + seed) + 0.1 * Math.sin(Math.PI * 13 * s + time * 9.7 + seed * 2),
-    // 風：大而慢的一個弧，整條飄來飄去
-    wind: (s, time, seed) => 0.5 * Math.sin(Math.PI * s + time * 0.6 + seed) * Math.sin(time * 0.4 + seed),
-    // 木：越往後越大的螺旋（第二股藤蔓是反相）
-    wood: (s, time, seed) => 0.3 * s * Math.sin(Math.PI * 4 * s + time * 1.4 + seed),
-    // 土：法線方向不動，往下墜的部分另外加（見 strandPoints）
-    earth: (s, time, seed) => 0.04 * Math.sin(Math.PI * 2 * s + time * 0.5 + seed)
-};
-
-/** 金：從入口直直射進去，碰到玻璃內壁就反射，兩次之後直直對準出口（方向隨時間慢慢轉） */
-function metalPath(entry: Point, exit: Point, rayEnd: Point, time: number, seed: number): Point[] {
-    const wall = ORB.r * 0.9;
-    const flow = unit({ x: exit.x - entry.x, y: exit.y - entry.y });
-    const turn = 0.75 * Math.sin(time * 0.45 + seed) + 0.35;
-    let dir = unit({ x: flow.x * Math.cos(turn) - flow.y * Math.sin(turn), y: flow.x * Math.sin(turn) + flow.y * Math.cos(turn) });
-    // 從入口往裡面走一點再開始，免得一開始就貼著牆
-    let p = { x: entry.x + flow.x * 6, y: entry.y + flow.y * 6 };
-    const points: Point[] = [entry, p];
-    for (let bounce = 0; bounce < 2; bounce++) {
-        // 射線與圓（半徑 wall）的交點：解 |p + t·dir − c|² = wall²
-        const ox = p.x - ORB.cx;
-        const oy = p.y - ORB.cy;
-        const b = ox * dir.x + oy * dir.y;
-        const c = ox * ox + oy * oy - wall * wall;
-        const t = -b + Math.sqrt(Math.max(0, b * b - c));
-        p = { x: p.x + dir.x * t, y: p.y + dir.y * t };
-        points.push(p);
-        const n = unit({ x: p.x - ORB.cx, y: p.y - ORB.cy });
-        const dot = dir.x * n.x + dir.y * n.y;
-        dir = { x: dir.x - 2 * dot * n.x, y: dir.y - 2 * dot * n.y };
-    }
-    const out = unit({ x: rayEnd.x - exit.x, y: rayEnd.y - exit.y });
-    points.push({ x: exit.x - out.x * ORB.r * 0.3, y: exit.y - out.y * ORB.r * 0.3 }, exit);
-    return points.map(round2);
-}
-
-/**
- * 一股光絲在第 time 秒的樣子：一串點（畫成折線）。起點是入口、終點是自己的出口，最後一段對準自己那道光。
- * 木有兩股（第二股反相），風有三縷（左右錯開），其他一股。回傳的是「一股或幾股」的陣列。
- */
-export function strandPoints(element: ElementKey, entry: Point, exit: Point, rayEnd: Point, time: number, seed = 0): Point[][] {
-    if (element === 'metal') return [metalPath(entry, exit, rayEnd, time, seed)];
-    const curve = baseCurve(entry, exit, rayEnd);
-    const wave = WAVES[element];
-    const threads = element === 'wood' ? [1, -1] : element === 'wind' ? [0, 0.6, -0.6] : [0];
-    return threads.map(thread => Array.from({ length: SAMPLES + 1 }, (_, i) => {
-        const s = i / SAMPLES;
-        const envelope = Math.sin(Math.PI * s) ** 2;
-        const { point, normal } = curve(s);
-        let offset = (element === 'wood' ? thread : 1) * wave(s, time, seed) * ORB.r;
-        if (element === 'wind') offset += thread * envelope * ORB.r * 0.12 * Math.sin(time * 0.9 + thread * 3 + seed);
-        const sag = element === 'earth' ? envelope * ORB.r * (0.42 + 0.06 * Math.sin(time * 0.5 + seed)) : 0;
-        return round2({ x: point.x + normal.x * offset * envelope, y: point.y + normal.y * offset * envelope + sag });
-    }));
-}
+// #region [P] 光絲的形狀在 elements.ts（元素之間會互相影響，要一起算）
 
 /** 折線上第 t（0～1，照點的順序算）的位置：光點沿著光絲走用 */
 export function along(points: readonly Point[], t: number): Point {
