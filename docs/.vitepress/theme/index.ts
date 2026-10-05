@@ -11,6 +11,7 @@ import LayoutResume from './layout/Resume.vue';
 
 // [-] 字體引用
 import './fonts/font.css';
+import './fonts/noto-sans-tc.css';
 
 // [-] 全局樣式引用
 import './scss/style.scss';
