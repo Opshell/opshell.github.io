@@ -296,3 +296,15 @@
 - **手機文章版型**：`ArticleLayout.vue` 的 RWD 選擇器還是改名前的 `.blog-grid-container`／`.grid-area-*`，1024 以下沒收側欄。改對之後 390px 單欄、`scrollWidth` 390；1440 仍是 250／838／250。
 - **效能**：量測（Edge 無頭、Performance.getMetrics）——捲動 40 格 JS 共 8ms、版面 0 次，執行期本來就不重；文章頁載入主執行緒 1.28s → 0.82s（圖片延遲載入、少讀樣式）。
   **真正的大頭是全站字型**：NotoSansTC 三個字重各約 2.9MB，每頁 8.6MB；要切 unicode-range 子集才會明顯變快，是全站的事，另外處理。
+
+# 2026-10-05：嚴格檢修 markdown 語法的 UI/UX、卡片左右對照＋三段比例開關（分支 feat/markdown-guide）
+
+**使用者**：（字型子集化交給另一個小精靈。）嚴格檢視目前的語法、優化 UI/UX；demo 改成左邊語法、右邊樣式比較好對照；上面給個三狀態 switch，預設置中兩邊各 50%，切右邊右邊 70%，切左邊左邊 70%。
+
+- 檢修（`fix(theme)`，影響全站文章）：粗體膠囊與行內程式碼原本同底同色 → 膠囊用 currentColor 調淡當底、600 字重，行內程式碼中性色；
+  淺色模式品牌橘當字 2.6:1 → `--color-ink-brand` #9A5208（5.4:1）；程式碼區塊固定 one-dark 深底；刪除線變淡；任務清單唯讀（`disabled`、拿掉 hover 與高光）；
+  引言拿掉 hover 浮起；一般引用 #777 改 token；info 標籤「細節」→「📝 補充 [Info]」；外連結圖示 24px → 1em。
+- 左右對照：`MdSpec` 兩欄吃 `--md-split`（`minmax(0, 7fr) minmax(0, 3fr)` 這種），`grid-template-columns` 漸變；`MdSplitSwitch` 三段（role=slider、左右鍵、兩側字可點），
+  localStorage `md-guide-split`。卡片容器 < 560px 上下排並收開關。
+- 驗證：`pnpm check` 全過；預覽版截圖看三種比例（寬度 571／245 這樣切）、深淺色的容器／刪除線／任務清單、手機 390（上下排、開關隱藏、`scrollWidth` 390）。
+- `.vitepress/` 底下的 scss 有一批既有的 stylelint 錯（`.VP*` 命名、空區塊），不在 `pnpm check` 的範圍，沒動。
