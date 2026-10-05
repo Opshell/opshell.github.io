@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 330" width="720" height="330" role="img" aria-label="AI 在自己的分支上提交，人看過才合併進 main，main 一推就上線">
+<title>AI 在自己的分支上提交，人看過才合併進 main，main 一推就上線</title>
+<defs><marker id="parent-bg" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#282c34"/></marker><marker id="parent-text" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d7dae0"/></marker><marker id="parent-muted" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#7f848e"/></marker><marker id="parent-line" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4b5263"/></marker><marker id="parent-main" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#f4b936"/></marker><marker id="parent-blue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#61afef"/></marker><marker id="parent-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#98c379"/></marker><marker id="parent-purple" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c678dd"/></marker><marker id="parent-red" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e06c75"/></marker><marker id="parent-cyan" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#56b6c2"/></marker><marker id="parent-orange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d19a66"/></marker></defs>
+<rect width="720" height="330" rx="10" fill="#282c34"/>
+<text x="20" y="26" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="14" font-weight="600" fill="#d7dae0">分工：AI 負責 commit，人負責「要不要合進 main」。main 等於上線</text>
+<path d="M200 176 L56 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M430.40000000000003 176 L200 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M106.4 116 C81.2 116 81.2 176 56 176" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M156.8 116 L106.4 116" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M200 176 C178.4 176 178.4 116 156.8 116" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M272 116 C236 116 236 176 200 176" fill="none" stroke="#98c379" stroke-width="3"/>
+<path d="M322.40000000000003 116 L272 116" fill="none" stroke="#98c379" stroke-width="3"/>
+<path d="M372.8 116 L322.40000000000003 116" fill="none" stroke="#98c379" stroke-width="3"/>
+<path d="M430.40000000000003 176 C401.6 176 401.6 116 372.8 116" fill="none" stroke="#98c379" stroke-width="3"/>
+<g><circle cx="56" cy="176" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="200" cy="176" r="8" fill="#f4b936"/>
+<text x="200" y="215" text-anchor="middle" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#d7dae0">人：看過才合</text>
+</g>
+<g><circle cx="430.40000000000003" cy="176" r="8" fill="#f4b936"/>
+<text x="430.40000000000003" y="215" text-anchor="middle" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#d7dae0">人：看過才合</text>
+</g>
+<g><circle cx="106.4" cy="116" r="8" fill="#c678dd"/>
+</g>
+<g><circle cx="156.8" cy="116" r="8" fill="#c678dd"/>
+</g>
+<g><circle cx="272" cy="116" r="8" fill="#98c379"/>
+</g>
+<g><circle cx="322.40000000000003" cy="116" r="8" fill="#98c379"/>
+</g>
+<g><circle cx="372.8" cy="116" r="8" fill="#98c379"/>
+</g>
+<rect x="116.4" y="82" width="80.80000000000001" height="20" rx="5" fill="#282c34" stroke="#c678dd" stroke-width="1.5"/><text x="156.8" y="96" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#c678dd">feat/home</text>
+<rect x="310.8" y="82" width="124.00000000000003" height="20" rx="5" fill="#282c34" stroke="#98c379" stroke-width="1.5"/><text x="372.8" y="96" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#98c379">docs/git-series</text>
+<rect x="464.0000000000001" y="166" width="152.8" height="20" rx="5" fill="#282c34" stroke="#f4b936" stroke-width="1.5"/><text x="540.4000000000001" y="180" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#f4b936">main → GitHub Pages</text>
+<text x="20" y="290" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#7f848e">紫、綠：AI 在自己的分支上改、跑檢查、commit，想 commit 幾次都可以</text>
+<text x="20" y="312" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#7f848e">AI 不碰 main、不 push、不改歷史；這三件事要人開口。其他的放手</text>
+</svg>

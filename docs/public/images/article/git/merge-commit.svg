@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 350" width="740" height="350" role="img" aria-label="兩邊都有新 commit 時，合併會產生一個有兩個爸爸的 merge commit">
+<title>兩邊都有新 commit 時，合併會產生一個有兩個爸爸的 merge commit</title>
+<defs><marker id="parent-bg" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#282c34"/></marker><marker id="parent-text" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d7dae0"/></marker><marker id="parent-muted" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#7f848e"/></marker><marker id="parent-line" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4b5263"/></marker><marker id="parent-main" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#f4b936"/></marker><marker id="parent-blue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#61afef"/></marker><marker id="parent-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#98c379"/></marker><marker id="parent-purple" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c678dd"/></marker><marker id="parent-red" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e06c75"/></marker><marker id="parent-cyan" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#56b6c2"/></marker><marker id="parent-orange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d19a66"/></marker></defs>
+<rect width="740" height="350" rx="10" fill="#282c34"/>
+<text x="20" y="26" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="14" font-weight="600" fill="#d7dae0">三方合併：兩邊都動過，就得生一個有兩個爸爸的 commit 把它們接起來</text>
+<path d="M128 176 L56 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M200 176 L128 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M272 176 L200 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M200 116 C164 116 164 176 128 176" fill="none" stroke="#61afef" stroke-width="3"/>
+<path d="M272 116 L200 116" fill="none" stroke="#61afef" stroke-width="3"/>
+<g><circle cx="56" cy="176" r="8" fill="#f4b936"/>
+<text x="56" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">A</text>
+</g>
+<g><circle cx="128" cy="176" r="8" fill="#f4b936"/>
+<text x="128" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">B</text>
+</g>
+<g><circle cx="200" cy="176" r="8" fill="#f4b936"/>
+<text x="200" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">E</text>
+</g>
+<g><circle cx="272" cy="176" r="8" fill="#f4b936"/>
+<text x="272" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">F</text>
+</g>
+<g><circle cx="200" cy="116" r="8" fill="#61afef"/>
+<text x="200" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">C</text>
+</g>
+<g><circle cx="272" cy="116" r="8" fill="#61afef"/>
+<text x="272" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">D</text>
+</g>
+<rect x="249.6" y="142" width="44.8" height="20" rx="5" fill="#f4b936"/><text x="272" y="156" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#282c34">main</text>
+<rect x="228" y="82" width="88.00000000000001" height="20" rx="5" fill="#282c34" stroke="#61afef" stroke-width="1.5"/><text x="272" y="96" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#61afef">feat/login</text>
+<text x="36" y="54" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="13" font-weight="600" fill="#d7dae0">① 合併前：B 之後兩邊各走各的</text>
+<path d="M488 176 L416 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M560 176 L488 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M488 116 C452 116 452 176 416 176" fill="none" stroke="#61afef" stroke-width="3"/>
+<path d="M560 116 L488 116" fill="none" stroke="#61afef" stroke-width="3"/>
+<path d="M632 176 L560 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M632 176 C596 176 596 116 560 116" fill="none" stroke="#61afef" stroke-width="3"/>
+<g><circle cx="416" cy="176" r="8" fill="#f4b936"/>
+<text x="416" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">B</text>
+</g>
+<g><circle cx="488" cy="176" r="8" fill="#f4b936"/>
+<text x="488" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">E</text>
+</g>
+<g><circle cx="560" cy="176" r="8" fill="#f4b936"/>
+<text x="560" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">F</text>
+</g>
+<g><circle cx="632" cy="176" r="8" fill="#f4b936"/>
+<text x="632" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">M</text>
+</g>
+<g><circle cx="488" cy="116" r="8" fill="#61afef"/>
+<text x="488" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">C</text>
+</g>
+<g><circle cx="560" cy="116" r="8" fill="#61afef"/>
+<text x="560" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">D</text>
+</g>
+<rect x="609.6" y="142" width="44.8" height="20" rx="5" fill="#f4b936"/><text x="632" y="156" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#282c34">main</text>
+<rect x="516" y="82" width="88.00000000000001" height="20" rx="5" fill="#282c34" stroke="#61afef" stroke-width="1.5"/><text x="560" y="96" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#61afef">feat/login</text>
+<text x="396" y="54" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="13" font-weight="600" fill="#d7dae0">② git merge feat/login：M 的爸爸是 F 跟 D</text>
+<text x="632" y="222" text-anchor="middle" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#7f848e">衝突就是在生 M 的時候發生的</text>
+</svg>

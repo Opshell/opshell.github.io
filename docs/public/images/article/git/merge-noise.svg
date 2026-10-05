@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" role="img" aria-label="一條長壽分支每天把 main 合併進來，歷史會被合併 commit 淹沒">
+<title>一條長壽分支每天把 main 合併進來，歷史會被合併 commit 淹沒</title>
+<defs><marker id="parent-bg" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#282c34"/></marker><marker id="parent-text" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d7dae0"/></marker><marker id="parent-muted" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#7f848e"/></marker><marker id="parent-line" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4b5263"/></marker><marker id="parent-main" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#f4b936"/></marker><marker id="parent-blue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#61afef"/></marker><marker id="parent-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#98c379"/></marker><marker id="parent-purple" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c678dd"/></marker><marker id="parent-red" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e06c75"/></marker><marker id="parent-cyan" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#56b6c2"/></marker><marker id="parent-orange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d19a66"/></marker></defs>
+<rect width="720" height="400" rx="10" fill="#282c34"/>
+<text x="20" y="26" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="14" font-weight="600" fill="#d7dae0">真實案例：一條活了五天的翻新分支，十六個「Merge origin/main」。圖上每個 M 都沒有內容</text>
+<path d="M128 176 L56 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M200 176 L128 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M272 176 L200 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M344 176 L272 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M416 176 L344 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M92 116 C74 116 74 176 56 176" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M164 116 L92 116" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M164 116 C146 116 146 176 128 176" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M236 116 L164 116" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M236 116 C218 116 218 176 200 176" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M272 116 L236 116" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M308 116 L272 116" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M308 116 C290 116 290 176 272 176" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M380 116 L308 116" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M380 116 C362 116 362 176 344 176" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M452 116 L380 116" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M452 116 C434 116 434 176 416 176" fill="none" stroke="#c678dd" stroke-width="3"/>
+<g><circle cx="56" cy="176" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="128" cy="176" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="200" cy="176" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="272" cy="176" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="344" cy="176" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="416" cy="176" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="92" cy="116" r="8" fill="#c678dd"/>
+<text x="92" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">feat</text>
+</g>
+<g><circle cx="164" cy="116" r="8" fill="#c678dd"/>
+<text x="164" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">M</text>
+</g>
+<g><circle cx="236" cy="116" r="8" fill="#c678dd"/>
+<text x="236" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">M</text>
+</g>
+<g><circle cx="272" cy="116" r="8" fill="#c678dd"/>
+<text x="272" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">fix</text>
+</g>
+<g><circle cx="308" cy="116" r="8" fill="#c678dd"/>
+<text x="308" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">M</text>
+</g>
+<g><circle cx="380" cy="116" r="8" fill="#c678dd"/>
+<text x="380" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">M</text>
+</g>
+<g><circle cx="452" cy="116" r="8" fill="#c678dd"/>
+<text x="452" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">M</text>
+</g>
+<rect x="393.6" y="142" width="44.8" height="20" rx="5" fill="#282c34" stroke="#f4b936" stroke-width="1.5"/><text x="416" y="156" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#f4b936">main</text>
+<rect x="415.2" y="82" width="73.60000000000001" height="20" rx="5" fill="#c678dd"/><text x="452" y="96" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#282c34">redesign</text>
+<text x="36" y="54" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="13" font-weight="600" fill="#d7dae0">① 每次看到 main 有新東西就 merge 進來</text>
+<path d="M128 346 L56 346" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M200 346 L128 346" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M272 346 L200 346" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M344 346 L272 346" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M416 346 L344 346" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M128 286 C92 286 92 346 56 346" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M200 286 L128 286" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M416 286 L200 286" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M416 286 C380 286 380 346 344 346" fill="none" stroke="#c678dd" stroke-width="3"/>
+<g><circle cx="56" cy="346" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="128" cy="346" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="200" cy="346" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="272" cy="346" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="344" cy="346" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="416" cy="346" r="8" fill="#f4b936"/>
+</g>
+<g><circle cx="128" cy="286" r="8" fill="#c678dd"/>
+<text x="128" y="310" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">feat</text>
+</g>
+<g><circle cx="200" cy="286" r="8" fill="#c678dd"/>
+<text x="200" y="310" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">fix</text>
+</g>
+<g><circle cx="416" cy="286" r="8" fill="#c678dd"/>
+<text x="416" y="310" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">M</text>
+</g>
+<rect x="393.6" y="312" width="44.8" height="20" rx="5" fill="#282c34" stroke="#f4b936" stroke-width="1.5"/><text x="416" y="326" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#f4b936">main</text>
+<rect x="379.2" y="252" width="73.60000000000001" height="20" rx="5" fill="#c678dd"/><text x="416" y="266" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#282c34">redesign</text>
+<text x="36" y="224" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="13" font-weight="600" fill="#d7dae0">② 分支還沒推出去就 rebase；推出去了就只在「需要 main 的東西」時合一次</text>
+<text x="440" y="290" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#7f848e">← 要上線前合一次</text>
+</svg>

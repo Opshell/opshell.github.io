@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" width="760" height="380" role="img" aria-label="pull 用 merge 會多一個合併 commit；用 rebase 會把本機的 commit 接到遠端後面">
+<title>pull 用 merge 會多一個合併 commit；用 rebase 會把本機的 commit 接到遠端後面</title>
+<defs><marker id="parent-bg" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#282c34"/></marker><marker id="parent-text" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d7dae0"/></marker><marker id="parent-muted" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#7f848e"/></marker><marker id="parent-line" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4b5263"/></marker><marker id="parent-main" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#f4b936"/></marker><marker id="parent-blue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#61afef"/></marker><marker id="parent-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#98c379"/></marker><marker id="parent-purple" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c678dd"/></marker><marker id="parent-red" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e06c75"/></marker><marker id="parent-cyan" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#56b6c2"/></marker><marker id="parent-orange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d19a66"/></marker></defs>
+<rect width="760" height="380" rx="10" fill="#282c34"/>
+<text x="20" y="26" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="14" font-weight="600" fill="#d7dae0">同一個分岔，pull 的兩種收法</text>
+<path d="M128 116 C92 116 92 176 56 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M200 116 L128 116" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M128 236 C92 236 92 176 56 176" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M272 176 C236 176 236 116 200 116" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M272 176 C236 176 164 236 128 236" fill="none" stroke="#c678dd" stroke-width="3"/>
+<g><circle cx="56" cy="176" r="8" fill="#f4b936"/>
+<text x="56" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">C</text>
+</g>
+<g><circle cx="128" cy="116" r="8" fill="#f4b936"/>
+<text x="128" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">D</text>
+</g>
+<g><circle cx="200" cy="116" r="8" fill="#f4b936"/>
+<text x="200" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">E</text>
+</g>
+<g><circle cx="128" cy="236" r="8" fill="#c678dd"/>
+<text x="128" y="260" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">X</text>
+</g>
+<g><circle cx="272" cy="176" r="8" fill="#f4b936"/>
+<text x="272" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">M</text>
+<text x="272" y="215" text-anchor="middle" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#d7dae0">merge commit</text>
+</g>
+<rect x="249.6" y="142" width="44.8" height="20" rx="5" fill="#f4b936"/><text x="272" y="156" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#282c34">main</text>
+<text x="36" y="54" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="13" font-weight="600" fill="#d7dae0">git pull（預設 merge）：歷史留下分岔與一個合併點</text>
+<path d="M468 176 L396 176" fill="none" stroke="#c678dd" stroke-width="3"/>
+<path d="M540 176 L468 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M612 176 L540 176" fill="none" stroke="#f4b936" stroke-width="3"/>
+<g><circle cx="396" cy="176" r="8" fill="#f4b936"/>
+<text x="396" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">C</text>
+</g>
+<g><circle cx="468" cy="176" r="8" fill="#c678dd"/>
+<text x="468" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">X</text>
+</g>
+<g><circle cx="540" cy="176" r="8" fill="#f4b936"/>
+<text x="540" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">D'</text>
+</g>
+<g><circle cx="612" cy="176" r="8" fill="#f4b936"/>
+<text x="612" y="200" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">E'</text>
+</g>
+<rect x="589.6" y="142" width="44.8" height="20" rx="5" fill="#f4b936"/><text x="612" y="156" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#282c34">main</text>
+<text x="376" y="54" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="13" font-weight="600" fill="#d7dae0">git pull --rebase：你的 commit 重做一次，接在遠端後面</text>
+<text x="576" y="222" text-anchor="middle" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#7f848e">D'、E' 是新的 commit，hash 變了</text>
+<text x="20" y="362" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#7f848e">一條直線比較好讀，代價是本機那幾個 commit 被重寫；還沒 push 過的 commit 才能這樣做</text>
+</svg>

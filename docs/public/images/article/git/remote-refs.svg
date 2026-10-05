@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 250" width="640" height="250" role="img" aria-label="本機 main 比 origin/main 多兩個 commit">
+<title>本機 main 比 origin/main 多兩個 commit</title>
+<defs><marker id="parent-bg" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#282c34"/></marker><marker id="parent-text" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d7dae0"/></marker><marker id="parent-muted" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#7f848e"/></marker><marker id="parent-line" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4b5263"/></marker><marker id="parent-main" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#f4b936"/></marker><marker id="parent-blue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#61afef"/></marker><marker id="parent-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#98c379"/></marker><marker id="parent-purple" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c678dd"/></marker><marker id="parent-red" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e06c75"/></marker><marker id="parent-cyan" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#56b6c2"/></marker><marker id="parent-orange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#d19a66"/></marker></defs>
+<rect width="640" height="250" rx="10" fill="#282c34"/>
+<text x="20" y="26" text-anchor="start" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="14" font-weight="600" fill="#d7dae0">origin/main 是「上次跟遠端對過時，遠端的 main 在哪」，不是遠端現在的樣子</text>
+<path d="M128 116 L56 116" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M200 116 L128 116" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M272 116 L200 116" fill="none" stroke="#f4b936" stroke-width="3"/>
+<path d="M344 116 L272 116" fill="none" stroke="#f4b936" stroke-width="3"/>
+<g><circle cx="56" cy="116" r="8" fill="#f4b936"/>
+<text x="56" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">A</text>
+</g>
+<g><circle cx="128" cy="116" r="8" fill="#f4b936"/>
+<text x="128" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">B</text>
+</g>
+<g><circle cx="200" cy="116" r="8" fill="#f4b936"/>
+<text x="200" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">C</text>
+</g>
+<g><circle cx="272" cy="116" r="8" fill="#f4b936"/>
+<text x="272" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">D</text>
+</g>
+<g><circle cx="344" cy="116" r="8" fill="#f4b936"/>
+<text x="344" y="140" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="400" fill="#7f848e">E</text>
+</g>
+<rect x="152.39999999999998" y="82" width="95.20000000000002" height="20" rx="5" fill="#282c34" stroke="#f4b936" stroke-width="1.5" stroke-dasharray="4 3"/><text x="200" y="96" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#f4b936">origin/main</text>
+<rect x="321.6" y="82" width="44.8" height="20" rx="5" fill="#f4b936"/><text x="344" y="96" text-anchor="middle" font-family='ui-monospace, SFMono-Regular, Menlo, Consolas, monospace' font-size="12" font-weight="600" fill="#282c34">main</text>
+<text x="308" y="164" text-anchor="middle" font-family='-apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif' font-size="12" font-weight="400" fill="#7f848e">這兩個還沒 push</text>
+</svg>

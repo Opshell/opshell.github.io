@@ -268,3 +268,22 @@
 - **要使用者補的**：第一篇的打磚塊（怎麼同步、輪詢還是 WebSocket）與 jQuery 打包 App 那段幾乎都是倉庫外的記憶；
   第三篇供餐系統 24 天後刪 token 刷新的真正原因；第七篇那個查不到來源的第二次 GET 後來有沒有結案。
 - 發文排程加進「二、有料的半成品」。build 通過才 commit，沒 push。
+
+# 2026-10-05：Git 系列七篇重寫、AI 專區兩篇（不上線）
+
+**使用者**：部落格裡本來有一個「VS Code Git GUI」系列（2025-04 的大綱，七個檔案全是大綱沒內文）。要求：開自己的分支處理；把系列寫好、可以的話附圖（git 樹有很多種操作）；再把最近「多個 web 小精靈同時做事」的 git 多線操作寫成 1～2 篇，當成 AI 工作世代的 git 方式；用批判性思考記錄好的做法，不是把最近的操作照抄；口吻參考 `day12-prettier-is-not-that-great.md`；寫完先不公開。
+
+- **分支**：從本機 `main`（0f76035，比 origin/main 多一個別的對話沒推的 commit）開 worktree `../opshell-git-series`、分支 `docs/git-series`。
+- **圖**：站台沒裝 mermaid，而且 mermaid 的 gitGraph 畫不出 worktree／reset，所以寫了 `scripts/gen-git-diagrams.mjs`：
+  一支小 DSL（commits 用格子座標、refs 是便利貼、boxes／arrows／pills 畫 worktree 與 reset 那種圖），輸出 18 張 SVG 到 `docs/public/images/article/git/`。
+  底色固定 one-dark（跟程式碼區塊一致，深淺色不用另外處理），平面無描邊。每張都用 qlmanage 轉 PNG 看過，修了三輪重疊。
+- **系列**：舊的七份大綱與「教學大綱」檔刪掉，改成 `stage-0-preface` ～ `stage-6-strategy` 七篇（英文檔名，URL 乾淨）。
+  原大綱的立場改了：工具從「教 Git Graph」變「教看圖」（VS Code 1.93 起內建 Source Control Graph；Git Graph 2021 後沒更新、沒開源授權，但操作最齊）；
+  「10 分支 5 人協作」的模擬案例不寫，換成倉庫真的發生的事：`redesign-2026-10` 五天 16 個 Merge origin/main、本機 main 比 origin 多一個沒推的 commit、#0064 改寫歷史、10-05 兩個對話擠在同一個工作目錄。
+  `GitLens.md` 那份「清掉暫存分支但保留修改」的問答收進第五篇的 reset 一節。`config.mts` 補了 `/article/code-sea/git/` 的側欄 key。
+- **AI 專區兩篇**：《一個對話一棵樹：git worktree 怎麼用》（worktree 機制、不會跟過去的東西、給 AI 的規矩、什麼時候不該平行、溝通板倉庫為什麼不用 worktree）；
+  《AI 幫你 commit 之後，你的工作變成管歷史》（AI 訊息比人好的原因、交出去後出的三件事、人剩下的四件工作：規則寫下來／規則變閘門／看過才合／守三條線，以及歷史品質的新讀者是下一個對話的 AI）。
+- **批判性的結論**（寫進文章的）：不為同步而同步（沒推就 rebase、推了就少合）；檢查靠 hook 不靠記憶（三次 `set -e` 事故）；AI 不碰 main／不 push／不改歷史；平行的單位是「可獨立上線或丟掉的一件事」不是「一個對話」；改歷史前確定沒別的分支開著。
+- **事實核對**：撞號那次沒記錄號碼（文裡不寫號碼）；#0064 是 09-28、當時還沒有 worktree、有鏡像與對照表（照實寫）；使用者全域沒設 `pull.rebase` 與 `lg` 別名（改成建議）；worktree 裡都沒有 `.env.local`（寫成「要用就複製」）；Android 與後端各只有一條 main（寫成 trunk-based 極簡版）。
+- 九篇都 `isPublished: false`，開頭有 `::: warning 草稿` 列要確認的地方。`pnpm check` 通過才 commit，沒 push、沒併 main。
+- **要使用者決定的**：`GitLens.md`、`Git.md` 兩個舊檔留著沒動（內容已收進第五篇，可刪）；第零篇連到 GitHub 上的產圖腳本，要併進 main 後連結才會通；hook／branch protection 是提案，還沒做。
