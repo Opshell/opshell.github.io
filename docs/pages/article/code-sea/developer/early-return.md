@@ -35,11 +35,11 @@ Claude 於 2026-10-05 補完：依原本的重構前後兩段程式碼寫成全�
 ```ts
 let shouldDeleteFlag = false;
 
-if (relayData.value[index].surgery_id !== 0) {
+if (relayData.value[index].order_id !== 0) {
     await proxy.$notify('warning', '警告！', '確定要刪除嗎？', 0, true).then(async (flag) => {
         if (!flag) { return; }
 
-        await sendRequest(`/api/surgery/clinic/${surgeryId.value}`, 'DELETE').then((res) => {
+        await sendRequest(`/api/orders/${orderId.value}`, 'DELETE').then((res) => {
             // [-]狀態通知
             const notifyType = res?.status ? 'success' : 'error';
             const notifyData = {
@@ -73,7 +73,7 @@ if (shouldDeleteFlag) {
     });
 }
 
-outpatientSurgeryModel.value = 'view';
+pageMode.value = 'view';
 ```
 
 這段程式碼能動，但讀起來很累，原因有三個：
@@ -86,12 +86,12 @@ outpatientSurgeryModel.value = 'view';
 
 ### 重構後：一條直線讀到底
 ```ts
-if (relayData.value[index].surgery_id !== 0) {
+if (relayData.value[index].order_id !== 0) {
     const confirmed = await proxy.$notify('warning', '警告！', '確定要刪除嗎？', 0, true);
     if (!confirmed) return;
 
     try {
-        const res = await sendRequest(`/api/surgery/clinic/${surgeryId.value}`, 'DELETE');
+        const res = await sendRequest(`/api/orders/${orderId.value}`, 'DELETE');
         const notifyType = res?.status ? 'success' : 'error';
         const notifyData = {
             duration: res?.status ? 2000 : 0,
@@ -110,7 +110,7 @@ if (relayData.value[index].surgery_id !== 0) {
 
 relayData.value.splice(index, 1);
 nextTick(() => swiperInstance.value?.update());
-outpatientSurgeryModel.value = 'view';
+pageMode.value = 'view';
 ```
 
 旗標不見了，每一個「不用繼續」的情況都在發生的當下直接 `return`。讀的人只要從上往下看：沒確認就結束、API 失敗就結束、出錯就結束，**能走到最下面的就是要刪的**。
@@ -118,7 +118,7 @@ outpatientSurgeryModel.value = 'view';
 ### 小心：收尾邏輯被跳過了
 仔細比對兩段程式碼，會發現一個行為差異：
 
-- 重構前：不管使用者有沒有確認、API 有沒有成功，最後一行 `outpatientSurgeryModel.value = 'view'` **一定會執行**。
+- 重構前：不管使用者有沒有確認、API 有沒有成功，最後一行 `pageMode.value = 'view'` **一定會執行**。
 - 重構後：使用者按取消、API 失敗、出錯，都會提早 `return`，**那一行就被跳過了**。
 
 如果「切回檢視模式」本來就應該在每一種情況都發生，重構後就多了一個 Bug ~~（而且是那種測試時剛好都按確定，所以沒發現的 Bug）~~。
@@ -133,11 +133,11 @@ outpatientSurgeryModel.value = 'view';
 ```ts
 async function deleteOrCancelHandler(index: number): Promise<void> {
     try {
-        if (relayData.value[index].surgery_id !== 0) {
+        if (relayData.value[index].order_id !== 0) {
             const confirmed = await proxy.$notify('warning', '警告！', '確定要刪除嗎？', 0, true);
             if (!confirmed) { return; }
 
-            const isDeleted = await deleteSurgery(surgeryId.value);
+            const isDeleted = await deleteOrder(orderId.value);
             if (!isDeleted) { return; }
         }
 
@@ -145,13 +145,13 @@ async function deleteOrCancelHandler(index: number): Promise<void> {
         nextTick(() => swiperInstance.value?.update());
     } finally {
         // 不管刪除成功、取消或失敗，都切回檢視模式
-        outpatientSurgeryModel.value = 'view';
+        pageMode.value = 'view';
     }
 }
 
-async function deleteSurgery(id: number): Promise<boolean> {
+async function deleteOrder(id: number): Promise<boolean> {
     try {
-        const res = await sendRequest(`/api/surgery/clinic/${id}`, 'DELETE');
+        const res = await sendRequest(`/api/orders/${id}`, 'DELETE');
 
         proxy.$notify(
             res?.status ? 'success' : 'error',
@@ -171,7 +171,7 @@ async function deleteSurgery(id: number): Promise<boolean> {
 }
 ```
 
-順手把「打 API + 通知」抽成 `deleteSurgery`，主流程就只剩下「確認 → 刪除 → 更新畫面」三件事，一眼就看完。
+順手把「打 API + 通知」抽成 `deleteOrder`，主流程就只剩下「確認 → 刪除 → 更新畫面」三件事，一眼就看完。
 
 ### 三個版本比一比
 
