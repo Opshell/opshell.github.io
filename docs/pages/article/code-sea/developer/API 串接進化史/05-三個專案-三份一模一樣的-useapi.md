@@ -16,7 +16,7 @@ editLink: true
 isPublished: false
 ---
 ::: warning 草稿
-這篇是 Claude 照 git 歷史寫的草稿。專案以 A／B／C 代稱；commit 訊息、日期、分支、API 路徑已在 10-06 去識別化。flowmodoro 是你自己的 side project 所以直接寫。群組討論那段接的是你已經寫好的「串 API 的那些事」四篇，我只連過去不重講。看完改成自己的話再刪掉這個區塊。
+這篇是 Claude 照 git 歷史寫的草稿。2026-10-08 脫敏過：後端格式、業務碼都改成通用的說法，拿掉了 commit 訊息；專案以 A／B／C 代稱。flowmodoro 是你自己的 side project 所以直接寫。群組討論那段接的是你已經寫好的「串 API 的那些事」四篇，我只連過去不重講。看完改成自己的話再刪掉這個區塊。
 :::
 
 ::: info 系列：API 串接進化史
@@ -50,9 +50,9 @@ isPublished: false
 
 每一次複製，都是「新專案開起來，先把能用的拿過來」。沒有人會在專案第一天重寫 API 層，有的話那個人大概不用趕進度。
 
-複製的內容是什麼？C 專案第一個 commit 的 `useApi.ts`，跟 B 專案前一年年底那份比，差異只有：
+複製的內容是什麼？C 專案第一天的 `useApi.ts`，跟 B 專案前一年年底那份比，差異只有：
 - import 路徑
-- `eResponseStatus` 多了兩個值
+- 業務碼的常數表多了兩個值
 - 一個 `getImage` 的訊息文字
 
 其他 180 行一模一樣。包括兩個全域旗標、包括 `return null`、包括 `.catch` 裡那行會在斷網時自己炸掉的 `error.response.data.message`。
@@ -62,7 +62,7 @@ isPublished: false
 
 舉三個：
 
-**假設一：後端回的是 `{ status, messages, data }`。** B 專案的後端是這樣，C 專案的後端也是這樣——因為是同一家公司的後端團隊。但 flowmodoro 的「後端」是 Google Calendar API，它回的是 `{ items: [...] }`，根本沒有 `status`。於是 flowmodoro 的 `sendRequest` 裡 `iResult` 的轉換整段形同虛設，每個呼叫端都直接去讀 `response?.data.items`。
+**假設一：後端回的是 `{ code, messages, data }`。** B 專案的後端是這樣，C 專案的後端也是這樣——因為是同一個後端團隊。但 flowmodoro 的「後端」是 Google Calendar API，它回的是 `{ items: [...] }`，根本沒有 `status`。於是 flowmodoro 的 `sendRequest` 裡 `iResult` 的轉換整段形同虛設，每個呼叫端都直接去讀 `response?.data.items`。
 
 **假設二：401 代表登入逾時，要跳 Dialog 登出。** A 專案的 401 是 token 過期可以刷新；B 專案的 401 是真的過期要登出；Google 的 401 是 scope 不夠或 token 過期，而且 Google 的 token 是一小時，沒有 refresh 的話每小時都要重新授權。同一段攔截器，在三個專案裡做的是三件不一樣的事。
 
@@ -82,7 +82,7 @@ TaskList.vue
 
 三層。`useApi` 管 HTTP，`useGoogleCalendar` 管 Google 的 endpoint 跟型別，`calendarService` 管「一個任務是什麼」。
 
-這個結構不是規劃出來的。一開始只有 `useApi` 跟 `useGoogleCalendar`，頁面直接呼叫 `getEvents()` 然後自己聚合。後來聚合的邏輯越來越長（一個 task 要從多個 event 湊起來、status 要取最後一個 event 的、group 資訊要從 extendedProperties 撈），頁面的 `<script setup>` 變成 300 行，就抽了一支 `useCalendarService.ts` 出去。commit 訊息是「抽離 task calendar 操作邏輯」。
+這個結構不是規劃出來的。一開始只有 `useApi` 跟 `useGoogleCalendar`，頁面直接呼叫 `getEvents()` 然後自己聚合。後來聚合的邏輯越來越長（一個 task 要從多個 event 湊起來、status 要取最後一個 event 的、group 資訊要從 extendedProperties 撈），頁面的 `<script setup>` 變成 300 行，就抽了一支 `useCalendarService.ts` 出去，那一次就叫「抽離 task calendar 操作邏輯」。
 
 抽出去之後發現：這不就是 service 層嗎。頁面只管 UI，service 管「這個業務上的東西怎麼從資料拼出來」，API 層管「怎麼跟外面要資料」。
 
@@ -134,8 +134,8 @@ export const calendarService = {
 那四篇寫的是「別人的程式碼該怎麼改」。寫完回頭看自己三個專案裡的 `useApi.ts`，每一條都中。
 
 ## 然後就是那年秋天
-第四篇寫完大約一週，C 專案進了一個「優化資料獲取層」的 commit：`useApi.ts` 刪掉，`useBackendApi.ts` 跟 `useAsyncState.ts` 進來。
+第四篇寫完大約一週，C 專案做了一次「優化資料獲取層」的改動：`useApi.ts` 刪掉，`useBackendApi.ts` 跟 `useAsyncState.ts` 進來。
 
-三天後，又一個 commit 把 TanStack Query 導進了整個框架。
+三天後，TanStack Query 導進了整個框架。
 
 那三天改掉的東西，比前面兩年加起來還多。下一篇講。

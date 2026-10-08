@@ -17,7 +17,7 @@ editLink: true
 isPublished: false
 ---
 ::: warning 草稿
-這篇是 Claude 照 git 歷史寫的草稿。專案以 A／B／C 代稱；commit 訊息、日期、分支、API 路徑已在 10-06 去識別化。useBackendApi 的細節（重載、options）前一個系列寫過，這裡只講跟 TanStack Query 接軌的部分。看完改成自己的話再刪掉這個區塊。
+這篇是 Claude 照 git 歷史寫的草稿。2026-10-08 脫敏過：程式碼是通用範例（端點、型別名稱都不是原專案的），拿掉了 commit 訊息；專案以 A／B／C 代稱。useBackendApi 的細節（重載、options）前一個系列寫過，這裡只講跟 TanStack Query 接軌的部分。看完改成自己的話再刪掉這個區塊。
 :::
 
 ::: info 系列：API 串接進化史
@@ -31,7 +31,7 @@ isPublished: false
 7. [TanStack Query 之後我踩的坑](./07-tanstack-query-之後我踩的坑)
 8. [回頭看：兩套並存的 useApi，跟我現在會怎麼起手](./08-回頭看-兩套並存的-useapi-跟我現在會怎麼起手)
 
-**這篇的脈絡**：C 專案 2025 年夏天開案，入秋時功能還不多，是最好動刀的時候。三天、三個 commit，把 API 層整個翻掉。這篇講那三天做了什麼、為什麼手刻的 `useAsyncState` 只活了三天，以及 TanStack Query 進來之後，API 函式的契約為什麼非改不可。
+**這篇的脈絡**：C 專案 2025 年夏天開案，入秋時功能還不多，是最好動刀的時候。三天、三次改動，把 API 層整個翻掉。這篇講那三天做了什麼、為什麼手刻的 `useAsyncState` 只活了三天，以及 TanStack Query 進來之後，API 函式的契約為什麼非改不可。
 :::
 
 ## 第一天：useBackendApi
@@ -119,7 +119,7 @@ const { data: users, isLoading, execute: fetchUsers } = useAsyncState(getUserLis
 我在加第二個東西的時候停下來，去看了一下 TanStack Query 的文件。
 
 ## 三天後：TanStack Query
-三天後，一個 commit 把 TanStack Query 導進了整個框架。
+三天後，TanStack Query 進了整個框架。
 
 那陣子群組裡有人點過一個觀念，大意是：TanStack Query 管的是非同步狀態，axios 只負責發 HTTP 請求，兩者分工不同，不會互相取代。
 
@@ -177,7 +177,7 @@ export async function getUserList(params) {
 ```
 把它塞進 `queryFn`，`data` 會是整個 `iResult`，`status: false` 的時候 Query 以為成功了，`isError` 永遠是 `false`。
 
-所以導入 TanStack Query 的同一個 commit，所有 API 函式改成：
+所以導入 TanStack Query 的同一天，所有 API 函式改成：
 ```ts
 export async function getUserList(params: GetUserListParams) {
     const res = await sendRequest<UserList>('/api/users', 'GET', params);
@@ -203,7 +203,7 @@ export class Errors extends Error {
 為什麼要自訂？因為後端的驗證錯誤是一個陣列，`Error.message` 只能放一個字串。Dialog 要顯示多行，就得把陣列留著。這個類別後來還加了一個 `_tag`，原因很離奇，下一篇講。
 
 ## API 搬家：從 shared/apis 到 features/*/apis
-同一個 commit 還做了一件事：`shared/apis/user.ts`、`shared/apis/order.ts` 刪掉，搬成 `features/user/apis/user.ts`、`features/order/apis/order.ts`。
+同一天還做了一件事：`shared/apis/user.ts`、`shared/apis/order.ts` 刪掉，搬成 `features/user/apis/user.ts`、`features/order/apis/order.ts`。
 
 這跟 TanStack Query 沒有直接關係，但有間接關係。改成「失敗 throw」之後，API 函式變得**只跟一個 endpoint 有關**：它知道這個 endpoint 的 URL、參數型別、回傳型別、以及 `status: false` 時要丟什麼。這種東西不該放在 `shared/`——它不是共用的，它是某個 feature 專屬的。
 
@@ -229,7 +229,7 @@ Zod 的用法是在 API 函式裡加一道驗證：
 ```ts
 export async function getOrderList(input: GetOrderListInput) {
     const params = GetOrderListParams.parse(input);   // 驗證 + camelCase → snake_case
-    const res = await sendRequest<GetOrderListOutput>(eUrls.base, 'GET', params);
+    const res = await sendRequest<GetOrderListOutput>('/api/orders', 'GET', params);
     if (!res.status) { throw new Errors(res.messages); }
     return parseWithSchema(GetOrderListParser, res.data); // 驗證 + snake_case → camelCase
 }

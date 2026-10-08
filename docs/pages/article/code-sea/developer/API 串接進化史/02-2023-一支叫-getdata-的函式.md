@@ -16,7 +16,7 @@ editLink: true
 isPublished: false
 ---
 ::: warning 草稿
-這篇是 Claude 照 git 歷史寫的草稿。程式碼片段都是從當時的 commit 抄出來改寫的。專案以 A／B／C 代稱；commit 訊息、日期、分支、API 路徑已在 10-06 去識別化。看完改成自己的話再刪掉這個區塊。
+這篇是 Claude 照 git 歷史寫的草稿。2026-10-08 脫敏過：程式碼改寫成通用範例（store、token、後端回應格式都不是原專案的，只保留結構與錯誤），拿掉了 commit 訊息、確切的檔案數；專案以 A／B／C 代稱。看完改成自己的話再刪掉這個區塊。
 :::
 
 ::: info 系列：API 串接進化史
@@ -30,11 +30,11 @@ isPublished: false
 7. [TanStack Query 之後我踩的坑](./07-tanstack-query-之後我踩的坑)
 8. [回頭看：兩套並存的 useApi，跟我現在會怎麼起手](./08-回頭看-兩套並存的-useapi-跟我現在會怎麼起手)
 
-**這篇的脈絡**：2023 年秋天開了 A 專案（一個後台系統），Vite + Vue 3 + TypeScript + Pinia。這是我第一次認真封裝 axios，也是後來兩年所有專案的 `useApi.ts` 的祖先。翻 git 歷史回去看它第一天的樣子，有些地方現在看會笑出來。
+**這篇的脈絡**：2023 年秋天開了 A 專案（一個後台系統），Vite + Vue 3 + TypeScript + Pinia。這是我第一次認真封裝 axios，也是後來兩年所有專案的 `useApi.ts` 的祖先。回頭看它第一天的樣子，有些地方現在看會笑出來。
 :::
 
 ## 第一天的 getData
-2023 年秋天，專案建立。`useApi.ts` 從第一個 commit 就在了，裡面只有一支函式：
+2023 年秋天，專案建立。`useApi.ts` 第一天就在了，裡面只有一支函式（下面的程式碼都改寫成通用的範例，store、token 的名字跟後端的格式都不是原專案的，但結構跟錯誤一模一樣）：
 ```ts
 export const getData = async function (
     url: string,
@@ -43,14 +43,13 @@ export const getData = async function (
     headers?: AxiosRequestHeaders,
     onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
 ): Promise<iResult | null> {
-    const userStore = piniaStore.useUserStore;
-    const { userState } = storeToRefs(userStore);
+    const authStore = useAuthStore();
 
-    let token: string | null = userState.value.jwtToken;
-    if (!token) { // [!]正式上線可能會拿掉
-        token = localStorage.getItem('jwtToken');
-        if (!token) { // 有東西的話 把token存到store裡面
-            userState.value.jwtToken = token as string;
+    let token: string | null = authStore.token;
+    if (!token) {
+        token = localStorage.getItem('access_token');
+        if (!token) { // 有東西的話 把 token 存到 store 裡面
+            authStore.token = token as string;
         }
     }
     if (!headers) headers = {} as AxiosRequestHeaders;
@@ -66,14 +65,14 @@ export const getData = async function (
             let result: iResult = { status: false, msg: '網路問題！', data: null };
             if (axiosResponse.status == 200) {
                 const response = axiosResponse.data;
-                if (url == '/api/auth/token') { // 目前登入、刷新驗證 未調整，先用舊的
-                    result = { /* ...OAuth 的特例... */ };
+                if (url == '/api/login') { // 登入是特例，先照舊的格式
+                    result = { /* ...登入的特例... */ };
                 } else {
                     result = {
-                        status: response.status === 0 ? true : false,
+                        status: response.code === 'OK',
                         msg: response.message,
                         data: response.data,
-                        paginator: response.paginator ? response.paginator : undefined
+                        pagination: response.pagination
                     };
                 }
             }
@@ -87,7 +86,7 @@ export const getData = async function (
 ```
 先說它做對的事，因為它真的做對了幾件事，不然後面也不會活兩年：
 
-1. **後端格式只在這裡認一次。** 後端回的是 `{ status: 0, message, data, paginator }`，`getData` 把它翻成前端自己的 `iResult`。頁面不用知道後端長什麼樣。
+1. **後端格式只在這裡認一次。** 後端回的是 `{ code, message, data, pagination }`，`getData` 把它翻成前端自己的 `iResult`。頁面不用知道後端長什麼樣。
 2. **token 只在這裡帶一次。** 頁面不用自己塞 header。
 3. **回傳格式固定。** 不管成功失敗，拿到的都是 `iResult`，頁面只看 `status`。
 
@@ -98,9 +97,9 @@ export const getData = async function (
 ## 寫反的 if
 ```ts
 if (!token) {
-    token = localStorage.getItem('jwtToken');
-    if (!token) { // 有東西的話 把token存到store裡面
-        userState.value.jwtToken = token as string;
+    token = localStorage.getItem('access_token');
+    if (!token) { // 有東西的話 把 token 存到 store 裡面
+        authStore.token = token as string;
     }
 }
 ```
@@ -134,7 +133,7 @@ getData('/api/users').then((res) => {
 **要等到 2025 年才痛的**：`return null` 代表這支函式**永遠不會 throw**。這在 Promise 鏈的時代還好，等到後來要接 TanStack Query，`queryFn` 的契約是「成功就回傳資料，失敗就 throw」，這個設計整個對不上。第六篇會講我怎麼翻掉它。
 
 ## 錯誤訊息攤成 \<br\>
-兩個禮拜後的 commit，後端開始回 Laravel 式的驗證錯誤：
+兩個禮拜後，後端開始回表單驗證的錯誤，一個欄位一個陣列：
 ```json
 { "message": { "name": ["名稱不可為空"], "phone": ["電話格式錯誤", "電話不可為空"] } }
 ```
@@ -160,24 +159,24 @@ if (typeof resMsg === 'object') {
 我的解法是在 `vite.config.ts` 定義一個全域常數：
 ```ts
 define: {
-    VITE_USE_MOCK: true, // API 串接的目標位置 (true: mockjs, false: Docker Container)
+    VITE_USE_MOCK: true // true 打假資料，false 打真的後端
 },
 ```
 然後頁面裡這樣寫：
 ```ts
-const url = (import.meta.env.VITE_USE_MOCK) ? '/api/login' : '/api/auth/token';
+const url = (import.meta.env.VITE_USE_MOCK) ? '/mock/login' : '/api/login';
 ```
-加這個常數的那個 commit，訊息裡還很誠實地用括號交代了動機：測試的時候不想每次都改一堆地方。
+加這個常數的時候，動機很誠實：測試的時候不想每次都改一堆地方。
 
 兩週後後端接上了，`VITE_USE_MOCK` 改成 `false`，從此再也沒變回去。但這個常數跟那些三元運算式一直留在程式碼裡，到 2026 年都還在。每個專案都有這種東西：為了某個兩週的過渡期寫的，然後活了三年。
 
 ## 夭折的 ApiClient
-專案滿一個月的時候，我做了一次「架構開發」。那個 commit 的訊息列了一串：hooks 跟 composable 的權責切分、`useApi.ts` 重構、命名規則化。
+專案滿一個月的時候，我做了一次「架構整理」：hooks 跟 composable 的權責切分、`useApi.ts` 重構、命名規則化。
 
-`getData` 改名成 `sendRequest`——這個名字後來用了兩年。同一個 commit 還新增了一支 `apiClient.ts`：
+`getData` 改名成 `sendRequest`——這個名字後來用了兩年。同一次還新增了一支 `apiClient.ts`：
 ```ts
 export class ApiClient {
-    private userStore = piniaStore.useUserStore;
+    private authStore = useAuthStore();
 
     private getToken(): string | null { /* ... */ }
     private getHeaders(token: string | null): AxiosRequestHeaders { /* ... */ }
@@ -218,7 +217,7 @@ export class ApiClient {
 - 回傳 `iResult`，`msg` 是字串
 - token 從 store 或 localStorage 撈，寫反的 `if` 還在
 
-全站 29 個檔 `import { sendRequest } from '@/hooks/useApi'`，API 路徑散寫在每個頁面裡。
+全站二十幾個檔 `import { sendRequest } from '@/hooks/useApi'`，API 路徑散寫在每個頁面裡。
 
 它能用。它比 jQuery 時代好太多了。而且接下來半年它幾乎沒動，因為專案在趕功能，沒人有空回頭看一支「能用」的函式。
 

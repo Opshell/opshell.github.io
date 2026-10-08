@@ -1,7 +1,7 @@
 ---
 title: 'API 串接進化史（八）：回頭看，兩套並存的 useApi，跟我現在會怎麼起手'
 image: ''
-description: 'B 專案到現在還是 23 個檔用舊 useApi、15 個檔用新的，兩套攔截器掛在同一個 axios 上；同事開了第三代拆成五個檔，說要統一替換，但一個呼叫端都沒換。系列收尾：十幾年串 API 學到的五件事，以及現在開新專案的起手式。'
+description: 'B 專案到現在還是二十幾個檔用舊 useApi、十幾個檔用新的，兩套攔截器掛在同一個 axios 上；團隊裡有人寫了第三代，說要統一替換，但一個呼叫端都沒換。系列收尾：十幾年串 API 學到的五件事，以及現在開新專案的起手式。'
 keywords: ''
 author: Opshell
 createdAt: '2026-10-05'
@@ -17,7 +17,7 @@ editLink: true
 isPublished: false
 ---
 ::: warning 草稿
-這篇是 Claude 照 git 歷史寫的草稿。專案以 A／B／C 代稱；commit 訊息、日期、分支、API 路徑已在 10-06 去識別化。「現在會怎麼起手」那段是照 C 專案最終版的結構整理的，如果你現在的想法已經不一樣，直接改。看完改成自己的話再刪掉這個區塊。
+這篇是 Claude 照 git 歷史寫的草稿。2026-10-08 脫敏過：拿掉了 commit 訊息、確切的檔案數與分支細節，「同事」改成「團隊裡有人」；專案以 A／B／C 代稱。「現在會怎麼起手」那段是照 C 專案最終版的結構整理的，如果你現在的想法已經不一樣，直接改。看完改成自己的話再刪掉這個區塊。
 :::
 
 ::: info 系列：API 串接進化史
@@ -37,13 +37,13 @@ isPublished: false
 ## B 專案：新舊並存
 C 專案可以在三天內把 API 層翻掉，是因為它那年秋天的時候才三個月大，用 `useApi` 的檔案不到十個。
 
-B 專案（一個前台加後台的系統）不行。它 2024 年春天開案，到 2025 年秋天 `useBackendApi` 進來的時候，已經有 40 個檔在 `import useApi from '@hooks/useApi'`。那 40 個檔背後是 1000 多個 commit、三個人、一年半的功能。
+B 專案（一個前台加後台的系統）不行。它 2024 年春天開案，到 2025 年秋天 `useBackendApi` 進來的時候，已經有四十個左右的檔在 `import useApi from '@hooks/useApi'`。那些檔背後是一年半、好幾個人做出來的功能。
 
 所以 B 專案的做法是：**新的 API 用新的，舊的不動。**
 
 2026 年春天的狀態：
-- `hooks/useApi.ts`（舊）：23 個檔在用
-- `hooks/useBackendApi.ts`（新）：15 個檔在用
+- `hooks/useApi.ts`（舊）：二十幾個檔在用
+- `hooks/useBackendApi.ts`（新）：十幾個檔在用
 - 兩個檔都 `export default function useApi()`——是的，新的那個函式名字也叫 `useApi`，只有檔名不一樣
 - 兩個檔都在模組層各自註冊了一個 `axios.interceptors.response`
 
@@ -55,31 +55,31 @@ B 專案（一個前台加後台的系統）不行。它 2024 年春天開案，
 你的 bug 有多快被修，取決於它有多醜。這個不醜，所以它會活很久。
 :::
 
-## 同事的第三代
-2026 年春天，同事從開發分支拉了一條新分支，commit 訊息的意思是：把兩套 useApi 合併，並把呼叫端統一替換掉。
+## 第三代
+2026 年春天，團隊裡有人開了一條分支，說要把兩套 useApi 合併、呼叫端統一替換掉。
 
-內容是 `src/http/` 底下五個檔：
+內容是一個 `http/` 資料夾，拆成五個檔（檔名是我照用途整理的說法）：
 ```
 http/
 ├── index.ts          useApi()：sendRequest、getImage
 ├── interceptors.ts   攔截器，在 main.ts 用副作用 import 註冊一次
-├── types.ts          iResult、iApiOptions、eResponseStatus、tRawResponse
+├── types.ts          iResult、iApiOptions、ResponseCode、tRawResponse
 ├── constants.ts      HTTP_ERROR_MESSAGES、HTTP_ERROR_TITLES、DIALOG_TIMEOUT
 └── messageParser.ts  extractMessages、ensureMessages
 ```
 拆得很好。攔截器終於從 composable 檔案裡獨立出來，在 `main.ts` 裡 `import '@http/interceptors'` 註冊一次，第四篇講的那個問題從結構上就不會再發生。Dialog 去重從「有沒有任何 Dialog 開著」改成 `Map<key, boolean>` 依錯誤類型去重，還加了 10 秒逾時保護防止旗標卡死。錯誤訊息從散在各處的字串集中成常數表。
 
 然後這條分支：
-- 沒有改任何一個呼叫端。23 加 15 個檔還是各自 import 舊的跟新的。
+- 沒有改任何一個呼叫端。那三十幾個檔還是各自 import 舊的跟新的。
 - 沒有刪舊檔。所以如果三個模組都被載入，axios 上會有**三個**攔截器。
-- 沒有合回開發分支。開發分支之後又往前走了四個 commit，分支就停在那裡。
+- 沒有合回主線。主線繼續往前走，那條分支就停在那裡。
 
-commit 訊息說要統一替換，實際上是「寫了一個更好的版本放在旁邊」。
+說是要統一替換，實際上是「寫了一個更好的版本放在旁邊」。
 
-我完全理解為什麼。替換 38 個檔的 import 是一件無聊但不難的事；難的是每個檔替換之後都要測一次，而這個專案沒有自動化測試，38 個檔代表 38 次手動點點點。在一個趕進度的專案裡，沒有人有這個時間，所以「寫一個新的放旁邊」是唯一能在一天內做完的事。
+我完全理解為什麼。替換三十幾個檔的 import 是一件無聊但不難的事；難的是每個檔替換之後都要測一次，而這個專案沒有自動化測試，三十幾個檔代表三十幾次手動點點點。在一個趕進度的專案裡，沒有人有這個時間，所以「寫一個新的放旁邊」是唯一能在一天內做完的事。
 
 ::: tip 這不是在怪誰
-我在 C 專案裡做的事跟他一樣：舊的 `useAsyncState` 沒刪、`VITE_USE_MOCK` 沒刪、A 專案的 `ApiClient` 放了半年才刪。差別只是我的死碼沒有副作用，他的多了一個攔截器。
+我在 C 專案裡做的事跟他一樣：舊的 `useAsyncState` 沒刪、`VITE_USE_MOCK` 沒刪、A 專案的 `ApiClient` 放了半年才刪。差別只是我的死碼沒有副作用，這一份多了一個攔截器。
 
 技術債不是「寫得爛」，是「知道怎麼寫好，但沒時間換」。
 :::
@@ -132,11 +132,11 @@ src/
 
 幾個跟現在不一樣的決定：
 
-- **`sendRequest` 不是 composable。** 它不需要 `setup()` 的 context，token 從 store 拿，store 用 `useUserStore()` 在模組層拿就好。叫它 `client.ts`，export 一個函式，API 檔直接 import。`useApi()` 這個名字從 2024 年底背到現在，該放下了。
+- **`sendRequest` 不是 composable。** 它不需要 `setup()` 的 context，token 從 store 拿，store 用 `useAuthStore()` 在模組層拿就好。叫它 `client.ts`，export 一個函式，API 檔直接 import。`useApi()` 這個名字從 2024 年底背到現在，該放下了。
 - **攔截器第一天就在 `main.ts` 註冊。** 不要等到發現重複才搬。
 - **每個 `useQuery` 都寫 `staleTime`。** 不用預設的 0。第七篇那個查不到來源的 GET，一半的機率是這個。
 - **queryKey 用 factory。** C 專案到現在都是手寫陣列 `['order', 'list', params]`，打錯一個字就 invalidate 不到。這個我還沒做，但下個專案會。
-- **第一個 feature 做完就寫一個 API 函式的測試。** 不是為了覆蓋率，是為了之後替換封裝的時候有東西可以跑。B 專案那 38 個檔換不動，就是因為沒有這個。
+- **第一個 feature 做完就寫一個 API 函式的測試。** 不是為了覆蓋率，是為了之後替換封裝的時候有東西可以跑。B 專案那三十幾個檔換不動，就是因為沒有這個。
 
 ## 結語
 這個系列寫了八篇，從大學那顆會跳的球寫到 TanStack Query 的 `staleTime`。中間經過一支叫 `getData` 的函式、三個洞的 token 刷新、塞進函式裡的攔截器、三份一模一樣的複製貼上、三天的大翻修、四個形狀很怪的坑，跟一個到現在還是兩套並存的專案。

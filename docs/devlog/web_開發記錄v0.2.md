@@ -726,3 +726,15 @@
   `PLAN_LABELS` 改成中文的四個名字（原本是 Lite／Pro），裝置詳情與優惠碼的選單文字跟著用它。
   **手動改方案、建優惠碼的選單先不加深度**：api.md 第 7 節還沒寫 `max`（#0094），送出去後端會 400；等後端改好再加。
 - **功能地圖**：排除詞上限改成「免費 5 個、輕量 15 個、進階與深度 35 個」（`方案規劃-四階.md` 的表）。演示頁不寫價格。
+
+# 2026-10-08：「API 串接進化史」脫敏；第一篇照審閱修正
+
+**使用者**：改了第一篇，看看內容有沒有問題。然後整個系列照（貼來的）法律建議脫敏：職務著作權、NDA、內部端點、專有回應格式、內部註解都不要直接貼。另外問「串 API 的那些事」能不能跟這個系列整合、還有沒有單獨寫的價值。
+
+- **第一篇**：照審閱的十點改——草稿提示整塊刪掉（四個問題都已補答）、`settimeout`→`setTimeout`、補回收尾句、解掉「以前就封裝過」與「2023 第一次封裝」的矛盾（以前只是少打幾行，2023 才把 token／錯誤／格式收進同一個入口）、PhoneGap 那句重寫、脈絡段的重複「導入」與錯字、「我猜」改「印象中」、球的真相那段加粗並改成「丟到伺服器給對方抓」、「兩年前」改「三年前」、tip 裡 blob 的篇數改對（在第二篇，不是三、六）。
+- **脫敏（二～八篇）**，原則：敘事保留第一人稱與時間感，拿掉能對到公司倉庫的東西——
+  - 程式碼改成通用範例：`piniaStore.useUserStore`／`userState.value.jwtToken` → `useAuthStore()`／`authStore.token`、`localStorage` 的 key 改 `access_token`；後端格式 `{ status: 0, message, data, paginator }` → `{ code: 'OK', message, data, pagination }`；業務碼 `eResponseStatus`（`-99`、`-999`）→ `ResponseCode` 字串常數（`TOKEN_EXPIRED`、`UNAUTHORIZED`）；`/api/auth/token`、`/api/auth/refresh`、`eUrls.base` → `/api/login`、`/api/refresh`、`/api/orders`；`is_pwd_expired`→`passwordExpired`、路由名 `Admin`→`Home`；`[!]`、`[-]` 這類內部註解拿掉。第二篇寫反的 `if` 那個 bug 保留（是故事主軸）。
+  - 敘事：所有「commit 訊息說…」改成「那次改動／紀錄」；確切天數（17 天、24 天）改約略；檔案數（29／23／15／40／38、1000 多個 commit、三個人）改「二十幾個／三十幾個／好幾個人」；「同事」改「團隊裡有人」，第三代那段拿掉分支沒合回、往前幾個 commit 的細節；「同一家公司」改「同一個後端團隊」；正式分支／上線分支的描述改成「線上跑的版本」。
+  - 每篇的草稿提示改成寫清楚脫敏了什麼、還有哪些 ✍️ 要作者確認（第三篇刪刷新的原因、第七篇第三次 GET）。
+- 驗證：`pnpm docs:build` 過；殘留掃描（`status === 0`、`piniaStore`、`jwtToken`、`-99`、`commit 訊息`、`同事`…）只剩草稿提示裡的說明文字。全部仍是 `isPublished: false`。
+- 「那些事」要不要併進來：先給建議、沒動結構，等使用者決定。

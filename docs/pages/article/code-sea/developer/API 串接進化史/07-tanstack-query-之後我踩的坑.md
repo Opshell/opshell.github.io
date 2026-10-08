@@ -17,7 +17,7 @@ editLink: true
 isPublished: false
 ---
 ::: warning 草稿
-這篇是 Claude 照你跟 Gemini 的對話記錄寫的草稿。四個坑的結論是對話裡最後確定的版本，中間繞路的過程我有濃縮。第三個坑（神祕的第三次 GET）對話裡沒有結案——Gemini 猜了三次都不對，你說「之前的錯誤不是你說的這樣 但是沒關係 目前沒有影響」。所以那段我寫成「沒查出來」，如果你後來找到原因就補上去。專案以 A／B／C 代稱；commit 訊息、日期、分支、API 路徑已在 10-06 去識別化。看完改成自己的話再刪掉這個區塊。
+這篇是 Claude 照你跟 Gemini 的對話記錄寫的草稿。四個坑的結論是對話裡最後確定的版本，中間繞路的過程我有濃縮。第三個坑（神祕的第三次 GET）對話裡沒有結案，那段寫成「沒查出來」（標 ✍️），如果你後來找到原因就補上去。2026-10-08 脫敏過：程式碼是通用範例，欄位、路由名稱都不是原專案的；專案以 A／B／C 代稱。看完改成自己的話再刪掉這個區塊。
 :::
 
 ::: info 系列：API 串接進化史
@@ -142,14 +142,14 @@ Network 面板看到的是：
 學到的不是答案，是一個習慣：**每個 `useQuery` 都明確寫 `staleTime`**，不要用預設的 0。預設 0 代表「資料一落地就過期」，任何風吹草動都會重抓。你以為你在做快取，其實你在做自動重抓。
 
 ## 坑四：Modal 不能 await
-登入成功之後，如果 `is_pwd_expired` 是 `true`，要先跳「密碼過期」的 Modal 讓使用者改密碼，改完才能導向首頁。
+登入成功之後，如果 `passwordExpired` 是 `true`，要先跳「密碼過期」的 Modal 讓使用者改密碼，改完才能導向首頁。
 
 ```ts
 onSuccess: async (userData) => {
-    if (userData.is_pwd_expired) {
+    if (userData.passwordExpired) {
         isRePasswordModalShow.value = true; // 這行不會等
     }
-    router.push({ name: 'Admin' }); // 立刻跑
+    router.push({ name: 'Home' }); // 立刻跑
 }
 ```
 `isRePasswordModalShow.value = true` 只是改一個 ref，不會卡住。Modal 開了，但頁面已經跳走了。
@@ -169,10 +169,10 @@ function promptForPasswordReset(): Promise<iResult> {
 }
 
 onSuccess: async (userData) => {
-    if (userData.is_pwd_expired) {
+    if (userData.passwordExpired) {
         await promptForPasswordReset(); // 現在會等了
     }
-    router.push({ name: 'Admin' });
+    router.push({ name: 'Home' });
 }
 ```
 Modal 裡改密碼成功就 `appBus.emit('re-password-success', res)`，Promise resolve，`onSuccess` 繼續往下。因為「不改密碼不能離開」是硬需求，所以沒有 reject，Modal 也設成 `persistent`。
@@ -204,4 +204,4 @@ Gemini 在這裡連錯三次（先說不用 key、再說 payload 不用包陣列
 
 這大概就是「進化」的意思。不是問題變少了，是問題變得比較有趣了。
 
-下一篇收尾：B 專案那兩套並存的 `useApi`、同事開的第三代、以及如果現在要開新專案，我會怎麼起手。
+下一篇收尾：B 專案那兩套並存的 `useApi`、團隊裡長出來的第三代、以及如果現在要開新專案，我會怎麼起手。
