@@ -8,11 +8,13 @@ import { z } from 'zod';
 // #region [P] 共用列舉與小物件
 
 /** 裝置現在實際的方案（api.md 第 8 節）。訂閱或權益到期會自動變回 free */
-export const PlanTierSchema = z.enum(['free', 'lite', 'pro']);
+// 2026-10-08 方案變四個（溝通板 #0094、#0095）：加第四階 max（深度）。
+// 讀的時候先收（後端一回 max，這裡不會整頁 ApiSchemaError）；手動改方案、建優惠碼的選單等 api.md 第 7 節寫好 max 再加
+export const PlanTierSchema = z.enum(['free', 'lite', 'pro', 'max']);
 export type PlanTier = z.infer<typeof PlanTierSchema>;
 
 /** 優惠碼送的方案：空字串 = 這組碼只送點數 */
-export const PromoPlanTierSchema = z.enum(['', 'lite', 'pro']);
+export const PromoPlanTierSchema = z.enum(['', 'lite', 'pro', 'max']);
 
 export const FeedbackStatusSchema = z.enum(['pending', 'accepted_bug', 'accepted_suggestion', 'rejected']);
 export type FeedbackStatus = z.infer<typeof FeedbackStatusSchema>;

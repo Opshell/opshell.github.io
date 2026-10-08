@@ -57,7 +57,8 @@ export const FEATURE_LABELS: Record<string, string> = {
 };
 export const FEATURE_ORDER = ['classify', 'recognize', 'recognize-speech', 'recognize-statement', 'search', 'nudge', 'admin-triage'];
 
-export const PLAN_LABELS: Record<string, string> = { free: '免費', lite: 'Lite', pro: 'Pro' };
+/** 方案名稱（2026-10-08 定案四個：免費／輕量／進階／深度，溝通板 #0095） */
+export const PLAN_LABELS: Record<string, string> = { free: '免費', lite: '輕量', pro: '進階', max: '深度' };
 
 /** 回報的類型。crash 是 App 當掉之後自己產生的，使用者按了才送（溝通板 #39） */
 export const KIND_LABELS: Record<string, string> = { bug: 'bug', suggestion: '建議', crash: '閃退' };

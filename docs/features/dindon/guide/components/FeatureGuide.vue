@@ -4,6 +4,7 @@
     import { branches, features, findFeature, REVIEWED_APP_VERSION, stages } from '../featureMap';
     import FeatureDetail from './FeatureDetail.vue';
     import FeatureMindMap from './FeatureMindMap.vue';
+    import FeatureShowcase from './FeatureShowcase.vue';
     import HabitPath from './HabitPath.vue';
 
     // 功能地圖頁（/dindon/guide/）：心智圖＋說明、養成路線、藏起來的操作。
@@ -59,7 +60,19 @@
         if (event.key === 'Escape' && selected.value) select('');
     }
 
+    // #region [P] 地圖開頭的介紹（FeatureShowcase）：播的時候地圖藏起來、高度收成介紹那麼高；飛回地圖時放開
+    // 只在瀏覽器端決定要不要播（SSR 與沒有 JS 時地圖照常顯示）；網址指到某個功能、或關閉動態時不播
+    const intro = ref<'off' | 'playing' | 'landing'>('off');
+    const played = ref(false);
+    function playIntro() {
+        select('');
+        intro.value = 'playing';
+        played.value = true;
+    }
+    // #endregion
+
     onMounted(() => {
+        if (!reducedMotion() && !/^#f-/.test(location.hash)) playIntro();
         fromHash();
         window.addEventListener('hashchange', fromHash);
         window.addEventListener('keydown', onKeydown);
@@ -103,6 +116,7 @@
                     <button type="button" :aria-pressed="filter === 'all'" @click="filter = 'all'">全部</button>
                     <button type="button" :aria-pressed="filter === 'hidden'" @click="filter = 'hidden'">藏起來的操作</button>
                     <button type="button" :aria-pressed="filter === 'demo'" @click="filter = 'demo'">有演示影片</button>
+                    <button v-if="played && intro === 'off'" type="button" class="replay" @click="playIntro">再看一次介紹</button>
                     <button v-if="stageOfFilter" type="button" aria-pressed="true" class="stage" @click="filter = 'all'">
                         {{ stageOfFilter.when }}・{{ stageOfFilter.title }} ✕
                     </button>
@@ -110,7 +124,10 @@
 
                 <div class="dindon-guide__workspace">
                     <div class="dindon-guide__layout">
-                        <FeatureMindMap :selected="selected" :highlight="highlight" @select="toggleSelect" />
+                        <div class="dindon-guide__mapwrap" :class="intro !== 'off' && `is-${intro}`">
+                            <FeatureMindMap :selected="selected" :highlight="highlight" @select="toggleSelect" />
+                            <FeatureShowcase v-if="intro !== 'off'" @landing="intro = 'landing'" @done="intro = 'off'" />
+                        </div>
                         <aside class="dindon-guide__aside" :class="{ 'is-open': !!selected }" aria-live="polite" aria-label="功能說明">
                             <FeatureDetail :id="selected" @select="id => select(id, true)" @stage="goToStage" @close="select('')" />
                         </aside>
@@ -258,6 +275,21 @@
             margin: 6px 0 18px !important;
             color: var(--dd-muted);
         }
+
+        // 介紹播的時候：地圖先藏著、高度收成介紹舞台那麼高（下面不會空一大塊）；飛回來時放開高度、地圖淡入
+        &__mapwrap {
+            position: relative;
+
+            // 跟 showcase.ts 的 SHOWCASE_WIDE_H／SHOWCASE_NARROW_H 一樣（窄螢幕的判斷是 720px）
+            &.is-playing {
+                max-height: 560px;
+                overflow: clip;
+                @include setRWD(760px) { max-height: 760px; }
+            }
+            &.is-playing .dd-mindmap { opacity: 0; }
+            &.is-landing .dd-mindmap { animation: dd-guide-map-in .5s .9s both; }
+        }
+        &__filters .replay { margin-left: auto; }
         &__filters {
             @include setFlex(flex-start, center, 8px);
             flex-wrap: wrap;
@@ -403,5 +435,8 @@
         --g-wallet: #5BCB6E;
         --g-habit: #F06595;
         --g-trust: #9AA6BD;
+    }
+    @keyframes dd-guide-map-in {
+        from { opacity: 0; }
     }
 </style>

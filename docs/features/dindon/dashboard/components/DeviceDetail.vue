@@ -375,7 +375,7 @@
                     <span>方案</span>
                     <select v-model="plan">
                         <option value="free">免費</option>
-                        <option value="pro">Pro</option>
+                        <option value="pro">{{ PLAN_LABELS.pro }}</option>
                     </select>
                 </label>
                 <div class="dd-detail__field">
