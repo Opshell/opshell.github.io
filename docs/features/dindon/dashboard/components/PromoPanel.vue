@@ -255,8 +255,8 @@
                     <label class="dd-promo__field">
                         <span>方案</span>
                         <select v-model="form.planTier">
-                            <option value="lite">Lite</option>
-                            <option value="pro">Pro</option>
+                            <option value="lite">{{ PLAN_LABELS.lite }}</option>
+                            <option value="pro">{{ PLAN_LABELS.pro }}</option>
                         </select>
                     </label>
                     <label class="dd-promo__field">

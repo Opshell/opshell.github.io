@@ -60,7 +60,9 @@ describe('裝置', () => {
     });
 
     it('不認得的方案要擋，不默默顯示', () => {
-        expect(() => GetDeviceListParser.parse({ devices: [{ ...rawDevice, plan_tier: 'max' }], total: 1, page: 1, per_page: 20 })).toThrow();
+        expect(() => GetDeviceListParser.parse({ devices: [{ ...rawDevice, plan_tier: 'ultra' }], total: 1, page: 1, per_page: 20 })).toThrow();
+        // 2026-10-08 方案變四個：max（深度）要收（溝通板 #0095）
+        expect(GetDeviceListParser.parse({ devices: [{ ...rawDevice, plan_tier: 'max' }], total: 1, page: 1, per_page: 20 }).devices[0].planTier).toBe('max');
     });
 
     it('送出的修改轉回 snake_case', () => {
