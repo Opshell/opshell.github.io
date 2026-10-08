@@ -17,7 +17,7 @@ editLink: true
 isPublished: false
 ---
 ::: warning 草稿
-這篇是 Claude 照 git 歷史寫的草稿。專案以 A／B／C 代稱；commit 訊息、日期、分支、API 路徑已在 10-06 去識別化。看完改成自己的話再刪掉這個區塊。
+這篇是 Claude 照 git 歷史寫的草稿。2026-10-08 脫敏過：程式碼改寫成通用範例（store、業務碼都不是原專案的），拿掉了 commit 訊息與確切檔案數；專案以 A／B／C 代稱。看完改成自己的話再刪掉這個區塊。
 :::
 
 ::: info 系列：API 串接進化史
@@ -37,11 +37,11 @@ isPublished: false
 ## 動機：攔截器裡拿不到 router
 2024 年年底，A 專案的需求：token 完全過期、連刷新都不行的時候，要跳通知、登出、導回登入頁。
 
-跳通知跟登出都好辦，`$notify` 跟 `userStore` 都是全域的。導回登入頁要 router。我在攔截器裡寫：
+跳通知跟登出都好辦，`$notify` 跟 `authStore` 都是全域的。導回登入頁要 router。我在攔截器裡寫：
 ```ts
 if (error.response.data.message === '登入已逾時，請重新登入。') {
     const router = useRouter();
-    userStore.signOut();
+    authStore.signOut();
     router.push({ name: 'Login' });
 }
 ```
@@ -52,12 +52,12 @@ if (error.response.data.message === '登入已逾時，請重新登入。') {
 解法有兩個。一個是 `import router from '@/router'` 直接用 router 實例，不要用 `useRouter`——這是對的做法，後來的專案都這樣寫。另一個是把攔截器搬進一個會在 `setup()` 裡被呼叫的函式——這是我當時選的。
 
 ## 改成 useApi()
-一週後的 commit，順便配合後端「業務錯誤一律回 422」的改動：
+一週後，順便配合後端「業務錯誤一律回 422」的改動（一樣是改寫過的通用範例）：
 ```ts
 export default function useApi() {
     const router = useRouter();
     const proxy = useGlobalProperties();
-    const userStore = piniaStore.useUserStore;
+    const authStore = useAuthStore();
 
     axios.interceptors.response.use(
         (response) => response,
@@ -69,10 +69,10 @@ export default function useApi() {
     async function sendRequest(/* ... */) { /* ... */ }
     async function getImage(/* ... */) { /* ... */ }
 
-    function authorizedChecker(statusCode: number) {
-        if (statusCode !== -999) { return true; }
+    function authorizedChecker(code: string) {
+        if (code !== 'UNAUTHORIZED') { return true; }
         proxy.$notify('error', '登入憑證錯誤', '您可能閒置太久了，<br/>請試試看重新登入！', 3500);
-        userStore.signOut();
+        authStore.signOut();
         router.push({ name: 'Login' });
         return false;
     }
@@ -80,9 +80,9 @@ export default function useApi() {
     return { sendRequest, getImage };
 }
 ```
-全站 29 個檔從 `import { sendRequest }` 改成 `const { sendRequest } = useApi()`。改完很滿意：現在它是一個「真正的」composable 了，跟 `useRouter`、`useStore` 長得一樣，在 `setup()` 裡呼叫，拿到 router，可以導頁。
+全站二十幾個檔從 `import { sendRequest }` 改成 `const { sendRequest } = useApi()`。改完很滿意：現在它是一個「真正的」composable 了，跟 `useRouter`、`useStore` 長得一樣，在 `setup()` 裡呼叫，拿到 router，可以導頁。
 
-兩天後，B 專案做了一樣的事，commit 訊息還特別註明，這是要修成「正確的」composables 結構。
+兩天後，B 專案做了一樣的事，紀錄裡還特別註明：這是要修成「正確的」composables 結構。
 
 正確的。
 
@@ -92,7 +92,7 @@ export default function useApi() {
 export default function useApi() {
     axios.interceptors.response.use(/* ... */);
 ```
-`axios.interceptors.response.use` 是**註冊**，不是設定。每呼叫一次，axios 的攔截器陣列就多一個元素。而 `useApi()` 現在在每個元件的 `setup()` 裡被呼叫——29 個檔，每個頁面進去一次就呼叫一次，切頁再回來又一次。
+`axios.interceptors.response.use` 是**註冊**，不是設定。每呼叫一次，axios 的攔截器陣列就多一個元素。而 `useApi()` 現在在每個元件的 `setup()` 裡被呼叫——二十幾個檔，每個頁面進去一次就呼叫一次，切頁再回來又一次。
 
 開一陣子之後，一個 401 回來，攔截器跑 20 次。每一次都去 `refreshToken()`，每一次都 `router.push`。
 
@@ -103,7 +103,7 @@ export default function useApi() {
 ## B 專案：兩週後搬回去
 B 專案比較幸運，因為它的攔截器有跳 Dialog。
 
-幾天後同事加了「401 跳 Dialog 登出」，一週後就發現 Dialog 會疊好幾層。追下去，攔截器被註冊了 N 次。同一天搬回模組層，並且加了一個旗標防止 Dialog 重複：
+幾天後團隊裡有人加了「401 跳 Dialog 登出」，一週後就發現 Dialog 會疊好幾層。追下去，攔截器被註冊了 N 次。同一天搬回模組層，並且加了一個旗標防止 Dialog 重複：
 ```ts
 let showNetErrorDialog = false;
 let showPermissionsErrorDialog = false;
@@ -121,7 +121,7 @@ axios.interceptors.response.use(
             showPermissionsErrorDialog = true;
             Dialog.create({ /* 登入逾時 */ }).onCancel(() => {
                 showPermissionsErrorDialog = false;
-                userStore.signOut();
+                authStore.signOut();
                 router.push('/');
             });
         }
@@ -130,7 +130,7 @@ axios.interceptors.response.use(
 );
 
 export default function useApi() {
-    const userStore = useUserStore();
+    const authStore = useAuthStore();
     async function sendRequest(/* ... */) { /* ... */ }
     return { sendRequest, getImage };
 }
@@ -146,9 +146,9 @@ A 專案沒有跳 Dialog，它用的是 `$notify`，一個會自己消失的 toa
 
 所以它的攔截器一直在函式裡，從 2024 年年底到 2026 年春天。一年半。
 
-2026 年春天，一個做列表篩選的 commit 裡，順手夾了一句優化攔截器：
+2026 年春天，在一次做列表篩選的改動裡，順手加了這個：
 ```ts
-// [-] 宣告一個 Flag 來防止攔截器被重複註冊
+// 防止攔截器被重複註冊
 let isInterceptorSetup = false;
 
 export default function useApi() {
@@ -165,7 +165,7 @@ export default function useApi() {
 
 這個解法能用，但它有一個很微妙的副作用：攔截器的閉包裡用到的 `router`、`refreshToken`、`sendRequest`，**永遠是第一個呼叫 `useApi()` 的那個元件的那一份**。那個元件卸載之後，閉包還活著，抓著一個已經不存在的元件的 `router`。Vue Router 的 router 實例是全域單例所以沒差，但如果哪天在閉包裡用了元件的 `ref`，就會抓到死掉的那個。
 
-正確的做法還是 B 專案那條路：攔截器搬出去，router 用 import。但這個專案到那時為止，正式分支跟上線分支上的 `useApi.ts` 連這個 flag 都沒有——它們停在 2025 年初的版本。只有開發分支有修。
+正確的做法還是 B 專案那條路：攔截器搬出去，router 用 import。但這個 flag 到那時候都還只在開發中的版本裡；線上跑的 `useApi.ts` 連 flag 都沒有，停在 2025 年初。
 
 ::: tip 兩個專案的分岔
 同一個錯，B 專案花了 15 天修好，A 專案花了 16 個月修到一半。差別不在誰比較厲害，在於**有沒有症狀**。B 專案的 Dialog 疊起來很難看，所以馬上有人追；A 專案的 toast 多跳幾次沒人在意，所以沒人追。
