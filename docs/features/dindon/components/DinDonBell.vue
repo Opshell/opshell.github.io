@@ -50,7 +50,7 @@
             animation-duration: var(--dd-story-duration, 8s);
             animation-timing-function: ease-in-out;
             animation-delay: var(--dd-story-delay, .9s);
-            animation-iteration-count: infinite;
+            animation-iteration-count: var(--dd-bell-rings, infinite); // 宣傳頁設成有限次：一直響會讓整頁一直重新合成
         }
         .bell {
             transform: rotate(-12deg);

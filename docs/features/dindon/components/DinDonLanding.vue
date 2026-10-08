@@ -6,6 +6,8 @@
         betaRewards,
         CONTACT_EMAIL,
         DEMO_PATH,
+        GUIDE_PATH,
+        helperPoints,
         invoicePains,
         lazyPoints,
         photoSources,
@@ -16,6 +18,7 @@
     import { useLandingMotion } from '../hooks/useLandingMotion';
     import BetaJoinGuide from './BetaJoinGuide.vue';
     import DinDonBell from './DinDonBell.vue';
+    import PromoStory from './PromoStory.vue';
     import PromoVideo from './PromoVideo.vue';
 
     const rootRef = ref<HTMLElement>();
@@ -57,38 +60,11 @@
                 </div>
 
                 <div class="dindon-landing__hero-shot">
+                    <!-- 「一天的帳」：六幕約 14 秒，把重點演一遍再停住（PromoStory.vue）。原本這裡是首頁截圖＋一直循環的通知卡片 -->
                     <div class="dindon-landing__hero-stage">
-                        <div data-parallax=".12" data-parallax-scroll>
-                            <div class="dindon-landing__phone dindon-landing__phone--cropped">
-                                <img src="/images/dindon/home.webp" alt="叮咚記帳首頁：今日花費、本月累積與今天的每一筆帳" loading="eager" width="720" height="933" />
-                            </div>
-                        </div>
-
-                        <!-- 和圖示的鈴鐺同一組時間：鈴一響，通知跳出來，接著記成一筆帳 -->
-                        <div class="dindon-landing__chip dindon-landing__chip--notify" data-parallax="-.08" data-parallax-scroll aria-hidden="true">
-                            <span class="chip-icon">💳</span>
-                            <span>
-                                <span class="chip-title">刷卡消費 NT$120</span>
-                                <span class="chip-text">全家便利商店 · 剛剛</span>
-                            </span>
-                        </div>
-                        <div class="dindon-landing__chip dindon-landing__chip--recorded" data-parallax="-.2" data-parallax-scroll aria-hidden="true">
-                            <span class="chip-icon">✓</span>
-                            <span>
-                                <span class="chip-title">已自動記帳</span>
-                                <span class="chip-text">餐飲 · 全家便利商店</span>
-                            </span>
-                        </div>
+                        <PromoStory />
                     </div>
                 </div>
-            </div>
-        </section>
-        <!-- #endregion -->
-
-        <!-- #region [P] 18 秒看懂：宣傳短片 -->
-        <section id="video" class="dindon-landing__section dindon-landing__section--sunken">
-            <div class="dindon-landing__container">
-                <PromoVideo />
             </div>
         </section>
         <!-- #endregion -->
@@ -132,6 +108,28 @@
 
                 <p class="dindon-landing__links dindon-landing__links--center">
                     <a class="dindon-landing__link" :href="DEMO_PATH" data-reveal>每個功能的動態演示<span class="arrow" aria-hidden="true">→</span></a>
+                </p>
+            </div>
+        </section>
+        <!-- #endregion -->
+
+        <!-- #region [P] 記好之後，小精靈還會幫你想（2026-10-08：0.7.4～0.7.19 新增的這些，原本頁面上都沒有） -->
+        <section class="dindon-landing__section">
+            <div class="dindon-landing__container">
+                <p class="dindon-landing__eyebrow" data-reveal>不只幫你記，還幫你想</p>
+                <h2 class="dindon-landing__title" data-reveal :style="delay(1)">記好之後，小精靈還會幫你想</h2>
+                <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">那些本來要自己算、自己記得的事。</p>
+
+                <ul class="dindon-landing__features dindon-landing__features--helpers">
+                    <li v-for="(item, index) in helperPoints" :key="item.title" class="dindon-landing__card" data-reveal :style="delay(index, 70)">
+                        <span class="feature-icon" aria-hidden="true">{{ item.icon }}</span>
+                        <h3>{{ item.title }}<span v-if="item.tag" class="dindon-landing__new">{{ item.tag }}</span></h3>
+                        <p>{{ item.text }}</p>
+                    </li>
+                </ul>
+
+                <p class="dindon-landing__links dindon-landing__links--center">
+                    <a class="dindon-landing__link" :href="GUIDE_PATH" data-reveal>全部功能的地圖<span class="arrow" aria-hidden="true">→</span></a>
                 </p>
             </div>
         </section>
@@ -207,7 +205,10 @@
                     </p>
                     <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">
                         <!-- 中文寫在同一行：換行會在「；」後面多出一個空格 -->
-                        付款自動記、拍一張、說一句——低到不用下決心。再加上 8 種成就徽章，每種都能從銅一路升到七彩；升級還會解鎖稱號的詞，組出屬於你的一行稱號，記帳也可以有點收集的樂趣。
+                        付款自動記、拍一張、說一句——低到不用下決心。再加上 10 種成就徽章，每種都能從銅一路升到七彩；升級還會解鎖稱號的詞，組出屬於你的一行稱號，記帳也可以有點收集的樂趣。
+                    </p>
+                    <p class="dindon-landing__subtitle" data-reveal :style="delay(3)">
+                        <span class="dindon-landing__new">下一版</span>記帳里程碑：從記滿一個月走到第一次關帳；月結只問兩題——這個月比平常多花在哪、固定支出有沒有變。
                     </p>
                 </div>
 
@@ -217,6 +218,14 @@
                     </div>
                     <figcaption>徽章牆</figcaption>
                 </figure>
+            </div>
+        </section>
+        <!-- #endregion -->
+
+        <!-- #region [P] 18 秒看懂：宣傳短片（2026-10-08 從開頭往下移：開頭已經有「一天的帳」，這支留給想分享給朋友的人） -->
+        <section id="video" class="dindon-landing__section dindon-landing__section--sunken">
+            <div class="dindon-landing__container">
+                <PromoVideo />
             </div>
         </section>
         <!-- #endregion -->
@@ -320,6 +329,8 @@
         --dd-ease-out: cubic-bezier(.22, 1, .36, 1);
         --dd-story-duration: 8s; // 鈴響 → 通知 → 已記帳，一輪的長度（DinDonBell 也讀這兩個）
         --dd-story-delay: .9s; // 等開頭的進場動畫跑完再響
+        // 鈴響幾次就停（2026-10-08）：一直循環的 CSS 動畫會讓整頁每秒重新合成 60 次，電腦會燙
+        --dd-bell-rings: 2;
         background: var(--dd-bg);
         color: var(--dd-text);
         line-height: 1.7;
@@ -503,74 +514,6 @@
 
         // #endregion
 
-        // #region [P] 通知卡片：和鈴鐺同步，一輪 = 通知跳出 → 已記帳 → 一起淡出
-        &__chip {
-            position: absolute;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            background: #FEFDFC; // 兩個模式都是淺色，和手機截圖一致
-            padding: 10px 16px 10px 10px;
-            border-radius: 16px;
-            box-shadow: 0 6px 20px rgb(27 24 21 / 10%);
-            color: #1B1815;
-            font-size: var(--font-size-s);
-            line-height: 1.4;
-            white-space: nowrap;
-            animation: dd-chip-notify var(--dd-story-duration) ease var(--dd-story-delay) infinite both;
-            z-index: 2;
-
-            .chip-icon {
-                @include setFlex();
-                flex: none;
-                background: #FEF3B3;
-                width: 36px;
-                height: 36px;
-                border-radius: 10px;
-                font-size: 1.1rem;
-            }
-            .chip-title {
-                display: block;
-                font-weight: 700;
-            }
-            .chip-text {
-                display: block;
-                color: #6B6157;
-                font-size: var(--font-size-xs);
-            }
-
-            // 貼著手機上緣，像系統跳出的通知橫幅。放右上：只蓋到搜尋、日曆那排圖示，
-            // 左上的頭像與稱號（截圖裡最新的東西）要露出來。兩張卡都在右邊，由上往下就是
-            // 「通知跳出來 → 旁邊那一筆記好了」
-            &--notify {
-                top: 18px;
-                right: -56px;
-                @include setRWD(1024px) { right: -16px; }
-                @include setRWD(768px) {
-                    top: 12px;
-                    right: -8px;
-                }
-            }
-            &--recorded {
-                top: 176px;
-                right: -56px;
-                animation-name: dd-chip-recorded;
-                @include setRWD(1024px) { right: -16px; }
-                @include setRWD(768px) {
-                    top: 140px;
-                    right: -8px;
-                }
-
-                .chip-icon {
-                    background: #E2EFFD;
-                    color: #1D59BB;
-                    font-weight: 800;
-                }
-            }
-        }
-
-        // #endregion
-
         // #region [P] phone：平面的外框，不做高光與擬真反光
         &__phone {
             background: var(--dd-frame);
@@ -748,7 +691,17 @@
             list-style: none;
             @include setRWD(1024px) { grid-template-columns: repeat(2, 1fr); }
             @include setRWD(640px) { grid-template-columns: 1fr; }
+
+            // 小精靈幫你想：六張，排成三欄兩列
+            &--helpers {
+                grid-template-columns: repeat(3, 1fr);
+                @include setRWD(1024px) { grid-template-columns: repeat(2, 1fr); }
+                @include setRWD(640px) { grid-template-columns: 1fr; }
+            }
         }
+
+        // 句首的小標籤（「下一版」）：右邊留空，不是左邊
+        &__subtitle > &__new:first-child { margin: 0 8px 0 0; }
         &__new {
             display: inline-block;
             background: var(--dd-accent);
@@ -1008,14 +961,10 @@
             }
         }
 
-        // #region [P] 減少動態效果：全部停下，通知卡片直接顯示
+        // #region [P] 減少動態效果：全部停下
         @media (prefers-reduced-motion: reduce) {
             &__hero-copy > *,
             &__hero-stage { animation: none; }
-            &__chip {
-                animation: none;
-                opacity: 1;
-            }
             &__btn, &__btn .arrow, &__card, &__link .arrow { transition: none; }
         }
 
@@ -1061,34 +1010,6 @@
         to {
             transform: none;
             opacity: 1;
-        }
-    }
-    @keyframes dd-chip-notify {
-        0%, 6% {
-            transform: translateY(14px) scale(.94);
-            opacity: 0;
-        }
-        10%, 82% {
-            transform: none;
-            opacity: 1;
-        }
-        88%, 100% {
-            transform: translateY(-8px);
-            opacity: 0;
-        }
-    }
-    @keyframes dd-chip-recorded {
-        0%, 20% {
-            transform: translateY(14px) scale(.94);
-            opacity: 0;
-        }
-        24%, 84% {
-            transform: none;
-            opacity: 1;
-        }
-        90%, 100% {
-            transform: translateY(-8px);
-            opacity: 0;
         }
     }
     @keyframes dd-wiggle {
