@@ -19,12 +19,27 @@ isPublished: false
 Claude 於 2026-10-05 補完：只加了懶人包，內文與原本的總結都沒動。看過、改成自己的話之後刪掉這個區塊，發佈工具才會放行。
 :::
 
-::: info 系列：串 API 的那些事
-這個系列從群組裡一段別人貼出來的 axios 封裝開始，一路改到型別安全，每一篇都在收拾上一篇留下的問題。
+::: info 合集：串 API 的那些年
+一個故事系列加一個動手系列，講的是同一件事：怎麼把 API 串接從「能用」做到「好用」。先看進化史知道為什麼，想動手改再看那些事。建議照這個順序讀：
+
+**API 串接進化史**（為什麼）——從大學的打磚塊一路到 TanStack Query，每一次改寫都是被某個坑推著走的。
+1. [打磚塊、AJAX 跟 jQuery，我是怎麼被網路通訊啟蒙的](../API%20串接進化史/01-打磚塊-ajax-跟-jquery-我是怎麼被網路通訊啟蒙的)
+2. [2023：一支叫 getData 的函式](../API%20串接進化史/02-2023-一支叫-getdata-的函式)
+3. [2024：攔截器、token 刷新，以及我把它刪掉](../API%20串接進化史/03-2024-攔截器-token-刷新-以及我把它刪掉)
+4. [composable 化的代價：我把攔截器塞進函式裡](../API%20串接進化史/04-composable-化的代價-我把攔截器塞進函式裡)
+5. [三個專案，三份一模一樣的 useApi](../API%20串接進化史/05-三個專案-三份一模一樣的-useapi)
+
+**串 API 的那些事**（動手篇）——從群組裡一段別人貼出來的 axios 封裝開始，一路改到型別安全，每一篇都在收拾上一篇留下的問題。
 1. [Axios 封裝，從「能用」到「好用」](./01-axios-封裝-從能用到好用)
 2. [取名是小事，也是大事](./02-取名是小事也是大事)
 3. **用 TypeScript 收起你的碼腳**（這篇）
 4. [告別非空斷言：非同步 Composable 的型別安全](./04-告別非空斷言-非同步-composable-的型別安全)
+
+**API 串接進化史**（續）
+6. [那三天：useBackendApi、useAsyncState，然後 TanStack Query](../API%20串接進化史/06-那三天-usebackendapi-useasyncstate-然後-tanstack-query)
+7. [TanStack Query 之後我踩的坑](../API%20串接進化史/07-tanstack-query-之後我踩的坑)
+   - [番外：新增修改後，後端要不要順便回傳最新資料](../API%20串接進化史/07b-新增修改後-後端要不要順便回傳最新資料)
+8. [回頭看：兩套並存的 useApi，跟我現在會怎麼起手](../API%20串接進化史/08-回頭看-兩套並存的-useapi-跟我現在會怎麼起手)
 
 **這篇的脈絡**：前兩篇把封裝改好用、名字取清楚了，這篇處理剩下的型別漏洞。前半是我當時卡住的程式碼，後半是怎麼用函式重載收緊它。
 :::
@@ -53,7 +68,7 @@ import { Dialog, QDialog } from 'quasar';
 
 // --- 型別定義 (保持不變) ---
 
-export interface iPaginator {
+export interface iPagination {
 
     current_page: number // 目前頁面
 
@@ -69,7 +84,7 @@ export interface iResult<R = unknown> { // R = 回傳格式
 
     messages: string[]
 
-    paginator?: iPaginator
+    pagination?: iPagination
 
     httpCode?: number
 
@@ -305,7 +320,7 @@ export default function useApi() {
 
                 messages: responseData.messages ?? [],
 
-                paginator: responseData.paginator
+                pagination: responseData.pagination
 
             };
 
@@ -581,7 +596,7 @@ export default function useApi() {
                 status: axiosResponse.status >= 200 && axiosResponse.status < 300,
                 data: (responseData.data ?? []) as R,
                 messages: responseData.messages ?? [],
-                paginator: responseData.paginator
+                pagination: responseData.pagination
             };
         } catch (error: any) {
             if (import.meta.env.DEV) {
