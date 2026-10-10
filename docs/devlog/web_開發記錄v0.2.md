@@ -757,3 +757,29 @@
 - 修法：先算出 `# title` 的錨點 id，內文已有同一個 id 就不補（`70e90d6`）。
 - 那個拷貝是《前端開發規範》v4 唯一的一份（v5 第一次進版控時就是 v5），沒刪；要不要留由使用者決定。
 - 驗證：`SHOW_DRAFTS=1 vitepress dev` 正常啟動；`pnpm docs:build` 通過。
+
+# 2026-10-11：Flowsker 介紹頁、導覽列加 Flowsker、首頁大卡 Timeline 換成 Flowsker
+
+**使用者**：你可以讀到 www/flowsker 專案嗎？目前服務應該已經上了？在部落格添加一個像是叮咚的 nav 列，只是放 flowsker 的介紹；然後在首頁把最近在忙的 Timeline 換成 flowsker。
+
+- **讀到的**：`~/WWW/Flowsker/` 是工作區（溝通板、待辦、設計稿），程式在底下的 `Flowsker_Web`（Vue）與 `Flowsker_BackEnd`（Go）。
+  上線狀況從外面驗：`flowsker.com` 200（Cloudflare Worker 靜態站，前端 `main` `ac2c7f9`），後端 Cloud Run `/health` 200、`/v1/auth/google` 正常 302 到 Google；
+  但 CORS 預檢對 `https://flowsker.com` 還沒回 `Access-Control-Allow-Origin`（工單 #0006 回覆 5 請後端改 `WEB_ORIGINS`／`WEB_URL`，還沒處理），
+  而且 `calendar.events` 是機密範圍，Google 同意畫面審核過前只有測試名單能登入。所以「上了」= 公開頁面與隱私權政策上了，登入還不行。
+  兩個程式倉庫 GitHub API 回 404（私人），README 寫 AGPL-3.0。
+- **介紹頁 `/flowsker/`**（`features/flowsker/`，照叮咚的做法：`pages/flowsker/index.md` 掛 `layout: page`＋`class: flowsker-page`）：
+  - 開頭：左文案、右一塊夜晚（產品 README 的沙漏截圖）。產品的招牌是「畫面跟著心流轉暗」，整頁照這個意象。
+  - 「專注 5 分鐘，換 1 分鐘休息」：滑桿拉專注時間，休息時間、沙堆高度、面板夜色一起動。純函式 `flowmodoro.ts`（`restMinutes`、`formatMinutes`、`sandLevel`、`nightLevel`）有測試；
+    夜色照產品「開始專注後幾分鐘內轉暗」：5 分白晝、15 分全暗。一開始用沙堆高度當夜色，預設 45 分變成灰底灰字看不清，改掉。
+  - 六個重點（README 的順序）、三張畫面（任務看板、統計儀表、AI 辦公室，平面的瀏覽器框）、為什麼做它（2025 年初那版 side project → 10 月重開、後端自己做、骨架從叮咚抽）、
+    向 Google 要的兩個權限（連到產品的 `/privacy`）、收尾。原始碼連結先藏著（`REPOS_PUBLIC = false`，倉庫公開再開）；登入現況一句放常數 `LOGIN_NOTE`，審核過了清掉。
+  - 標誌：一圈刻度裡一堆沙（`FlowskerMark.vue`，沙堆高度是 prop；首頁 `<img>` 用的是畫成檔案的 `icon.svg`）。產品本身還沒有 logo（首頁是一個藍方塊）。
+  - 圖：README 的四張 png 用 sharp 轉 webp（1280 寬 36～39KB、沙漏 6KB）；og 圖 1200×630 用沙漏截圖＋英文字合成（librsvg 不冒中文字型的險）。
+  - 配色沿用產品（心流藍 `#2E6BFF`、休息琥珀），`_variable.scss` 的 `:has(.dindon-…)` 排除清單加 `.flowsker-page`（不套部落格的夜空與品牌橘）。
+  - `useLandingMotion` 從 `features/dindon/hooks` 搬到 `shared/hooks`（兩個介紹頁共用）。
+- **導覽列**：跟叮咚一樣自己一個大項「Flowsker」：關於 Flowsker、打開 Flowsker（外連）、隱私權政策（外連）；Portfolio → Side Projects 那個 `[+] Flosker` 的註解換成真連結。
+- **首頁**：第二張大卡 Timeline → Flowsker（藍色的光、狀態「剛上線」、五個小標籤、右下角一圈刻度裡的沙堆，游標進來堆高——只動 transform）。
+  Timeline 退到大卡上方那排小入口；每年篇數的長條拿掉（`yearlyCounts` 留著有測試，首頁沒再用）。大卡底下的小連結多一組「Flowsker 打開 flowsker.com」。色票加 `--pr-flow`。
+- 驗證：`pnpm check` 全過（177 個測試）；headless Edge 截圖看過 Flowsker 頁的淺色、深色、桌面、手機與首頁（手機要用 CDP 設 414 寬，`--window-size` 有最小寬度會把右邊切掉）。
+  preview 伺服器重建後要重啟，不然 JS 是舊的（又踩一次）。
+- 分支 `feat/flowsker-page`（worktree `../opshell-flowsker`），併進本機 main，等使用者說 push。

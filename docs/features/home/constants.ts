@@ -5,8 +5,8 @@ export const BLOG_INTRO = '一個藉由分享前端開發、各種想法、奇�
 export const BLOG_MOTTO = '平凡即卓越.';
 
 /**
- * 「最近在忙的」三張大卡（2026-10 翻新第二版，使用者：「timeline、Resume、DinDon 記帳這種，目前最想快速連到、或最近在開發的東西」）。
- * Timeline 那張的數字與長條從文章算，這裡只放固定的字。換主力專案時改這裡。
+ * 「最近在忙的」三張大卡（2026-10 翻新第二版，使用者：「timeline、Resume、DinDon 記帳這種，目前最想快速連到、或最近在開發的東西」；
+ * 2026-10-11 Timeline 換成 Flowsker）。換主力專案時改這裡。
  */
 export const launchpads = {
     dindon: {
@@ -23,7 +23,19 @@ export const launchpads = {
             { text: '功能演示', href: '/dindon/demo/' }
         ]
     },
-    timeline: { title: 'Timeline', href: '/timeline.html' },
+    // 2026-10-11 使用者：Timeline 那張換成 Flowsker（剛上線的反向番茄鐘）；Timeline 退到底下那排小入口
+    flowsker: {
+        title: 'Flowsker',
+        status: '剛上線',
+        text: '專注到你想停為止，休息按比例給你。反向番茄鐘的任務與專注力管理器，AI 小精靈能直接開任務給你。',
+        href: '/flowsker/',
+        icon: '/images/flowsker/icon.svg',
+        screen: '/images/flowsker/tasks-small.webp',
+        features: ['休息 = 專注 ÷ 5', '任務累積心流', '小精靈開任務', 'AI 辦公室', 'Google Calendar'],
+        links: [
+            { text: '打開 flowsker.com', href: 'https://flowsker.com/' }
+        ]
+    },
     resume: {
         title: 'Resume',
         role: 'Senior Front-End Developer',
@@ -35,6 +47,7 @@ export const launchpads = {
 
 /** 大卡底下一排小的入口（舊首頁那排按鈕剩下的） */
 export const moreLinks: { text: string; href: string }[] = [
+    { text: 'Timeline', href: '/timeline.html' },
     { text: 'VitePress 三十天', href: '/article/code-sea/vitepress/2024鐵人賽/day01-preface.html' },
     { text: 'Design system', href: '/design-system.html' },
     { text: 'Tags', href: '/tags-list.html' }

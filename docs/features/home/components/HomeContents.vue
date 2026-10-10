@@ -4,7 +4,7 @@
     import { categoryHue, categoryLabel, hueVar } from '@shared/utils/spectrum';
     import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
     import { BLOG_INTRO, BLOG_MOTTO, BLOG_NAME, LATEST_COUNT, launchpads, moreLinks, nameParts, PHILOSOPHY_URL } from '../constants';
-    import { chapters, postsInCategories, seriesOf, yearlyCounts } from '../contents';
+    import { chapters, postsInCategories, seriesOf } from '../contents';
     import { INTRO, introState } from '../intro';
     import { buildRays, rayFor } from '../prism';
     import { vSpotlight } from '../spotlight';
@@ -15,7 +15,7 @@
     // 首頁（2026-10「稜鏡」翻新，第三版 2026-10-06）。使用者：首頁可以放開來，多一點動態、互動、特效，不用像讀文章時那麼拘謹。
     // - 開場（HomeIntro＋這裡＋LightStage，約 7.3 秒，故事見 intro.ts）：LOGO、名字、Slogan → 收成一個光點 → 光點飛過來綻開成 O →
     //   白光從天上射進 O → 一道道落到分類 → 最近在忙的、文章依序出現
-    // - 定格：左邊「最近在忙的」三張大卡；右邊玻璃 O，光從畫面上方射進來（LightStage 是蓋在上半部的畫布）
+    // - 定格：左邊「最近在忙的」三張大卡（DinDon、Flowsker、Resume）；右邊玻璃 O，光從畫面上方射進來（LightStage 是蓋在上半部的畫布）
     // - 光往下落在文章區的分隔線上（標題與卡片之間），每一道對準一個分類標籤；標籤集中在 O 的下方，光自然地散開、不硬鋪滿整個寬
     //   （使用者：「光束從天上下來、透過圓玻璃、連結到下方文章區塊應該更合理」；後來：「不要極光背景，分隔線回到文字與卡片之間，光線不用特地鋪平」）
     // - 卡片樣式統一，只換顏色（那一類的光的顏色）；滑過卡片那道光亮，滑過光或標籤那一類的卡片亮
@@ -85,11 +85,6 @@
     onBeforeUnmount(release);
     // #endregion
 
-    // #region [P] Timeline 卡片：每年寫幾篇
-    const years = computed(() => yearlyCounts(posts.value));
-    const yearMax = computed(() => Math.max(1, ...years.value.map(y => y.count)));
-    // #endregion
-
     // #region [P] 名字那一段：捲到才亮（沒有 JS、關閉動態時一開始就亮著）
     const aboutRef = ref<HTMLElement>();
     const lit = ref(true);
@@ -142,18 +137,21 @@
                         </span>
                         <img class="op-pad__screen" :src="launchpads.dindon.screen" alt="" loading="lazy" width="240" height="520" />
                     </a>
-                    <a v-spotlight class="op-pad op-pad--timeline" :href="launchpads.timeline.href" style="--i: 1">
-                        <span class="op-pad__title">{{ launchpads.timeline.title }}</span>
-                        <span class="op-pad__text">
-                            寫了 {{ counts?.published ?? posts.length }} 篇<template v-if="counts">，坑裡還有 {{ counts.unpublished }} 篇</template>。
+                    <!-- Flowsker（2026-10-11 取代 Timeline 那張）：看板截圖從右下角探出來，沙堆在游標進來時堆高 -->
+                    <a v-spotlight class="op-pad op-pad--flowsker" :href="launchpads.flowsker.href" style="--i: 1">
+                        <span class="op-pad__head">
+                            <img :src="launchpads.flowsker.icon" alt="" width="40" height="40" />
+                            <span class="op-pad__status op-pad__status--live"><span class="pulse" aria-hidden="true" />{{ launchpads.flowsker.status }}</span>
                         </span>
-                        <span class="op-pad__bars" aria-hidden="true">
-                            <span v-for="y in years" :key="y.year" class="bar" :style="{ '--h': y.count / yearMax }">
-                                <span class="fill" />
-                                <span class="n">{{ y.count || '' }}</span>
-                                <span class="year">{{ y.year.slice(2) }}</span>
-                            </span>
+                        <span class="op-pad__title">{{ launchpads.flowsker.title }}</span>
+                        <span class="op-pad__text">{{ launchpads.flowsker.text }}</span>
+                        <span class="op-pad__chips op-pad__chips--flow">
+                            <span v-for="(feature, index) in launchpads.flowsker.features" :key="feature" :style="{ '--c': index }">{{ feature }}</span>
                         </span>
+                        <svg class="op-pad__sand" viewBox="0 0 64 64" aria-hidden="true">
+                            <circle class="ring" cx="32" cy="32" r="27" />
+                            <polygon class="pile" points="32,24 16,52 48,52" />
+                        </svg>
                     </a>
                     <a v-spotlight class="op-pad op-pad--resume" :href="launchpads.resume.href" style="--i: 2">
                         <span class="op-pad__head">
@@ -164,10 +162,13 @@
                         <span class="op-pad__text">{{ launchpads.resume.text }}</span>
                     </a>
                 </div>
-                <!-- 卡片整張是連結，裡面不能再放連結：DinDon 的兩個子頁放在卡片外 -->
+                <!-- 卡片整張是連結，裡面不能再放連結：DinDon 的兩個子頁、Flowsker 的產品網址放在卡片外 -->
                 <p class="op-home__sublinks op-home__appear">
                     DinDon 記帳還有
                     <a v-for="link in launchpads.dindon.links" :key="link.href" :href="link.href">{{ link.text }}</a>
+                    <span class="sep" aria-hidden="true">·</span>
+                    Flowsker
+                    <a v-for="link in launchpads.flowsker.links" :key="link.href" :href="link.href">{{ link.text }}</a>
                 </p>
             </section>
 
@@ -529,6 +530,7 @@
             color: var(--vp-c-text-2);
             font-size: var(--font-size-s);
 
+            .sep { opacity: .5; }
             a {
                 color: var(--op-amber-ink);
                 font-weight: 700;
@@ -540,7 +542,7 @@
 
         // #endregion
 
-        // #region [P] 最近在忙的：DinDon 一張橫的，Timeline、Resume 並排在下面
+        // #region [P] 最近在忙的：DinDon 一張橫的，Flowsker、Resume 並排在下面（2026-10-11 Flowsker 取代 Timeline）
         &__pads {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -974,49 +976,42 @@
             @include setRWD(768px) { transform: translateX(50%) translateY(-8%) rotate(-3deg); }
         }
 
-        // Timeline：一年份的小長條
-        &--timeline { --pad-hue: var(--pr-violet); }
+        // Flowsker：藍色的光；右下角一圈刻度裡一堆沙，游標進來時沙堆堆高（只動 transform）
+        &--flowsker { --pad-hue: var(--pr-flow); }
+        &__status--live {
+            background: color-mix(in srgb, var(--pr-flow) 14%, transparent);
+            color: var(--pr-flow-ink);
 
-        // 每年一根：高度是篇數，上面寫數字、底下寫年份；游標進來時長高一點
-        &__bars {
-            @include setFlex(flex-start, flex-end, 8px);
-            width: 100%;
-            height: 48px;
-            margin: auto 0 16px;
+            .pulse,
+            .pulse::after { background: var(--pr-flow); }
+        }
+        &--flowsker:hover &__status .pulse::after { animation: op-pad-pulse 2s ease-out infinite; }
+        &__sand {
+            position: absolute;
+            right: -14px;
+            bottom: -18px;
+            width: 128px;
+            height: 128px;
+            pointer-events: none;
 
-            .bar {
-                position: relative;
-                @include setFlex(flex-end, center, 4px, column);
-                flex: 1;
-                height: 100%;
+            .ring {
+                fill: none;
+                stroke: var(--pr-flow);
+                stroke-dasharray: 1.5 7;
+                stroke-width: 1.5;
+                opacity: .5;
             }
-            .fill {
-                background: linear-gradient(to top, var(--pr-violet), var(--pr-amber));
-                width: 100%;
-                height: calc(4% + var(--h) * 96%);
-                border-radius: 4px 4px 2px 2px;
-                transform: scaleY(.92);
-                transform-origin: bottom;
-                transition: opacity .25s, transform .45s var(--cubic-SiRo);
-                opacity: .45;
-            }
-            .n {
-                order: -1;
-                color: var(--vp-c-text-2);
-                font-family: var(--vp-font-family-mono);
-                font-size: 11px;
-            }
-            .year {
-                position: absolute;
-                bottom: -18px;
-                color: var(--vp-c-text-3);
-                font-family: var(--vp-font-family-mono);
-                font-size: 11px;
+            .pile {
+                fill: var(--pr-flow);
+                transform: scale(.45);
+                transform-origin: 32px 52px;
+                transition: transform .5s var(--cubic-SiRo), opacity .3s;
+                opacity: .55;
             }
         }
-        &--timeline:hover &__bars .fill {
+        &--flowsker:hover &__sand .pile {
             transform: none;
-            opacity: .95;
+            opacity: .9;
         }
 
         // DinDon 的功能小標籤：游標進來時一個接一個亮
@@ -1039,6 +1034,14 @@
             border-color: color-mix(in srgb, var(--pr-amber) 70%, transparent);
             color: var(--vp-c-text-1);
         }
+        &__chips--flow span {
+            background: color-mix(in srgb, var(--pr-flow) 10%, transparent);
+            border-color: color-mix(in srgb, var(--pr-flow) 25%, transparent);
+        }
+        &--flowsker:hover &__chips span {
+            border-color: color-mix(in srgb, var(--pr-flow) 70%, transparent);
+            color: var(--vp-c-text-1);
+        }
 
         // Resume
         &--resume { --pad-hue: var(--pr-coral); }
@@ -1057,7 +1060,7 @@
             transition: none;
 
             &__screen,
-            &__bars .fill,
+            &__sand .pile,
             &__chips span { transition: none; }
             &__status .pulse::after { animation: none; }
         }

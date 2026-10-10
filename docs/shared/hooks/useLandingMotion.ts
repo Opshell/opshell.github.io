@@ -2,7 +2,7 @@ import type { Ref } from 'vue';
 import { onBeforeUnmount, onMounted } from 'vue';
 
 /**
- * 宣傳頁的捲動進場與視差。
+ * 宣傳頁的捲動進場與視差（叮咚與 Flowsker 的介紹頁共用，2026-10-11 從 features/dindon/hooks 搬來）。
  *
  * - `data-reveal`：進入畫面時加上 `is-visible`（值是 `right` 時改成從右側滑入，樣式在元件裡）
  * - `data-parallax="速度"`：正數比捲動慢（遠景），負數比捲動快（近景）

@@ -56,10 +56,13 @@ export default [
                         text: '3D Galaxy Posts（beta）',
                         link: '/galaxy-posts'
                     },
-                    // [+] Flosker：頁面還沒做，做好再放回來（/flosker）
                     {
                         text: 'DinDon 記帳',
                         link: '/dindon/' // 頁面是 dindon/index.md，沒開 cleanUrls，少了結尾斜線會 404
+                    },
+                    {
+                        text: 'Flowsker 反向番茄鐘',
+                        link: '/flowsker/'
                     }
                 ]
             },
@@ -93,6 +96,24 @@ export default [
             {
                 text: '刪除資料與帳號',
                 link: '/dindon/account/'
+            }
+        ]
+    },
+    {
+        // Flowsker（flowsker.com）自己一個大項，跟叮咚一樣：介紹頁在這裡，產品本身在外面
+        text: 'Flowsker',
+        items: [
+            {
+                text: '關於 Flowsker',
+                link: '/flowsker/'
+            },
+            {
+                text: '打開 Flowsker',
+                link: 'https://flowsker.com/'
+            },
+            {
+                text: '隱私權政策',
+                link: 'https://flowsker.com/privacy'
             }
         ]
     },
