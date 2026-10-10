@@ -179,17 +179,19 @@
     --pr-magenta: #D6409F;
     --pr-violet: #BD34FE;        // = --color-adorn
     --pr-indigo: #7B61FF;
+    --pr-flow: #2E6BFF;          // Flowsker 的心流藍（首頁大卡用）
+    --pr-flow-ink: #1B4FD1;
     --pr-spectrum: linear-gradient(90deg, var(--pr-amber), var(--pr-orange), var(--pr-coral), var(--pr-magenta), var(--pr-violet), var(--pr-indigo));
     --pr-brand-gradient: linear-gradient(120deg, var(--color-primary-1) 30%, var(--color-adorn) 80%);
 }
 
 // 淺色模式的品牌橘加深一階：原本的 #dc8419 當字在白底只有 2.9 : 1，這個 4.6 : 1（深色模式不變）
-:root:not(.dark):not(:has(.dindon-page, .dindon-privacy, .dindon-account, .dindon-dashboard)) {
+:root:not(.dark):not(:has(.dindon-page, .dindon-privacy, .dindon-account, .dindon-dashboard, .flowsker-page)) {
     --vp-c-brand-1: #B4600A;
 }
 
-// 夜空：只調部落格。叮咚的四個公開頁與後台有自己的配色，不套
-.dark:not(:has(.dindon-page, .dindon-privacy, .dindon-account, .dindon-dashboard)) {
+// 夜空：只調部落格。叮咚的四個公開頁與後台、Flowsker 的介紹頁有自己的配色，不套
+.dark:not(:has(.dindon-page, .dindon-privacy, .dindon-account, .dindon-dashboard, .flowsker-page)) {
     --vp-c-bg: #17151E;
     --vp-c-bg-alt: #121018;
     --vp-c-bg-soft: #1E1B28;

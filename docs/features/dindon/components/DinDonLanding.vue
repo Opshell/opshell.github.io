@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import { useLandingMotion } from '@shared/hooks/useLandingMotion';
     import { ref } from 'vue';
     import {
         ACCOUNT_PATH,
@@ -15,7 +16,6 @@
         SIGNUP_HREF,
         withoutNotice
     } from '../constants';
-    import { useLandingMotion } from '../hooks/useLandingMotion';
     import BetaJoinGuide from './BetaJoinGuide.vue';
     import DinDonBell from './DinDonBell.vue';
     import PromoStory from './PromoStory.vue';
