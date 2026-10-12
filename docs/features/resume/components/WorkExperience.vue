@@ -34,7 +34,19 @@
                     {{ work.period }}
                     <span class="work__duration">{{ duration }}</span>
                 </span>
-                <span class="work__location">
+                <!-- 產品給連結、公司給地點；連結要 stop，不然會順便收合 -->
+                <a
+                    v-if="work.link"
+                    class="work__link"
+                    :href="work.link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    @click.stop
+                >
+                    <ElSvgIcon name="link" />
+                    {{ work.linkText ?? work.link }}
+                </a>
+                <span v-else-if="work.location" class="work__location">
                     <ElSvgIcon name="location_on" />
                     {{ work.location }}
                 </span>
@@ -127,7 +139,8 @@
             margin-left: 4px;
             color: var(--vp-c-text-3);
         }
-        &__location {
+        &__location,
+        &__link {
             @include setFlex(flex-start, center, 2px);
             color: var(--vp-c-text-3);
 
@@ -135,6 +148,12 @@
                 @include setSize(14px, 14px);
                 padding: 0;
             }
+        }
+        &__link {
+            text-decoration: none;
+            transition: color .2s var(--cubic-FiSo);
+
+            &:hover { color: var(--vp-c-brand-1); }
         }
         &__toggle {
             grid-area: toggle;

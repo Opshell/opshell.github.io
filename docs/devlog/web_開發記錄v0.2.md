@@ -783,3 +783,27 @@
 - 驗證：`pnpm check` 全過（177 個測試）；headless Edge 截圖看過 Flowsker 頁的淺色、深色、桌面、手機與首頁（手機要用 CDP 設 414 寬，`--window-size` 有最小寬度會把右邊切掉）。
   preview 伺服器重建後要重啟，不然 JS 是舊的（又踩一次）。
 - 分支 `feat/flowsker-page`（worktree `../opshell-flowsker`），併進本機 main，等使用者說 push。
+
+# 2026-10-12：履歷頁改版（照 docs/pages/履歷/ 兩份新稿）、成大任職到 10/01
+
+> Hi 你是網頁小精靈 我在/docs/pages 下面新增了履歷 目錄 裡面有兩個檔案
+> 思考一下看看有沒有問題 沒有的話 把部落格的履歷做修正
+> 在國立成功大學的工作 只任職到10/01
+> 那我現在可以算是個人開發者嗎?
+
+### 回答
+
+- **兩份稿子的問題**：
+  - 放在 `docs/pages/` 底下，VitePress 會把它們建成公開頁面（`/履歷/履歷_2026-10`、`/履歷/調整說明_2026-10`）。調整說明是給自己看的（Cake 怎麼改、刻意不寫的事），不該上線。目前兩個檔沒進版控所以沒事，建議搬到 `docs/devlog/`（已在 `srcExclude`）或留著不追蹤。
+  - 數字核對：公開文章 72 篇 ✓、翻新約 260 個 commit ✓（263）、字型 108 片 ✓、Play 審查 2026-09-25 ✓、Flowsker 10-10 開工 10-12 上線 ✓。
+    「450 個以上單元測試」偏低，Android 的 `@Test` 現在有 845 個，改寫「800 個以上」；「22 組 API」偏低，`api.md` 不重複的 method＋路徑有 83 個，改寫「80 個以上端點」；「一個月 90 張單」改「近百張單」（編號到 #0098）。
+  - 「叮咚 2026.08 –」：Android 倉庫第一個 commit 是 2026-09-06、工作區 09-21。如果 8 月只是構想期，期間照稿子寫 2026.08；要更保守就改 2026.09。先照稿子。
+  - 「2026 鐵人賽預定題目」：鐵人賽在 9～10 月，2026 這屆已經在跑了，改成「下一屆鐵人賽」。
+  - 學歷佔位沒放上網頁，等使用者給。
+- **改法**（`feat/resume-2026-10`，worktree `../opshell-resume`）：
+  - `workExperience.data.ts`：成大改 `2023.09 - 2026.10`；頂上加「獨立開發者 Independent Developer，2026.10 - Now」，是目前的身分（`is-current` 的高亮移到這格）。
+  - 新增 `projects.data.ts`：三個產品（Flowsker、叮咚記帳、部落格翻新）沿用 `Work` 介面與 `<WorkExperience>`；介面多了 `link`／`linkText`、`location` 改成選填，元件右上角有連結就顯示連結（`@click.stop`，不然會順便收合），沒有才顯示地點。
+  - `resume.md`：副標改「帶著 AI 團隊交付產品的全端工程師」；About 用「一句話」；新增「三件最值得問我的事」；「Projects」一節放在工作經歷前面；工作經歷條列換成新稿（百分比全拿掉，留可數的）；新增「Writing & Community」。
+    技能表改成七組（Front-End · 10y、Back-End、Mobile · 2026、Cloud & Deploy、Integration、AI Collaboration、Tools），拿掉 Quasar 與 JIRA／Trello；Go、Kotlin 等沒有彩色 icon，純文字加顏色。
+- **個人開發者**：可以。10/01 起沒有雇主，而且有兩個以自己名義上線的產品（叮咚記帳在 Play 封測、Flowsker 已上線），這就是獨立開發者（independent／indie developer）的定義；履歷頂上那格就是這樣寫的。
+- 驗證：`pnpm check` 全過；headless Edge（CDP 設寬度）截 `/resume/` 桌面淺色、深色、手機 414 寬，三種都看過。
