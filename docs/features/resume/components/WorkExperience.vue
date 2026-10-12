@@ -30,13 +30,13 @@
                 <p class="work__job">{{ work.jobTitle }}</p>
             </div>
             <div class="work__meta">
-                <span class="work__period">
-                    {{ work.period }}
-                    <span class="work__duration">{{ duration }}</span>
+                <span v-if="work.location" class="work__location">
+                    <ElSvgIcon name="location_on" />
+                    {{ work.location }}
                 </span>
                 <!-- 產品給連結、公司給地點；連結要 stop，不然會順便收合 -->
                 <a
-                    v-if="work.link"
+                    v-else-if="work.link"
                     class="work__link"
                     :href="work.link"
                     target="_blank"
@@ -46,9 +46,9 @@
                     <ElSvgIcon name="link" />
                     {{ work.linkText ?? work.link }}
                 </a>
-                <span v-else-if="work.location" class="work__location">
-                    <ElSvgIcon name="location_on" />
-                    {{ work.location }}
+                <span class="work__period">
+                    {{ work.period }}
+                    <span class="work__duration">{{ duration }}</span>
                 </span>
             </div>
             <ElSvgIcon class="work__toggle" :name="isOpen ? 'zoom_in_map' : 'zoom_out_map'" :title="isOpen ? '收合' : '展開'" />
@@ -61,7 +61,7 @@
 </template>
 
 <style lang="scss">
-    .work {
+    .vp-doc .work {
         --work-logo: 56px;
         position: relative;
         padding: 1.25rem 0 1.5rem;

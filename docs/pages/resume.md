@@ -95,13 +95,13 @@ const allOpen = ref(true);
 ## About
 
 十年前端為主的全端工程師，擅長把混亂的專案收斂成所有人都能接手的架構。
-2026 年起把同一套方法用在 AI 上：一個人帶三到四個 Claude Code 代理分工，兩個月內讓一款 Android App 進入 Google Play 封測、三天讓第二個產品 Flowsker 上線。
+2026 年起把同一套方法用在 AI 上，重新規劃 AI 時代的開發流程：一個人帶多個 AI Agent 分工，一個月內讓一款 Android App 從開專案走到 Google Play 封測，第二個產品 Flowsker 一天立起骨架、三天上線。
 
 ## 三件最值得問我的事
 
-- **叮咚記帳**：從零獨立完成 Android App（Kotlin／Compose）、Go 後端、官網與後台，2026-09 通過 Google Play 封閉測試審查，付費方案與 Play Billing 已接好。
-- **Flowsker**：反向番茄鐘，Vue 3 ＋ Go，自己做 Google 登入與 Calendar 授權；AI 代理能用權杖直接開任務給我，網站上有「AI 辦公室」看它們在做什麼。2026-10-10 開工、10-12 上線。
-- **多代理開發流程**：工作區分層的 `CLAUDE.md`、一件事一張單的溝通板（叮咚一個月近百張單）、各倉庫的專案 skill、API 文件當唯一介面、開發記錄保留原話。這套流程讓第二個產品一天就立起骨架。
+- **叮咚記帳**：為什麼進記帳 App 這個血流成河的賽道？差異在「零操作」：付款通知一跳，帳就記好。從零獨立完成 Android App（Kotlin／Compose）、Go 後端、官網與後台，2026-09 通過 Google Play 封閉測試審查，付費方案與 Play Billing 已接好。
+- **Flowsker**：給人與 AI 團隊用的專注力工具。反向番茄鐘，Vue 3 ＋ Go，自己做 Google 登入與 Calendar 授權；AI 代理拿一把有範圍的權杖，就能把「要你親手做的事」開成任務給你，網站上有「AI 辦公室」看它們在做什麼。2026-10-10 開工、10-12 上線。
+- **多代理開發流程**：讓 AI 的產出可見、可控、可重複的一套方法。工作區分層的 `CLAUDE.md`、一件事一張單的溝通板（叮咚三週近百張單）、各倉庫的專案 skill、API 文件當唯一介面、檢查過才 commit、開發記錄保留原話。這套流程讓第二個產品一天就立起骨架。
 
 <section class="resume__works">
 
@@ -113,12 +113,13 @@ const allOpen = ref(true);
 
 <WorkExperience :work="projects[0]" :open="allOpen">
 
-專注到想停為止，休息按比例給；每一段心流記在任務上並寫進 Google Calendar。給 AI 代理一把權杖，它們就能把「要你親手做的事」開成任務。
+AI 代理接走了大部分的手工，工程師剩下的是源源不絕的決策與待辦，注意力反而更碎。
+Flowsker 把這些收成一條線：專注到想停為止，休息按比例給；AI 代理把「要你親手做的事」開成任務排進來，每一段心流記在任務上並寫進 Google Calendar。不是一個人的番茄鐘，是整個團隊的心流。
 
 - **前端**：Vue 3、Vite、TypeScript、SCSS、Pinia、Zod 4、TanStack Query；FSD 目錄；畫面深淺不靠開關，跟著計時器以 `color-mix` 連續過渡。
 - **後端**：Go／Gin，Cloud Run。自己實作 Google OAuth（登入與 Calendar 授權同一次同意）、自簽 session、refresh token 加密存放、資料庫閃斷回 503 不登出使用者、記憶體兩層限流。
 - **給 AI 用的 API**：個人存取權杖只存雜湊、帶範圍；不認得的欄位回 400、權杖越權回 403；溝通串、認領用條件式更新防多個代理搶單。
-- **AI 辦公室**：本機收集程式讀 Claude Code 的 statusLine、hooks 與對話紀錄的用量數字，回報各代理的狀態、花費、額度與 commit；只送數字與遮過機密的摘要，不送對話內容。
+- **AI 辦公室**：人與 AI 團隊共用的工作現場。用 Claude Code 的 Mods（hooks、statusLine）掛進去，各代理在做什麼、花多少、額度剩多少一目了然，隨時介入；只送數字與遮過機密的摘要，不送對話內容。
 - 從叮咚後端抽出骨架（設定、migration、限流、測試 helper），第二個產品一天立起來；10-10 開工、10-12 上線；將以 AGPL-3.0 開源。
 
 </WorkExperience>
@@ -126,22 +127,12 @@ const allOpen = ref(true);
 <WorkExperience :work="projects[1]" :open="allOpen">
 
 付款通知一跳，帳就記好。台灣的「無腦全自動記帳」App：攔截銀行與行動支付推播自動入帳，拍收據、說一句話、截帳單都能記，帳目只存在手機上。
+原則只有一句：懶、無腦，但有小精靈幫忙。
 
 - **App**：Kotlin、Jetpack Compose、Room、Navigation Compose；domain → data → ui 三層，MVVM 加 StateFlow；**800 個以上**單元測試。
 - **後端**：Go／Gin／GORM，Cloud Run ＋ Neon Postgres。App 不帶任何 AI 金鑰，所有 Gemini 呼叫經後端轉送並設每日成本上限；裝置 key 只存雜湊；**80 個以上**端點含訂閱驗證、活動、公告、後台。
 - **官網與後台**：VitePress 宣傳頁、封測報名、隱私權政策由 App 原稿產生、Google Play 要求的自助刪帳號頁、管理後台（裝置、回報、版本、公告）。
 - **上架與營運**：2026-09-25 通過 Google Play 封閉測試審查，封測活動（排行榜、打卡、回報）；四階方案與 Play Billing 後端完成；隱私權政策逐條對過程式碼，過程中修掉三個與說法不符的資料保存行為。
-
-</WorkExperience>
-
-<WorkExperience :work="projects[2]" :open="allOpen">
-
-**72 篇**公開文章，兩屆鐵人賽完賽系列。2026 年 9 月起翻新，約 **260 個** commit。
-
-- 首頁開場動畫改畫在 canvas，主執行緒負擔少八成；Noto Sans TC 切成 **108 片**依 `unicode-range` 載入，每頁字型從 11 MB 降到 0.3～1.7 MB。
-- Markdown 語法圖鑑（左寫法右呈現）、3D Galaxy 文章星圖（three.js）、攝影集放 Cloudflare R2、草稿模式、瀏覽計數接自家後端。
-- 修掉文章頁 SSR 輸出空殼的問題（搜尋引擎原本抓到空頁）；CI 跑 lint → stylelint → typecheck → test → build 才部署。
-- 《前端開發規範》v5 公開在部落格，同一份規範以 skill 形式套用在三個專案。
 
 </WorkExperience>
 
@@ -159,8 +150,8 @@ const allOpen = ref(true);
 
 <WorkExperience :work="works[0]" :open="allOpen">
 
-- 全職做自己的產品：叮咚記帳（Android ＋ Go）、Flowsker（Vue ＋ Go），兩個都已上線（見上）。
-- 一個人帶三到四個 Claude Code 代理分工，流程可重複：工作區分層的 `CLAUDE.md`、一件事一張單的溝通板、各倉庫的 skill、API 文件當唯一介面、開發記錄保留原話。
+- 全職做自己的產品：叮咚記帳（Android ＋ Go）、Flowsker（Vue ＋ Go），兩個都已上線（見上）；用它們重新規劃 AI 時代的開發流程。
+- 一個人帶多個 AI Agent 分工，重點是讓產出穩定：每個代理只改自己的倉庫、介面只認 API 文件、檢查過才能 commit、UI 要在畫面上看過才算完成、每個決定留原話。流程可見、可控、可複製，第二個產品直接套用。
 
 </WorkExperience>
 

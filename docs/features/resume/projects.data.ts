@@ -12,7 +12,7 @@ export default defineLoader({
             {
                 logo: '/images/flowsker/icon.svg',
                 company: 'Flowsker',
-                companyAlt: 'Flowmodoro 任務與專注力管理器',
+                companyAlt: 'Flowmodoro 任務、專注力與 AI 工作流的管理器',
                 jobTitle: 'Vue 3 ＋ Go・自己做 Google 登入與 Calendar 授權',
                 period: '2026.10 - Now',
                 link: 'https://flowsker.com',
@@ -26,15 +26,6 @@ export default defineLoader({
                 period: '2026.08 - Now',
                 link: '/dindon/',
                 linkText: 'opshell.me/dindon'
-            },
-            {
-                logo: '/logo.jpg',
-                company: '部落格翻新',
-                companyAlt: 'opshell.me',
-                jobTitle: 'VitePress 1.6 ＋ Vue 3.5 的技術部落格',
-                period: '2026.09 - Now',
-                link: '/',
-                linkText: 'opshell.me'
             }
         ];
     }
