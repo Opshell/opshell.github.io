@@ -28,6 +28,7 @@ import {
     GetFeedbackIssueListParser,
     GetFeedbackListParser,
     GetFeedbackParser,
+    GetFeedbackReportersParser,
     GetFeedbackStatsParser,
     GetPromoCodeListParser,
     GetPromoCodeParser,
@@ -48,6 +49,7 @@ import {
     TriageFeedbackPayload,
     UpdateDeviceParser,
     UpdateDevicePayload,
+    UpdateFeedbackIssueParser,
     UpdateFeedbackIssuePayload
 } from './schemas/admin.schema';
 
@@ -60,6 +62,10 @@ export type FeedbackFilter = 'all' | 'pending' | 'accepted_bug' | 'accepted_sugg
 export type FeedbackKind = 'all' | 'bug' | 'suggestion' | 'crash';
 /** 回報來源篩選（#0068）：app 是 App 送的，line／email 是後台建的 */
 export type FeedbackSourceFilter = 'all' | 'app' | 'line' | 'email';
+/** 處理狀況篩選（Flowsker #61），跟採計的 status 分開 */
+export type FeedbackProgressFilter = 'all' | 'open' | 'in_progress' | 'done' | 'wont_do';
+/** 有沒有綁定裝置：false 是 LINE 上沒裝 App、後台給名字建的 */
+export type FeedbackBoundFilter = 'all' | 'true' | 'false';
 // #endregion
 
 export class AdminApiError extends Error {
@@ -213,11 +219,24 @@ export const adminApi = {
 
     // #region [P] 審回報
     feedbackStats: async (token: string) => call(GetFeedbackStatsParser, token, 'GET', '/v1/admin/feedback/stats'),
-    listFeedback: async (token: string, params: { status?: FeedbackFilter; kind?: FeedbackKind; source?: FeedbackSourceFilter; deviceId?: number; page?: number; perPage?: number }) => {
+    listFeedback: async (token: string, params: {
+        status?: FeedbackFilter;
+        kind?: FeedbackKind;
+        source?: FeedbackSourceFilter;
+        progress?: FeedbackProgressFilter;
+        bound?: FeedbackBoundFilter;
+        reporterName?: string;
+        deviceId?: number;
+        page?: number;
+        perPage?: number;
+    }) => {
         const query = new URLSearchParams();
         if (params.status && params.status !== 'all') query.set('status', params.status);
         if (params.kind && params.kind !== 'all') query.set('kind', params.kind);
         if (params.source && params.source !== 'all') query.set('source', params.source);
+        if (params.progress && params.progress !== 'all') query.set('progress', params.progress);
+        if (params.bound && params.bound !== 'all') query.set('bound', params.bound);
+        if (params.reporterName) query.set('reporter_name', params.reporterName);
         if (params.deviceId) query.set('device_id', String(params.deviceId));
         query.set('page', String(params.page ?? 1));
         query.set('per_page', String(params.perPage ?? 50));
@@ -244,13 +263,16 @@ export const adminApi = {
     /** 替使用者建一則回報（來源 line／email），跟 App 送的一樣審、合併、計分 */
     createFeedback: async (token: string, body: CreateFeedbackInput) =>
         call(CreateFeedbackParser, token, 'POST', '/v1/admin/feedback', CreateFeedbackPayload.parse(body)),
+    /** 現有的沒綁定名稱（Flowsker #61）：匯入時快選，避免同一個人打出兩種寫法。最近有回報的在前 */
+    listReporters: async (token: string) => call(GetFeedbackReportersParser, token, 'GET', '/v1/admin/feedback/reporters'),
     listIssues: async (token: string) => call(GetFeedbackIssueListParser, token, 'GET', '/v1/admin/feedback/issues'),
     /** 建立問題，可以同時把幾則回報掛上去——這就是「合併」。回傳新問題（含 id） */
     createIssue: async (token: string, body: CreateFeedbackIssueInput) =>
         call(CreateFeedbackIssueParser, token, 'POST', '/v1/admin/feedback/issues', CreateFeedbackIssuePayload.parse(body)),
-    // 這兩支的回應元件用不到，不解析
+    /** 改處理狀況會一併改掛在上面的回報，回傳改了幾則（reportsUpdated） */
     updateIssue: async (token: string, id: number, body: UpdateFeedbackIssueInput) =>
-        request(token, `/v1/admin/feedback/issues/${id}`, { method: 'PATCH', body: UpdateFeedbackIssuePayload.parse(body) }),
+        call(UpdateFeedbackIssueParser, token, 'PATCH', `/v1/admin/feedback/issues/${id}`, UpdateFeedbackIssuePayload.parse(body)),
+    // 回應元件用不到，不解析
     addReportsToIssue: async (token: string, id: number, reportIds: number[]) =>
         request(token, `/v1/admin/feedback/issues/${id}/reports`, { method: 'POST', body: { report_ids: reportIds } }),
     // #endregion

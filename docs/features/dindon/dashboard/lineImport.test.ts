@@ -1,6 +1,6 @@
 import type { AdminDevice, TriageItem } from './schemas/admin.schema';
 import { describe, expect, it } from 'vitest';
-import { draftFrom, draftProblem, fromTaipeiInput, guessDevice, planImport, quickPicks, rememberPick, searchDevices, toTaipeiInput } from './lineImport';
+import { draftFrom, draftProblem, fromTaipeiInput, guessDevice, matchReporters, planImport, quickPicks, rememberPick, searchDevices, toTaipeiInput } from './lineImport';
 
 function device(id: number, nickname: string | null, email: string | null = null, adminNote = ''): AdminDevice {
     return {
@@ -179,5 +179,31 @@ describe('快選人選', () => {
     it('選過的移到最前面、最多記 10 台', () => {
         expect(rememberPick([3, 2, 1], 1)).toEqual([1, 3, 2]);
         expect(rememberPick([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 11)).toHaveLength(10);
+    });
+});
+
+describe('沒有綁定的回報者（Flowsker #61）', () => {
+    const now = new Date('2026-09-29T00:00:00Z');
+    const unbound = { ...draftFrom(item(), devices), deviceId: null, reporterName: ' 阿明 ' };
+
+    it('給了名字就不用選裝置；送出的是名字（去頭尾空白）、不帶 device_id', () => {
+        expect(draftProblem(unbound, now)).toBe('');
+        const [report] = planImport([unbound], 'line').reports;
+        expect(report.payload).toMatchObject({ reporterName: '阿明' });
+        expect(report.payload).not.toHaveProperty('deviceId');
+    });
+
+    it('名稱照暱稱的規則擋：空白、太長、白老鼠開頭、零寬字元', () => {
+        expect(draftProblem({ ...unbound, reporterName: '  ' }, now)).toContain('空');
+        expect(draftProblem({ ...unbound, reporterName: '一二三四五六七八九十一二三四五六七八九十一' }, now)).toContain('20');
+        expect(draftProblem({ ...unbound, reporterName: '白老鼠 #1234' }, now)).toContain('白老鼠');
+        expect(draftProblem({ ...unbound, reporterName: '阿\u200B明' }, now)).toContain('看不見');
+    });
+
+    it('現有名稱：不分大小寫、互相包含都算；沒有搜尋字列最近的', () => {
+        const reporters = ['Amin', '小美', '阿明哥'].map(name => ({ name, reports: 1, accepted: 1, lastAt: '2026-10-01T00:00:00Z' }));
+        expect(matchReporters('amin', reporters).map(r => r.name)).toEqual(['Amin']);
+        expect(matchReporters('阿明', reporters).map(r => r.name)).toEqual(['阿明哥']);
+        expect(matchReporters('', reporters, 2).map(r => r.name)).toEqual(['Amin', '小美']);
     });
 });

@@ -19,6 +19,28 @@ export const PromoPlanTierSchema = z.enum(['', 'lite', 'pro', 'max']);
 export const FeedbackStatusSchema = z.enum(['pending', 'accepted_bug', 'accepted_suggestion', 'rejected']);
 export type FeedbackStatus = z.infer<typeof FeedbackStatusSchema>;
 
+/**
+ * 處理狀況（api.md 第 8 節「處理狀況與沒有綁定的回報者」，Flowsker #61）：處理到哪了，跟 status（採不採計、決定分數）分開。
+ * 採計的 bug 可能還沒修，不採計的建議也可能照樣做了
+ */
+export const FeedbackProgressSchema = z.enum(['open', 'in_progress', 'done', 'wont_do']);
+export type FeedbackProgress = z.infer<typeof FeedbackProgressSchema>;
+
+/** 修在哪一版：英數開頭，只能有英數、點、加號、減號，最多 20 字（後端同一條規則，前端先擋） */
+export const FIXED_IN_PATTERN = /^[A-Z0-9][A-Z0-9.+-]{0,19}$/i;
+
+/** 沒綁定的回報者名稱，規則比照暱稱：1～20 字、不能有換行與控制字元（含零寬字元）、不能用「白老鼠」開頭 */
+export const REPORTER_NAME_MAX = 20;
+export function reporterNameProblem(name: string): string {
+    const trimmed = name.trim();
+    if (!trimmed) return '名稱是空的';
+    if ([...trimmed].length > REPORTER_NAME_MAX) return `名稱最多 ${REPORTER_NAME_MAX} 字`;
+    if (/\p{C}/u.test(trimmed)) return '名稱不能有換行或看不見的字元';
+    // 「白老鼠 #編號」是 App 給沒設暱稱的人的名字，用它開頭會跟排行榜上的人混在一起
+    if (trimmed.startsWith('白老鼠')) return '名稱不能用「白老鼠」開頭';
+    return '';
+}
+
 /** crash 是 App 當掉後自動產生、使用者按了才送的（溝通板 #39） */
 export const FeedbackReportKindSchema = z.enum(['bug', 'suggestion', 'crash']);
 
@@ -463,8 +485,13 @@ export type FeedbackSource = z.infer<typeof FeedbackSourceSchema>;
 
 export const FeedbackReportSchema = z.object({
     id: z.number().int(),
+    /** 沒綁定裝置的回報者是 0，這時 deviceName 就是 reporterName */
     deviceId: z.number().int(),
     deviceName: z.string(),
+    /** 沒綁定裝置的回報者（LINE 上沒裝 App 的人）；有綁定是 null */
+    reporterName: z.string().nullable(),
+    progress: FeedbackProgressSchema,
+    fixedIn: z.string().nullable(),
     kind: FeedbackReportKindSchema,
     source: FeedbackSourceSchema,
     status: FeedbackStatusSchema,
@@ -501,6 +528,10 @@ const FeedbackReportParser = z
         android_version: z.string(),
         screenshots: z.array(z.number()).nullish(),
         issue_id: z.number().nullish(),
+        // 這三個 2026-10-14 起才有（Flowsker #61）；舊後端當成「還沒處理、有綁定」
+        progress: FeedbackProgressSchema.nullish(),
+        fixed_in: z.string().nullish(),
+        reporter_name: z.string().nullish(),
         reviewed_by: z.string().nullish(),
         reviewed_at: z.string().nullish(),
         content_purged_at: z.string().nullish(),
@@ -512,6 +543,9 @@ const FeedbackReportParser = z
         source: data.source ?? 'app',
         screenshots: data.screenshots ?? [],
         issue_id: data.issue_id ?? null,
+        progress: data.progress ?? 'open',
+        fixed_in: data.fixed_in || null,
+        reporter_name: data.reporter_name || null,
         reviewed_by: data.reviewed_by ?? null,
         reviewed_at: data.reviewed_at ?? null,
         content_purged_at: data.content_purged_at ?? null
@@ -533,8 +567,16 @@ export type FeedbackList = z.output<typeof GetFeedbackListParser>;
 
 export const GetFeedbackParser = z.object({ report: FeedbackReportParser }).transform(data => data.report);
 
+/** 都選填、至少給一個。fixedIn 給 null 是清掉；deviceId 與 reporterName 擇一（改綁到裝置／改成沒有綁定，只有 LINE／信件建的能改） */
 export const ReviewFeedbackPayload = z
-    .object({ status: FeedbackStatusSchema, issueId: z.number().int().nullable() })
+    .object({
+        status: FeedbackStatusSchema,
+        issueId: z.number().int().nullable(),
+        progress: FeedbackProgressSchema,
+        fixedIn: z.string().nullable(),
+        deviceId: z.number().int().positive(),
+        reporterName: z.string()
+    })
     .partial()
     .transform(camelToSnake);
 
@@ -544,10 +586,18 @@ export type ReviewFeedbackInput = z.input<typeof ReviewFeedbackPayload>;
 
 // #region [P] 批次審 POST /v1/admin/feedback/batch
 
-/** `reportIds` 與 `deviceId` 擇一（溝通板 #0053） */
+/**
+ * `reportIds` 與 `deviceId` 擇一（溝通板 #0053）。勾選的可以改採計、處理狀況或兩個一起（Flowsker #61），fixedIn 要跟 progress 一起給；
+ * 依裝置的只搭 status（「那台還在待審的」是審核的概念）
+ */
 export const BatchReviewFeedbackPayload = z
     .union([
-        z.object({ reportIds: z.array(z.number().int()).min(1), status: FeedbackStatusSchema }),
+        z.object({
+            reportIds: z.array(z.number().int()).min(1),
+            status: FeedbackStatusSchema.optional(),
+            progress: FeedbackProgressSchema.optional(),
+            fixedIn: z.string().nullable().optional()
+        }).refine(body => body.status !== undefined || body.progress !== undefined, '採計與處理狀況至少要改一個'),
         z.object({ deviceId: z.number().int(), status: FeedbackStatusSchema })
     ])
     .transform(camelToSnake);
@@ -568,7 +618,13 @@ export const GetFeedbackStatsParser = z
         per_day: nullableList(z.object({ date: z.string(), count: z.number() })),
         participants: z.number(),
         /** 採計了、還沒歸到任何問題的件數，也就是合併的待辦數量 */
-        accepted_without_issue: z.number()
+        accepted_without_issue: z.number(),
+        // 下面三個 2026-10-14 起才有（Flowsker #61）
+        by_progress: nullableRecord(z.number()).optional(),
+        /** 採計了、還沒處理的件數：修 bug、做建議的待辦 */
+        accepted_open: z.number().optional(),
+        /** 沒綁定裝置的回報者有幾位（同名算一個）；participants 不含他們 */
+        unbound_reporters: z.number().optional()
     })
     // by_status 的 key 是狀態值（accepted_bug），不能轉駝峰：手動搬欄位
     .transform(data => ({
@@ -577,8 +633,31 @@ export const GetFeedbackStatsParser = z
         byKind: data.by_kind,
         perDay: data.per_day,
         participants: data.participants,
-        acceptedWithoutIssue: data.accepted_without_issue
+        acceptedWithoutIssue: data.accepted_without_issue,
+        byProgress: data.by_progress ?? {},
+        acceptedOpen: data.accepted_open ?? null,
+        unboundReporters: data.unbound_reporters ?? 0
     }));
+
+// #endregion
+
+// #region [P] 沒綁定的回報者 GET /v1/admin/feedback/reporters（Flowsker #61）
+
+export const FeedbackReporterSchema = z.object({
+    name: z.string(),
+    /** 他的回報數（含還沒審、不採計的） */
+    reports: z.number().int(),
+    /** 其中採計的；至少一則就會出現在 App 的「特別感謝」 */
+    accepted: z.number().int(),
+    lastAt: z.string()
+});
+export type FeedbackReporter = z.infer<typeof FeedbackReporterSchema>;
+
+/** 最近有回報的在前 */
+export const GetFeedbackReportersParser = z
+    .object({ reporters: nullableList(z.object({ name: z.string(), reports: z.number(), accepted: z.number(), last_at: z.string() })) })
+    .transform(data => data.reporters.map(snakeToCamel))
+    .pipe(z.array(FeedbackReporterSchema));
 
 export type FeedbackStats = z.output<typeof GetFeedbackStatsParser>;
 
@@ -593,6 +672,9 @@ export const FeedbackIssueSchema = z.object({
     note: z.string(),
     createdBy: z.string(),
     createdAt: z.string(),
+    /** 改問題的處理狀況會一併改掛在上面的回報（Flowsker #61） */
+    progress: FeedbackProgressSchema,
+    fixedIn: z.string().nullable(),
     /** 掛在這個問題上的回報數；剛建立的問題回應裡沒有，當 0 */
     reports: z.number().int(),
     /** 其中被採計的 */
@@ -608,10 +690,12 @@ const FeedbackIssueParser = z
         note: z.string(),
         created_by: z.string(),
         created_at: z.string(),
+        progress: FeedbackProgressSchema.nullish(),
+        fixed_in: z.string().nullish(),
         reports: z.number().optional(),
         accepted: z.number().optional()
     })
-    .transform(data => ({ ...data, reports: data.reports ?? 0, accepted: data.accepted ?? 0 }))
+    .transform(data => ({ ...data, progress: data.progress ?? 'open', fixed_in: data.fixed_in || null, reports: data.reports ?? 0, accepted: data.accepted ?? 0 }))
     .transform(snakeToCamel)
     .pipe(FeedbackIssueSchema);
 
@@ -622,10 +706,16 @@ export const CreateFeedbackIssuePayload = z
     .object({ title: z.string(), weight: z.number().int(), note: z.string().optional(), reportIds: z.array(z.number().int()).optional() })
     .transform(camelToSnake);
 
+/** 改 progress／fixedIn 會一併改掛在上面的全部回報，之後單則還能各自改 */
 export const UpdateFeedbackIssuePayload = z
-    .object({ title: z.string(), weight: z.number().int(), note: z.string() })
+    .object({ title: z.string(), weight: z.number().int(), note: z.string(), progress: FeedbackProgressSchema, fixedIn: z.string().nullable() })
     .partial()
     .transform(camelToSnake);
+
+/** reports_updated：跟著問題一起改了處理狀況的回報數（只改標題、權重時是 0） */
+export const UpdateFeedbackIssueParser = z
+    .object({ issue: FeedbackIssueParser, reports_updated: z.number().optional() })
+    .transform(data => ({ issue: data.issue, reportsUpdated: data.reports_updated ?? 0 }));
 
 export type CreateFeedbackIssueInput = z.input<typeof CreateFeedbackIssuePayload>;
 
@@ -699,10 +789,14 @@ export type TriageResult = z.output<typeof TriageFeedbackParser>;
 export const TriageFeedbackPayload = z.object({ text: z.string(), images: z.array(z.string()) });
 export type TriageFeedbackInput = z.input<typeof TriageFeedbackPayload>;
 
-/** 後台替使用者建一則回報。saidAt 會變成回報的 created_at：同一個問題最早那則拿全額權重 */
+/**
+ * 後台替使用者建一則回報。saidAt 會變成回報的 created_at：同一個問題最早那則拿全額權重。
+ * deviceId 與 reporterName 擇一：沒裝 App 的人給名字，不進分數、名次，採計了列進 App 的「特別感謝」（Flowsker #61）
+ */
 export const CreateFeedbackPayload = z
     .object({
-        deviceId: z.number().int().positive(),
+        deviceId: z.number().int().positive().optional(),
+        reporterName: z.string().trim().optional(),
         kind: z.enum(['bug', 'suggestion']),
         description: z.string().trim().min(1, '描述不能空白').refine(value => [...value].length <= REPORT_DESCRIPTION_MAX, `描述最多 ${REPORT_DESCRIPTION_MAX} 字`),
         source: z.enum(['line', 'email']),
@@ -710,6 +804,7 @@ export const CreateFeedbackPayload = z
         issueId: z.number().int().optional(),
         saidAt: z.string().optional()
     })
+    .refine(body => (body.deviceId === undefined) !== (body.reporterName === undefined), '裝置與沒綁定的名稱要擇一')
     .transform(camelToSnake);
 
 export type CreateFeedbackInput = z.input<typeof CreateFeedbackPayload>;

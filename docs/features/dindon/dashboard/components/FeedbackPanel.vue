@@ -1,13 +1,14 @@
 <script setup lang="ts">
-    import type { FeedbackFilter, FeedbackKind, FeedbackSourceFilter } from '../api';
+    import type { FeedbackBoundFilter, FeedbackFilter, FeedbackKind, FeedbackProgressFilter, FeedbackSourceFilter } from '../api';
     import type { BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
-    import type { FeedbackIssue, FeedbackReport, FeedbackStats, FeedbackStatus } from '../schemas/admin.schema';
+    import type { FeedbackIssue, FeedbackProgress, FeedbackReport, FeedbackReporter, FeedbackStats, FeedbackStatus } from '../schemas/admin.schema';
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { adminApi } from '../api';
     import ColumnChart from '../charts/ColumnChart.vue';
-    import { formatDateTime, formatInt, formatRelative, KIND_LABELS } from '../format';
+    import { formatDateTime, formatInt, formatRelative, KIND_LABELS, PROGRESS_LABELS, PROGRESSES } from '../format';
     import { takePanelPreset } from '../navigation';
+    import { FIXED_IN_PATTERN, reporterNameProblem } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import { usePanelReveal } from '../usePanelReveal';
     import { usePulse } from '../usePulse';
@@ -37,6 +38,13 @@
     // 來源篩選（#0068）：LINE、信件上的回報是後台替使用者建的
     const source = ref<FeedbackSourceFilter>('all');
     const SOURCE_LABELS: Record<string, string> = { app: 'App', line: 'LINE', email: '信件' };
+    // 處理狀況（Flowsker #61）：跟採計分開，採計的 bug 可能還沒修
+    const progress = ref<FeedbackProgressFilter>(takePanelPreset('feedbackProgress') ?? 'all');
+    // 沒綁定的（LINE 上沒裝 App 的人）不算分，採計了列進 App 的「特別感謝」
+    const bound = ref<FeedbackBoundFilter>('all');
+    /** 只看某一位沒綁定的人的回報；詳情裡按「只看他的」設的，工具列上可以拿掉 */
+    const reporterFilter = ref('');
+    const reporters = ref<FeedbackReporter[]>([]);
     const importing = ref(false);
     const pulse = usePulse();
 
@@ -79,7 +87,13 @@
     // #region [P] 批次審核（api.md 第 8 節 batch，溝通板 #0053）：垃圾回報一則一則審太慢
     /** 勾選的回報 id。整個 Set 換掉而不是就地改，讓 computed 一定會重算；重抓列表就清掉，免得勾到看不見的 */
     const checked = ref<Set<number>>(new Set());
-    const batchStatus = ref<FeedbackStatus>('rejected');
+    /** 批次要改的：採計（status:…）或處理狀況（progress:…），同一個選單 */
+    const batchTarget = ref<`status:${FeedbackStatus}` | `progress:${FeedbackProgress}`>('status:rejected');
+    const batchFixedIn = ref('');
+    const batchStatus = computed(() => (batchTarget.value.startsWith('status:') ? batchTarget.value.slice(7) as FeedbackStatus : null));
+    const batchProgress = computed(() => (batchTarget.value.startsWith('progress:') ? batchTarget.value.slice(9) as FeedbackProgress : null));
+    const batchLabel = computed(() => (batchStatus.value ? STATUS_LABELS[batchStatus.value] : PROGRESS_LABELS[batchProgress.value!]));
+    const batchFixedInBad = computed(() => batchFixedIn.value.trim() !== '' && !FIXED_IN_PATTERN.test(batchFixedIn.value.trim()));
     const allOnPageChecked = computed(() => reports.value.length > 0 && reports.value.every(r => checked.value.has(r.id)));
     function setChecked(ids: number[], on: boolean) {
         const next = new Set(checked.value);
@@ -94,13 +108,14 @@
     /** 正在確認「這台的待審全部不採計」的裝置 id（列表的群組列與單則側欄都會用） */
     const confirmingDevice = ref<number | null>(null);
 
-    async function batch(body: { reportIds: number[] } | { deviceId: number }, status: FeedbackStatus, label: string) {
+    type BatchBody = { reportIds: number[]; status?: FeedbackStatus; progress?: FeedbackProgress; fixedIn?: string | null } | { deviceId: number; status: FeedbackStatus };
+    async function batch(body: BatchBody, target: string, label: string) {
         busy.value = true;
         error.value = '';
         notice.value = '';
         try {
-            const { updated } = await call(token => adminApi.batchReviewFeedback(token, { ...body, status }));
-            notice.value = updated ? `${label}：${formatInt(updated)} 則改成「${STATUS_LABELS[status]}」` : `${label}：沒有要改的`;
+            const { updated } = await call(token => adminApi.batchReviewFeedback(token, body));
+            notice.value = updated ? `${label}：${formatInt(updated)} 則改成「${target}」` : `${label}：沒有要改的`;
             await load(); // 狀態變了，列表、統計、問題的件數都要重抓
             if (selectedId.value !== null && detail.value) { // 正在看的那一則可能也在裡面；截圖不會變，不用重抓
                 detail.value = await call(token => adminApi.getFeedback(token, selectedId.value!));
@@ -113,8 +128,14 @@
             confirmingDevice.value = null;
         }
     }
-    const reviewChecked = () => batch({ reportIds: [...checked.value] }, batchStatus.value, '勾選的回報');
-    const rejectDevice = (deviceId: number, name: string) => batch({ deviceId }, 'rejected', `${name} 的待審`);
+    function reviewChecked() {
+        const reportIds = [...checked.value];
+        if (batchStatus.value) return batch({ reportIds, status: batchStatus.value }, batchLabel.value, '勾選的回報');
+        // 版本沒填就不動各則原本的版本（不送 fixed_in），填了才一起改
+        const fixedIn = batchFixedIn.value.trim();
+        return batch({ reportIds, progress: batchProgress.value!, ...(fixedIn ? { fixedIn } : {}) }, `${batchLabel.value}${fixedIn ? `（${fixedIn}）` : ''}`, '勾選的回報');
+    }
+    const rejectDevice = (deviceId: number, name: string) => batch({ deviceId, status: 'rejected' }, STATUS_LABELS.rejected, `${name} 的待審`);
     /** 側欄那顆：正在看的那一則的裝置（模板裡的事件處理拿不到 detail 非 null 的收窄，所以包一層） */
     const rejectDetailDevice = () => {
         if (detail.value) rejectDevice(detail.value.deviceId, detail.value.deviceName || `#${detail.value.deviceId}`);
@@ -142,21 +163,28 @@
 
     // #region [P] 同一台裝置的回報摺起來（純前端，只看這一頁的 50 則；相似度後端沒提供，只依 device_id）
     interface Group {
+        /** 裝置是 d:id；沒綁定的 device_id 都是 0，改用名字（後端同名不分大小寫算同一個人） */
+        key: string;
+        /** 沒綁定的是 0：沒有「這台的待審」可以一次處理 */
         deviceId: number;
         name: string;
         reports: FeedbackReport[];
         pending: number;
     }
+    const groupKey = (report: FeedbackReport) => (report.reporterName !== null ? `n:${report.reporterName.toLowerCase()}` : `d:${report.deviceId}`);
+    /** 列表上誰送的：沒綁定的名字後面標一下，看得出這則不算分 */
+    const whoLabel = (report: FeedbackReport) => report.reporterName ?? (report.deviceName || `#${report.deviceId}`);
     const grouped = ref(true);
-    /** 展開的裝置 id；重抓列表就收起來 */
-    const expanded = ref<Set<number>>(new Set());
+    /** 展開的群組；重抓列表就收起來 */
+    const expanded = ref<Set<string>>(new Set());
     const groups = computed<Group[]>(() => {
-        const map = new Map<number, Group>();
+        const map = new Map<string, Group>();
         for (const report of reports.value) {
-            let group = map.get(report.deviceId);
+            const key = groupKey(report);
+            let group = map.get(key);
             if (!group) {
-                group = { deviceId: report.deviceId, name: report.deviceName || `#${report.deviceId}`, reports: [], pending: 0 };
-                map.set(report.deviceId, group);
+                group = { key, deviceId: report.reporterName !== null ? 0 : report.deviceId, name: whoLabel(report), reports: [], pending: 0 };
+                map.set(key, group);
             }
             group.reports.push(report);
             if (report.status === 'pending') group.pending++;
@@ -164,11 +192,11 @@
         return [...map.values()]; // Map 保留插入順序：第一次出現的裝置在前，跟後端「新的在前」一致
     });
     /** 只有一則的不摺：摺了反而多一次點擊 */
-    const isFolded = (group: Group) => group.reports.length > 1 && !expanded.value.has(group.deviceId);
-    function toggleExpanded(deviceId: number) {
+    const isFolded = (group: Group) => group.reports.length > 1 && !expanded.value.has(group.key);
+    function toggleExpanded(key: string) {
         const next = new Set(expanded.value);
-        if (next.has(deviceId)) next.delete(deviceId);
-        else next.add(deviceId);
+        if (next.has(key)) next.delete(key);
+        else next.add(key);
         expanded.value = next;
     }
     const groupAllChecked = (group: Group) => group.reports.every(r => checked.value.has(r.id));
@@ -179,10 +207,20 @@
         error.value = '';
         try {
             const [list, statsResult, issueList] = await call(token => Promise.all([
-                adminApi.listFeedback(token, { status: status.value, kind: kind.value, source: source.value, page: nextPage, perPage: PER_PAGE }),
+                adminApi.listFeedback(token, {
+                    status: status.value,
+                    kind: kind.value,
+                    source: source.value,
+                    progress: progress.value,
+                    bound: bound.value,
+                    reporterName: reporterFilter.value,
+                    page: nextPage,
+                    perPage: PER_PAGE
+                }),
                 adminApi.feedbackStats(token),
                 adminApi.listIssues(token)
             ]));
+            void loadReporters();
             reports.value = list.reports;
             total.value = list.total;
             page.value = list.page;
@@ -195,6 +233,21 @@
         } finally {
             loading.value = false;
         }
+    }
+
+    /** 沒綁定的名稱只是改名、標成沒綁定時的快選：抓不到（後端還沒部署 #61）不擋整頁 */
+    async function loadReporters() {
+        try {
+            reporters.value = await call(token => adminApi.listReporters(token));
+        } catch {
+            reporters.value = [];
+        }
+    }
+
+    function filterReporter(name: string) {
+        reporterFilter.value = name;
+        closeDetail();
+        void load(1);
     }
 
     // #region [P] 單則：內容、除錯日誌、截圖
@@ -265,6 +318,51 @@
     const detachIssue = () =>
         mutate(token => adminApi.reviewFeedback(token, selectedId.value!, { issueId: null }), '已從問題上拿下來');
 
+    // #region [P] 處理狀況（Flowsker #61）：不影響分數
+    const fixedInDraft = ref('');
+    const fixedInBad = computed(() => fixedInDraft.value.trim() !== '' && !FIXED_IN_PATTERN.test(fixedInDraft.value.trim()));
+    const setProgress = (next: FeedbackProgress) =>
+        mutate(token => adminApi.reviewFeedback(token, selectedId.value!, { progress: next }), `處理狀況改成「${PROGRESS_LABELS[next]}」`);
+    function saveFixedIn() {
+        const value = fixedInDraft.value.trim();
+        if (fixedInBad.value || value === (detail.value?.fixedIn ?? '')) return;
+        void mutate(token => adminApi.reviewFeedback(token, selectedId.value!, { fixedIn: value || null }), value ? `記下修在 ${value}` : '清掉修在哪一版');
+    }
+    // #endregion
+
+    // #region [P] 沒有綁定的回報者（Flowsker #61）：LINE 上沒裝 App 的人，不算分、採計了列進 App 的「特別感謝」
+    const nameDraft = ref('');
+    const nameProblem = computed(() => reporterNameProblem(nameDraft.value));
+    const bindDraft = ref('');
+    const bindId = computed(() => (/^\d+$/.test(bindDraft.value.trim()) ? Number(bindDraft.value.trim()) : null));
+    /** 改成沒有綁定，或沒綁定的改名；後端同名不分大小寫算同一個人、存第一次的寫法 */
+    function saveReporterName() {
+        if (nameProblem.value) return;
+        const name = nameDraft.value.trim();
+        const wasBound = detail.value?.reporterName === null;
+        void mutate(
+            token => adminApi.reviewFeedback(token, selectedId.value!, { reporterName: name }),
+            wasBound ? `改成沒有綁定：${name}（不算分，採計了會列進特別感謝）` : `名稱改成「${name}」`
+        ).then(loadReporters);
+    }
+    /** 他之後裝了 App：改綁到他的裝置，分數照原本的規則算進排行榜 */
+    function bindToDevice() {
+        if (bindId.value === null) return;
+        const id = bindId.value;
+        void mutate(token => adminApi.reviewFeedback(token, selectedId.value!, { deviceId: id }), `改綁到裝置 #${id}，分數照規則算進排行榜`)
+            .then(() => {
+                bindDraft.value = '';
+                return loadReporters();
+            });
+    }
+    // 換看另一則時，輸入框換成那一則現在的值
+    watch(detail, (next, prev) => {
+        if (next?.id === prev?.id && next?.fixedIn === prev?.fixedIn && next?.reporterName === prev?.reporterName) return;
+        fixedInDraft.value = next?.fixedIn ?? '';
+        nameDraft.value = next?.reporterName ?? '';
+    });
+    // #endregion
+
     /** 快速審核裡合併過：只重抓問題清單（一次 API），列表與統計等離開時再一起抓 */
     async function reloadIssues() {
         try {
@@ -298,6 +396,31 @@
             busy.value = false;
         }
     }
+
+    /**
+     * 問題的處理狀況、修在哪一版：一併改掛在上面的全部回報（同一件事通常一起修好），之後單則還能各自改。
+     * 會蓋掉各則原本的狀態，所以提示寫出改了幾則
+     */
+    async function saveIssueProgress(issue: FeedbackIssue, patch: { progress?: FeedbackProgress; fixedIn?: string | null }) {
+        if (patch.fixedIn !== undefined && patch.fixedIn !== null && !FIXED_IN_PATTERN.test(patch.fixedIn)) {
+            error.value = `「${patch.fixedIn}」不像版本號：英數開頭，只能有英數、點、加號、減號，最多 20 字`;
+            return;
+        }
+        if ((patch.progress ?? issue.progress) === issue.progress && (patch.fixedIn === undefined || patch.fixedIn === issue.fixedIn)) return;
+        busy.value = true;
+        error.value = '';
+        notice.value = '';
+        try {
+            const { reportsUpdated } = await call(token => adminApi.updateIssue(token, issue.id, patch));
+            const what = patch.progress ? `處理狀況改成「${PROGRESS_LABELS[patch.progress]}」` : patch.fixedIn ? `記下修在 ${patch.fixedIn}` : '清掉修在哪一版';
+            notice.value = `「${issue.title}」${what}，掛在上面的 ${formatInt(reportsUpdated)} 則回報一起改了`;
+            await load(); // 列表、統計裡的處理狀況都變了
+        } catch (e) {
+            error.value = errorMessage(e);
+        } finally {
+            busy.value = false;
+        }
+    }
     // #endregion
 
     // #region [P] 統計
@@ -310,8 +433,14 @@
             { label: '採計為 bug', value: formatInt(s.byStatus.accepted_bug ?? 0), hint: '', filter: 'accepted_bug' },
             { label: '採計為建議', value: formatInt(s.byStatus.accepted_suggestion ?? 0), hint: '', filter: 'accepted_suggestion' },
             { label: '不採計', value: formatInt(s.byStatus.rejected ?? 0), hint: '', filter: 'rejected' },
-            { label: '參與人數', value: formatInt(s.participants), hint: '送出過回報的裝置' },
-            { label: '待合併', value: formatInt(s.acceptedWithoutIssue), hint: '採計了、還沒歸到問題' }
+            {
+                label: '參與人數',
+                value: formatInt(s.participants),
+                hint: s.unboundReporters ? `送出過回報的裝置，另有 ${formatInt(s.unboundReporters)} 位沒綁定` : '送出過回報的裝置'
+            },
+            { label: '待合併', value: formatInt(s.acceptedWithoutIssue), hint: '採計了、還沒歸到問題' },
+            // 舊後端沒有這個數字（#61 部署前），整格不顯示
+            ...(s.acceptedOpen === null ? [] : [{ label: '待處理', value: formatInt(s.acceptedOpen), hint: '採計了、還沒修或還沒做' }])
         ];
     });
 
@@ -378,6 +507,25 @@
                     <option v-for="(label, value) in SOURCE_LABELS" :key="value" :value="value">{{ label }}</option>
                 </select>
             </label>
+            <label v-if="!triage">
+                處理
+                <select v-model="progress" @change="load(1)">
+                    <option value="all">全部</option>
+                    <option v-for="p in PROGRESSES" :key="p" :value="p">{{ PROGRESS_LABELS[p] }}</option>
+                </select>
+            </label>
+            <label v-if="!triage && !reporterFilter">
+                回報者
+                <select v-model="bound" @change="load(1)">
+                    <option value="all">全部</option>
+                    <option value="true">有綁定裝置</option>
+                    <option value="false">沒有綁定</option>
+                </select>
+            </label>
+            <span v-if="!triage && reporterFilter" class="dd-feedback__chip">
+                只看「{{ reporterFilter }}」
+                <button type="button" aria-label="不只看這位" @click="filterReporter('')">✕</button>
+            </span>
             <label v-if="!triage" class="dd-feedback__check">
                 <input v-model="grouped" type="checkbox" />
                 同一台的摺起來
@@ -397,17 +545,27 @@
             <strong>已勾 {{ formatInt(checked.size) }} 則</strong>
             <label>
                 改成
-                <select v-model="batchStatus" :disabled="busy">
-                    <option v-for="s in STATUSES" :key="s" :value="s">{{ STATUS_LABELS[s] }}</option>
+                <select v-model="batchTarget" :disabled="busy">
+                    <optgroup label="採計">
+                        <option v-for="s in STATUSES" :key="s" :value="`status:${s}`">{{ STATUS_LABELS[s] }}</option>
+                    </optgroup>
+                    <optgroup label="處理狀況">
+                        <option v-for="p in PROGRESSES" :key="p" :value="`progress:${p}`">{{ PROGRESS_LABELS[p] }}</option>
+                    </optgroup>
                 </select>
             </label>
+            <label v-if="batchProgress">
+                修在
+                <input v-model="batchFixedIn" type="text" class="dd-feedback__version" placeholder="版本（選填）" :disabled="busy" :aria-invalid="batchFixedInBad" />
+            </label>
             <template v-if="confirming === 'checked'">
-                <button type="button" class="dd-admin__btn" :class="{ 'dd-admin__btn--danger': batchStatus === 'rejected' }" :disabled="busy" @click="reviewChecked">
-                    確定把 {{ formatInt(checked.size) }} 則改成「{{ STATUS_LABELS[batchStatus] }}」
+                <button type="button" class="dd-admin__btn" :class="{ 'dd-admin__btn--danger': batchStatus === 'rejected' }" :disabled="busy || batchFixedInBad" @click="reviewChecked">
+                    確定把 {{ formatInt(checked.size) }} 則改成「{{ batchLabel }}」
                 </button>
                 <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = null">取消</button>
             </template>
-            <button v-else type="button" class="dd-admin__btn" :disabled="busy" @click="confirming = 'checked'">套用…</button>
+            <button v-else type="button" class="dd-admin__btn" :disabled="busy || batchFixedInBad" @click="confirming = 'checked'">套用…</button>
+            <span v-if="batchFixedInBad" class="dd-admin__error">版本號：英數開頭，只能有英數、點、加號、減號，最多 20 字</span>
             <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="checked = new Set()">清除勾選</button>
             <span class="dd-overview__muted">每則各記一筆操作紀錄；一次最多 200 則</span>
         </div>
@@ -433,23 +591,24 @@
                                     />
                                 </th>
                                 <th scope="col">ID</th>
-                                <th scope="col">裝置</th>
+                                <th scope="col">誰</th>
                                 <th scope="col">類型</th>
-                                <th scope="col">狀態</th>
+                                <th scope="col">採計</th>
+                                <th scope="col">處理</th>
                                 <th scope="col">內容</th>
                                 <th scope="col">送出</th>
                             </tr>
                         </thead>
                         <tbody>
                             <!-- 摺疊時一台一組：群組列可以整組勾、整組展開、整台的待審一鍵不採計 -->
-                            <template v-for="group in (grouped ? groups : [])" :key="`g-${group.deviceId}`">
+                            <template v-for="group in (grouped ? groups : [])" :key="group.key">
                                 <tr
                                     v-if="group.reports.length > 1"
                                     class="group"
                                     tabindex="0"
                                     :aria-expanded="!isFolded(group)"
-                                    @click="toggleExpanded(group.deviceId)"
-                                    @keydown.enter="toggleExpanded(group.deviceId)"
+                                    @click="toggleExpanded(group.key)"
+                                    @keydown.enter="toggleExpanded(group.key)"
                                 >
                                     <td class="check" @click.stop>
                                         <input
@@ -459,13 +618,15 @@
                                             @change="setChecked(group.reports.map(r => r.id), ($event.target as HTMLInputElement).checked)"
                                         />
                                     </td>
-                                    <td colspan="6">
+                                    <td colspan="7">
                                         <span class="caret" :class="{ 'is-open': !isFolded(group) }" aria-hidden="true">▸</span>
                                         {{ group.name }}
+                                        <span v-if="!group.deviceId" class="dd-feedback__source">沒綁定</span>
                                         <span class="dd-overview__muted">
                                             · 本頁 {{ formatInt(group.reports.length) }} 則{{ group.pending ? `，${formatInt(group.pending)} 則待審` : '' }}
                                         </span>
-                                        <template v-if="group.pending">
+                                        <!-- 沒綁定的沒有裝置可以「這台的待審」一次處理 -->
+                                        <template v-if="group.pending && group.deviceId">
                                             <template v-if="confirmingDevice === group.deviceId">
                                                 <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="busy" @click.stop="rejectDevice(group.deviceId, group.name)">
                                                     確定：{{ group.name }} 的待審全部不採計
@@ -490,7 +651,10 @@
                                         <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
                                     </td>
                                     <td>#{{ report.id }}</td>
-                                    <td>{{ report.deviceName || `#${report.deviceId}` }}</td>
+                                    <td>
+                                        {{ whoLabel(report) }}
+                                        <span v-if="report.reporterName !== null" class="dd-feedback__source">沒綁定</span>
+                                    </td>
                                     <td>
                                         {{ KIND_LABELS[report.kind] ?? report.kind }}
                                         <span v-if="report.source !== 'app'" class="dd-feedback__source">{{ SOURCE_LABELS[report.source] }}</span>
@@ -499,6 +663,10 @@
                                         <span class="dd-status" :class="report.status === 'pending' ? 'is-pending' : report.status === 'rejected' ? 'is-frozen' : 'is-active'">
                                             {{ STATUS_LABELS[report.status] }}
                                         </span>
+                                    </td>
+                                    <td>
+                                        <span class="dd-feedback__progress" :class="`is-${report.progress.replace('_', '-')}`">{{ PROGRESS_LABELS[report.progress] }}</span>
+                                        <span v-if="report.fixedIn" class="dd-overview__muted"> {{ report.fixedIn }}</span>
                                     </td>
                                     <td class="summary">{{ report.contentPurgedAt ? '（內容已清除）' : report.description }}</td>
                                     <td>{{ formatRelative(report.createdAt) }}</td>
@@ -517,7 +685,10 @@
                                     <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
                                 </td>
                                 <td>#{{ report.id }}</td>
-                                <td>{{ report.deviceName || `#${report.deviceId}` }}</td>
+                                <td>
+                                    {{ whoLabel(report) }}
+                                    <span v-if="report.reporterName !== null" class="dd-feedback__source">沒綁定</span>
+                                </td>
                                 <td>
                                     {{ KIND_LABELS[report.kind] ?? report.kind }}
                                     <span v-if="report.source !== 'app'" class="dd-feedback__source">{{ SOURCE_LABELS[report.source] }}</span>
@@ -527,11 +698,15 @@
                                         {{ STATUS_LABELS[report.status] }}
                                     </span>
                                 </td>
+                                <td>
+                                    <span class="dd-feedback__progress" :class="`is-${report.progress.replace('_', '-')}`">{{ PROGRESS_LABELS[report.progress] }}</span>
+                                    <span v-if="report.fixedIn" class="dd-overview__muted"> {{ report.fixedIn }}</span>
+                                </td>
                                 <td class="summary">{{ report.contentPurgedAt ? '（內容已清除）' : report.description }}</td>
                                 <td>{{ formatRelative(report.createdAt) }}</td>
                             </tr>
                             <tr v-if="!loading && reports.length === 0">
-                                <td colspan="7" class="dd-table__empty">沒有符合的回報</td>
+                                <td colspan="8" class="dd-table__empty">沒有符合的回報</td>
                             </tr>
                         </tbody>
                     </table>
@@ -554,7 +729,8 @@
                 <p v-if="!detail" class="dd-detail__muted t-shimmer" data-text="載入中…">載入中…</p>
                 <template v-else>
                     <dl class="dd-detail__info">
-                        <div><dt>裝置</dt><dd>{{ detail.deviceName || '未命名' }}（#{{ detail.deviceId }}）</dd></div>
+                        <div v-if="detail.reporterName !== null"><dt>回報者</dt><dd>{{ detail.reporterName }}（沒有綁定裝置）</dd></div>
+                        <div v-else><dt>裝置</dt><dd>{{ detail.deviceName || '未命名' }}（#{{ detail.deviceId }}）</dd></div>
                         <div><dt>類型</dt><dd>{{ KIND_LABELS[detail.kind] ?? detail.kind }}</dd></div>
                         <div><dt>App 版本</dt><dd>{{ detail.appVersion || '—' }}</dd></div>
                         <div><dt>手機</dt><dd>{{ detail.deviceModel || '—' }}（Android {{ detail.androidVersion || '?' }}）</dd></div>
@@ -598,6 +774,79 @@
                     </section>
 
                     <section class="dd-detail__card">
+                        <h3>處理狀況</h3>
+                        <p class="dd-detail__muted">
+                            處理到哪了，跟採計分開、不影響分數。
+                            <template v-if="detail.issueId">這則掛在「{{ detailIssueTitle }}」上：改那個問題的處理狀況會一起改這則。</template>
+                        </p>
+                        <div class="dd-detail__actions">
+                            <button
+                                v-for="p in PROGRESSES"
+                                :key="p"
+                                type="button"
+                                class="dd-admin__btn"
+                                :class="{ 'dd-admin__btn--ghost': detail.progress !== p }"
+                                :disabled="busy || detail.progress === p"
+                                @click="setProgress(p)"
+                            >
+                                {{ PROGRESS_LABELS[p] }}
+                            </button>
+                        </div>
+                        <form class="dd-detail__actions" @submit.prevent="saveFixedIn">
+                            <label class="dd-feedback__inline">
+                                修在
+                                <input v-model="fixedInDraft" type="text" class="dd-feedback__version" placeholder="例如 0.7.20" :disabled="busy" :aria-invalid="fixedInBad" />
+                            </label>
+                            <button type="submit" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy || fixedInBad || fixedInDraft.trim() === (detail.fixedIn ?? '')">
+                                {{ fixedInDraft.trim() || !detail.fixedIn ? '記下版本' : '清掉版本' }}
+                            </button>
+                        </form>
+                        <p v-if="fixedInBad" class="dd-admin__error">版本號：英數開頭，只能有英數、點、加號、減號，最多 20 字</p>
+                    </section>
+
+                    <!-- LINE、信件上的回報是後台替人建的：可以標成沒有綁定（他沒裝 App），之後裝了再綁回去。App 送的不能改 -->
+                    <section v-if="detail.source !== 'app'" class="dd-detail__card">
+                        <h3>回報者</h3>
+                        <template v-if="detail.reporterName !== null">
+                            <p class="dd-detail__muted">
+                                沒有綁定裝置：不算分、不進名次與獎勵；採計了就列進 App 排行榜下面的「特別感謝」（只顯示名字）。
+                                同名（不分大小寫）算同一個人。
+                            </p>
+                            <form class="dd-detail__actions" @submit.prevent="saveReporterName">
+                                <label class="dd-feedback__inline">
+                                    名稱
+                                    <input v-model="nameDraft" type="text" list="dd-feedback-reporters" :disabled="busy" :aria-invalid="!!nameProblem" />
+                                </label>
+                                <button type="submit" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy || !!nameProblem || nameDraft.trim() === detail.reporterName">改名</button>
+                                <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="filterReporter(detail.reporterName)">只看他的回報</button>
+                            </form>
+                            <form class="dd-detail__actions" @submit.prevent="bindToDevice">
+                                <label class="dd-feedback__inline">
+                                    他裝了 App：綁到裝置 #
+                                    <input v-model="bindDraft" type="text" inputmode="numeric" class="dd-feedback__version" placeholder="裝置 id" :disabled="busy" />
+                                </label>
+                                <button type="submit" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy || bindId === null">綁定</button>
+                            </form>
+                            <p class="dd-detail__muted">綁定後照原本的規則算分（同一個問題裡講得早的照樣拿全額）。裝置 id 在「裝置」分頁找。</p>
+                        </template>
+                        <template v-else>
+                            <p class="dd-detail__muted">
+                                現在掛在 {{ detail.deviceName || `#${detail.deviceId}` }} 上。如果是替沒裝 App 的人建的，改成沒有綁定：
+                                這則就不算進這台的分數，採計了列進 App 的「特別感謝」。
+                            </p>
+                            <form class="dd-detail__actions" @submit.prevent="saveReporterName">
+                                <label class="dd-feedback__inline">
+                                    他的名字
+                                    <input v-model="nameDraft" type="text" list="dd-feedback-reporters" placeholder="例如他在 LINE 上的名稱" :disabled="busy" />
+                                </label>
+                                <button type="submit" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy || !!nameProblem">改成沒有綁定</button>
+                            </form>
+                        </template>
+                        <p v-if="nameDraft.trim() && nameProblem" class="dd-admin__error">{{ nameProblem }}</p>
+                        <p class="dd-detail__muted">名字會給所有 App 使用者看到，用他同意公開的稱呼。</p>
+                    </section>
+
+                    <section v-if="detail.reporterName === null" class="dd-detail__card">
                         <h3>這台裝置</h3>
                         <p class="dd-detail__muted">
                             同一台一直送垃圾回報的話，這裡一次處理：只動還在「待審」的，已經採計的不會翻掉，一次最多 200 則。
@@ -641,10 +890,14 @@
             <!-- #endregion -->
         </div>
 
+        <datalist id="dd-feedback-reporters">
+            <option v-for="reporter in reporters" :key="reporter.name" :value="reporter.name" />
+        </datalist>
+
         <!-- #region [P] 問題清單：權重直接改 -->
         <section class="dd-overview__card dd-feedback__issues">
             <h3>問題（合併後的）</h3>
-            <p class="sub">權重 1～100。改了之後所有人的分數與名次立刻跟著變。</p>
+            <p class="sub">權重 1～100。改了之後所有人的分數與名次立刻跟著變。處理狀況與版本改了，掛在上面的回報會一起改。</p>
             <div class="dd-feedback__scroll dd-table-scroll">
                 <table class="dd-table dd-table--static">
                     <thead>
@@ -653,6 +906,8 @@
                             <th scope="col" class="num">回報</th>
                             <th scope="col" class="num">採計</th>
                             <th scope="col" class="num">權重</th>
+                            <th scope="col">處理</th>
+                            <th scope="col">修在</th>
                             <th scope="col">建立</th>
                         </tr>
                     </thead>
@@ -672,10 +927,32 @@
                                     @change="saveWeight(issue, Number(($event.target as HTMLInputElement).value))"
                                 />
                             </td>
+                            <!-- 改了會一併改掛在上面的全部回報 -->
+                            <td>
+                                <select
+                                    :value="issue.progress"
+                                    :disabled="busy"
+                                    :aria-label="`${issue.title} 的處理狀況`"
+                                    @change="saveIssueProgress(issue, { progress: ($event.target as HTMLSelectElement).value as FeedbackProgress })"
+                                >
+                                    <option v-for="p in PROGRESSES" :key="p" :value="p">{{ PROGRESS_LABELS[p] }}</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input
+                                    type="text"
+                                    class="dd-feedback__version"
+                                    :value="issue.fixedIn ?? ''"
+                                    placeholder="版本"
+                                    :disabled="busy"
+                                    :aria-label="`${issue.title} 修在哪一版`"
+                                    @change="saveIssueProgress(issue, { fixedIn: ($event.target as HTMLInputElement).value.trim() || null })"
+                                />
+                            </td>
                             <td>{{ formatDateTime(issue.createdAt) }}</td>
                         </tr>
                         <tr v-if="!issues.length">
-                            <td colspan="5" class="dd-table__empty">還沒有合併過的問題</td>
+                            <td colspan="7" class="dd-table__empty">還沒有合併過的問題</td>
                         </tr>
                     </tbody>
                 </table>
@@ -828,4 +1105,81 @@
 
     // 待審用中性的底色：它不是好也不是壞，只是還沒處理
     .dd-status.is-pending { background: var(--vp-c-default-soft); }
+
+    // 處理狀況：跟採計的徽章同一個形狀，顏色照後台的慣例——黃是在做的事、綠是做完、還沒處理只留字（大部分都是它，上色會吵）
+    .dd-feedback__progress {
+        padding: 2px 8px;
+        border-radius: 999px;
+        color: var(--vp-c-text-2);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        white-space: nowrap;
+
+        &.is-in-progress {
+            background: var(--vp-c-warning-soft);
+            color: var(--vp-c-text-1);
+        }
+        &.is-done {
+            background: var(--vp-c-green-soft);
+            color: var(--vp-c-text-1);
+        }
+        &.is-wont-do {
+            background: var(--vp-c-default-soft);
+            color: var(--vp-c-text-3);
+        }
+    }
+
+    .dd-feedback {
+        // 統計卡多了「待處理」變七張：這頁的卡片字少，最小寬度放窄一點，桌機才排得進一排
+        .dd-overview__tiles { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+
+        // 版本號的輸入框只要放得下「0.7.20-beta」
+        &__version {
+            background: var(--vp-c-bg-soft);
+            width: 104px;
+            padding: 4px 8px;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 6px;
+            color: var(--vp-c-text-1);
+
+            &[aria-invalid=true] { border-color: var(--vp-c-danger-1); }
+        }
+        &__inline {
+            @include setFlex(flex-start, center, 6px);
+            font-size: var(--font-size-s);
+
+            input[type=text]:not(.dd-feedback__version) {
+                background: var(--vp-c-bg-soft);
+                width: 160px;
+                padding: 4px 8px;
+                border: 1px solid var(--vp-c-divider);
+                border-radius: 6px;
+                color: var(--vp-c-text-1);
+            }
+        }
+
+        // 「只看某一位」的篩選：看得到、一鍵拿掉
+        &__chip {
+            @include setFlex(flex-start, center, 6px);
+            background: var(--vp-c-brand-soft);
+            padding: 4px 6px 4px 12px;
+            border-radius: 999px;
+
+            button {
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                color: var(--vp-c-text-2);
+
+                &:hover { background: var(--vp-c-default-soft); }
+            }
+        }
+        &__issues select {
+            background: var(--vp-c-bg-soft);
+            padding: 2px 8px;
+            border: 1px solid var(--vp-c-divider);
+            border-radius: 6px;
+            color: var(--vp-c-text-1);
+        }
+    }
 </style>

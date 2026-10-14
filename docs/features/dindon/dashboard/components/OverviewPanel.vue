@@ -75,12 +75,17 @@
     const todos = computed<Todo[]>(() => {
         const pending = pulse.pendingReports.value;
         const merge = pulse.toMerge.value;
+        const fix = pulse.toFix.value;
         const flagged = pulse.flaggedDevices.value;
         const leading = pulse.leadingFeature.value;
         const voting = pulse.voting.value;
         return [
             { key: 'pending', label: '待審回報', value: countText(pending), hint: pending ? '還沒判的 bug 與建議' : '都審完了', tone: countTone(pending), to: 'feedback', preset: { feedbackStatus: 'pending' } },
             { key: 'merge', label: '待合併', value: countText(merge), hint: merge ? '採計了、還沒歸到問題' : '都歸好了', tone: countTone(merge), to: 'feedback' },
+            // 舊後端沒有這個數字（#61 部署前）就不放這張，免得一直顯示「—」
+            ...(fix === null && pulse.toMerge.value !== null
+                ? []
+                : [{ key: 'fix', label: '待處理', value: countText(fix), hint: fix ? '採計了、還沒修或還沒做' : '都處理了', tone: countTone(fix), to: 'feedback' as const, preset: { feedbackStatus: 'all' as const, feedbackProgress: 'open' as const } }]),
             {
                 key: 'flagged',
                 label: '用量提示',

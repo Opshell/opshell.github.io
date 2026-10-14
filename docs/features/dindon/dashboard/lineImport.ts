@@ -1,5 +1,6 @@
-import type { AdminDevice, CreateFeedbackInput, FeedbackStatus, TriageItem } from './schemas/admin.schema';
+import type { AdminDevice, CreateFeedbackInput, FeedbackReporter, FeedbackStatus, TriageItem } from './schemas/admin.schema';
 import { guessDevice } from './deviceSearch';
+import { reporterNameProblem } from './schemas/admin.schema';
 
 // 匯入 LINE 回報（#0068）的純邏輯：時間換算、用名字猜是哪台裝置、把逐則的決定整理成「要開的問題＋要建的回報」。
 // 畫面在 components/LineImport.vue。
@@ -45,6 +46,8 @@ export interface Draft {
     kind: 'bug' | 'suggestion';
     description: string;
     deviceId: number | null;
+    /** 沒裝 App 的人：不綁裝置、給名字（Flowsker #61）。跟 deviceId 擇一，null＝不是這種 */
+    reporterName: string | null;
     /** datetime-local 的值（台灣時間），空的＝建立的時間 */
     saidAt: string;
     review: ReviewChoice;
@@ -64,6 +67,7 @@ export function draftFrom(item: TriageItem, devices: AdminDevice[]): Draft {
         kind: item.kind === 'suggestion' ? 'suggestion' : 'bug',
         description: item.description,
         deviceId: guessDevice(item.speaker, devices)?.id ?? null,
+        reporterName: null,
         saidAt: toTaipeiInput(item.saidAt),
         review: 'accept',
         merge,
@@ -79,7 +83,12 @@ const statusOf = (draft: Draft): FeedbackStatus =>
 
 /** 一則還差什麼才能建立；空字串＝可以 */
 export function draftProblem(draft: Draft, now = new Date()): string {
-    if (draft.deviceId === null) return '還沒選是哪一位的裝置';
+    if (draft.reporterName !== null) {
+        const problem = reporterNameProblem(draft.reporterName);
+        if (problem) return problem;
+    } else if (draft.deviceId === null) {
+        return '還沒選是哪一位的裝置，或標成沒有綁定';
+    }
     if (!draft.description.trim()) return '描述是空的';
     if ([...draft.description.trim()].length > 2000) return '描述超過 2,000 字';
     if (draft.merge === 'attach' && draft.issueId === null) return '還沒選要併到哪個問題';
@@ -110,7 +119,7 @@ export function planImport(drafts: Draft[], source: 'line' | 'email'): ImportPla
     const issues = new Map<string, Set<number>>();
     const reports: ImportPlan['reports'] = [];
     drafts.forEach((draft, index) => {
-        if (!draft.include || draft.deviceId === null) return;
+        if (!draft.include || (draft.deviceId === null && draft.reporterName === null)) return;
         const newIssueTitle = draft.merge === 'new' ? draft.newIssueTitle.trim() : null;
         if (newIssueTitle) {
             const ids = issues.get(newIssueTitle) ?? new Set<number>();
@@ -121,7 +130,7 @@ export function planImport(drafts: Draft[], source: 'line' | 'email'): ImportPla
             index,
             newIssueTitle,
             payload: {
-                deviceId: draft.deviceId,
+                ...(draft.reporterName !== null ? { reporterName: draft.reporterName.trim() } : { deviceId: draft.deviceId! }),
                 kind: draft.kind,
                 description: draft.description.trim(),
                 source,
@@ -161,5 +170,22 @@ export function quickPicks(devices: AdminDevice[], sources: QuickPickSources, li
 
 /** 最近選過的清單：選到的放最前面，最多記 10 台 */
 export const rememberPick = (recent: number[], id: number, max = 10) => [id, ...recent.filter(other => other !== id)].slice(0, max);
+
+// #endregion
+
+// #region [P] 沒綁定的名稱：先找現有的，同一個人不要打出兩種寫法
+
+/**
+ * 跟搜尋字（或 AI 看出的發言者）相近的現有名稱，不分大小寫、包含就算。
+ * 沒有搜尋字時列最近有回報的幾位（後端已經照最近排好）
+ */
+export function matchReporters(query: string, reporters: FeedbackReporter[], limit = 6): FeedbackReporter[] {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return reporters.slice(0, limit);
+    return reporters.filter((reporter) => {
+        const name = reporter.name.toLowerCase();
+        return name.includes(needle) || needle.includes(name);
+    }).slice(0, limit);
+}
 
 // #endregion

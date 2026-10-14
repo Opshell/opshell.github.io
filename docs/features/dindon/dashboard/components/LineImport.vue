@@ -1,10 +1,10 @@
 <script setup lang="ts">
     import type { Draft } from '../lineImport';
-    import type { AdminDevice, FeedbackIssue, TriageResult } from '../schemas/admin.schema';
+    import type { AdminDevice, FeedbackIssue, FeedbackReporter, TriageResult } from '../schemas/admin.schema';
     import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
     import { adminApi, AdminApiError } from '../api';
     import { formatInt } from '../format';
-    import { draftFrom, draftProblem, planImport, quickPicks, rememberPick, searchDevices } from '../lineImport';
+    import { draftFrom, draftProblem, matchReporters, planImport, quickPicks, rememberPick, searchDevices } from '../lineImport';
     import { REPORT_DESCRIPTION_MAX, TRIAGE_IMAGE_BYTES, TRIAGE_IMAGE_MAX, TRIAGE_TEXT_MAX } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
@@ -105,6 +105,8 @@
     /** 建立的結果：成功的記回報 id，失敗的記原因 */
     const outcomes = ref<({ id: number } | { error: string } | null)[]>([]);
 
+    /** 現有的沒綁定名稱（Flowsker #61）：同一個人不要打出兩種寫法 */
+    const reporters = ref<FeedbackReporter[]>([]);
     const deviceById = computed(() => new Map(devices.value.map(device => [device.id, device])));
     const deviceLabel = (id: number | null) => {
         const device = id === null ? undefined : deviceById.value.get(id);
@@ -112,6 +114,11 @@
         // 備註（#0070）是認人最快的線索：帶第一行的前 20 個字
         const note = [...device.adminNote.split('\n')[0]].slice(0, 20).join('');
         return `#${device.id} ${device.displayName}${device.email ? ` · ${device.email}` : ''}${note ? ` · ${note}` : ''}`;
+    };
+    /** 這一則現在選的是誰：裝置或沒綁定的名字 */
+    const whoLabel = (index: number) => {
+        const draft = drafts.value[index];
+        return draft.reporterName !== null ? `沒有綁定：${draft.reporterName.trim()}` : deviceLabel(draft.deviceId);
     };
     const pending = computed(() => drafts.value.map((draft, index) => ({ draft, index })).filter(({ draft, index }) => draft.include && !isCreated(index)));
     const problems = computed(() => pending.value.map(({ draft, index }) => ({ index, problem: draftProblem(draft) })).filter(p => p.problem));
@@ -172,7 +179,24 @@
         recent: recent.value
     });
 
+    /**
+     * 他沒裝 App：不綁裝置、給名字。預設用現有名稱裡跟發言者對得上的那個，沒有就用 AI 看出的發言者。
+     * 不算分，採計了列進 App 的「特別感謝」
+     */
+    function markUnbound(index: number, name?: string) {
+        const speaker = result.value?.items[index].speaker ?? '';
+        drafts.value[index].deviceId = null;
+        drafts.value[index].reporterName = name ?? matchReporters(speaker, reporters.value, 1)[0]?.name ?? speaker;
+        queries.value[index] = '';
+    }
+
+    function clearWho(index: number) {
+        drafts.value[index].deviceId = null;
+        drafts.value[index].reporterName = null;
+    }
+
     function pickDevice(index: number, device: AdminDevice) {
+        drafts.value[index].reporterName = null;
         drafts.value[index].deviceId = device.id;
         queries.value[index] = '';
         recent.value = rememberPick(recent.value, device.id);
@@ -232,6 +256,11 @@
             devices.value = (await call(async token => adminApi.listAllDevices(token))).devices;
         } catch {
             // 整理時會再抓一次，錯誤在那時候顯示
+        }
+        try {
+            reporters.value = await call(async token => adminApi.listReporters(token));
+        } catch {
+            // 只是快選；後端還沒有這支（#61 部署前）就讓管理員自己打
         }
     });
     onBeforeUnmount(() => shots.value.forEach(shot => URL.revokeObjectURL(shot.url)));
@@ -313,7 +342,7 @@
                     </div>
                     <p class="dd-line-import__reason">{{ item.reason }}</p>
 
-                    <p v-if="isCreated(index)" class="dd-line-import__done">✓ 已建立回報 #{{ (outcomes[index] as { id: number }).id }}（{{ deviceLabel(drafts[index].deviceId) }}）</p>
+                    <p v-if="isCreated(index)" class="dd-line-import__done">✓ 已建立回報 #{{ (outcomes[index] as { id: number }).id }}（{{ whoLabel(index) }}）</p>
 
                     <div v-else-if="drafts[index].include" class="dd-line-import__form">
                         <div class="dd-line-import__field">
@@ -321,8 +350,28 @@
                             <div class="dd-line-import__picker">
                                 <p v-if="drafts[index].deviceId !== null" class="picked">
                                     {{ deviceLabel(drafts[index].deviceId) }}
-                                    <button type="button" aria-label="重選" :disabled="busy" @click="drafts[index].deviceId = null">✕</button>
+                                    <button type="button" aria-label="重選" :disabled="busy" @click="clearWho(index)">✕</button>
                                 </p>
+                                <!-- 沒裝 App 的人：名字可以改；現有的名字點了直接換成那個寫法 -->
+                                <div v-else-if="drafts[index].reporterName !== null" class="unbound">
+                                    <p class="picked">
+                                        沒有綁定
+                                        <input v-model="drafts[index].reporterName" type="text" aria-label="他的名字" :disabled="busy" />
+                                        <button type="button" aria-label="重選" :disabled="busy" @click="clearWho(index)">✕</button>
+                                    </p>
+                                    <div v-if="matchReporters(drafts[index].reporterName ?? '', reporters).length" class="quick" role="group" aria-label="現有的名字">
+                                        <button
+                                            v-for="reporter in matchReporters(drafts[index].reporterName ?? '', reporters)"
+                                            :key="reporter.name"
+                                            type="button"
+                                            :disabled="busy"
+                                            @click="markUnbound(index, reporter.name)"
+                                        >
+                                            {{ reporter.name }}<span>{{ formatInt(reporter.reports) }} 則</span>
+                                        </button>
+                                    </div>
+                                    <p class="hint">不算分；採計了列進 App 排行榜的「特別感謝」，所有人都看得到這個名字</p>
+                                </div>
                                 <template v-else>
                                     <input v-model="queries[index]" type="search" :placeholder="item.speaker ? `找「${item.speaker}」：暱稱、email、裝置 id` : '暱稱、email、裝置 id'" :disabled="busy" />
                                     <ul v-if="queries[index]" class="options">
@@ -330,12 +379,18 @@
                                             <button type="button" @click="pickDevice(index, device)">{{ deviceLabel(device.id) }}</button>
                                         </li>
                                         <li v-if="!searchDevices(queries[index], devices).length" class="none">找不到</li>
+                                        <li>
+                                            <button type="button" class="unbound-option" @click="markUnbound(index, queries[index].trim())">他沒裝 App：用「{{ queries[index].trim() }}」標成沒有綁定</button>
+                                        </li>
                                     </ul>
                                     <div v-else-if="picksFor(index).length" class="quick" role="group" aria-label="快選">
                                         <button v-for="device in picksFor(index)" :key="device.id" type="button" :disabled="busy" :title="deviceLabel(device.id)" @click="pickDevice(index, device)">
                                             {{ device.displayName }}<span>#{{ device.id }}</span>
                                         </button>
                                     </div>
+                                    <button v-if="!queries[index]" type="button" class="dd-line-import__link" :disabled="busy" @click="markUnbound(index)">
+                                        他沒裝 App → 標成沒有綁定{{ item.speaker ? `（${item.speaker}）` : '' }}
+                                    </button>
                                 </template>
                             </div>
                         </div>
@@ -575,6 +630,25 @@
                 }
             }
             input { width: 100%; }
+
+            // 沒有綁定：名字可以直接改，底色跟「選了裝置」分開，一眼看出這則不算分
+            .unbound {
+                .picked {
+                    background: var(--vp-c-default-soft);
+                    white-space: nowrap;
+
+                    input {
+                        flex: 1;
+                        min-width: 0;
+                    }
+                }
+                .hint {
+                    margin: 4px 0 0;
+                    color: var(--vp-c-text-3);
+                    font-size: 12px;
+                }
+            }
+            .unbound-option { color: var(--vp-c-brand-1) !important; }
 
             // 快選：這批選過的、最近選過的、常回報的
             .quick {

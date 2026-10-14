@@ -1,4 +1,4 @@
-import type { DeviceSort, DeviceStatus, FeedbackFilter } from './api';
+import type { DeviceSort, DeviceStatus, FeedbackFilter, FeedbackProgressFilter } from './api';
 import { ref, shallowRef } from 'vue';
 
 // 後台分頁之間的跳轉：總覽點「已凍結」要直接看到凍結的裝置，不只是切到裝置頁。
@@ -14,6 +14,8 @@ export interface PanelPreset {
     /** 終端機的 dev <字>：一進裝置頁就搜這個 */
     deviceQuery?: string;
     feedbackStatus?: FeedbackFilter;
+    /** 總覽點「待處理」→ 只看還沒處理的（Flowsker #61） */
+    feedbackProgress?: FeedbackProgressFilter;
     /** 終端機的 triage：一進回報頁就開快速審核 */
     feedbackTriage?: boolean;
     /** 終端機的 api <字>：一進 API 控制台就搜這個 */
