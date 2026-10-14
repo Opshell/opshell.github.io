@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GetDeviceListParser, GetFeatureCandidateListParser, GetUsageReportParser, SaveFeatureCandidatePayload, UpdateDevicePayload } from './admin.schema';
+import { BatchReviewFeedbackPayload, CreateFeedbackPayload, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackListParser, GetFeedbackStatsParser, GetUsageReportParser, SaveFeatureCandidatePayload, UpdateDevicePayload, UpdateFeedbackIssueParser } from './admin.schema';
 
 // 後端是 Go：nil 的 slice、map 會送 null，沒設的指標欄位可能整個不送。這裡測的都是這類邊界
 
@@ -121,5 +121,55 @@ describe('新功能投票的候選', () => {
 
     it('只給狀態也行（只送改過的欄位）', () => {
         expect(SaveFeatureCandidatePayload.parse({ status: 'dropped' })).toEqual({ status: 'dropped' });
+    });
+});
+
+describe('回報的處理狀況與沒綁定的回報者（Flowsker #61）', () => {
+    const rawReport = {
+        id: 1,
+        device_id: 42,
+        device_name: '阿明',
+        kind: 'bug',
+        status: 'accepted_bug',
+        description: '儲存沒反應',
+        app_version: '',
+        device_model: '',
+        android_version: '',
+        screenshots: null,
+        created_at: '2026-10-01T00:00:00Z'
+    };
+    const list = (report: object) => GetFeedbackListParser.parse({ reports: [report], total: 1, page: 1, per_page: 50 }).reports[0];
+
+    it('舊後端沒有這三個欄位：當成還沒處理、有綁定', () => {
+        expect(list(rawReport)).toMatchObject({ progress: 'open', fixedIn: null, reporterName: null });
+    });
+
+    it('沒綁定的：device_id 是 0、名字在 reporter_name', () => {
+        expect(list({ ...rawReport, device_id: 0, reporter_name: '小美', progress: 'done', fixed_in: '0.7.20', source: 'line' }))
+            .toMatchObject({ deviceId: 0, reporterName: '小美', progress: 'done', fixedIn: '0.7.20' });
+    });
+
+    it('統計：by_progress 的 key 不轉駝峰；舊後端沒有的欄位有預設值', () => {
+        const base = { total: 3, by_status: null, by_kind: null, per_day: null, participants: 2, accepted_without_issue: 1 };
+        expect(GetFeedbackStatsParser.parse(base)).toMatchObject({ byProgress: {}, acceptedOpen: null, unboundReporters: 0 });
+        expect(GetFeedbackStatsParser.parse({ ...base, by_progress: { in_progress: 2 }, accepted_open: 5, unbound_reporters: 1 }))
+            .toMatchObject({ byProgress: { in_progress: 2 }, acceptedOpen: 5, unboundReporters: 1 });
+    });
+
+    it('建立回報：裝置與名字擇一', () => {
+        const body = { kind: 'bug' as const, description: '儲存沒反應', source: 'line' as const };
+        expect(CreateFeedbackPayload.parse({ ...body, reporterName: '小美' })).toMatchObject({ reporter_name: '小美' });
+        expect(() => CreateFeedbackPayload.parse(body)).toThrow();
+        expect(() => CreateFeedbackPayload.parse({ ...body, deviceId: 1, reporterName: '小美' })).toThrow();
+    });
+
+    it('批次：勾選的可以只改處理狀況；什麼都沒改要擋', () => {
+        expect(BatchReviewFeedbackPayload.parse({ reportIds: [1], progress: 'done', fixedIn: '0.7.20' })).toEqual({ report_ids: [1], progress: 'done', fixed_in: '0.7.20' });
+        expect(() => BatchReviewFeedbackPayload.parse({ reportIds: [1] })).toThrow();
+    });
+
+    it('改問題：回應帶一起改了幾則回報', () => {
+        const issue = { id: 3, title: '儲存', weight: 2, note: '', created_by: 'a', created_at: '2026-10-01T00:00:00Z', progress: 'done', fixed_in: null };
+        expect(UpdateFeedbackIssueParser.parse({ issue, reports_updated: 5 })).toMatchObject({ reportsUpdated: 5, issue: { progress: 'done', fixedIn: null } });
     });
 });

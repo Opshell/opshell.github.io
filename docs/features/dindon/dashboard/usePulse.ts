@@ -20,6 +20,8 @@ const loadedAt = ref<Date | null>(null);
 // 數量是 0 的狀態後端不會放進 by_status：有統計、沒有 pending 就是 0，不是「還不知道」
 const pendingReports = computed(() => (feedback.value ? feedback.value.byStatus.pending ?? 0 : null));
 const toMerge = computed(() => feedback.value?.acceptedWithoutIssue ?? null);
+/** 採計了、還沒處理（Flowsker #61）：要修的 bug、要做的建議。舊後端沒有這個數字是 null */
+const toFix = computed(() => feedback.value?.acceptedOpen ?? null);
 const flaggedDevices = computed(() => usage.value?.filter(row => row.flags.length && !row.frozen) ?? null);
 const activeToday = computed(() => usage.value?.filter(row => row.today > 0).length ?? null);
 const voting = computed(() => features.value?.filter(feature => feature.status === 'voting') ?? null);
@@ -46,5 +48,5 @@ export function usePulse() {
         loading.value = false;
     }
 
-    return { pendingReports, toMerge, flaggedDevices, activeToday, voting, leadingFeature, errors, loading, loadedAt, refresh };
+    return { pendingReports, toMerge, toFix, flaggedDevices, activeToday, voting, leadingFeature, errors, loading, loadedAt, refresh };
 }

@@ -63,6 +63,10 @@ export const PLAN_LABELS: Record<string, string> = { free: '免費', lite: '輕�
 /** 回報的類型。crash 是 App 當掉之後自己產生的，使用者按了才送（溝通板 #39） */
 export const KIND_LABELS: Record<string, string> = { bug: 'bug', suggestion: '建議', crash: '閃退' };
 
+/** 處理狀況（Flowsker #61）：處理到哪了，跟「採計」分開。回報與問題共用 */
+export const PROGRESS_LABELS = { open: '還沒處理', in_progress: '處理中', done: '已處理', wont_do: '不處理' } as const;
+export const PROGRESSES = Object.keys(PROGRESS_LABELS) as (keyof typeof PROGRESS_LABELS)[];
+
 const integer = new Intl.NumberFormat('zh-TW');
 export const formatInt = (value: number) => integer.format(Math.round(value));
 
