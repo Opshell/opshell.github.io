@@ -17,9 +17,11 @@ description: 叮咚記帳在官網上的五頁（宣傳頁、功能演示、後�
 
 ## 開工先做
 
-1. 讀工作區 `coordination/board.md`，有沒有指名給網頁 Claude 的單（skill `cross-repo-handoff`）。
+1. 用 skill `flowsker` 查 Flowsker AI 辦公室「DinDon」（`office_id: 2`）有沒有寫給網頁小精靈的單（`board.md` 2026-10-14 起停用）。
+   規格與工作單怎麼開、怎麼結照工作區 `docs/agents/issue-tracker.md`。
 2. 要接新端點或欄位，先讀 `DinDon_BackEnd/docs/api.md` 對應那一節。**規格只有這一份，只有後端改**；後端常常已經做好了，不要自己猜格式。
 3. `git status`，只 add 自己改的檔案。
+4. 叮咚頁面的開發記錄寫在**工作區** `docs/devlog/web/web_開發記錄.md`（2026-10-14 起，使用者的原話也貼那裡）；這個倉庫的 `docs/devlog/` 只記部落格本身。
 
 ## 檔案地圖
 
