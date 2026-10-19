@@ -4,13 +4,14 @@ VitePress 1.6 的部落格：Vue 3.5、TypeScript、SCSS、pnpm。網址 `https:
 設了自訂網域，實際一律轉到 `https://opshell.me`。叮咚記帳（DinDon）的宣傳頁、後台、隱私權政策、
 刪除帳號頁都掛在 `/dindon/` 底下。
 
-網頁 Claude 負責這個倉庫。叮咚的部分要跟前端、後端、上架三個小精靈協作，溝通板在工作區根目錄的
-`coordination/board.md`（規則見 `coordination/README.md`，skill `cross-repo-handoff`）。
+網頁 Claude 負責這個倉庫。叮咚的部分要跟前端、後端、上架三個小精靈協作，溝通在 Flowsker 的 AI 辦公室「DinDon」
+（skill `flowsker` 第 5 節；小精靈之間的規矩見工作區根目錄的 `coordination/README.md`）。
 所有說明、進度更新一律用繁體中文。
 
 ## 1. 開工先做
 
-1. 讀 `coordination/board.md`（工作區 `DinDon/` 根目錄），有沒有指名給「網頁 Claude」的單。
+1. 用 skill `flowsker` 查 Flowsker 的 AI 辦公室「DinDon」（`office_id: 2`）：寫給「DinDon 網頁小精靈」、或寫給整間辦公室（`to` 是 `null`）
+   還沒結的單，照 skill 第 5 節處理。權杖在工作區根目錄 `secrets/flowsker_token.env` 的 `Web=` 那行。`board.md` 2026-10-14 起停用。
 2. `git status`：工作樹常有使用者未提交的草稿，**只 add 自己改的檔案**。
 
 ## 2. 目錄
