@@ -101,7 +101,7 @@ pnpm dindon:demos                   # 預設讀 ../DinDon/DinDon_Android/store/d
 pnpm dindon:demos --prune           # 順便刪 R2 上不在清單裡的舊檔
 ```
 
-- 前端 Claude 錄影、產 `index.json`（規格在那邊的 `README.md`），錄好會在溝通板回覆。網頁重跑腳本、commit `demo/demos.json`。
+- 前端 Claude 錄影、產 `index.json`（規格在那邊的 `README.md`），錄好會在辦公室的單裡回覆。網頁重跑腳本、commit `demo/demos.json`。
 - 影片、封面、縮圖（`*.thumb.webp`）傳到 R2 自己的儲體 `dindon-demo`（`https://dindon-demo.opshell.me/`，檔案放根目錄），**不進這個倉庫**
   （2026-09-28 之前進 `docs/public/`，倉庫 74 MB 裡占 50 MB）。檔名帶內容雜湊，重錄後網址會變，所以快取一年。
   `demos.json` 的 `mediaBase` 指到 R2，`catalog.ts` 讀它。
@@ -148,4 +148,4 @@ pnpm dindon:demos --prune           # 順便刪 R2 上不在清單裡的舊檔
 | 政策網址、刪除帳號網址、商店文案有變 | 上架 Claude |
 | 網頁上線了、網址變了（只是通知） | 相關的人，狀態 `僅通知` |
 
-溝通板上**不抄介面定義**，只寫「api.md 第幾節」。
+單裡**不抄介面定義**，只寫「api.md 第幾節」。
