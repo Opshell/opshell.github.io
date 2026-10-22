@@ -6,8 +6,6 @@
         BETA_SEATS,
         betaRewards,
         CONTACT_EMAIL,
-        DEMO_PATH,
-        GUIDE_PATH,
         helperPoints,
         invoicePains,
         lazyPoints,
@@ -105,10 +103,6 @@
                         <p>{{ item.text }}</p>
                     </li>
                 </ul>
-
-                <p class="dindon-landing__links dindon-landing__links--center">
-                    <a class="dindon-landing__link" :href="DEMO_PATH" data-reveal>每個功能的動態演示<span class="arrow" aria-hidden="true">→</span></a>
-                </p>
             </div>
         </section>
         <!-- #endregion -->
@@ -127,10 +121,6 @@
                         <p>{{ item.text }}</p>
                     </li>
                 </ul>
-
-                <p class="dindon-landing__links dindon-landing__links--center">
-                    <a class="dindon-landing__link" :href="GUIDE_PATH" data-reveal>全部功能的地圖<span class="arrow" aria-hidden="true">→</span></a>
-                </p>
             </div>
         </section>
         <!-- #endregion -->
@@ -295,8 +285,6 @@
 
         <footer class="dindon-landing__footer">
             <div class="dindon-landing__container">
-                <a :href="DEMO_PATH">功能演示</a>
-                <span aria-hidden="true">·</span>
                 <a :href="PRIVACY_PATH">隱私權政策</a>
                 <span aria-hidden="true">·</span>
                 <a :href="ACCOUNT_PATH">刪除資料與帳號</a>

@@ -81,14 +81,7 @@ export default [
                 text: '關於叮咚記帳',
                 link: '/dindon/'
             },
-            {
-                text: '功能演示',
-                link: '/dindon/demo/'
-            },
-            {
-                text: '功能地圖與養成路線',
-                link: '/dindon/guide/'
-            },
+            // 功能演示、功能地圖 2026-10-22 先拿掉入口：怕被當成反編譯重上架的教材，頁面還在，之後再討論
             {
                 text: '隱私權政策',
                 link: '/dindon/privacy/'
