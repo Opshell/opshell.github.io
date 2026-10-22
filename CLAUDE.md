@@ -5,14 +5,25 @@ VitePress 1.6 的部落格：Vue 3.5、TypeScript、SCSS、pnpm。網址 `https:
 刪除帳號頁都掛在 `/dindon/` 底下。
 
 網頁 Claude 負責這個倉庫。叮咚的部分要跟前端、後端、上架三個小精靈協作，溝通在 Flowsker 的 AI 辦公室「DinDon」
-（skill `flowsker` 第 5 節；小精靈之間的規矩見工作區根目錄的 `coordination/README.md`）。
+（skill `flowsker` 第 5 節；小精靈之間的規矩見叮咚工作區 `~/WWW/DinDon/coordination/README.md`）。
+部落格本身的工作（文章、主題、履歷）也走同一間辦公室。
 所有說明、進度更新一律用繁體中文。
 
 ## 1. 開工先做
 
 1. 用 skill `flowsker` 查 Flowsker 的 AI 辦公室「DinDon」（`office_id: 2`）：寫給「DinDon 網頁小精靈」、或寫給整間辦公室（`to` 是 `null`）
-   還沒結的單，照 skill 第 5 節處理。權杖在工作區根目錄 `secrets/flowsker_token.env` 的 `Web=` 那行。`board.md` 2026-10-14 起停用。
-2. `git status`：工作樹常有使用者未提交的草稿，**只 add 自己改的檔案**。
+   還沒結的單，照 skill 第 5 節處理，並回報你現在在做的事，連同角色名當對話名稱 `title`（「DinDon 網頁小精靈」）。
+   權杖在叮咚工作區 `~/WWW/DinDon/secrets/flowsker_token.env` 的 `Web=` 那行，只用 `sed` 讀進變數，不讓值出現在對話裡。
+   `board.md` 2026-10-14 起停用，不要再寫。
+2. 查完照 skill 的 `收單.md` 用背景 Bash 跑 `watch.py --once`：有新單、新回覆（含 Gemini 查驗的），或使用者在網頁上按了
+   「合」「部署」「退回」，它就結束並叫醒你，處理完再開下一個；閒置超過使用者在 Flowsker 設的時間（預設 30 分鐘）它自己停並印
+   「已自動停止收單」，**看到這行不要自己重開**，使用者說「開始收單」再開；使用者說「停止收單」就不再開。
+3. `git status`：工作樹常有使用者未提交的草稿，**只 add 自己改的檔案**。
+
+**使用者在對話裡交代要動手的事**，先把原話一字不改貼進開發記錄（叮咚頁面的貼叮咚工作區 `docs/devlog/web/web_開發記錄.md`，
+部落格本身的貼這個倉庫的 `docs/devlog/`），再開一張寫給自己的單（帶 `"user_requested": true`，skill 第 5 節）：跟使用者在網頁上開的一樣有階段，「合」「退回」由使用者在網頁上按；
+開完先分流（skill 的 `大方向.md`），一次好幾件的拆細項、開子代理。只是問答、不會 commit 的不用開。
+碰到 skill 沒寫到的情況，照 skill 第 5 節回 `## 工作流缺口` 並開單給「Workspace 小精靈」（在 Flowsker 辦公室，送 `"office_id": null` 走空橋）。
 
 ## 2. 目錄
 
@@ -32,7 +43,9 @@ alias：`@`＝`docs/`、`@features`、`@shared`、`@components`、`@hooks`、`@u
 
 ## 3. 分支與部署
 
-- **只有 `main` 一支**（2026-09-22 把 `develop_galaxy_tags` 併進來之後就不再分支、不再 cherry-pick）。直接在 `main` commit、push。
+- **每件工作從 `main` 開自己的分支**，在 worktree 裡做（`git worktree add ../opshell-<名稱> -b <分支> main`；這個倉庫常同時有十幾個 worktree，
+  主目錄停在哪條分支不一定）。做完回 `## 驗收摘要`（附分支），**等使用者在網頁上按「合」才併進 `main`、push**，照 skill `flowsker` 的 `驗收.md`。
+  `main` 是會上線的分支，不直接在上面 commit（2026-10-22 起，取代 09-22 的「只有 `main` 一支」）。
 - 部署是 GitHub Actions（`.github/workflows/deploy.yml`）：push 到 `main` 就跑 lint → typecheck → build → 上線，紅了不會部署。
 - commit 訊息 `type(scope): 中文一句話`。叮咚的 scope 是 `dindon`（`feat(dindon):`、`fix(dindon):`、`chore(dindon):`），
   文章是 `docs(article):`，主題是 `fix(theme):`、`feat(gallery):`、`feat(galaxy):`。
@@ -100,3 +113,6 @@ Node 24、pnpm 10.28（`packageManager` 鎖住）。`ignoreDeadLinks: true`，�
 | `web-code-style` | 寫或改任何 `.vue`、`.ts`、`.scss` |
 | `web-dindon` | 碰 `/dindon/` 底下任何東西、接後端、同步政策、上線 |
 | `web-blog-post` | 寫新文章、改 frontmatter、設公開、文章圖片、側欄分類 |
+
+`flowsker`（辦公室、收單、分流、驗收）與 Matt Pocock 的 engineering skill（`to-spec`、`to-tickets`、`code-review`、`tdd`…）裝在家目錄
+`~/.claude/skills/`，每個對話都有。後者用到 issue tracker 與領域文件時，讀叮咚工作區的 `docs/agents/issue-tracker.md` 與 `docs/agents/domain.md`。
