@@ -21,3 +21,6 @@ photos/thumbs/*
 
 # macOS
 .DS_Store
+
+# Flowsker 權杖等機密，值不進版控
+secrets/
