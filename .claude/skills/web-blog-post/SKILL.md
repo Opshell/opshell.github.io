@@ -123,7 +123,7 @@ pnpm publish-post <md 路徑>   # 指定某一篇
 - 工具會把 `isPublished` 改成 `true`、`createdAt` 改成今天（台灣時間），原稿日期留在 `draftedAt`：時間軸依 `createdAt` 排，
   不改的話舊稿一發佈就沉到很後面。
 - 內文還有 `::: warning 草稿` 的文章會被拒絕（Claude 代寫的草稿用這個擋）。
-- 只改檔案，不 commit；照它印出來的指令 `pnpm docs:build`、commit（`docs(article): 發佈〈標題〉`）、push。
+- 只改檔案，不 commit；照它印出來的指令 `pnpm docs:build`、在自己的分支 commit（`docs(article): 發佈〈標題〉`），使用者按「合」之後併進 `main`、push（倉庫 `CLAUDE.md` 第 3 節）。
 - 整理半成品進佇列時：開頭補「這篇的脈絡」、刪 AI 對話殘留（「這個問題問得太好了」這種）、純文字小標改成 `##`、frontmatter 補描述與分類，
   **文字內容保留作者原話**。
 

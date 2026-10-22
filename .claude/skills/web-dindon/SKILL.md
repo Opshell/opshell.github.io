@@ -1,6 +1,6 @@
 ---
 name: web-dindon
-description: 叮咚記帳在官網上的五頁（宣傳頁、功能演示、後台、隱私權政策、刪除帳號）怎麼維護——檔案在哪、api.md 是唯一規格、apiBase 與 ?api= 本機覆寫、Google 登入的 token 只放記憶體、隱私權政策與演示素材由腳本從 App 倉庫同步、後台 noindex 且不載第三方腳本、push main 就上線、什麼時候要開單給前端／後端／上架。碰 /dindon/ 底下任何東西時用。
+description: 叮咚記帳在官網上的五頁（宣傳頁、功能演示、後台、隱私權政策、刪除帳號）怎麼維護——檔案在哪、api.md 是唯一規格、apiBase 與 ?api= 本機覆寫、Google 登入的 token 只放記憶體、隱私權政策與演示素材由腳本從 App 倉庫同步、後台 noindex 且不載第三方腳本、按「合」併進 main 才上線、什麼時候要開單給前端／後端／上架。碰 /dindon/ 底下任何東西時用。
 ---
 
 # 叮咚記帳的五頁
@@ -136,8 +136,9 @@ pnpm dindon:demos --prune           # 順便刪 R2 上不在清單裡的舊檔
 
 ## 上線
 
-只有 `main` 一支（2026-09-22 起）。commit 後 `git push origin main`，GitHub Actions 跑 lint → typecheck → build → 部署，
-紅了不會上線。本機先 `pnpm check` 過再推。推完到 Actions 看綠了，再開 `https://opshell.me/dindon/` 確認。
+在自己的分支做、`pnpm check` 過才 commit，回 `## 驗收摘要`；使用者在網頁上按「合」之後併進 `main`、`git push origin main`
+（倉庫 `CLAUDE.md` 第 3 節，2026-10-22 起取代「只有 `main` 一支」）。GitHub Actions 跑 lint → typecheck → build → 部署，
+紅了不會上線。推完到 Actions 看綠了，再開 `https://opshell.me/dindon/` 確認。
 
 ## 什麼時候要開單
 
