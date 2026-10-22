@@ -164,9 +164,11 @@
                 </div>
                 <!-- 卡片整張是連結，裡面不能再放連結：DinDon 的兩個子頁、Flowsker 的產品網址放在卡片外 -->
                 <p class="op-home__sublinks op-home__appear">
-                    DinDon 記帳還有
-                    <a v-for="link in launchpads.dindon.links" :key="link.href" :href="link.href">{{ link.text }}</a>
-                    <span class="sep" aria-hidden="true">·</span>
+                    <template v-if="launchpads.dindon.links.length">
+                        DinDon 記帳還有
+                        <a v-for="link in launchpads.dindon.links" :key="link.href" :href="link.href">{{ link.text }}</a>
+                        <span class="sep" aria-hidden="true">·</span>
+                    </template>
                     Flowsker
                     <a v-for="link in launchpads.flowsker.links" :key="link.href" :href="link.href">{{ link.text }}</a>
                 </p>

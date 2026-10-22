@@ -18,10 +18,8 @@ export const launchpads = {
         screen: '/images/dindon/home.webp',
         /** 卡片左下的小標籤：它會做什麼，一眼看完 */
         features: ['付款通知自動記帳', '拍照', '用說的', '帳單截圖', '小精靈提醒', '徽章'],
-        links: [
-            { text: '功能地圖', href: '/dindon/guide/' },
-            { text: '功能演示', href: '/dindon/demo/' }
-        ]
+        // 原本是功能地圖、功能演示，2026-10-22 先拿掉入口（怕被當成反編譯重上架的教材），頁面還在
+        links: [] as { text: string; href: string }[]
     },
     // 2026-10-11 使用者：Timeline 那張換成 Flowsker（剛上線的反向番茄鐘）；Timeline 退到底下那排小入口
     flowsker: {
