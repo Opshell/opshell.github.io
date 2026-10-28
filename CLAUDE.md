@@ -4,24 +4,26 @@ VitePress 1.6 的部落格：Vue 3.5、TypeScript、SCSS、pnpm。網址 `https:
 設了自訂網域，實際一律轉到 `https://opshell.me`。叮咚記帳（DinDon）的宣傳頁、後台、隱私權政策、
 刪除帳號頁都掛在 `/dindon/` 底下。
 
-這個倉庫有兩個小精靈，**各在自己的 Flowsker AI 辦公室，不混在一起**。新對話的第一句話講清楚是哪一個；沒講就是 Blog 部落格小精靈。
+這個倉庫有兩個小精靈，**各在自己的 Flowsker AI 辦公室，不混在一起**。新對話的第一句話講清楚是哪一個；沒講就是 Blog 前端小精靈。
 
 | 角色 | 負責 | 辦公室 | 權杖 | 開發記錄 |
 |---|---|---|---|---|
-| **Blog 部落格小精靈** | 部落格本身：文章、主題、攝影集、履歷、星系、`/dindon/` 以外的頁面 | 「Blog」 | `~/WWW/opshell.github.io/secrets/flowsker_token.env` 的 `Blog=` | 這個倉庫的 `docs/devlog/` |
+| **Blog 前端小精靈** | 部落格本身：文章、主題、攝影集、履歷、星系、`/dindon/` 以外的頁面 | 「Opshell's Blog」（`office_id: 4`） | `~/WWW/opshell.github.io/secrets/flowsker_token.env` 的 `FrontEnd=` | 這個倉庫的 `docs/devlog/` |
 | DinDon 網頁小精靈 | `/dindon/` 底下五頁（skill `web-dindon`） | 「DinDon」（`office_id: 2`） | `~/WWW/DinDon/secrets/flowsker_token.env` 的 `Web=` | 叮咚工作區 `docs/devlog/web/web_開發記錄.md` |
 
-Blog 部落格小精靈不接叮咚的單；部落格的事要叮咚的人做（或反過來），開空橋單（`"office_id": null`，`to` 寫對方名字）。
+Blog 前端小精靈不接叮咚的單；部落格的事要叮咚的人做（或反過來），開空橋單（`"office_id": null`，`to` 寫對方名字）。
 小精靈之間的規矩照 skill `flowsker` 第 5 節。所有說明、進度更新一律用繁體中文。
 
 ## 1. 開工先做
 
 1. 用 skill `flowsker` 查你那間辦公室：權杖照上表讀進變數（只用 `sed`，值不能出現在對話裡），`GET /v1/me` 的 `agent_token.office_id` 就是你的辦公室。
    寫給你、或寫給整間辦公室（`to` 是 `null`）還沒結的單，照 skill 第 5 節處理，並回報你現在在做的事，連同角色名當對話名稱 `title`
-   （「Blog 部落格小精靈」或「DinDon 網頁小精靈」）。叮咚的 `board.md` 2026-10-14 起停用，不要再寫。
+   （「Blog 前端小精靈」或「DinDon 網頁小精靈」）。叮咚的 `board.md` 2026-10-14 起停用，不要再寫。
+   別人開單的 `to` 要寫權杖的名字（`GET /v1/me` 的 `agent_token.name`），寫錯了後端會把單鎖在不存在的人身上，誰都領不到（#372）。
 2. 查完照 skill 的 `收單.md` 用背景 Bash 跑 `watch.py --once`：有新單、新回覆（含 Gemini 查驗的），或使用者在網頁上按了
    「合」「部署」「退回」，它就結束並叫醒你，處理完再開下一個；閒置超過使用者在 Flowsker 設的時間（預設 30 分鐘）它自己停並印
    「已自動停止收單」，**看到這行不要自己重開**，使用者說「開始收單」再開；使用者說「停止收單」就不再開。
+   每結一張、或回了 `## 驗收摘要`，照 skill 第 5 節「拉下一張」回頭挑；等使用者挑、答、驗的單不算手上那張，先做別張。
 3. `git status`：工作樹常有使用者未提交的草稿，**只 add 自己改的檔案**。
 
 **使用者在對話裡交代要動手的事**，先把原話一字不改貼進你那份開發記錄（上表），再開一張寫給自己的單
@@ -48,9 +50,11 @@ alias：`@`＝`docs/`、`@features`、`@shared`、`@components`、`@hooks`、`@u
 ## 3. 分支與部署
 
 - **每件工作從 `main` 開自己的分支**，在 worktree 裡做，worktree 一律放 `~/WWW/opshell-wt/<名稱>`
-  （`git worktree add ~/WWW/opshell-wt/<名稱> -b <分支> main`）：辦公室靠路徑認人，「Blog」登記的是這個倉庫與 `~/WWW/opshell-wt`，
+  （`git worktree add ~/WWW/opshell-wt/<名稱> -b <分支> main`）：辦公室靠路徑認人，「Opshell's Blog」登記的是這個倉庫與 `~/WWW/opshell-wt`，
   放別的地方收集程式就認不出你在哪間。主目錄停在哪條分支不一定。合完就 `git worktree remove` 收掉、刪分支。做完回 `## 驗收摘要`（附分支），**等使用者在網頁上按「合」才併進 `main`、push**，照 skill `flowsker` 的 `驗收.md`。
   `main` 是會上線的分支，不直接在上面 commit（2026-10-22 起，取代 09-22 的「只有 `main` 一支」）。
+- 使用者按了「合」，合併、`pnpm check`、push 交給 haiku 子代理，照 `驗收.md`「合併與部署交給 Haiku 子代理」。
+  這個倉庫 push `main` 就上線，所以**不走高權限模式的自己合**（`驗收.md`「高權限模式」：前端倉庫不在名單），一律等使用者按。
 - 部署是 GitHub Actions（`.github/workflows/deploy.yml`）：push 到 `main` 就跑 lint → typecheck → build → 上線，紅了不會部署。
 - commit 訊息 `type(scope): 中文一句話`。叮咚的 scope 是 `dindon`（`feat(dindon):`、`fix(dindon):`、`chore(dindon):`），
   文章是 `docs(article):`，主題是 `fix(theme):`、`feat(gallery):`、`feat(galaxy):`。
