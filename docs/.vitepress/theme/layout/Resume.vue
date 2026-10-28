@@ -19,7 +19,7 @@
                 <p v-if="frontmatter.tagline" class="resume__tagline">{{ frontmatter.tagline }}</p>
             </header>
 
-            <section class="resume__section">
+            <section class="resume__section resume__section--contact">
                 <h2 class="resume__section-title">Contact</h2>
                 <ul class="resume__contact">
                     <li v-for="contact in frontmatter.contact" :key="contact.text">
@@ -186,7 +186,8 @@
 
         // #endregion
 
-        // 手機：左欄拆開，順序變成 頭像 → 內容 → 聯絡與技能，不然一整欄技能會把 About 推到很下面
+        // 手機：左欄拆開，順序變成 頭像與聯絡 → 內容 → 技能，不然一整欄技能會把 About 推到很下面；
+        // 聯絡跟著頭像，想找人的不用捲到底
         @include setRWD(960px) {
             grid-template-columns: 1fr;
             gap: 2rem;
@@ -200,6 +201,15 @@
             }
             &__main { order: 2; }
             &__section { order: 3; }
+            &__section--contact {
+                order: 1;
+                text-align: center;
+            }
+            &__section--contact &__contact {
+                flex-flow: row wrap;
+                gap: 6px 16px;
+                justify-content: center;
+            }
         }
     }
 </style>

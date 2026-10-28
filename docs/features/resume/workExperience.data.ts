@@ -28,7 +28,7 @@ export default defineLoader({
                 company: '獨立開發者',
                 companyAlt: 'Independent Developer',
                 location: 'Tainan, Taiwan',
-                jobTitle: 'Full-Stack Developer・叮咚記帳、Flowsker',
+                jobTitle: 'Full-Stack Developer',
                 period: '2026.10 - Now'
             },
             {
@@ -37,7 +37,7 @@ export default defineLoader({
                 companyAlt: 'NCKU AI4DT',
                 location: 'Tainan, Taiwan',
                 jobTitle: 'Senior Front-End Developer',
-                period: '2023.09 - 2026.10'
+                period: '2023.09 - 2026.09'
             },
             {
                 logo: '/images/resume/iware.webp',

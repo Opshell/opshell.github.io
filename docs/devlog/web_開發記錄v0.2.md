@@ -605,3 +605,38 @@
 
 - 還沒合：`feat/resume-2026-10`（worktree `../opshell-resume`）比 `main` 多 `c3b8798`、`8fbc286` 兩個 commit，`main` 之後又多了 15 個 commit，試算合併沒有衝突。
 - 使用者在對話裡直接說合併、push，沒走 Flowsker 的「合」。合進 `main`，`pnpm check` 全過後 push，GitHub Actions 部署。
+
+# 2026-10-28：檢查履歷整體
+
+> 幫我檢查一下 履歷 整體
+
+### 回答
+
+看了 `resume.md`、兩個 data 檔、元件，對照 `docs/pages/履歷/` 三份稿；用 preview 截桌面深色、桌面淺色、手機 414 深色（CDP，Node 24 內建 WebSocket，不用裝 ws）。版面三種都沒破。
+
+- **事實對不上**：
+  - 叮咚期間 `2026.08 - Now`，但 About 寫「一個月內…走到 Google Play 封測」；08 到 09-25 是近兩個月。倉庫第一個 commit 09-06，期間改 `2026.09` 就跟「一個月內」對得上，也有 git log 可證。
+  - 三平台不一致：LinkedIn 獨立開發者 2026.08 起、iWare 到 2023.09；網頁是 2026.10、2023.08。`履歷_2026-10.md`（自稱正本）也還是 08 起、450 測試、22 組 API、「2026 鐵人賽」，沒跟著網頁改。
+  - NCKU 到 2026.10 ＋ 獨立 2026.10 起，10 月算兩次，總年資 9y 11m 實際 9y 10m。
+  - 72 篇含《Markdown 語法圖鑑》（`isPublished: true`，網站自己也算進去）✓；Git 系列 7 篇 ✓；API 串接進化史資料夾 9 檔（含 07b），寫八篇先沒錯。
+- **內容**：「AI Agent」與「AI 代理」混用；三平台都有的誠實句（Android 與 Go 2026 才用，但有上線產品）網頁沒有，技能表只有 Mobile 標 2026、Go 沒標；學歷三平台有、網頁沒有；獨立開發者卡的 jobTitle 塞了產品名，內文「見上」，跟 Projects 重複；Flowsker 的 companyAlt 太長手機折行。
+- **版面**：手機版 Contact 與技能在最底；電話公開在靜態站上會被爬，由使用者決定。
+- 只是檢查，沒改檔；等使用者挑要改的再開單。
+
+# 2026-10-28：履歷照檢查結果修正
+
+> 好 都照你的建議 都做
+
+### 回答
+
+分支 `fix/resume-review`（worktree `~/WWW/opshell-wt/resume-review`）。權杖檔沒有 `Blog=` 那行（只有 `FrontEnd`、`BackEnd`），開不了單，請使用者補。
+
+- 期間：叮咚 `2026.09`（倉庫第一個 commit 09-06，跟 About「一個月內」對得上）；成大 `2026.09`（做到 10/01，不跟獨立開發者重算 10 月，總年資 9y 10m）。
+- About 加誠實句（Android 與 Go 2026 才用、兩個都有上線產品）；技能表 Go 標 `· 2026`。
+- 加 `## Education`；「AI Agent」統一成「AI 代理」。
+- 獨立開發者卡：jobTitle 只留 Full-Stack Developer，兩條併成一條。Flowsker 副標縮成「Flowmodoro × AI 工作流」。
+- 手機版 Contact 跟著頭像排到最上面、改橫排置中（`Resume.vue` 的 `resume__section--contact`）。
+- `ul + h2` 也給 3rem 上距，Education 跟 Writing 才不會黏在一起。
+- 正本 `docs/pages/履歷/履歷_2026-10.md`（未追蹤）9 處日期與數字對齊網頁；LinkedIn 上獨立開發者 2026.08、iWare 2023.09 要使用者自己改（`平台版本` 那份記的是站上實際內容，沒動）。
+- 電話留著，使用者決定。
+- 驗證：`pnpm check` 全過（186 個測試）；preview 截桌面淺色、手機 414 深色看過。

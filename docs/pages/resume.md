@@ -39,7 +39,7 @@ skills:
       - { text: WCAG 2.0 AA }
   - type: Back-End
     items:
-      - { text: Go, color: 00ADD8 }
+      - { text: Go · 2026, color: 00ADD8 }
       - { text: Gin / GORM, color: 00ADD8 }
       - { icon: colorful-php, text: PHP / Laravel, color: 8993BE }
       - { text: PostgreSQL, color: 336791 }
@@ -95,7 +95,8 @@ const allOpen = ref(true);
 ## About
 
 十年前端為主的全端工程師，擅長把混亂的專案收斂成所有人都能接手的架構。
-2026 年起把同一套方法用在 AI 上，重新規劃 AI 時代的開發流程：一個人帶多個 AI Agent 分工，一個月內讓一款 Android App 從開專案走到 Google Play 封測，第二個產品 Flowsker 一天立起骨架、三天上線。
+2026 年起把同一套方法用在 AI 上，重新規劃 AI 時代的開發流程：一個人帶多個 AI 代理分工，一個月內讓一款 Android App 從開專案走到 Google Play 封測，第二個產品 Flowsker 一天立起骨架、三天上線。
+Android 與 Go 是 2026 年才開始用的，兩個都有上線的產品；我拿這個證明學習能力，不宣稱多年經驗。
 
 ## 三件最值得問我的事
 
@@ -150,8 +151,7 @@ Flowsker 把這些收成一條線：專注到想停為止，休息按比例給�
 
 <WorkExperience :work="works[0]" :open="allOpen">
 
-- 全職做自己的產品：叮咚記帳（Android ＋ Go）、Flowsker（Vue ＋ Go），兩個都已上線（見上）；用它們重新規劃 AI 時代的開發流程。
-- 一個人帶多個 AI Agent 分工，重點是讓產出穩定：每個代理只改自己的倉庫、介面只認 API 文件、檢查過才能 commit、UI 要在畫面上看過才算完成、每個決定留原話。流程可見、可控、可複製，第二個產品直接套用。
+- 全職做自己的產品（叮咚記帳、Flowsker，見上），用它們重新規劃 AI 時代的開發流程。一個人帶多個 AI 代理分工，重點是讓產出穩定：每個代理只改自己的倉庫、介面只認 API 文件、檢查過才能 commit、UI 要在畫面上看過才算完成、每個決定留原話。流程可見、可控、可複製，第二個產品直接套用。
 
 </WorkExperience>
 
@@ -198,6 +198,10 @@ Flowsker 把這些收成一條線：專注到想停為止，休息按比例給�
 - 部落格 [opshell.me](/)：72 篇公開文章；〈API 串接進化史〉八篇、〈Git〉系列七篇撰寫中。
 - 下一屆鐵人賽預定題目：一個人帶多個 AI 代理做產品（Flowsker 的開發記錄）。
 
+## Education
+
+- **台灣首府大學** 數位娛樂與遊戲設計學系 學士　2011 – 2015
+
 <style lang="scss">
   .resume__works {
     margin-top: 2.5rem;
@@ -217,5 +221,6 @@ Flowsker 把這些收成一條線：專注到想停為止，休息按比例給�
     font-size: var(--font-size-s);
     font-weight: 400;
   }
-  .resume__works + h2 { margin-top: 3rem; }
+  .resume__works + h2,
+  .resume__main ul + h2 { margin-top: 3rem; }
 </style>
