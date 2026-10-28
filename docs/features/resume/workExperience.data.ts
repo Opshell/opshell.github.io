@@ -2,14 +2,19 @@ import { defineLoader } from 'vitepress';
 
 // 工作經歷的基本資料（公司、職稱、期間）。內容條列在 pages/resume.md 的 <WorkExperience> slot 裡，
 // 因為那是 markdown，比塞在 TS 字串裡好寫。順序：新的在前。期間格式 'YYYY.MM - YYYY.MM' 或 'YYYY.MM - Now'。
+// 自己做的產品也用同一個介面（projects.data.ts）：company 放產品名、jobTitle 放是什麼東西、link 取代 location。
 export interface Work {
     logo: string;
     company: string;
     /** 公司的英文或簡稱，顯示在名稱下方 */
     companyAlt?: string;
-    location: string;
+    location?: string;
     jobTitle: string;
     period: string;
+    /** 有連結就顯示連結（產品用），沒有就顯示地點 */
+    link?: string;
+    /** 連結顯示的文字，省略時用 link 本身 */
+    linkText?: string;
 }
 
 declare const data: Work[];
@@ -19,12 +24,20 @@ export default defineLoader({
     load(): Work[] {
         return [
             {
+                logo: '/logo.jpg',
+                company: '獨立開發者',
+                companyAlt: 'Independent Developer',
+                location: 'Tainan, Taiwan',
+                jobTitle: 'Full-Stack Developer・叮咚記帳、Flowsker',
+                period: '2026.10 - Now'
+            },
+            {
                 logo: '/images/resume/ai4dt.webp',
                 company: '國立成功大學 人工智能數位轉型研究中心',
                 companyAlt: 'NCKU AI4DT',
                 location: 'Tainan, Taiwan',
                 jobTitle: 'Senior Front-End Developer',
-                period: '2023.09 - Now'
+                period: '2023.09 - 2026.10'
             },
             {
                 logo: '/images/resume/iware.webp',
