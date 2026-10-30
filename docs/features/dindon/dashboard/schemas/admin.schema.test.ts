@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BatchReviewFeedbackPayload, CreateFeedbackPayload, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackListParser, GetFeedbackStatsParser, GetUsageReportParser, SaveFeatureCandidatePayload, UpdateDevicePayload, UpdateFeedbackIssueParser } from './admin.schema';
+import { BatchReviewFeedbackPayload, CreateFeedbackPayload, GetDeviceDetailParser, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackListParser, GetFeedbackStatsParser, GetUsageReportParser, SaveFeatureCandidatePayload, UpdateDevicePayload, UpdateFeedbackIssueParser } from './admin.schema';
 
 // 後端是 Go：nil 的 slice、map 會送 null，沒設的指標欄位可能整個不送。這裡測的都是這類邊界
 
@@ -63,6 +63,11 @@ describe('裝置', () => {
         expect(() => GetDeviceListParser.parse({ devices: [{ ...rawDevice, plan_tier: 'ultra' }], total: 1, page: 1, per_page: 20 })).toThrow();
         // 2026-10-08 方案變四個：max（深度）要收（溝通板 #0095）
         expect(GetDeviceListParser.parse({ devices: [{ ...rawDevice, plan_tier: 'max' }], total: 1, page: 1, per_page: 20 }).devices[0].planTier).toBe('max');
+    });
+
+    it('裝置細項：beta 期間的方案來源是 beta（#431，之前整頁回應格式不符）', () => {
+        const detail = GetDeviceDetailParser.parse({ device: rawDevice, audit: null, perks: null, plan: { plan_tier: 'max', plan_source: 'beta' }, referrals: null });
+        expect(detail.plan).toEqual({ planTier: 'max', planSource: 'beta' });
     });
 
     it('送出的修改轉回 snake_case', () => {

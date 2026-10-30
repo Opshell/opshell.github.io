@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { AdminDevice, AuditEntry, Perk, PlanTier, UpdateDeviceInput } from '../schemas/admin.schema';
+    import type { AdminDevice, AuditEntry, Perk, PlanSource, PlanTier, UpdateDeviceInput } from '../schemas/admin.schema';
     import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
     import { adminApi, MAX_TOKENS } from '../api';
     import {
@@ -27,7 +27,7 @@
     const audit = ref<AuditEntry[]>([]);
     // beta 貢獻活動的東西（api.md 第 8 節「裝置頁多的東西」）
     const perks = ref<Perk[]>([]);
-    const realPlan = ref<{ planTier: PlanTier; planSource: 'subscription' | 'perk' | 'free' } | null>(null);
+    const realPlan = ref<{ planTier: PlanTier; planSource: PlanSource } | null>(null);
     const referrals = ref<{ pending: number; qualified: number } | null>(null);
     const referralCode = ref('');
 
