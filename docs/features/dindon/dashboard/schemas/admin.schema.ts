@@ -13,6 +13,10 @@ import { z } from 'zod';
 export const PlanTierSchema = z.enum(['free', 'lite', 'pro', 'max']);
 export type PlanTier = z.infer<typeof PlanTierSchema>;
 
+/** 方案是哪來的（api.md 第 2 節 `plan_source`）。beta 是 beta 期間的 beta 測試者，比照深度（「通用約定」的「Beta 期間」） */
+export const PlanSourceSchema = z.enum(['subscription', 'perk', 'beta', 'free']);
+export type PlanSource = z.infer<typeof PlanSourceSchema>;
+
 /** 優惠碼送的方案：空字串 = 這組碼只送點數 */
 export const PromoPlanTierSchema = z.enum(['', 'lite', 'pro', 'max']);
 
@@ -246,8 +250,8 @@ export const GetDeviceDetailParser = z
         device: AdminDeviceParser,
         audit: nullableList(AuditEntryParser),
         perks: nullableList(PerkParser),
-        /** 現在實際的方案：訂閱與使用中的權益取高的 */
-        plan: z.object({ plan_tier: PlanTierSchema, plan_source: z.enum(['subscription', 'perk', 'free']) }).nullish(),
+        /** 現在實際的方案：訂閱、使用中的權益、beta 測試者取高的 */
+        plan: z.object({ plan_tier: PlanTierSchema, plan_source: PlanSourceSchema }).nullish(),
         /** 邀請的狀態計數，沒有的狀態不會出現 */
         referrals: nullableRecord(z.number()),
         referral_code: z.string().nullish()

@@ -101,6 +101,7 @@ export const PERK_SOURCE_LABELS: Record<string, string> = {
 export const PLAN_SOURCE_LABELS: Record<string, string> = {
     subscription: '訂閱',
     perk: '權益',
+    beta: 'Beta 測試者',
     free: '免費'
 };
 
