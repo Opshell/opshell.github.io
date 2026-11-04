@@ -69,6 +69,7 @@
         form.value = emptyForm();
         editingFrom.value = null;
         confirmingAlert.value = false;
+        confirmingRestoreId.value = null;
         editing.value = 0;
     }
 
@@ -86,6 +87,7 @@
         };
         editingFrom.value = { level: item.level, state: item.state };
         confirmingAlert.value = false;
+        confirmingRestoreId.value = null;
         editing.value = item.id;
     }
 
@@ -147,6 +149,7 @@
     }
 
     async function load() {
+        confirmingRestoreId.value = null;
         loading.value = true;
         error.value = '';
         try {
