@@ -3,10 +3,11 @@
     import type { Announcement } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
-    import { announcementError, APP_PAGES, buildRangeText, fromTaipeiLocal, LINK_URL, linkChoice, linkLabel, toTaipeiLocal } from '../appAdmin';
+    import { announcementError, APP_PAGES, buildRangeText, fromTaipeiLocal, LINK_URL, linkChoice, linkLabel, splitList, toTaipeiLocal } from '../appAdmin';
     import { formatDateTime } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import AdminActions from './AdminActions.vue';
+    import NewsDraftPanel from './NewsDraftPanel.vue';
 
     // 「重要公告」分頁（溝通板 #0080；2026-10-03 從「App 版本」拆出來，使用者：「單獨在選單中有個項目」）。
     // 發出去的公告，App 打開時由使用者選的小夥伴探頭講一次；App 0.7.5 起才會講（前端在做），之前發的到時候還在期間內就會講。
@@ -25,6 +26,11 @@
     const form = ref<AnnouncementDraft>(emptyForm());
     const formError = computed(() => announcementError(form.value, messageMax.value));
     const messageLength = computed(() => [...form.value.message.trim()].length);
+    // 示警會讓所有使用者的手機跳系統通知（Flowsker #532）：新增一則示警、或把一般公告改成示警，送出前要再按一次。
+    // 已經是示警的改字不用：App 用 id 記講過了沒，改內容不會再跳一次
+    const editingLevel = ref<Announcement['level']>('normal');
+    const needsAlertConfirm = computed(() => form.value.level === 'alert' && (editing.value === 0 || editingLevel.value !== 'alert'));
+    const confirmingAlert = ref(false);
 
     const STATE_LABELS: Record<Announcement['state'], string> = { scheduled: '還沒開始', active: '播放中', ended: '已結束', withdrawn: '已下架' };
     // 連結用下拉選（#0080）：App 的頁面、或網址。舊公告的代號不在清單上的話，照原樣列成一項，不會被洗掉
@@ -48,12 +54,17 @@
             startsAt: toTaipeiLocal(new Date(now).toISOString()),
             endsAt: toTaipeiLocal(new Date(now + 7 * 86_400_000).toISOString()),
             minAppBuild: 0,
-            maxAppBuild: 0
+            maxAppBuild: 0,
+            level: 'normal',
+            institutions: '',
+            bankCodes: ''
         };
     }
 
     function startCreate() {
         form.value = emptyForm();
+        editingLevel.value = 'normal';
+        confirmingAlert.value = false;
         editing.value = 0;
     }
 
@@ -64,13 +75,23 @@
             startsAt: toTaipeiLocal(item.startsAt),
             endsAt: toTaipeiLocal(item.endsAt),
             minAppBuild: item.minAppBuild,
-            maxAppBuild: item.maxAppBuild
+            maxAppBuild: item.maxAppBuild,
+            level: item.level,
+            institutions: item.institutions.join('、'),
+            bankCodes: item.bankCodes.join(' ')
         };
+        editingLevel.value = item.level;
+        confirmingAlert.value = false;
         editing.value = item.id;
     }
 
     async function submitAnnouncement() {
         if (formError.value || editing.value === null) return;
+        if (needsAlertConfirm.value && !confirmingAlert.value) {
+            confirmingAlert.value = true;
+            return;
+        }
+        confirmingAlert.value = false;
         busy.value = true;
         error.value = '';
         notice.value = '';
@@ -80,7 +101,11 @@
             startsAt: fromTaipeiLocal(form.value.startsAt),
             endsAt: fromTaipeiLocal(form.value.endsAt),
             minAppBuild: form.value.minAppBuild,
-            maxAppBuild: form.value.maxAppBuild
+            maxAppBuild: form.value.maxAppBuild,
+            level: form.value.level,
+            // 送 [] 是清空：改回一般公告時機構也一起清掉，App 才不會拿舊的去比對
+            institutions: form.value.level === 'alert' ? splitList(form.value.institutions) : [],
+            bankCodes: form.value.level === 'alert' ? splitList(form.value.bankCodes) : []
         };
         try {
             const id = editing.value;
@@ -126,6 +151,11 @@
         }
     }
 
+    /** 新聞草稿發佈出去的示警，接到列表最上面 */
+    function onPublished(item: Announcement) {
+        announcements.value = [item, ...announcements.value.filter(entry => entry.id !== item.id)];
+    }
+
     onMounted(load);
 </script>
 
@@ -138,6 +168,8 @@
 
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
         <p v-if="notice" class="dd-app__notice" role="status">✓ {{ notice }}</p>
+
+        <NewsDraftPanel @published="onPublished" />
 
         <section class="dd-app__card" aria-labelledby="dd-announce-list">
             <header class="dd-app__head">
@@ -165,6 +197,26 @@
                     <input v-if="linkSelect === LINK_URL" v-model="form.link" type="url" placeholder="https://opshell.me/dindon/" />
                     <span class="counter">App 0.7.5 起才會帶過去；舊版只講內容。{{ linkSelect && linkSelect !== LINK_URL ? form.link : '' }}</span>
                 </label>
+                <label class="wide">
+                    等級
+                    <select v-model="form.level" @change="confirmingAlert = false">
+                        <option value="normal">一般：App 打開時小夥伴講</option>
+                        <option value="alert">示警：所有使用者的手機跳系統通知</option>
+                    </select>
+                    <span class="counter">新聞擬好的示警從上面「新聞示警草稿」發佈就好，這裡是手動補發用的。App 0.9.6 起才收得到示警。</span>
+                </label>
+                <template v-if="form.level === 'alert'">
+                    <label>
+                        相關機構
+                        <input v-model="form.institutions" type="text" placeholder="永豐銀行、國泰世華" @input="confirmingAlert = false" />
+                        <span class="counter">頓號或逗號分開，最多 10 個。App 只在手機上比對使用者的帳戶與通知來源</span>
+                    </label>
+                    <label>
+                        銀行代碼
+                        <input v-model="form.bankCodes" type="text" inputmode="numeric" placeholder="807 013" @input="confirmingAlert = false" />
+                        <span class="counter">財金公司三碼，空白分開。支付沒有代碼，只填機構名</span>
+                    </label>
+                </template>
                 <label>開始（台灣時間）<input v-model="form.startsAt" type="datetime-local" /></label>
                 <label>結束（台灣時間）<input v-model="form.endsAt" type="datetime-local" /></label>
                 <label>只給這個 build 以上<input v-model.number="form.minAppBuild" type="number" min="0" /></label>
@@ -174,9 +226,12 @@
                     {{ editing ? '改內容不會讓已經講過的 App 再講一次；要重講請新增一則。' : '' }}
                 </p>
                 <p v-if="formError" class="wide dd-admin__error">{{ formError }}</p>
+                <p v-if="confirmingAlert" class="wide dd-news__warn" role="alert">這會讓所有使用者的手機跳通知。內容與機構確定沒寫錯再按一次。</p>
                 <div class="wide dd-app__actions">
-                    <button type="submit" class="dd-admin__btn" :disabled="busy || !!formError">{{ editing ? '儲存' : '新增' }}</button>
-                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="editing = null">取消</button>
+                    <button type="submit" class="dd-admin__btn" :class="{ 'dd-admin__btn--danger': confirmingAlert }" :disabled="busy || !!formError">
+                        {{ confirmingAlert ? '確定發示警' : editing ? '儲存' : '新增' }}
+                    </button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirmingAlert ? (confirmingAlert = false) : (editing = null)">取消</button>
                 </div>
             </form>
 
@@ -196,10 +251,16 @@
                     <tbody>
                         <tr v-for="item in announcements" :key="item.id">
                             <td>{{ item.id }}</td>
-                            <td><span class="dd-status" :class="`is-${item.state}`">{{ STATE_LABELS[item.state] }}</span></td>
+                            <td>
+                                <span class="dd-status" :class="`is-${item.state}`">{{ STATE_LABELS[item.state] }}</span>
+                                <span v-if="item.level === 'alert'" class="dd-status is-alert">示警</span>
+                            </td>
                             <td class="message">
                                 {{ item.message }}
                                 <small v-if="item.link">→ {{ linkLabel(item.link) }}</small>
+                                <small v-if="item.institutions.length || item.bankCodes.length" class="targets">
+                                    相關：{{ item.institutions.join('、') || '—' }}{{ item.bankCodes.length ? `（${item.bankCodes.join('、')}）` : '' }}
+                                </small>
                             </td>
                             <td class="period">{{ formatDateTime(item.startsAt) }}<br />～ {{ formatDateTime(item.endsAt) }}</td>
                             <td>{{ buildRangeText(item.minAppBuild, item.maxAppBuild) }}</td>
@@ -272,6 +333,7 @@
                     color: var(--vp-c-text-2);
                     font-family: var(--dd-mono);
                 }
+                .targets { font-family: inherit; }
             }
             .period {
                 font-size: 12px;
@@ -287,7 +349,9 @@
         .dd-status {
             &.is-scheduled,
             &.is-ended { background: var(--vp-c-default-soft); }
-            &.is-withdrawn { background: var(--vp-c-danger-soft); }
+            &.is-withdrawn,
+            &.is-alert { background: var(--vp-c-danger-soft); }
+            &.is-alert { margin-left: 4px; }
         }
     }
 </style>

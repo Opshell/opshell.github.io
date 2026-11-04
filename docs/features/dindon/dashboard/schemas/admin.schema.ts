@@ -1137,6 +1137,10 @@ export type AppVersions = z.output<typeof AppVersionsParser>;
 export const AnnouncementStateSchema = z.enum(['scheduled', 'active', 'ended', 'withdrawn']);
 export type AnnouncementState = z.infer<typeof AnnouncementStateSchema>;
 
+/** normal：App 開著時小精靈講；alert：示警，App 在背景收、跳系統通知（api.md 第 21 節，Flowsker #531） */
+export const AnnouncementLevelSchema = z.enum(['normal', 'alert']);
+export type AnnouncementLevel = z.infer<typeof AnnouncementLevelSchema>;
+
 export const AnnouncementSchema = z.object({
     id: z.number().int(),
     message: z.string(),
@@ -1147,6 +1151,11 @@ export const AnnouncementSchema = z.object({
     /** 只給這個範圍的版本看；0＝不限 */
     minAppBuild: z.number().int(),
     maxAppBuild: z.number().int(),
+    level: AnnouncementLevelSchema,
+    /** 相關機構的常用短名，App 只在手機上比對使用者的帳戶與通知來源 */
+    institutions: z.array(z.string()),
+    /** 財金公司三碼，App 帳戶存的是代碼，比名稱準 */
+    bankCodes: z.array(z.string()),
     state: AnnouncementStateSchema,
     withdrawnAt: z.string().nullable(),
     createdBy: z.string(),
@@ -1163,6 +1172,10 @@ const AnnouncementParser = z
         ends_at: z.string(),
         min_app_build: z.number().nullish(),
         max_app_build: z.number().nullish(),
+        // 舊的後端沒有這三欄：當成一般公告
+        level: AnnouncementLevelSchema.nullish(),
+        institutions: nullableList(z.string()),
+        bank_codes: nullableList(z.string()),
         state: AnnouncementStateSchema,
         withdrawn_at: z.string().nullish(),
         created_by: z.string().nullish(),
@@ -1176,6 +1189,9 @@ const AnnouncementParser = z
         endsAt: data.ends_at,
         minAppBuild: data.min_app_build ?? 0,
         maxAppBuild: data.max_app_build ?? 0,
+        level: data.level ?? 'normal',
+        institutions: data.institutions,
+        bankCodes: data.bank_codes,
         state: data.state,
         withdrawnAt: data.withdrawn_at ?? null,
         createdBy: data.created_by ?? '',
@@ -1190,7 +1206,7 @@ export const GetAnnouncementListParser = z
 /** 新增、修改都回一則（新增是 201） */
 export const SaveAnnouncementParser = AnnouncementParser;
 
-/** 新增：message、endsAt 必填；時間是 RFC3339、要帶時區。修改只送有變的欄位，加 withdrawn 下架／重新上架 */
+/** 新增：message、endsAt 必填；時間是 RFC3339、要帶時區。修改只送有變的欄位，加 withdrawn 下架／重新上架；陣列送 [] 是清空 */
 export const SaveAnnouncementPayload = z
     .object({
         message: z.string(),
@@ -1199,11 +1215,144 @@ export const SaveAnnouncementPayload = z
         endsAt: z.string(),
         minAppBuild: z.number().int().min(0),
         maxAppBuild: z.number().int().min(0),
+        level: AnnouncementLevelSchema,
+        institutions: z.array(z.string()),
+        bankCodes: z.array(z.string()),
         withdrawn: z.boolean()
     })
     .partial()
     .transform(camelToSnake);
 export type SaveAnnouncementInput = z.input<typeof SaveAnnouncementPayload>;
+
+// #endregion
+
+// #region [P] 新聞示警草稿 /v1/admin/news（api.md 第 8 節、第 26 節，Flowsker #531）
+// 排程每 30 分鐘抓新聞交 AI 擬草稿，一定要管理員按發佈才變成 level: alert 的公告：示警點名銀行，誤判會嚇到使用者
+
+export const NewsDraftStatusSchema = z.enum(['pending', 'published', 'discarded']);
+export type NewsDraftStatus = z.infer<typeof NewsDraftStatusSchema>;
+
+export const NewsSourceSchema = z.object({
+    title: z.string(),
+    url: z.string(),
+    /** 媒體名 */
+    source: z.string(),
+    publishedAt: z.string().nullable()
+});
+export type NewsSource = z.infer<typeof NewsSourceSchema>;
+
+const NewsSourceParser = z
+    .object({ title: z.string(), url: z.string(), source: z.string().nullish(), published_at: z.string().nullish() })
+    .transform(data => ({ title: data.title, url: data.url, source: data.source ?? '', publishedAt: data.published_at ?? null }))
+    .pipe(NewsSourceSchema);
+
+export const NewsDraftSchema = z.object({
+    id: z.number().int(),
+    message: z.string(),
+    institutions: z.array(z.string()),
+    bankCodes: z.array(z.string()),
+    /** 同一件事的幾篇報導，最多 10 篇 */
+    sources: z.array(NewsSourceSchema),
+    /** AI 判斷要示警的理由 */
+    reason: z.string(),
+    status: NewsDraftStatusSchema,
+    suggestedEndsAt: z.string().nullable(),
+    announcementId: z.number().int().nullable(),
+    decidedBy: z.string(),
+    decidedAt: z.string().nullable(),
+    /** 發佈或丟掉之後才出現的同一件事的報導；丟掉的一直漲代表還在發酵 */
+    laterReports: z.number().int(),
+    laterSources: z.array(NewsSourceSchema),
+    createdAt: z.string(),
+    updatedAt: z.string()
+});
+export type NewsDraft = z.infer<typeof NewsDraftSchema>;
+
+const NewsDraftParser = z
+    .object({
+        id: z.number(),
+        message: z.string(),
+        institutions: nullableList(z.string()),
+        bank_codes: nullableList(z.string()),
+        sources: nullableList(NewsSourceParser),
+        reason: z.string().nullish(),
+        status: NewsDraftStatusSchema,
+        suggested_ends_at: z.string().nullish(),
+        announcement_id: z.number().nullish(),
+        decided_by: z.string().nullish(),
+        decided_at: z.string().nullish(),
+        later_reports: z.number().nullish(),
+        later_sources: nullableList(NewsSourceParser),
+        created_at: z.string(),
+        updated_at: z.string()
+    })
+    .transform(data => ({
+        id: data.id,
+        message: data.message,
+        institutions: data.institutions,
+        bankCodes: data.bank_codes,
+        sources: data.sources,
+        reason: data.reason ?? '',
+        status: data.status,
+        suggestedEndsAt: data.suggested_ends_at ?? null,
+        announcementId: data.announcement_id ?? null,
+        decidedBy: data.decided_by ?? '',
+        decidedAt: data.decided_at ?? null,
+        laterReports: data.later_reports ?? 0,
+        laterSources: data.later_sources,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+    }))
+    .pipe(NewsDraftSchema);
+
+/** pendingCount 不管篩什麼都是全部待處理的數量 */
+export const GetNewsDraftListParser = z
+    .object({ drafts: nullableList(NewsDraftParser), pending_count: z.number().nullish(), message_max: z.number().nullish() })
+    .transform(data => ({ drafts: data.drafts, pendingCount: data.pending_count ?? 0, messageMax: data.message_max ?? 80 }));
+
+export const PublishNewsDraftParser = z
+    .object({ draft: NewsDraftParser, announcement: AnnouncementParser });
+
+export const DiscardNewsDraftParser = z.object({ draft: NewsDraftParser });
+
+/** 每欄都選填，沒給的用草稿的；link 沒給是第一篇來源的網址，送 "" 才是不帶連結 */
+export const PublishNewsDraftPayload = z
+    .object({
+        message: z.string(),
+        institutions: z.array(z.string()),
+        bankCodes: z.array(z.string()),
+        link: z.string(),
+        endsAt: z.string()
+    })
+    .partial()
+    .transform(camelToSnake);
+export type PublishNewsDraftInput = z.input<typeof PublishNewsDraftPayload>;
+
+/** 手動掃一輪的結果（26.1 的 report）；502 時也帶著做到哪裡 */
+export const NewsScanParser = z
+    .object({
+        report: z.object({
+            fetched: z.number().nullish(),
+            new: z.number().nullish(),
+            judged: z.number().nullish(),
+            alerts: z.number().nullish(),
+            drafts_created: nullableList(z.number()),
+            drafts_merged: z.number().nullish(),
+            later_reports: z.number().nullish(),
+            waiting: z.number().nullish()
+        })
+    })
+    .transform(({ report }) => ({
+        fetched: report.fetched ?? 0,
+        new: report.new ?? 0,
+        judged: report.judged ?? 0,
+        alerts: report.alerts ?? 0,
+        draftsCreated: report.drafts_created,
+        draftsMerged: report.drafts_merged ?? 0,
+        laterReports: report.later_reports ?? 0,
+        waiting: report.waiting ?? 0
+    }));
+export type NewsScanReport = z.output<typeof NewsScanParser>;
 
 // #endregion
 

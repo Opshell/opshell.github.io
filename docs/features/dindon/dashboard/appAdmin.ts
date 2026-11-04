@@ -102,15 +102,44 @@ export interface AnnouncementDraft {
     endsAt: string;
     minAppBuild: number;
     maxAppBuild: number;
+    level: 'normal' | 'alert';
+    /** 表單上是一行字，逗號、頓號或空白分開；送出前用 splitList 拆 */
+    institutions: string;
+    bankCodes: string;
 }
 
-export function announcementError(draft: AnnouncementDraft, messageMax: number): string {
-    const message = draft.message.trim();
+/** 「永豐銀行、國泰世華」「807, 013」→ 陣列。去頭尾空白、去重複，空的拿掉 */
+export function splitList(text: string): string[] {
+    return [...new Set(text.split(/[,，、\s]+/).map(item => item.trim()).filter(Boolean))];
+}
+
+/** 示警的機構與代碼，照 api.md 第 8 節公告的 400：機構最多 10 個、每個 1～20 字；代碼是三碼數字、最多 10 個 */
+export function alertTargetsError(institutions: string[], bankCodes: string[]): string {
+    if (institutions.length > 10) return '相關機構最多 10 個';
+    if (institutions.some(name => [...name].length > 20)) return '機構名稱每個最多 20 字';
+    if (bankCodes.length > 10) return '銀行代碼最多 10 個';
+    if (bankCodes.some(code => !/^\d{3}$/.test(code))) return '銀行代碼是三碼數字（例如 807）';
+    return '';
+}
+
+/** 公告與示警的內容：一行、不空、不超過字數 */
+function messageError(text: string, messageMax: number): string {
+    const message = text.trim();
     if (!message) return '內容不能空白';
     if ([...message].length > messageMax) return `內容最多 ${messageMax} 字`;
     if (/\n/.test(message)) return '內容不能換行（會放在小夥伴的一個對話框裡）';
-    const link = draft.link.trim();
-    if (link && !link.startsWith('https://') && !APP_LINK.test(link)) return '連結要是 https:// 網址，或 app:頁面代號';
+    return '';
+}
+
+const linkError = (link: string) => (link && !link.startsWith('https://') && !APP_LINK.test(link) ? '連結要是 https:// 網址，或 app:頁面代號' : '');
+
+export function announcementError(draft: AnnouncementDraft, messageMax: number): string {
+    const message = messageError(draft.message, messageMax);
+    if (message) return message;
+    const link = linkError(draft.link.trim());
+    if (link) return link;
+    const targets = alertTargetsError(splitList(draft.institutions), splitList(draft.bankCodes));
+    if (targets) return targets;
     if (!draft.endsAt) return '請選結束時間';
     if (draft.startsAt && draft.endsAt <= draft.startsAt) return '結束要比開始晚';
     if ([draft.minAppBuild, draft.maxAppBuild].some(n => !Number.isInteger(n) || n < 0)) return '版本號要是 0 以上的整數';
@@ -123,4 +152,26 @@ export function buildRangeText(min: number, max: number): string {
     if (!min && !max) return '全部版本';
     if (min && max) return min === max ? `只給 ${min}` : `${min}～${max}`;
     return min ? `${min} 以上` : `${max} 以下`;
+}
+
+/** 新聞示警草稿發佈前改的那幾欄。link 空的是不帶連結（後端沒給才用第一篇來源，這裡一律明確送） */
+export interface NewsDraftEdit {
+    message: string;
+    institutions: string;
+    bankCodes: string;
+    link: string;
+    endsAt: string;
+}
+
+export function newsDraftError(edit: NewsDraftEdit, messageMax: number, now = Date.now()): string {
+    const message = messageError(edit.message, messageMax);
+    if (message) return message;
+    const targets = alertTargetsError(splitList(edit.institutions), splitList(edit.bankCodes));
+    if (targets) return targets;
+    const link = linkError(edit.link.trim());
+    if (link) return link;
+    if (!edit.endsAt) return '請選結束時間';
+    // 示警的開始時間一律是按下發佈的那一刻
+    if (new Date(fromTaipeiLocal(edit.endsAt)).getTime() <= now) return '結束要比現在晚（示警按下就開始）';
+    return '';
 }
