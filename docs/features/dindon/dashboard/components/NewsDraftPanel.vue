@@ -6,10 +6,12 @@
     import { fromTaipeiLocal, newsDraftError, splitList, toTaipeiLocal } from '../appAdmin';
     import { formatDateTime } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import NewsSourceList from './NewsSourceList.vue';
 
     // 新聞示警草稿（Flowsker #532，後端 #531）。排程每 30 分鐘抓金融詐騙新聞、AI 擬一句示警，
     // 一定要人按發佈才變成示警公告：示警點名銀行，誤判會嚇到使用者、點錯名也有風險，所以發佈前讓人改字、改機構與代碼。
     // 發佈出去的公告交給外層的公告列表（emit published），之後改字、提早下架照一般公告做。
+    // 只掛在 AnnouncementPanel 裡，表單樣式沿用它的 .dd-announce__form。
     const emit = defineEmits<{ published: [announcement: Announcement] }>();
     const call = useAdminCall();
 
@@ -28,8 +30,9 @@
     /** 每則待處理草稿發佈前改的內容；重新整理時沒動過的照新的草稿重填（排程會把新報導併進來） */
     const edits = ref<Record<number, NewsDraftEdit>>({});
     const touched = new Set<number>();
-    /** 按過一次「發佈」、等確認的那一則 */
-    const confirmingId = ref<number | null>(null);
+    /** 按過一次「發佈」或「丟掉」、等確認的那一則。丟掉不能復原（要補發只能手動新增示警），也要按兩次 */
+    const confirming = ref<{ id: number; action: 'publish' | 'discard' } | null>(null);
+    const isConfirming = (id: number, action: 'publish' | 'discard') => confirming.value?.id === id && confirming.value.action === action;
 
     const STATUS_LABELS: Record<NewsDraftStatus, string> = { pending: '待處理', published: '已發佈', discarded: '已丟掉' };
     const errors = computed(() => Object.fromEntries(
@@ -55,11 +58,13 @@
             next[draft.id] = touched.has(draft.id) && edits.value[draft.id] ? edits.value[draft.id] : editFrom(draft);
         }
         edits.value = next;
+        // 沒動過的草稿可能換成後端最新的內容，按過一次的提醒作廢，免得下一次點就發出沒看過的字
+        confirming.value = null;
     }
 
     function markTouched(id: number) {
         touched.add(id);
-        if (confirmingId.value === id) confirmingId.value = null;
+        if (confirming.value?.id === id) confirming.value = null;
     }
 
     async function load() {
@@ -105,15 +110,13 @@
     async function decide(draft: NewsDraft, action: 'publish' | 'discard') {
         const edit = edits.value[draft.id];
         if (!edit || busyId.value !== null) return;
-        if (action === 'publish') {
-            if (errors.value[draft.id]) return;
-            // 兩段式：第一次按只顯示提醒，再按一次才發
-            if (confirmingId.value !== draft.id) {
-                confirmingId.value = draft.id;
-                return;
-            }
+        if (action === 'publish' && errors.value[draft.id]) return;
+        // 兩段式：第一次按只顯示提醒，再按一次才送
+        if (!isConfirming(draft.id, action)) {
+            confirming.value = { id: draft.id, action };
+            return;
         }
-        confirmingId.value = null;
+        confirming.value = null;
         busyId.value = draft.id;
         error.value = '';
         notice.value = '';
@@ -122,7 +125,7 @@
                 const body = {
                     message: edit.message.trim(),
                     institutions: splitList(edit.institutions),
-                    bankCodes: splitList(edit.bankCodes),
+                    bankCodes: splitList(edit.bankCodes, true),
                     // 一律明確送：空字串是不帶連結，不讓後端再補第一篇來源
                     link: edit.link.trim(),
                     endsAt: fromTaipeiLocal(edit.endsAt)
@@ -228,20 +231,33 @@
                 </label>
 
                 <p v-if="errors[draft.id]" class="wide dd-admin__error">{{ errors[draft.id] }}</p>
-                <p v-if="confirmingId === draft.id" class="wide dd-news__warn" role="alert">
+                <p v-if="isConfirming(draft.id, 'publish')" class="wide dd-admin__warn" role="alert">
                     這會讓所有使用者的手機跳通知。內容與機構確定沒寫錯再按一次。
+                </p>
+                <p v-else-if="isConfirming(draft.id, 'discard')" class="wide dd-admin__warn" role="alert">
+                    丟掉之後不能再從這則發佈；之後要示警只能手動新增一則。
                 </p>
                 <div class="wide dd-app__actions">
                     <button
+                        v-if="!isConfirming(draft.id, 'discard')"
                         type="submit"
                         class="dd-admin__btn"
-                        :class="{ 'dd-admin__btn--danger': confirmingId === draft.id }"
+                        :class="{ 'dd-admin__btn--danger': isConfirming(draft.id, 'publish') }"
                         :disabled="busyId !== null || !!errors[draft.id]"
                     >
-                        {{ busyId === draft.id ? '處理中…' : confirmingId === draft.id ? '確定發佈示警' : '發佈' }}
+                        {{ busyId === draft.id ? '處理中…' : isConfirming(draft.id, 'publish') ? '確定發佈示警' : '發佈' }}
                     </button>
-                    <button v-if="confirmingId === draft.id" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="confirmingId = null">取消</button>
-                    <button v-else type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busyId !== null" @click="decide(draft, 'discard')">丟掉</button>
+                    <button
+                        v-if="!isConfirming(draft.id, 'publish')"
+                        type="button"
+                        class="dd-admin__btn"
+                        :class="isConfirming(draft.id, 'discard') ? 'dd-admin__btn--danger' : 'dd-admin__btn--ghost'"
+                        :disabled="busyId !== null"
+                        @click="decide(draft, 'discard')"
+                    >
+                        {{ isConfirming(draft.id, 'discard') ? '確定丟掉' : '丟掉' }}
+                    </button>
+                    <button v-if="confirming?.id === draft.id" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="confirming = null">取消</button>
                 </div>
             </form>
 
@@ -256,23 +272,13 @@
 
             <details class="dd-news__sources" :open="draft.status === 'pending'">
                 <summary>來源 {{ draft.sources.length }} 篇</summary>
-                <ul>
-                    <li v-for="source in draft.sources" :key="source.url">
-                        <a :href="source.url" target="_blank" rel="noopener noreferrer">{{ source.title }}</a>
-                        <small>{{ source.source }}{{ source.publishedAt ? `・${formatDateTime(source.publishedAt)}` : '' }}</small>
-                    </li>
-                </ul>
+                <NewsSourceList :sources="draft.sources" />
             </details>
             <details v-if="draft.laterReports" class="dd-news__sources">
                 <summary>
                     之後又有 {{ draft.laterReports }} 篇報導{{ draft.status === 'discarded' ? '：還在發酵，要示警的話照一般公告新增一則「示警」' : '' }}
                 </summary>
-                <ul>
-                    <li v-for="source in draft.laterSources" :key="source.url">
-                        <a :href="source.url" target="_blank" rel="noopener noreferrer">{{ source.title }}</a>
-                        <small>{{ source.source }}{{ source.publishedAt ? `・${formatDateTime(source.publishedAt)}` : '' }}</small>
-                    </li>
-                </ul>
+                <NewsSourceList :sources="draft.laterSources" />
             </details>
         </article>
     </section>
@@ -319,28 +325,12 @@
             font-size: var(--font-size-s);
         }
         &__message { color: var(--vp-c-text-1); }
-        &__warn {
-            background: var(--vp-c-danger-soft);
-            padding: 8px 12px;
-            border-radius: 8px;
-            color: var(--vp-c-danger-1);
-            font-size: var(--font-size-s);
-        }
         &__sources {
             font-size: var(--font-size-s);
 
             summary {
                 color: var(--vp-c-text-2);
                 cursor: pointer;
-            }
-            ul {
-                padding-left: 1.2em;
-                margin: 6px 0 0;
-            }
-            li { margin: 4px 0; }
-            small {
-                display: block;
-                color: var(--vp-c-text-3);
             }
         }
 

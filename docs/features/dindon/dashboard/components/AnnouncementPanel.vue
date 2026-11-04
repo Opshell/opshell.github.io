@@ -26,11 +26,15 @@
     const form = ref<AnnouncementDraft>(emptyForm());
     const formError = computed(() => announcementError(form.value, messageMax.value));
     const messageLength = computed(() => [...form.value.message.trim()].length);
-    // 示警會讓所有使用者的手機跳系統通知（Flowsker #532）：新增一則示警、或把一般公告改成示警，送出前要再按一次。
-    // 已經是示警的改字不用：App 用 id 記講過了沒，改內容不會再跳一次
-    const editingLevel = ref<Announcement['level']>('normal');
-    const needsAlertConfirm = computed(() => form.value.level === 'alert' && (editing.value === 0 || editingLevel.value !== 'alert'));
+    // 示警會讓所有使用者的手機跳系統通知（Flowsker #532）：新增一則示警、把一般公告改成示警、改已結束的示警（延長了會再播），
+    // 送出前要再按一次；按過之後改了任何一欄就收回提醒，免得確認的跟送出的不一樣。
+    // 播放中的示警改字不用：App 用 id 記講過了沒，改內容不會再跳一次
+    const editingFrom = ref<Pick<Announcement, 'level' | 'state'> | null>(null);
+    const needsAlertConfirm = computed(() => form.value.level === 'alert'
+        && (editing.value === 0 || editingFrom.value?.level !== 'alert' || editingFrom.value.state === 'ended'));
     const confirmingAlert = ref(false);
+    /** 下架的示警重新上架，還沒收到的手機會跳通知，也要按兩次 */
+    const confirmingRestoreId = ref<number | null>(null);
 
     const STATE_LABELS: Record<Announcement['state'], string> = { scheduled: '還沒開始', active: '播放中', ended: '已結束', withdrawn: '已下架' };
     // 連結用下拉選（#0080）：App 的頁面、或網址。舊公告的代號不在清單上的話，照原樣列成一項，不會被洗掉
@@ -63,7 +67,7 @@
 
     function startCreate() {
         form.value = emptyForm();
-        editingLevel.value = 'normal';
+        editingFrom.value = null;
         confirmingAlert.value = false;
         editing.value = 0;
     }
@@ -80,7 +84,7 @@
             institutions: item.institutions.join('、'),
             bankCodes: item.bankCodes.join(' ')
         };
-        editingLevel.value = item.level;
+        editingFrom.value = { level: item.level, state: item.state };
         confirmingAlert.value = false;
         editing.value = item.id;
     }
@@ -105,7 +109,7 @@
             level: form.value.level,
             // 送 [] 是清空：改回一般公告時機構也一起清掉，App 才不會拿舊的去比對
             institutions: form.value.level === 'alert' ? splitList(form.value.institutions) : [],
-            bankCodes: form.value.level === 'alert' ? splitList(form.value.bankCodes) : []
+            bankCodes: form.value.level === 'alert' ? splitList(form.value.bankCodes, true) : []
         };
         try {
             const id = editing.value;
@@ -123,6 +127,11 @@
     }
 
     async function setWithdrawn(item: Announcement, withdrawn: boolean) {
+        if (!withdrawn && item.level === 'alert' && confirmingRestoreId.value !== item.id) {
+            confirmingRestoreId.value = item.id;
+            return;
+        }
+        confirmingRestoreId.value = null;
         busy.value = true;
         error.value = '';
         notice.value = '';
@@ -177,7 +186,7 @@
                 <span class="dd-app__muted">App 打開時由你選的小夥伴探頭講，同一則只講一次；不記誰看過</span>
             </header>
 
-            <form v-if="editing !== null" class="dd-announce__form" @submit.prevent="submitAnnouncement">
+            <form v-if="editing !== null" class="dd-announce__form" @submit.prevent="submitAnnouncement" @input="confirmingAlert = false" @change="confirmingAlert = false">
                 <h3>{{ editing ? `編輯公告 #${editing}` : '新增公告' }}</h3>
                 <label class="wide">
                     內容
@@ -199,7 +208,7 @@
                 </label>
                 <label class="wide">
                     等級
-                    <select v-model="form.level" @change="confirmingAlert = false">
+                    <select v-model="form.level">
                         <option value="normal">一般：App 打開時小夥伴講</option>
                         <option value="alert">示警：所有使用者的手機跳系統通知</option>
                     </select>
@@ -208,12 +217,12 @@
                 <template v-if="form.level === 'alert'">
                     <label>
                         相關機構
-                        <input v-model="form.institutions" type="text" placeholder="永豐銀行、國泰世華" @input="confirmingAlert = false" />
+                        <input v-model="form.institutions" type="text" placeholder="永豐銀行、國泰世華" />
                         <span class="counter">頓號或逗號分開，最多 10 個。App 只在手機上比對使用者的帳戶與通知來源</span>
                     </label>
                     <label>
                         銀行代碼
-                        <input v-model="form.bankCodes" type="text" inputmode="numeric" placeholder="807 013" @input="confirmingAlert = false" />
+                        <input v-model="form.bankCodes" type="text" inputmode="numeric" placeholder="807 013" />
                         <span class="counter">財金公司三碼，空白分開。支付沒有代碼，只填機構名</span>
                     </label>
                 </template>
@@ -226,7 +235,7 @@
                     {{ editing ? '改內容不會讓已經講過的 App 再講一次；要重講請新增一則。' : '' }}
                 </p>
                 <p v-if="formError" class="wide dd-admin__error">{{ formError }}</p>
-                <p v-if="confirmingAlert" class="wide dd-news__warn" role="alert">這會讓所有使用者的手機跳通知。內容與機構確定沒寫錯再按一次。</p>
+                <p v-if="confirmingAlert" class="wide dd-admin__warn" role="alert">這會讓所有使用者的手機跳通知。內容與機構確定沒寫錯再按一次。</p>
                 <div class="wide dd-app__actions">
                     <button type="submit" class="dd-admin__btn" :class="{ 'dd-admin__btn--danger': confirmingAlert }" :disabled="busy || !!formError">
                         {{ confirmingAlert ? '確定發示警' : editing ? '儲存' : '新增' }}
@@ -270,11 +279,21 @@
                                     <button type="button" class="dd-admin__btn dd-admin__btn--ghost dd-admin__btn--small" :disabled="busy || editing !== null" @click="startEdit(item)">編輯</button>
                                     <button
                                         type="button"
-                                        class="dd-admin__btn dd-admin__btn--ghost dd-admin__btn--small"
+                                        class="dd-admin__btn dd-admin__btn--small"
+                                        :class="confirmingRestoreId === item.id ? 'dd-admin__btn--danger' : 'dd-admin__btn--ghost'"
                                         :disabled="busy"
+                                        :title="confirmingRestoreId === item.id ? '還沒收到這則的手機會跳通知' : undefined"
                                         @click="setWithdrawn(item, item.state !== 'withdrawn')"
                                     >
-                                        {{ item.state === 'withdrawn' ? '重新上架' : '下架' }}
+                                        {{ confirmingRestoreId === item.id ? '確定上架（會跳通知）' : item.state === 'withdrawn' ? '重新上架' : '下架' }}
+                                    </button>
+                                    <button
+                                        v-if="confirmingRestoreId === item.id"
+                                        type="button"
+                                        class="dd-admin__btn dd-admin__btn--ghost dd-admin__btn--small"
+                                        @click="confirmingRestoreId = null"
+                                    >
+                                        取消
                                     </button>
                                 </div>
                             </td>

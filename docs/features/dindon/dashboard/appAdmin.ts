@@ -108,9 +108,14 @@ export interface AnnouncementDraft {
     bankCodes: string;
 }
 
-/** 「永豐銀行、國泰世華」「807, 013」→ 陣列。去頭尾空白、去重複，空的拿掉 */
-export function splitList(text: string): string[] {
-    return [...new Set(text.split(/[,，、\s]+/).map(item => item.trim()).filter(Boolean))];
+/**
+ * 「永豐銀行、國泰世華」→ 陣列。去頭尾空白、去重複，空的拿掉。
+ * 機構名只用逗號、頓號分：名稱本身會有空白（後端對照表的「LINE Pay」「一卡通 Money」），用空白切會拆成兩個，App 拿「Pay」去比對就錯了。
+ * 銀行代碼是三碼數字，才讓空白也能當分隔（byWhitespace）。
+ */
+export function splitList(text: string, byWhitespace = false): string[] {
+    const separator = byWhitespace ? /[,，、\s]+/ : /[,，、]+/;
+    return [...new Set(text.split(separator).map(item => item.trim()).filter(Boolean))];
 }
 
 /** 示警的機構與代碼，照 api.md 第 8 節公告的 400：機構最多 10 個、每個 1～20 字；代碼是三碼數字、最多 10 個 */
@@ -138,7 +143,7 @@ export function announcementError(draft: AnnouncementDraft, messageMax: number):
     if (message) return message;
     const link = linkError(draft.link.trim());
     if (link) return link;
-    const targets = alertTargetsError(splitList(draft.institutions), splitList(draft.bankCodes));
+    const targets = alertTargetsError(splitList(draft.institutions), splitList(draft.bankCodes, true));
     if (targets) return targets;
     if (!draft.endsAt) return '請選結束時間';
     if (draft.startsAt && draft.endsAt <= draft.startsAt) return '結束要比開始晚';
@@ -166,7 +171,7 @@ export interface NewsDraftEdit {
 export function newsDraftError(edit: NewsDraftEdit, messageMax: number, now = Date.now()): string {
     const message = messageError(edit.message, messageMax);
     if (message) return message;
-    const targets = alertTargetsError(splitList(edit.institutions), splitList(edit.bankCodes));
+    const targets = alertTargetsError(splitList(edit.institutions), splitList(edit.bankCodes, true));
     if (targets) return targets;
     const link = linkError(edit.link.trim());
     if (link) return link;

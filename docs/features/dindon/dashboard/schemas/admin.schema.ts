@@ -1328,7 +1328,7 @@ export const PublishNewsDraftPayload = z
     .transform(camelToSnake);
 export type PublishNewsDraftInput = z.input<typeof PublishNewsDraftPayload>;
 
-/** 手動掃一輪的結果（26.1 的 report）；502 時也帶著做到哪裡 */
+/** 手動掃一輪的結果（26.1 的 report）。502 時後端也附 report，但 call 遇到錯誤狀態就拋 AdminApiError，畫面只顯示錯誤訊息 */
 export const NewsScanParser = z
     .object({
         report: z.object({

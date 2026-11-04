@@ -53,14 +53,20 @@ describe('announcementError', () => {
     it('示警的機構與代碼照後端的規則擋', () => {
         expect(announcementError({ ...ok, level: 'alert', institutions: '永豐銀行', bankCodes: '807' }, 80)).toBe('');
         expect(announcementError({ ...ok, level: 'alert', bankCodes: '80' }, 80)).toContain('三碼');
+        expect(announcementError({ ...ok, level: 'alert', institutions: 'LINE Pay', bankCodes: '807 013' }, 80)).toBe('');
     });
 });
 
 describe('splitList', () => {
-    it('逗號、頓號、空白都能分，去重複、去空的', () => {
+    it('機構名用逗號、頓號分，去重複、去空的；名稱裡的空白留著', () => {
         expect(splitList('永豐銀行、國泰世華, 永豐銀行，  台新')).toEqual(['永豐銀行', '國泰世華', '台新']);
-        expect(splitList(' 807 013 ')).toEqual(['807', '013']);
+        expect(splitList('LINE Pay、一卡通 Money')).toEqual(['LINE Pay', '一卡通 Money']);
         expect(splitList('   ')).toEqual([]);
+    });
+
+    it('銀行代碼連空白也能分', () => {
+        expect(splitList(' 807 013 ', true)).toEqual(['807', '013']);
+        expect(splitList('807、013,012', true)).toEqual(['807', '013', '012']);
     });
 });
 
