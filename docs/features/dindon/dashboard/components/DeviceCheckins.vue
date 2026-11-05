@@ -1,6 +1,6 @@
 <script setup lang="ts">
-    import type { DeviceCheckins } from '../schemas/admin.schema';
-    import { computed, onMounted, ref } from 'vue';
+    import type { CheckinState, DeviceCheckins } from '../schemas/admin.schema';
+    import { computed, onMounted, ref, watch } from 'vue';
     import { adminApi } from '../api';
     import { addDays, buildCalendar, CHECKIN_SOURCE_LABELS, daysBetween, lastOpened, rangeError } from '../checkins';
     import { formatDateTime } from '../format';
@@ -10,7 +10,8 @@
     // 看最近 12 週哪幾天有開、連續幾天，也能手動給或收回（例如使用者回報「我那天有開，但沒記到」）。
     // 給的會算進獎勵、收回不會收回已經達成的鐵人，所以兩個都要先確認。
     const { deviceId } = defineProps<{ deviceId: number }>();
-    const emit = defineEmits<{ changed: [] }>();
+    // loaded：徽章卡要用最長連續，讀到（含給／收回之後）就交出去，不另外打一次
+    const emit = defineEmits<{ changed: []; loaded: [state: CheckinState] }>();
     const call = useAdminCall();
 
     const data = ref<DeviceCheckins | null>(null);
@@ -18,6 +19,10 @@
     const busy = ref(false);
     const error = ref('');
     const notice = ref('');
+
+    watch(data, (value) => {
+        if (value) emit('loaded', value.state);
+    });
 
     const WEEKS = 12;
     const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日'];

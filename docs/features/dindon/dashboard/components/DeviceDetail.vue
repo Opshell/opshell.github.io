@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { AdminDevice, AuditEntry, Perk, PlanSource, PlanTier, UpdateDeviceInput } from '../schemas/admin.schema';
+    import type { AdminDevice, AuditEntry, CheckinState, Perk, PlanSource, PlanTier, UpdateDeviceInput } from '../schemas/admin.schema';
     import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
     import { adminApi, MAX_TOKENS } from '../api';
     import {
@@ -17,6 +17,7 @@
     } from '../format';
     import { ADMIN_NOTE_MAX } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
+    import DeviceBadges from './DeviceBadges.vue';
     import DeviceCheckins from './DeviceCheckins.vue';
 
     const { deviceId } = defineProps<{ deviceId: number }>();
@@ -303,6 +304,9 @@
     }
     // #endregion
 
+    // 打卡卡讀到的狀態，徽章卡推算天天打開用
+    const checkinState = ref<CheckinState | null>(null);
+
     onMounted(load);
 </script>
 
@@ -340,7 +344,8 @@
             </dl>
 
             <!-- 打開 App 的紀錄：給了打卡可能剛好湊滿鐵人，所以改完重讀一次裝置 -->
-            <DeviceCheckins :device-id="deviceId" @changed="load" />
+            <DeviceCheckins :device-id="deviceId" @changed="load" @loaded="checkinState = $event" />
+            <DeviceBadges :device="device" :checkins="checkinState" />
 
             <!-- #region [P] 備註 -->
             <section class="dd-detail__card">
