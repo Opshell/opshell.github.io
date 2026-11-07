@@ -12,6 +12,7 @@
         isOtherSender,
         keepDraft,
         markDraftSent,
+        markReplied,
         readState,
         REPLY_TEMPLATES,
         replyDraftProblem,
@@ -32,10 +33,6 @@
         report: FeedbackReport;
     }
     const props = defineProps<Props>();
-    const emit = defineEmits<{
-        /** 回報者收得到的回覆送出了：列表的「等你回」要拿掉 */
-        replied: [reportId: number];
-    }>();
 
     const call = useAdminCall();
 
@@ -134,7 +131,7 @@
             // 後端還沒有 /messages（#600 部署前）：至少看得到來往的信、寄得了信
             messages.value = sortThread(emailsAsMessages(emails.value.emails));
             canReplyInApp.value = false;
-            appReason.value = '後端還沒有 App 內回覆（#600 還沒部署）';
+            appReason.value = '後端沒有 /messages，App 內回覆不能用';
         } else {
             loadError.value = errorMessage(thread.reason);
             canReplyInApp.value = false;
@@ -148,8 +145,8 @@
         body.value = applyTemplate(body.value, text);
     }
 
-    /** 表單上已經是這一封，就用表單的按鈕，它的 draftId 是對的；放回只會換鍵，變成另一封 */
-    const isCurrentDraft = (message: FeedbackMessage) => draftId.value !== '' && body.value.trim() === message.body;
+    /** 表單上已經是這一封，就用表單的按鈕；同一個 draftId 從兩個地方按，看起來會像兩封 */
+    const isCurrentDraft = (message: FeedbackMessage) => message.channel === 'email' && draftId.value !== '' && message.draftId === draftId.value;
 
     /** 拿不到 draft_id 時的退路：內文不用重打，但這是新的一封，所以不蓋掉正在打的內容 */
     function restore(message: FeedbackMessage) {
@@ -159,19 +156,24 @@
     }
 
     async function deliver(via: FeedbackChannel, input: { subject: string; body: string; draftId: string }) {
+        const reportId = props.report.id; // 結果回來時這張卡片可能已經換掉了
         sending.value = true;
         error.value = '';
         notice.value = '';
         try {
+            let duplicate: boolean;
             if (via === 'app') {
-                const result = await call(token => adminApi.sendFeedbackMessage(token, props.report.id, { body: input.body, draftId: input.draftId }));
-                notice.value = result.duplicate ? '這則之前已經送出了，這次沒有再送' : '已送到回報者的 App，他下次打開「我的回報」會看到';
+                const result = await call(token => adminApi.sendFeedbackMessage(token, reportId, { body: input.body, draftId: input.draftId }));
+                duplicate = result.duplicate;
+                notice.value = duplicate ? '這則之前已經送出了，這次沒有再送' : '已送到回報者的 App，他下次打開「我的回報」會看到';
             } else {
-                const result = await call(token => adminApi.sendFeedbackEmail(token, props.report.id, input));
-                notice.value = result.duplicate ? '這封之前已經寄出了，這次沒有再寄' : `已寄給 ${result.email.to}`;
+                const result = await call(token => adminApi.sendFeedbackEmail(token, reportId, input));
+                duplicate = result.duplicate;
+                notice.value = duplicate ? '這封之前已經寄出了，這次沒有再寄' : `已寄給 ${result.email.to}`;
             }
             markDraftSent(input.draftId);
-            emit('replied', props.report.id);
+            // 重送撞到之前已送出的：那之後回報者可能又回了，「等你回」留給列表重抓時由後端說
+            if (!duplicate) markReplied(reportId);
         } catch (e) {
             // 草稿留著：502、連線中斷都可能要重送，draftId 不變才不會變兩則
             error.value = e instanceof AdminApiError ? replyErrorMessage(via, e.status, e.message) : errorMessage(e);
@@ -226,8 +228,9 @@
                 <p class="dd-thread__meta">
                     <!-- 沒事的狀態只留字，要處理的才上色：跟處理狀況的徽章同一套慣例 -->
                     <span v-if="message.channel === 'email'" class="dd-thread__status" :class="`is-${message.status}`">{{ STATUS_LABELS[message.status] }}</span>
-                    <span v-if="readState(message) === 'read'" class="dd-thread__read">已讀 · {{ formatDateTime(message.readAt) }}</span>
-                    <span v-else-if="readState(message) === 'unread'" class="dd-thread__read is-unread">還沒讀</span>
+                    <!-- read_at 是回報者在 App 裡打開這則回報的時間，信件讀了沒我們不知道 -->
+                    <span v-if="readState(message) === 'read'" class="dd-thread__read">{{ message.channel === 'email' ? 'App 裡看過' : '已讀' }} · {{ formatDateTime(message.readAt) }}</span>
+                    <span v-else-if="readState(message) === 'unread'" class="dd-thread__read is-unread">{{ message.channel === 'email' ? 'App 裡還沒看' : '還沒讀' }}</span>
                     <span v-if="isOtherSender(message, bound)" class="dd-thread__status is-failed" :title="`綁定的是 ${bound}`">不是綁定的信箱</span>
                 </p>
                 <p v-if="message.status === 'sending'" class="dd-detail__muted">

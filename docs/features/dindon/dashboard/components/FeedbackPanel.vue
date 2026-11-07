@@ -7,7 +7,7 @@
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { adminApi } from '../api';
     import ColumnChart from '../charts/ColumnChart.vue';
-    import { awaitingFirst } from '../feedbackMessages';
+    import { awaitingFirst, pendingReplied, takeReplied } from '../feedbackMessages';
     import { formatDateTime, formatInt, formatRelative, KIND_LABELS, PROGRESS_LABELS, PROGRESSES } from '../format';
     import { takePanelPreset } from '../navigation';
     import { FIXED_IN_PATTERN, reporterNameProblem } from '../schemas/admin.schema';
@@ -171,12 +171,18 @@
     const awaitingOnTop = ref(true);
     const shownReports = computed(() => (awaitingOnTop.value ? awaitingFirst(reports.value) : reports.value));
     const awaitingCount = computed(() => reports.value.filter(r => r.awaitingReply).length);
-    /** 在詳情裡回了：這一則就不等了，不用重抓整頁 */
-    function onReplied(reportId: number) {
-        const index = reports.value.findIndex(r => r.id === reportId);
-        if (index !== -1) reports.value[index] = { ...reports.value[index], awaitingReply: false };
-        if (detail.value?.id === reportId) detail.value = { ...detail.value, awaitingReply: false };
-    }
+    /**
+     * 在詳情裡回了：那幾則就不等了，不用重抓整頁。看模組層級的記號而不是聽元件的事件：
+     * 寄信中換看別則，送出的那張卡片已經卸載，它的事件傳不出來
+     */
+    watch(pendingReplied, (count) => {
+        if (!count) return;
+        for (const reportId of takeReplied()) {
+            const index = reports.value.findIndex(r => r.id === reportId);
+            if (index !== -1) reports.value[index] = { ...reports.value[index], awaitingReply: false };
+            if (detail.value?.id === reportId) detail.value = { ...detail.value, awaitingReply: false };
+        }
+    }, { immediate: true });
     // #endregion
 
     // #region [P] 同一台裝置的回報摺起來（純前端，只看這一頁的 50 則；相似度後端沒提供，只依 device_id）
@@ -744,7 +750,7 @@
                                     <td>{{ formatRelative(report.createdAt) }}</td>
                                 </tr>
                             </template>
-                            <!-- 不摺疊：照後端的順序一則一列 -->
+                            <!-- 不摺疊：一則一列，預設等你回的排前面，其他照後端的順序 -->
                             <tr
                                 v-for="report in (grouped ? [] : shownReports)"
                                 :key="report.id"
@@ -852,7 +858,7 @@
                         </details>
                     </section>
 
-                    <FeedbackMessages :key="detail.id" :report="detail" @replied="onReplied" />
+                    <FeedbackMessages :key="detail.id" :report="detail" />
 
                     <section class="dd-detail__card">
                         <h3>採計</h3>

@@ -137,6 +137,22 @@ const sentDraftIds = reactive(new Set<string>());
 export const isDraftSent = (draftId: string) => draftId !== '' && sentDraftIds.has(draftId);
 export const markDraftSent = (draftId: string) => sentDraftIds.add(draftId);
 
+/**
+ * 送出了、回報者收得到回覆的回報 id，等列表來拿掉「等你回」。不用元件的 emit：寄信要等好幾秒，
+ * 這段時間換看別則的話卡片已經卸載，卸載後的 emit 會被 Vue 直接丟掉，列表的標記就一直留著
+ */
+const repliedReports = reactive(new Set<number>());
+
+export const markReplied = (reportId: number) => repliedReports.add(reportId);
+/** 給列表監看用：有幾則等著處理 */
+export const pendingReplied = () => repliedReports.size;
+/** 拿一次就清掉：之後列表重抓、回報者又回了，後端說的 awaiting_reply 才不會被舊的記號蓋掉 */
+export function takeReplied(): number[] {
+    const ids = [...repliedReports];
+    repliedReports.clear();
+    return ids;
+}
+
 export function takeDraft(reportId: number): ReplyDraft | null {
     const draft = drafts.get(reportId) ?? null;
     drafts.delete(reportId);

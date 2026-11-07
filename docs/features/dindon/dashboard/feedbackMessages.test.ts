@@ -11,12 +11,15 @@ import {
     isOtherSender,
     keepDraft,
     markDraftSent,
+    markReplied,
+    pendingReplied,
     readState,
     REPLY_TEMPLATES,
     replyDraftProblem,
     replyErrorMessage,
     sortThread,
-    takeDraft
+    takeDraft,
+    takeReplied
 } from './feedbackMessages';
 
 const message = (patch: Partial<FeedbackMessage>): FeedbackMessage => ({
@@ -151,5 +154,17 @@ describe('草稿暫存', () => {
     it('空草稿不留', () => {
         keepDraft(2, draft({ subject: ' ', body: ' ' }));
         expect(takeDraft(2)).toBeNull();
+    });
+});
+
+describe('回過了的回報', () => {
+    it('記下來、拿一次就清掉', () => {
+        markReplied(7);
+        markReplied(8);
+        markReplied(7);
+        expect(pendingReplied()).toBe(2);
+        expect(takeReplied().sort()).toEqual([7, 8]);
+        expect(pendingReplied()).toBe(0);
+        expect(takeReplied()).toEqual([]);
     });
 });
