@@ -641,6 +641,17 @@
         &__badge-wrap.t-badge {
             position: static;
 
+            // 窄螢幕（側欄是頂端一條）只有紅點的位置：藍點貼在紅點左邊靠上，不往左長去蓋分頁名稱。
+            // 不能超出分頁上緣：頂端那條會橫向捲動，超出去的部分會被裁掉
+            &:has(.dd-admin__badge--reply) {
+                @include setRWD(900px) {
+                    position: absolute;
+                    top: 1px;
+                    left: -10px;
+                    z-index: 2;
+                }
+            }
+
             // 歸零的那顆不佔位置，另一顆才會貼著右邊
             &[data-open=false] { width: 0; }
         }

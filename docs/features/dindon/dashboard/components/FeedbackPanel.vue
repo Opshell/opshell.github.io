@@ -175,12 +175,22 @@
      * 審過的回報，回報者後來又回了也算等你回：只看「待審」會漏掉，所以切過去時狀態改成全部。
      * 之後要再縮小狀態可以自己選
      */
+    /** 進來前的狀態篩選：取消時，如果這段時間沒動過狀態（還是「全部」）就還原，不然會停在一個沒選過的「全部」 */
+    let statusBeforeAwaiting: FeedbackFilter | null = null;
     function showAwaiting(on: boolean) {
         awaitingOnly.value = on;
-        if (on) status.value = 'all';
+        if (on) {
+            statusBeforeAwaiting = status.value;
+            status.value = 'all';
+        } else {
+            if (statusBeforeAwaiting && status.value === 'all') status.value = statusBeforeAwaiting;
+            statusBeforeAwaiting = null;
+        }
         closeDetail();
         void load(1);
     }
+    /** 按鈕上的是整體的件數；點進來少了，是類型、來源這些篩選擋掉的，要講，不然會以為數字錯了 */
+    const awaitingHidden = computed(() => (awaitingOnly.value && !loading.value ? Math.max(awaitingTotal.value - total.value, 0) : 0));
     // 本頁排序：有了上面的篩選就不那麼必要，預設關，維持後端的新的在前
     const awaitingOnTop = ref(false);
     const shownReports = computed(() => (awaitingOnTop.value ? awaitingFirst(reports.value) : reports.value));
@@ -627,6 +637,7 @@
                 只看等你回
                 <button type="button" aria-label="不只看等你回" @click="showAwaiting(false)">✕</button>
             </span>
+            <span v-if="!triage && awaitingHidden" class="dd-overview__muted">其他篩選擋掉了 {{ formatInt(awaitingHidden) }} 則</span>
             <button
                 v-else-if="!triage && awaitingTotal"
                 type="button"
