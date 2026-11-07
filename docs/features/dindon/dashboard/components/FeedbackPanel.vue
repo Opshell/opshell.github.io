@@ -12,6 +12,7 @@
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import { usePanelReveal } from '../usePanelReveal';
     import { usePulse } from '../usePulse';
+    import { useScreenshotDownload } from '../useScreenshotDownload';
     import AdminActions from './AdminActions.vue';
     import FeedbackTriage from './FeedbackTriage.vue';
     import LineImport from './LineImport.vue';
@@ -67,7 +68,8 @@
     });
     const closeDetail = () => panel.hide(() => (selectedId.value = null));
     const detail = ref<FeedbackReport | null>(null);
-    const shots = ref<{ position: number; url: string }[]>([]);
+    /** blob 也留著：一鍵下載時直接拿來包，不用再打一次 API */
+    const shots = ref<{ position: number; url: string; blob: Blob }[]>([]);
     const loading = ref(false);
     const busy = ref(false);
     const error = ref('');
@@ -269,7 +271,7 @@
             for (const position of result.screenshots) {
                 const blob = await call(token => adminApi.feedbackScreenshot(token, id, position));
                 if (selectedId.value !== id) return URL.revokeObjectURL(URL.createObjectURL(blob)); // 期間又換了一則
-                shots.value.push({ position, url: URL.createObjectURL(blob) });
+                shots.value.push({ position, url: URL.createObjectURL(blob), blob });
             }
         } catch (e) {
             error.value = errorMessage(e);
@@ -283,6 +285,43 @@
         confirmingDevice.value = null;
     });
     onBeforeUnmount(releaseShots);
+    // #endregion
+
+    // #region [P] 截圖一鍵下載（Flowsker #601）：這一則的全部，或同一個問題底下每一則的全部
+    const shotDownload = useScreenshotDownload();
+    /** 畫面上已經抓過的截圖：同一則的直接用，不再打 API */
+    function withLoadedBlobs(refs: { reportId: number; position: number }[]) {
+        return refs.map(r => ({ ...r, blob: r.reportId === selectedId.value ? shots.value.find(s => s.position === r.position)?.blob : undefined }));
+    }
+    async function runDownload(key: string, label: string, findRefs: () => Promise<{ reportId: number; position: number }[]> | { reportId: number; position: number }[]) {
+        if (shotDownload.downloading.value) return;
+        error.value = '';
+        notice.value = '';
+        try {
+            const refs = withLoadedBlobs(await findRefs());
+            if (!refs.length) {
+                notice.value = `${label}沒有截圖`;
+                return;
+            }
+            const { saved, failed } = await shotDownload.download(key, label, refs);
+            if (saved) notice.value = `已下載 ${label}的 ${formatInt(saved)} 張截圖${saved > 1 ? '（zip）' : ''}`;
+            if (failed) error.value = `${saved ? '這幾張沒抓到' : '一張都沒抓到'}：${failed}`;
+        } catch (e) {
+            error.value = errorMessage(e);
+        }
+    }
+    function downloadReportShots() {
+        const current = detail.value;
+        if (!current) return;
+        void runDownload(`report:${current.id}`, `回報 #${current.id} `, () => current.screenshots.map(position => ({ reportId: current.id, position })));
+    }
+    function downloadIssueShots(issue: FeedbackIssue) {
+        void runDownload(`issue:${issue.id}`, `問題「${issue.title}」`, () => shotDownload.issueShotRefs(issue));
+    }
+    const detailIssue = computed(() => issues.value.find(i => i.id === detail.value?.issueId) ?? null);
+    /** 按鈕上的字：正在下載的那顆顯示進度 */
+    const downloadLabel = (key: string, idle: string) =>
+        (shotDownload.downloading.value === key ? `打包中${shotDownload.progress.value ? ` ${shotDownload.progress.value}` : ''}…` : idle);
     // #endregion
 
     // #region [P] 審核與合併
@@ -748,6 +787,28 @@
                                 <img :src="shot.url" :alt="`截圖 ${shot.position + 1}`" loading="lazy" />
                             </a>
                         </div>
+                        <!-- 一則就有好幾張，同一個問題更多：一鍵存下來（#601） -->
+                        <div v-if="detail.screenshots.length || detailIssue" class="dd-detail__actions">
+                            <button
+                                v-if="detail.screenshots.length"
+                                type="button"
+                                class="dd-admin__btn dd-admin__btn--ghost"
+                                :disabled="!!shotDownload.downloading.value"
+                                @click="downloadReportShots"
+                            >
+                                {{ downloadLabel(`report:${detail.id}`, detail.screenshots.length > 1 ? `下載全部截圖（${detail.screenshots.length} 張）` : '下載截圖') }}
+                            </button>
+                            <button
+                                v-if="detailIssue"
+                                type="button"
+                                class="dd-admin__btn dd-admin__btn--ghost"
+                                :disabled="!!shotDownload.downloading.value"
+                                :title="`「${detailIssue.title}」底下 ${detailIssue.reports} 則回報的截圖`"
+                                @click="downloadIssueShots(detailIssue)"
+                            >
+                                {{ downloadLabel(`issue:${detailIssue.id}`, `下載同一個問題的全部截圖（${detailIssue.reports} 則）`) }}
+                            </button>
+                        </div>
 
                         <details v-if="detail.log">
                             <summary>附加的除錯紀錄</summary>
@@ -909,6 +970,7 @@
                             <th scope="col">處理</th>
                             <th scope="col">修在</th>
                             <th scope="col">建立</th>
+                            <th scope="col">截圖</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -950,9 +1012,20 @@
                                 />
                             </td>
                             <td>{{ formatDateTime(issue.createdAt) }}</td>
+                            <td>
+                                <button
+                                    type="button"
+                                    class="dd-admin__btn dd-admin__btn--ghost dd-feedback__shot-btn"
+                                    :disabled="!!shotDownload.downloading.value || !issue.reports"
+                                    :aria-label="`下載「${issue.title}」的全部截圖`"
+                                    @click="downloadIssueShots(issue)"
+                                >
+                                    {{ downloadLabel(`issue:${issue.id}`, '下載') }}
+                                </button>
+                            </td>
                         </tr>
                         <tr v-if="!issues.length">
-                            <td colspan="7" class="dd-table__empty">還沒有合併過的問題</td>
+                            <td colspan="8" class="dd-table__empty">還沒有合併過的問題</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1174,6 +1247,9 @@
                 &:hover { background: var(--vp-c-default-soft); }
             }
         }
+
+        // 表格裡的按鈕不要把列撐高，跟同一列的輸入框一樣矮。掛在問題表底下，才蓋得過後載入的共用按鈕
+        &__issues .dd-feedback__shot-btn { padding: 2px 10px; }
         &__issues select {
             background: var(--vp-c-bg-soft);
             padding: 2px 8px;
