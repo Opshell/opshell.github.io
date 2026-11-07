@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BatchReviewFeedbackPayload, CreateFeedbackPayload, GetDeviceDetailParser, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackListParser, GetFeedbackStatsParser, GetUsageReportParser, PaymentsSummaryParser, SaveFeatureCandidatePayload, UpdateDevicePayload, UpdateFeedbackIssueParser } from './admin.schema';
+import { BatchReviewFeedbackPayload, CreateFeedbackPayload, GetDeviceDetailParser, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackEmailsParser, GetFeedbackListParser, GetFeedbackMessagesParser, GetFeedbackStatsParser, GetUsageReportParser, PaymentsSummaryParser, SaveFeatureCandidatePayload, SendFeedbackEmailParser, SendFeedbackEmailPayload, SendFeedbackMessageParser, SendFeedbackMessagePayload, UpdateDevicePayload, UpdateFeedbackIssueParser } from './admin.schema';
 
 // 後端是 Go：nil 的 slice、map 會送 null，沒設的指標欄位可能整個不送。這裡測的都是這類邊界
 
@@ -237,5 +237,79 @@ describe('回報的處理狀況與沒綁定的回報者（Flowsker #61）', () =
     it('改問題：回應帶一起改了幾則回報', () => {
         const issue = { id: 3, title: '儲存', weight: 2, note: '', created_by: 'a', created_at: '2026-10-01T00:00:00Z', progress: 'done', fixed_in: null };
         expect(UpdateFeedbackIssueParser.parse({ issue, reports_updated: 5 })).toMatchObject({ reportsUpdated: 5, issue: { progress: 'done', fixedIn: null } });
+    });
+});
+
+describe('回報的來往訊息與寄信（Flowsker #600、#457）', () => {
+    const rawReport = {
+        id: 1,
+        device_id: 2,
+        device_name: 'a',
+        kind: 'bug',
+        status: 'pending',
+        description: 'x',
+        app_version: '',
+        device_model: '',
+        android_version: '',
+        created_at: '2026-11-08T09:00:00Z'
+    };
+    const list = (report: object) => GetFeedbackListParser.parse({ reports: [report], total: 1, page: 1, per_page: 50 }).reports[0];
+
+    it('awaiting_reply 照給，舊後端沒有當成 false', () => {
+        expect(list({ ...rawReport, awaiting_reply: true }).awaitingReply).toBe(true);
+        expect(list(rawReport).awaitingReply).toBe(false);
+    });
+
+    const appIn = { id: 2, channel: 'app', direction: 'in', body: '是在記帳扇', status: 'received', actor: null, draft_id: null, read_at: null, created_at: '2026-11-08T10:01:00Z', from: null, to: null, subject: null };
+    const emailOut = {
+        id: 1,
+        channel: 'email',
+        direction: 'out',
+        body: '想請問',
+        status: 'sent',
+        actor: 'boss@example.com',
+        draft_id: 'd1',
+        read_at: '2026-11-08T10:00:00Z',
+        created_at: '2026-11-08T09:00:00Z',
+        from: '叮咚記帳 <support@dindon.opshell.me>',
+        to: 'user@gmail.com',
+        subject: '主旨'
+    };
+
+    it('兩個管道合在一起，camelCase 給元件', () => {
+        const result = GetFeedbackMessagesParser.parse({ messages: [emailOut, appIn], can_reply_in_app: true, cannot_reply_in_app_reason: null });
+        expect(result.canReplyInApp).toBe(true);
+        expect(result.messages[0]).toMatchObject({ channel: 'email', draftId: 'd1', readAt: '2026-11-08T10:00:00Z', to: 'user@gmail.com' });
+        expect(result.messages[1]).toMatchObject({ channel: 'app', actor: null, from: null, subject: null });
+    });
+    it('go 的 nil：messages 是 null、指標欄位整個不送也接', () => {
+        const { actor, draft_id, read_at, from, to, subject, ...bare } = appIn;
+        const result = GetFeedbackMessagesParser.parse({ messages: null, can_reply_in_app: false, cannot_reply_in_app_reason: '沒有綁定裝置' });
+        expect(result).toEqual({ messages: [], canReplyInApp: false, cannotReplyInAppReason: '沒有綁定裝置' });
+        expect(GetFeedbackMessagesParser.parse({ messages: [bare], can_reply_in_app: true }).messages[0]).toMatchObject({ actor: null, draftId: null, readAt: null, from: null });
+    });
+    it('沒見過的管道或狀態要報錯，不要默默顯示', () => {
+        expect(GetFeedbackMessagesParser.safeParse({ messages: [{ ...appIn, channel: 'line' }], can_reply_in_app: true }).success).toBe(false);
+        expect(GetFeedbackMessagesParser.safeParse({ messages: [{ ...appIn, status: 'queued' }], can_reply_in_app: true }).success).toBe(false);
+    });
+    it('在 App 裡回：送 draft_id，duplicate 沒有當 false', () => {
+        expect(SendFeedbackMessagePayload.parse({ body: '內容', draftId: 'abc' })).toEqual({ body: '內容', draft_id: 'abc' });
+        expect(SendFeedbackMessageParser.parse({ message: appIn }).duplicate).toBe(false);
+        expect(SendFeedbackMessageParser.parse({ message: appIn, duplicate: true }).duplicate).toBe(true);
+    });
+
+    const rawEmail = { id: 1, direction: 'out', from: 'f', to: 'user@gmail.com', subject: '主旨', body: '內文', status: 'sent', actor: 'boss@example.com', created_at: '2026-10-31T09:00:00Z' };
+    it('寄信：寄不了時 to 是 null、原因是字串，emails 是 null 也接', () => {
+        expect(GetFeedbackEmailsParser.parse({ emails: null, can_send: false, to: null, cannot_send_reason: '沒有綁定' }))
+            .toEqual({ emails: [], canSend: false, to: null, cannotSendReason: '沒有綁定' });
+    });
+    it('寄信：draft_id 有就帶，舊後端沒回當成 null', () => {
+        const result = GetFeedbackEmailsParser.parse({ emails: [{ ...rawEmail, status: 'failed', draft_id: 'abc' }, rawEmail], can_send: true, to: 'a', cannot_send_reason: null });
+        expect(result.emails.map(e => e.draftId)).toEqual(['abc', null]);
+    });
+    it('寄信：送出的 draftId 轉成 draft_id，duplicate 照給', () => {
+        expect(SendFeedbackEmailPayload.parse({ subject: '', body: '內文', draftId: 'abc' })).toEqual({ subject: '', body: '內文', draft_id: 'abc' });
+        expect(SendFeedbackEmailParser.parse({ email: rawEmail, duplicate: true }).duplicate).toBe(true);
+        expect(SendFeedbackEmailParser.parse({ email: rawEmail }).duplicate).toBe(false);
     });
 });

@@ -572,6 +572,8 @@ export const FeedbackReportSchema = z.object({
     contentPurgedAt: z.string().nullable(),
     createdAt: z.string(),
     issueId: z.number().int().nullable(),
+    /** 最新一則送達的訊息是回報者寫的，開發者還沒回（Flowsker #600）。寄信中、寄失敗的不算回過 */
+    awaitingReply: z.boolean(),
     /** 只有單則才有，可能 32 KB */
     log: z.string().optional()
 });
@@ -600,7 +602,9 @@ const FeedbackReportParser = z
         reviewed_by: z.string().nullish(),
         reviewed_at: z.string().nullish(),
         content_purged_at: z.string().nullish(),
-        created_at: z.string()
+        created_at: z.string(),
+        // 2026-11-08 起才有（Flowsker #600）；舊後端沒有訊息，當成沒有等著回的
+        awaiting_reply: z.boolean().nullish()
     })
     .transform(({ log, ...data }) => ({
         ...data,
@@ -613,7 +617,8 @@ const FeedbackReportParser = z
         reporter_name: data.reporter_name || null,
         reviewed_by: data.reviewed_by ?? null,
         reviewed_at: data.reviewed_at ?? null,
-        content_purged_at: data.content_purged_at ?? null
+        content_purged_at: data.content_purged_at ?? null,
+        awaiting_reply: data.awaiting_reply ?? false
     }))
     .transform(snakeToCamel)
     .pipe(FeedbackReportSchema);
@@ -725,6 +730,150 @@ export const GetFeedbackReportersParser = z
     .pipe(z.array(FeedbackReporterSchema));
 
 export type FeedbackStats = z.output<typeof GetFeedbackStatsParser>;
+
+// #endregion
+
+// #region [P] 回報的來往訊息 /v1/admin/feedback/:id/messages、寄信 /v1/admin/feedback/:id/emails（api.md 第 8 節，Flowsker #600、#456、#457）
+
+/** 後端的上限，前端先擋；都照字元數算（Go 的 rune）。App 內回覆跟寄信同一個上限：同一段回覆可能先在 App 回、再改寄信 */
+export const FEEDBACK_MESSAGE_BODY_MAX = 5_000;
+export const FEEDBACK_EMAIL_SUBJECT_MAX = 120;
+
+/** email：sending 多半是寄完之後記錄失敗，信可能已經寄出；app 的 out 一律 sent、in 一律 received */
+export const FeedbackMessageStatusSchema = z.enum(['sending', 'sent', 'failed', 'received']);
+export type FeedbackMessageStatus = z.infer<typeof FeedbackMessageStatusSchema>;
+export const FeedbackChannelSchema = z.enum(['app', 'email']);
+export type FeedbackChannel = z.infer<typeof FeedbackChannelSchema>;
+
+export const FeedbackEmailSchema = z.object({
+    id: z.number().int(),
+    /** out 是後台寄出的，in 是對方回的 */
+    direction: z.enum(['out', 'in']),
+    /** in 是對方實際寄來的地址，可能不是他綁定的那個 */
+    from: z.string(),
+    to: z.string(),
+    subject: z.string(),
+    /** 純文字。in 是去掉引用舊信之後的，別人打的字，不用 v-html */
+    body: z.string(),
+    status: FeedbackMessageStatusSchema,
+    actor: z.string().nullable(),
+    /** 寄失敗的靠它重寄同一筆；對方回的信沒有。舊後端（#463 以前）不回，當成 null */
+    draftId: z.string().nullable(),
+    createdAt: z.string()
+});
+export type FeedbackEmail = z.infer<typeof FeedbackEmailSchema>;
+
+const RawFeedbackEmail = z.object({
+    id: z.number(),
+    direction: z.string(),
+    from: z.string(),
+    to: z.string(),
+    subject: z.string(),
+    body: z.string(),
+    status: z.string(),
+    actor: z.string().nullish().transform(value => value ?? null),
+    draft_id: z.string().nullish().transform(value => value ?? null),
+    created_at: z.string()
+});
+const FeedbackEmailParser = RawFeedbackEmail.transform(snakeToCamel).pipe(FeedbackEmailSchema);
+
+/** 舊的在前。canSend 是 false 時 cannotSendReason 寫原因；to 是會寄到的地址（裝置綁定的 Google email） */
+export const GetFeedbackEmailsParser = z
+    .object({
+        emails: nullableList(RawFeedbackEmail),
+        can_send: z.boolean(),
+        to: z.string().nullish(),
+        cannot_send_reason: z.string().nullish()
+    })
+    .transform(data => ({ ...data, to: data.to || null, cannot_send_reason: data.cannot_send_reason || null }))
+    .transform(snakeToCamel)
+    .pipe(z.object({
+        emails: z.array(FeedbackEmailSchema),
+        canSend: z.boolean(),
+        to: z.string().nullable(),
+        cannotSendReason: z.string().nullable()
+    }));
+export type FeedbackEmailThread = z.output<typeof GetFeedbackEmailsParser>;
+
+/** subject 空字串由後端接主旨：第一封用預設的，之後接上一封加「Re: 」 */
+export const SendFeedbackEmailPayload = z
+    .object({ subject: z.string(), body: z.string(), draftId: z.string() })
+    .transform(camelToSnake);
+export type SendFeedbackEmailInput = z.input<typeof SendFeedbackEmailPayload>;
+
+/** duplicate：這份草稿之前已經寄出，這次沒有再寄 */
+export const SendFeedbackEmailParser = z.object({
+    email: FeedbackEmailParser,
+    duplicate: z.boolean().nullish().transform(value => value ?? false)
+});
+
+export const FeedbackMessageSchema = z.object({
+    id: z.number().int(),
+    channel: FeedbackChannelSchema,
+    /** out 是開發者寫的，in 是回報者寫的 */
+    direction: z.enum(['out', 'in']),
+    /** 純文字，別人打的字，不用 v-html */
+    body: z.string(),
+    status: FeedbackMessageStatusSchema,
+    actor: z.string().nullable(),
+    draftId: z.string().nullable(),
+    /** 回報者在 App 裡打開這則回報的時間，只有 out 會有值 */
+    readAt: z.string().nullable(),
+    createdAt: z.string(),
+    /** 這三個只有 email 才有，app 是 null */
+    from: z.string().nullable(),
+    to: z.string().nullable(),
+    subject: z.string().nullable()
+});
+export type FeedbackMessage = z.infer<typeof FeedbackMessageSchema>;
+
+const RawFeedbackMessage = z
+    .object({
+        id: z.number(),
+        channel: z.string(),
+        direction: z.string(),
+        body: z.string(),
+        status: z.string(),
+        actor: z.string().nullish(),
+        draft_id: z.string().nullish(),
+        read_at: z.string().nullish(),
+        created_at: z.string(),
+        from: z.string().nullish(),
+        to: z.string().nullish(),
+        subject: z.string().nullish()
+    })
+    // Go 的指標沒值送 null、也可能整個不送；空字串的地址當成沒有
+    .transform(data => ({
+        ...data,
+        actor: data.actor ?? null,
+        draft_id: data.draft_id ?? null,
+        read_at: data.read_at ?? null,
+        from: data.from || null,
+        to: data.to || null,
+        subject: data.subject ?? null
+    }));
+const FeedbackMessageParser = RawFeedbackMessage.transform(snakeToCamel).pipe(FeedbackMessageSchema);
+
+/** App 與信件合在一起、舊的在前 */
+export const GetFeedbackMessagesParser = z
+    .object({
+        messages: nullableList(FeedbackMessageParser),
+        can_reply_in_app: z.boolean(),
+        cannot_reply_in_app_reason: z.string().nullish()
+    })
+    .transform(data => ({ messages: data.messages, canReplyInApp: data.can_reply_in_app, cannotReplyInAppReason: data.cannot_reply_in_app_reason || null }));
+export type FeedbackMessageThread = z.output<typeof GetFeedbackMessagesParser>;
+
+/** 同一份草稿重送用同一個 draftId，後端看到就回 duplicate、不多一筆 */
+export const SendFeedbackMessagePayload = z
+    .object({ body: z.string(), draftId: z.string() })
+    .transform(camelToSnake);
+export type SendFeedbackMessageInput = z.input<typeof SendFeedbackMessagePayload>;
+
+export const SendFeedbackMessageParser = z.object({
+    message: FeedbackMessageParser,
+    duplicate: z.boolean().nullish().transform(value => value ?? false)
+});
 
 // #endregion
 
