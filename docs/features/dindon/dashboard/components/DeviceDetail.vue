@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { AdminDevice, AuditEntry, CheckinState, Perk, PlanSource, PlanTier, UpdateDeviceInput } from '../schemas/admin.schema';
+    import type { AdminDevice, AuditEntry, CheckinState, DonationRecord, Perk, PlanSource, PlanTier, UpdateDeviceInput } from '../schemas/admin.schema';
     import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
     import { adminApi, MAX_TOKENS } from '../api';
     import {
@@ -19,6 +19,7 @@
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import DeviceBadges from './DeviceBadges.vue';
     import DeviceCheckins from './DeviceCheckins.vue';
+    import DevicePayments from './DevicePayments.vue';
 
     const { deviceId } = defineProps<{ deviceId: number }>();
     const emit = defineEmits<{ updated: [device: AdminDevice]; close: [] }>();
@@ -26,6 +27,8 @@
 
     const device = ref<AdminDevice | null>(null);
     const audit = ref<AuditEntry[]>([]);
+    /** 這台全部的贊助，含退款的（#570） */
+    const donationRecords = ref<DonationRecord[]>([]);
     // beta 貢獻活動的東西（api.md 第 8 節「裝置頁多的東西」）
     const perks = ref<Perk[]>([]);
     const realPlan = ref<{ planTier: PlanTier; planSource: PlanSource } | null>(null);
@@ -128,6 +131,7 @@
             const result = await call(token => adminApi.getDevice(token, deviceId));
             device.value = result.device;
             audit.value = result.audit;
+            donationRecords.value = result.donationRecords;
             perks.value = result.perks ?? [];
             realPlan.value = result.plan ?? null;
             referrals.value = result.referrals ?? null;
@@ -332,7 +336,6 @@
                 <div><dt>剩餘額度</dt><dd>{{ formatInt(device.tokens) }}</dd></div>
                 <div><dt>Beta 資格</dt><dd>{{ device.betaTesterSince ?? '無' }}</dd></div>
                 <div><dt>Google</dt><dd>{{ device.linked ? device.email ?? '已綁定' : '未綁定' }}</dd></div>
-                <div><dt>訂閱到期</dt><dd>{{ formatDateTime(device.subscriptionExpiresAt) }}</dd></div>
                 <div><dt>近 30 天 AI</dt><dd>{{ formatInt(device.aiCalls30d) }} 次</dd></div>
                 <div><dt>最近打開 App</dt><dd>{{ formatDayAgo(device.lastCheckinDay) }}{{ device.lastCheckinDay ? `（${device.lastCheckinDay}）` : '' }}</dd></div>
                 <div><dt>最近用 AI</dt><dd>{{ formatRelative(device.lastAiAt) }}</dd></div>
@@ -342,6 +345,9 @@
                 <div><dt>建立</dt><dd>{{ formatDateTime(device.createdAt) }}</dd></div>
                 <div v-if="device.frozen"><dt>凍結於</dt><dd>{{ formatDateTime(device.frozenAt) }}</dd></div>
             </dl>
+
+            <!-- 訂閱到期也在這張卡裡（#570） -->
+            <DevicePayments :device="device" :records="donationRecords" />
 
             <!-- 打開 App 的紀錄：給了打卡可能剛好湊滿鐵人，所以改完重讀一次裝置 -->
             <DeviceCheckins :device-id="deviceId" @changed="load" @loaded="checkinState = $event" />

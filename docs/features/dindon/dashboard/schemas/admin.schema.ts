@@ -112,7 +112,28 @@ export const AdminDeviceSchema = z.object({
     /** 最後一次帶 key 來的時間，最多差一小時；從沒來過是 null */
     lastSeenAt: z.string().nullable(),
     /** 最後一次打開 App（打卡）的日子，台灣時間 YYYY-MM-DD（#0081）；比 lastAiAt 準，只記帳不用 AI 的人也有 */
-    lastCheckinDay: z.string().nullable()
+    lastCheckinDay: z.string().nullable(),
+    // #region [P] 付款（api.md 第 8 節「裝置物件」，Flowsker #568）
+    /** Play 訂閱的狀態（第 7.3 節）；沒從 Play 訂過是 null。不寫成列舉：Google 多一種狀態時整頁不該壞 */
+    subscriptionState: z.string().nullable(),
+    autoRenewing: z.boolean().nullable(),
+    /** monthly／yearly；沒從 Play 訂過、或 000021 以前訂的是 null */
+    subscriptionBasePlan: z.string().nullable(),
+    subscriptionInTrial: z.boolean().nullable(),
+    /** 贊助過（不算退款的） */
+    supporter: z.boolean(),
+    /** 不算退款的贊助筆數 */
+    donations: z.number().int(),
+    /** 買過哪幾階（去重、照級距由低到高、不算退款） */
+    donatedTiers: z.array(z.string()),
+    // #endregion
+    /** 最長連續打開 App 幾天（第 20 節）。舊後端沒有這個欄位是 null，要自己讀打卡 */
+    bestStreak: z.number().int().nullable(),
+    /** App 上傳的已解鎖徽章（第 28 節）。沒上傳過是兩個空陣列；等級是 App 算的，只拿來看 */
+    badges: z.object({
+        badges: z.array(z.object({ id: z.string(), tier: z.string(), unlockedOn: z.string() })),
+        memorials: z.array(z.object({ id: z.string(), unlockedOn: z.string() }))
+    })
 });
 export type AdminDevice = z.infer<typeof AdminDeviceSchema>;
 
@@ -151,7 +172,20 @@ const AdminDeviceRawSchema = z.object({
     app_version: z.string().nullish(),
     app_build: z.number().nullish(),
     last_seen_at: z.string().nullish(),
-    last_checkin_day: z.string().nullish()
+    last_checkin_day: z.string().nullish(),
+    // 2026-11-05 部署以前的後端沒有這些（Flowsker #568）；subscription_state／auto_renewing 更早就有，但後台以前沒接
+    subscription_state: z.string().nullish(),
+    auto_renewing: z.boolean().nullish(),
+    subscription_base_plan: z.string().nullish(),
+    subscription_in_trial: z.boolean().nullish(),
+    supporter: z.boolean().nullish(),
+    donations: z.number().nullish(),
+    donated_tiers: z.array(z.string()).nullish(),
+    best_streak: z.number().nullish(),
+    badges: z.object({
+        badges: nullableList(z.object({ id: z.string(), tier: z.string(), unlocked_on: z.string() })),
+        memorials: nullableList(z.object({ id: z.string(), unlocked_on: z.string() }))
+    }).nullish()
 });
 
 export const AdminDeviceParser = AdminDeviceRawSchema
@@ -171,7 +205,16 @@ export const AdminDeviceParser = AdminDeviceRawSchema
         app_version: data.app_version ?? '',
         app_build: data.app_build ?? 0,
         last_seen_at: data.last_seen_at ?? null,
-        last_checkin_day: data.last_checkin_day ?? null
+        last_checkin_day: data.last_checkin_day ?? null,
+        subscription_state: data.subscription_state ?? null,
+        auto_renewing: data.auto_renewing ?? null,
+        subscription_base_plan: data.subscription_base_plan ?? null,
+        subscription_in_trial: data.subscription_in_trial ?? null,
+        supporter: data.supporter ?? false,
+        donations: data.donations ?? 0,
+        donated_tiers: data.donated_tiers ?? [],
+        best_streak: data.best_streak ?? null,
+        badges: data.badges ?? { badges: [], memorials: [] }
     }))
     .transform(snakeToCamel)
     .pipe(AdminDeviceSchema);
@@ -245,6 +288,21 @@ export type GetDeviceListOutput = z.input<typeof GetDeviceListParser>;
 
 // #region [P] 裝置詳情 GET /v1/admin/devices/:id
 
+/** 一筆贊助（api.md 第 8 節，Flowsker #568）。orderId 拿去 Play Console 的「訂單管理」對照、退款 */
+export const DonationRecordSchema = z.object({
+    productId: z.string(),
+    orderId: z.string(),
+    createdAt: z.string(),
+    refundedAt: z.string().nullable()
+});
+export type DonationRecord = z.infer<typeof DonationRecordSchema>;
+
+const DonationRecordParser = z
+    .object({ product_id: z.string(), order_id: z.string(), created_at: z.string(), refunded_at: z.string().nullish() })
+    .transform(data => ({ ...data, refunded_at: data.refunded_at ?? null }))
+    .transform(snakeToCamel)
+    .pipe(DonationRecordSchema);
+
 export const GetDeviceDetailParser = z
     .object({
         device: AdminDeviceParser,
@@ -254,10 +312,13 @@ export const GetDeviceDetailParser = z
         plan: z.object({ plan_tier: PlanTierSchema, plan_source: PlanSourceSchema }).nullish(),
         /** 邀請的狀態計數，沒有的狀態不會出現 */
         referrals: nullableRecord(z.number()),
-        referral_code: z.string().nullish()
+        referral_code: z.string().nullish(),
+        /** 這台全部的贊助，含退款的，新的在前（Flowsker #568）。舊後端沒有這個欄位 */
+        donation_records: nullableList(DonationRecordParser)
     })
     .transform(data => ({
         device: data.device,
+        donationRecords: data.donation_records,
         audit: data.audit,
         perks: data.perks,
         plan: data.plan ? { planTier: data.plan.plan_tier, planSource: data.plan.plan_source } : null,
@@ -1072,6 +1133,35 @@ export const ActiveDevicesParser = z
     .object({ today: z.string(), windows: nullableList(z.object({ days: z.number(), devices: z.number() })) })
     .transform(data => ({ today: data.today, windows: data.windows }));
 export type ActiveDevices = z.output<typeof ActiveDevicesParser>;
+
+// #endregion
+
+// #region [P] 付款總覽 GET /v1/admin/payments/summary（api.md 第 8 節，Flowsker #568）
+
+/** 不算測試裝置；凍結的照算。沒有金額（後端不存，營收看 Play Console） */
+export const PaymentsSummaryParser = z
+    .object({
+        subscriptions: z.object({
+            subscribing: z.number(),
+            by_state: nullableRecord(z.number()),
+            by_base_plan: nullableRecord(z.number()),
+            in_trial: z.number(),
+            auto_renew_off: z.number()
+        }),
+        donations: z.object({ by_tier: nullableRecord(z.number()), refunded: z.number(), supporters: z.number() })
+    })
+    // by_state、by_base_plan、by_tier 的 key 是狀態與商品 ID，不轉 camelCase
+    .transform(data => ({
+        subscriptions: {
+            subscribing: data.subscriptions.subscribing,
+            byState: data.subscriptions.by_state,
+            byBasePlan: data.subscriptions.by_base_plan,
+            inTrial: data.subscriptions.in_trial,
+            autoRenewOff: data.subscriptions.auto_renew_off
+        },
+        donations: { byTier: data.donations.by_tier, refunded: data.donations.refunded, supporters: data.donations.supporters }
+    }));
+export type PaymentsSummary = z.output<typeof PaymentsSummaryParser>;
 
 // #endregion
 
