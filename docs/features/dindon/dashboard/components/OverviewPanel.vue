@@ -2,7 +2,8 @@
     import type { BarRow, BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
     import type { DashboardTab, PanelPreset } from '../navigation';
-    import type { ActiveDevices, AdminDevice, GeminiBilling, UsageReport } from '../schemas/admin.schema';
+    import type { PaidFilter } from '../payments';
+    import type { ActiveDevices, AdminDevice, GeminiBilling, PaymentsSummary, UsageReport } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi, ALL_DEVICES_MAX_PAGES, ALL_DEVICES_PER_PAGE } from '../api';
     import BarChart from '../charts/BarChart.vue';
@@ -14,6 +15,7 @@
     import { useCostCalibration } from '../useCostCalibration';
     import { PULSE_USAGE_DAYS, usePulse } from '../usePulse';
     import AdminActions from './AdminActions.vue';
+    import PaymentsCard from './PaymentsCard.vue';
 
     // 總覽上每個數字都點得進去：跳到能看細節的那一頁，需要的話先套好篩選
     const emit = defineEmits<{ navigate: [tab: DashboardTab, preset?: PanelPreset] }>();
@@ -29,6 +31,9 @@
     const active = ref<ActiveDevices | null>(null);
     /** Google 實際帳單（#0084）：台幣、不是即時；抓不到就只顯示估算 */
     const billing = ref<GeminiBilling | null>(null);
+    /** 付款卡片（#570）：不跟期間走，是「現在」的數字；抓不到只讓那張卡顯示錯誤 */
+    const payments = ref<PaymentsSummary | null>(null);
+    const paymentsError = ref('');
     // 其他金額（每個功能、每天）一律依實際帳單換算
     const { formatCost, formatDayCost, costFormula, costNote } = useCostCalibration();
     const loading = ref(false);
@@ -44,6 +49,14 @@
             // 「近幾天有開 App」是附加的數字：抓失敗只讓那兩格顯示「—」，不拖垮整個總覽
             void call(token => adminApi.activeDevices(token)).then(result => (active.value = result), () => (active.value = null));
             void call(token => adminApi.geminiBilling(token, Math.min(days.value, 90))).then(result => (billing.value = result), () => (billing.value = null));
+            paymentsError.value = '';
+            void call(token => adminApi.paymentsSummary(token)).then(
+                result => (payments.value = result),
+                (e) => {
+                    payments.value = null;
+                    paymentsError.value = errorMessage(e);
+                }
+            );
             const [deviceResult, usage] = await call(async token => Promise.all([adminApi.listAllDevices(token), adminApi.usage(token, days.value)]));
             // 測試裝置（#0074）不算：後端的用量報表也不算它們
             const tests = deviceResult.devices.filter(device => device.isTest).length;
@@ -307,6 +320,8 @@
                         </table>
                     </details>
                 </article>
+
+                <PaymentsCard :summary="payments" :error="paymentsError" @open="(paid: PaidFilter) => emit('navigate', 'devices', { devicePaid: paid })" />
 
                 <article class="dd-overview__card">
                     <h3>每日新裝置<button type="button" class="more" @click="emit('navigate', 'devices')">詳細 →</button></h3>

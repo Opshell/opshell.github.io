@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BatchReviewFeedbackPayload, CreateFeedbackPayload, GetDeviceDetailParser, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackListParser, GetFeedbackStatsParser, GetUsageReportParser, SaveFeatureCandidatePayload, UpdateDevicePayload, UpdateFeedbackIssueParser } from './admin.schema';
+import { BatchReviewFeedbackPayload, CreateFeedbackPayload, GetDeviceDetailParser, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackListParser, GetFeedbackStatsParser, GetUsageReportParser, PaymentsSummaryParser, SaveFeatureCandidatePayload, UpdateDevicePayload, UpdateFeedbackIssueParser } from './admin.schema';
 
 // 後端是 Go：nil 的 slice、map 會送 null，沒設的指標欄位可能整個不送。這裡測的都是這類邊界
 
@@ -70,9 +70,70 @@ describe('裝置', () => {
         expect(detail.plan).toEqual({ planTier: 'max', planSource: 'beta' });
     });
 
+    // #570：付款與徽章的欄位是 2026-11-05 才加的，舊後端整個沒送
+    it('舊後端沒有付款與徽章欄位：補成沒訂閱、沒贊助、沒上傳，最長連續是 null（要自己讀打卡）', () => {
+        const [device] = GetDeviceListParser.parse({ devices: [rawDevice], total: 1, page: 1, per_page: 20 }).devices;
+        expect(device).toMatchObject({
+            subscriptionState: null,
+            autoRenewing: null,
+            subscriptionBasePlan: null,
+            subscriptionInTrial: null,
+            supporter: false,
+            donations: 0,
+            donatedTiers: [],
+            bestStreak: null,
+            badges: { badges: [], memorials: [] }
+        });
+    });
+
+    it('付款與徽章欄位轉成 camelCase，徽章裡的日期也轉', () => {
+        const raw = {
+            ...rawDevice,
+            subscription_state: 'active',
+            auto_renewing: false,
+            subscription_base_plan: 'yearly',
+            subscription_in_trial: true,
+            supporter: true,
+            donations: 2,
+            donated_tiers: ['dindon_tip_1', 'dindon_tip_3'],
+            best_streak: 21,
+            badges: { badges: [{ id: 'RECORDS', tier: 'GOLD', unlocked_on: '2026-10-01' }], memorials: null }
+        };
+        const [device] = GetDeviceListParser.parse({ devices: [raw], total: 1, page: 1, per_page: 20 }).devices;
+        expect(device).toMatchObject({ subscriptionState: 'active', autoRenewing: false, subscriptionBasePlan: 'yearly', subscriptionInTrial: true, donations: 2, bestStreak: 21 });
+        expect(device.badges).toEqual({ badges: [{ id: 'RECORDS', tier: 'GOLD', unlockedOn: '2026-10-01' }], memorials: [] });
+    });
+
+    it('單台的贊助紀錄：沒退款是 null，舊後端沒有這個欄位是空陣列', () => {
+        const detail = GetDeviceDetailParser.parse({
+            device: rawDevice,
+            audit: [],
+            donation_records: [
+                { product_id: 'dindon_tip_3', order_id: 'GPA.1', created_at: '2026-10-20T08:00:00Z' },
+                { product_id: 'dindon_tip_1', order_id: 'GPA.2', created_at: '2026-10-09T02:30:00Z', refunded_at: '2026-10-12T00:00:00Z' }
+            ]
+        });
+        expect(detail.donationRecords).toEqual([
+            { productId: 'dindon_tip_3', orderId: 'GPA.1', createdAt: '2026-10-20T08:00:00Z', refundedAt: null },
+            { productId: 'dindon_tip_1', orderId: 'GPA.2', createdAt: '2026-10-09T02:30:00Z', refundedAt: '2026-10-12T00:00:00Z' }
+        ]);
+        expect(GetDeviceDetailParser.parse({ device: rawDevice, audit: [] }).donationRecords).toEqual([]);
+    });
+
     it('送出的修改轉回 snake_case', () => {
         expect(UpdateDevicePayload.parse({ tokensDelta: 5, bonusBugs: 3, ironAchievedOn: '2026-09-20', nickname: null }))
             .toEqual({ tokens_delta: 5, bonus_bugs: 3, iron_achieved_on: '2026-09-20', nickname: null });
+    });
+});
+
+describe('付款總覽', () => {
+    it('狀態與商品 ID 是資料不是欄位，key 原樣保留；空的 map 是 null 當成空物件', () => {
+        const summary = PaymentsSummaryParser.parse({
+            subscriptions: { subscribing: 3, by_state: { active: 2, canceled: 1, on_hold: 1 }, by_base_plan: null, in_trial: 1, auto_renew_off: 1 },
+            donations: { by_tier: { dindon_tip_1: 4 }, refunded: 1, supporters: 5 }
+        });
+        expect(summary.subscriptions).toEqual({ subscribing: 3, byState: { active: 2, canceled: 1, on_hold: 1 }, byBasePlan: {}, inTrial: 1, autoRenewOff: 1 });
+        expect(summary.donations.byTier).toEqual({ dindon_tip_1: 4 });
     });
 });
 

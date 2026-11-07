@@ -4,6 +4,7 @@
 // 後端回的格式對不上就丟 ApiSchemaError，錯誤訊息會指出是哪支 API、哪個欄位。
 
 import type { z } from 'zod';
+import type { PaidFilter } from './payments';
 import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, PublishNewsDraftInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
 import { apiBase } from '@shared/utils/apiBase';
 import { parseResponse } from '@shared/utils/zod';
@@ -37,6 +38,7 @@ import {
     GetUsageByDeviceParser,
     GetUsageReportParser,
     NewsScanParser,
+    PaymentsSummaryParser,
     PlayReportsParser,
     PlayVitalsParser,
     PublishNewsDraftParser,
@@ -170,19 +172,23 @@ export const adminApi = {
         }
         return { devices, total };
     },
-    /** idleDays：只列最後一次打開 App 是 N 天前或更早的（含從沒打開過的）；0＝不篩 */
-    listDevices: async (token: string, params: { q?: string; status?: DeviceStatus; page?: number; perPage?: number; sort?: DeviceSort; idleDays?: number }) => {
+    /**
+     * idleDays：只列最後一次打開 App 是 N 天前或更早的（含從沒打開過的）；0＝不篩。
+     * paid：付過款的（#570）。列表**含**測試裝置，付款總覽不含
+     */
+    listDevices: async (token: string, params: { q?: string; status?: DeviceStatus; page?: number; perPage?: number; sort?: DeviceSort; idleDays?: number; paid?: PaidFilter }) => {
         const q = params.q?.trim() ?? '';
         const status = params.status ?? 'all';
         const page = params.page ?? 1;
         const perPage = params.perPage ?? 50;
         const sort = params.sort ?? 'id';
         const idleDays = params.idleDays ?? 0;
+        const paid = params.paid ?? 'all';
 
         // email 不能放在網址上：Cloud Run 的連線紀錄會記下完整網址、保存 30 天，
         // 處理刪除請求時，要清除的 email 反而會留在日誌裡。改放 body（api.md 第 8 節）
         if (q.includes('@')) {
-            return call(GetDeviceListParser, token, 'POST', '/v1/admin/devices/search', { q, status, page, per_page: perPage, sort, idle_days: idleDays });
+            return call(GetDeviceListParser, token, 'POST', '/v1/admin/devices/search', { q, status, page, per_page: perPage, sort, idle_days: idleDays, paid });
         }
 
         const query = new URLSearchParams();
@@ -192,8 +198,11 @@ export const adminApi = {
         query.set('per_page', String(perPage));
         if (sort !== 'id') query.set('sort', sort);
         if (idleDays > 0) query.set('idle_days', String(idleDays));
+        if (paid !== 'all') query.set('paid', paid);
         return call(GetDeviceListParser, token, 'GET', `/v1/admin/devices?${query}`);
     },
+    /** 首頁的付款卡片（Flowsker #568）：不算測試裝置、凍結的照算、沒有金額 */
+    paymentsSummary: async (token: string) => call(PaymentsSummaryParser, token, 'GET', '/v1/admin/payments/summary'),
     getDevice: async (token: string, id: number) =>
         call(GetDeviceDetailParser, token, 'GET', `/v1/admin/devices/${id}`),
     updateDevice: async (token: string, id: number, patch: UpdateDeviceInput) =>

@@ -32,7 +32,16 @@ function device(id: number, nickname: string | null, email: string | null = null
         appVersion: '',
         appBuild: 0,
         lastSeenAt: null,
-        lastCheckinDay: null
+        lastCheckinDay: null,
+        subscriptionState: null,
+        autoRenewing: null,
+        subscriptionBasePlan: null,
+        subscriptionInTrial: null,
+        supporter: false,
+        donations: 0,
+        donatedTiers: [],
+        bestStreak: null,
+        badges: { badges: [], memorials: [] }
     };
 }
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import type { DeviceSort, DeviceStatus } from '../api';
+    import type { PaidFilter } from '../payments';
     import type { AdminDevice } from '../schemas/admin.schema';
     import { computed, onMounted, ref, watch } from 'vue';
     import { adminApi } from '../api';
@@ -7,6 +8,7 @@
     import { deviceMatches } from '../deviceSearch';
     import { formatDayAgo, formatInt, formatRelative, maskEmail, PLAN_LABELS, todayInTaipei } from '../format';
     import { takePanelPreset } from '../navigation';
+    import { matchesPaid, PAID_FILTER_LABELS, paymentChips } from '../payments';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import { usePanelReveal } from '../usePanelReveal';
     import DeviceDetail from './DeviceDetail.vue';
@@ -20,6 +22,9 @@
     const sort = ref<DeviceSort>(takePanelPreset('deviceSort') ?? 'id');
     const idleDays = ref(takePanelPreset('deviceIdleDays') ?? 0);
     const IDLE_OPTIONS = [3, 7, 14, 30];
+    // 付過款的（#570）：跟後端的 paid 同一組值
+    const paid = ref<PaidFilter>(takePanelPreset('devicePaid') ?? 'all');
+    const PAID_OPTIONS = Object.keys(PAID_FILTER_LABELS) as PaidFilter[];
     const page = ref(1);
     const devices = ref<AdminDevice[]>([]);
     const total = ref(0);
@@ -50,7 +55,8 @@
         const matched = everyDevice.value.filter(device =>
             deviceMatches(device, q)
             && (status.value === 'all' || (status.value === 'frozen') === device.frozen)
-            && (!cutoff || !device.lastCheckinDay || device.lastCheckinDay <= cutoff));
+            && (!cutoff || !device.lastCheckinDay || device.lastCheckinDay <= cutoff)
+            && matchesPaid(device, paid.value));
         if (sort.value === 'last_checkin') matched.sort((a, b) => (b.lastCheckinDay ?? '').localeCompare(a.lastCheckinDay ?? '') || b.id - a.id);
         total.value = matched.length;
         page.value = Math.min(nextPage, Math.max(Math.ceil(matched.length / PER_PAGE), 1));
@@ -67,7 +73,7 @@
                 await loadLocal(q, nextPage);
                 return;
             }
-            const result = await call(token => adminApi.listDevices(token, { q, status: status.value, page: nextPage, perPage: PER_PAGE, sort: sort.value, idleDays: idleDays.value }));
+            const result = await call(token => adminApi.listDevices(token, { q, status: status.value, page: nextPage, perPage: PER_PAGE, sort: sort.value, idleDays: idleDays.value, paid: paid.value }));
             devices.value = result.devices;
             total.value = result.total;
             page.value = result.page;
@@ -120,11 +126,18 @@
                 <option :value="0">不管有沒有在用</option>
                 <option v-for="days in IDLE_OPTIONS" :key="days" :value="days">{{ days }} 天以上沒打開</option>
             </select>
+            <select v-model="paid" aria-label="付過款的" @change="search">
+                <option v-for="option in PAID_OPTIONS" :key="option" :value="option">{{ PAID_FILTER_LABELS[option] }}</option>
+            </select>
             <button type="submit" class="dd-admin__btn" :disabled="loading">搜尋</button>
             <button v-if="query" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="clearSearch">清除</button>
             <span class="dd-devices__count">共 {{ formatInt(total) }} 台</span>
         </form>
         <p v-if="localMode" class="dd-devices__hint">在全部 {{ formatInt(everyDevice?.length ?? 0) }} 台裡比對暱稱、email 與備註</p>
+        <!-- 後端的 paid 不排除測試裝置，首頁付款卡片排除：兩邊數字對不上時要知道差在哪 -->
+        <p v-if="paid !== 'all'" class="dd-devices__hint">
+            這份名單<strong>含測試裝置</strong>（標 ⚙ 的那幾台），首頁的付款卡片不算它們，兩邊的數字可能差那幾台。贊助都不算已退款的。
+        </p>
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
 
         <div class="dd-devices__layout" :class="{ 'has-detail': selectedId !== null }">
@@ -135,6 +148,8 @@
                             <tr>
                                 <th scope="col">ID</th>
                                 <th scope="col">名字</th>
+                                <!-- 付款放在名字後面：手機上表格要橫捲，誰在訂閱要第一眼就看得到 -->
+                                <th scope="col" title="Play 的訂閱狀態與贊助（不算退款的）">付款</th>
                                 <th scope="col" class="extra">備註</th>
                                 <th scope="col">狀態</th>
                                 <th scope="col">方案</th>
@@ -157,6 +172,10 @@
                             >
                                 <td>#{{ device.id }}</td>
                                 <td class="summary">{{ device.displayName || '—' }}</td>
+                                <td>
+                                    <span v-for="chip in paymentChips(device)" :key="chip.label" class="dd-pay" :class="`is-${chip.tone}`" :title="chip.title">{{ chip.label }}</span>
+                                    <span v-if="!device.subscriptionState && !device.supporter" class="dd-pay__none">—</span>
+                                </td>
                                 <td class="note extra" :title="device.adminNote">{{ device.adminNote || '—' }}</td>
                                 <td>
                                     <span class="dd-status" :class="device.frozen ? 'is-frozen' : 'is-active'">
@@ -174,7 +193,7 @@
                                 <td class="extra">{{ formatRelative(device.lastAiAt) }}</td>
                             </tr>
                             <tr v-if="!loading && devices.length === 0">
-                                <td colspan="11" class="dd-table__empty">沒有符合的裝置</td>
+                                <td colspan="12" class="dd-table__empty">沒有符合的裝置</td>
                             </tr>
                         </tbody>
                     </table>
@@ -300,6 +319,24 @@
             text-align: center !important;
             cursor: default;
         }
+    }
+
+    // 付款標籤（#570）：字本身就說了狀態，顏色只是輔助；試用與不續訂要跟正常訂閱分得開
+    .dd-pay {
+        display: inline-block;
+        background: var(--vp-c-default-soft);
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+
+        & + & { margin-left: 4px; }
+        &.is-active { background: var(--vp-c-green-soft); }
+        &.is-trial { background: var(--vp-c-brand-soft); }
+        &.is-warn { background: var(--vp-c-warning-soft); }
+        &.is-ended { color: var(--vp-c-text-2); }
+        &.is-donor { background: var(--vp-c-purple-soft); }
+        &__none { color: var(--vp-c-text-3); }
     }
 
     // 狀態：圖示＋文字，不只靠顏色

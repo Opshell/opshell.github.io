@@ -1,4 +1,5 @@
 import type { DeviceSort, DeviceStatus, FeedbackFilter, FeedbackProgressFilter } from './api';
+import type { PaidFilter } from './payments';
 import { ref, shallowRef } from 'vue';
 
 // 後台分頁之間的跳轉：總覽點「已凍結」要直接看到凍結的裝置，不只是切到裝置頁。
@@ -11,6 +12,8 @@ export interface PanelPreset {
     /** 總覽點「近 7 天有開 App」→ 照最近打開排；點「N 天沒開」→ 只看沒開的（#0081） */
     deviceSort?: DeviceSort;
     deviceIdleDays?: number;
+    /** 總覽點付款卡片 → 只看訂閱中或贊助過的（#570） */
+    devicePaid?: PaidFilter;
     /** 終端機的 dev <字>：一進裝置頁就搜這個 */
     deviceQuery?: string;
     feedbackStatus?: FeedbackFilter;
