@@ -19,6 +19,8 @@ const loadedAt = ref<Date | null>(null);
 
 // 數量是 0 的狀態後端不會放進 by_status：有統計、沒有 pending 就是 0，不是「還不知道」
 const pendingReports = computed(() => (feedback.value ? feedback.value.byStatus.pending ?? 0 : null));
+/** 回報者回了、開發者還沒回（Flowsker #616）。跟待審是兩件事，側欄分開兩顆 */
+const awaitingReply = computed(() => feedback.value?.awaitingReply ?? null);
 const toMerge = computed(() => feedback.value?.acceptedWithoutIssue ?? null);
 /** 採計了、還沒處理（Flowsker #61）：要修的 bug、要做的建議。舊後端沒有這個數字是 null */
 const toFix = computed(() => feedback.value?.acceptedOpen ?? null);
@@ -48,5 +50,5 @@ export function usePulse() {
         loading.value = false;
     }
 
-    return { pendingReports, toMerge, toFix, flaggedDevices, activeToday, voting, leadingFeature, errors, loading, loadedAt, refresh };
+    return { pendingReports, awaitingReply, toMerge, toFix, flaggedDevices, activeToday, voting, leadingFeature, errors, loading, loadedAt, refresh };
 }

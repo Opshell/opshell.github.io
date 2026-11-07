@@ -5,7 +5,7 @@
 
 import type { z } from 'zod';
 import type { PaidFilter } from './payments';
-import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, PublishNewsDraftInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
+import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, PublishNewsDraftInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, SendFeedbackEmailInput, SendFeedbackMessageInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
 import { apiBase } from '@shared/utils/apiBase';
 import { parseResponse } from '@shared/utils/zod';
 import { GetApiCatalogParser } from './console/catalog.schema';
@@ -27,8 +27,10 @@ import {
     GetDeviceDetailParser,
     GetDeviceListParser,
     GetFeatureCandidateListParser,
+    GetFeedbackEmailsParser,
     GetFeedbackIssueListParser,
     GetFeedbackListParser,
+    GetFeedbackMessagesParser,
     GetFeedbackParser,
     GetFeedbackReportersParser,
     GetFeedbackStatsParser,
@@ -51,6 +53,10 @@ import {
     SaveFeatureCandidatePayload,
     SavePromoCodeParser,
     SavePromoCodePayload,
+    SendFeedbackEmailParser,
+    SendFeedbackEmailPayload,
+    SendFeedbackMessageParser,
+    SendFeedbackMessagePayload,
     TestDeviceKeyParser,
     TriageFeedbackParser,
     TriageFeedbackPayload,
@@ -240,6 +246,8 @@ export const adminApi = {
         progress?: FeedbackProgressFilter;
         bound?: FeedbackBoundFilter;
         reporterName?: string;
+        /** 只看等你回的（Flowsker #616）。要找審過又被回的，status 要給 all */
+        awaitingReply?: boolean;
         deviceId?: number;
         page?: number;
         perPage?: number;
@@ -251,6 +259,7 @@ export const adminApi = {
         if (params.progress && params.progress !== 'all') query.set('progress', params.progress);
         if (params.bound && params.bound !== 'all') query.set('bound', params.bound);
         if (params.reporterName) query.set('reporter_name', params.reporterName);
+        if (params.awaitingReply) query.set('awaiting_reply', 'true');
         if (params.deviceId) query.set('device_id', String(params.deviceId));
         query.set('page', String(params.page ?? 1));
         query.set('per_page', String(params.perPage ?? 50));
@@ -277,6 +286,16 @@ export const adminApi = {
     /** 替使用者建一則回報（來源 line／email），跟 App 送的一樣審、合併、計分 */
     createFeedback: async (token: string, body: CreateFeedbackInput) =>
         call(CreateFeedbackParser, token, 'POST', '/v1/admin/feedback', CreateFeedbackPayload.parse(body)),
+    /** App 與信件合在一起的來往訊息、現在能不能在 App 裡回（api.md 第 8 節「回報的來往訊息」，Flowsker #600） */
+    feedbackMessages: async (token: string, id: number) => call(GetFeedbackMessagesParser, token, 'GET', `/v1/admin/feedback/${id}/messages`),
+    /** 在 App 裡回：回報者下次打開 App 在「我的回報」看到。同一份草稿重送要用同一個 draftId */
+    sendFeedbackMessage: async (token: string, id: number, body: SendFeedbackMessageInput) =>
+        call(SendFeedbackMessageParser, token, 'POST', `/v1/admin/feedback/${id}/messages`, SendFeedbackMessagePayload.parse(body)),
+    /** 只有信件、現在能不能寄、會寄到哪（api.md 第 8 節「寄信回覆回報者」） */
+    feedbackEmails: async (token: string, id: number) => call(GetFeedbackEmailsParser, token, 'GET', `/v1/admin/feedback/${id}/emails`),
+    /** 收件人由後端決定（裝置綁定的 Google email），這裡送不了。同一份草稿重送、寄失敗的重寄都用同一個 draftId */
+    sendFeedbackEmail: async (token: string, id: number, body: SendFeedbackEmailInput) =>
+        call(SendFeedbackEmailParser, token, 'POST', `/v1/admin/feedback/${id}/emails`, SendFeedbackEmailPayload.parse(body)),
     /** 現有的沒綁定名稱（Flowsker #61）：匯入時快選，避免同一個人打出兩種寫法。最近有回報的在前 */
     listReporters: async (token: string) => call(GetFeedbackReportersParser, token, 'GET', '/v1/admin/feedback/reporters'),
     listIssues: async (token: string) => call(GetFeedbackIssueListParser, token, 'GET', '/v1/admin/feedback/issues'),

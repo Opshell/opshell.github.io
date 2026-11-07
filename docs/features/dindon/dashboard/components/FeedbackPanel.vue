@@ -7,6 +7,7 @@
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { adminApi } from '../api';
     import ColumnChart from '../charts/ColumnChart.vue';
+    import { awaitingFirst, pendingReplied, takeReplied } from '../feedbackMessages';
     import { formatDateTime, formatInt, formatRelative, KIND_LABELS, PROGRESS_LABELS, PROGRESSES } from '../format';
     import { takePanelPreset } from '../navigation';
     import { FIXED_IN_PATTERN, reporterNameProblem } from '../schemas/admin.schema';
@@ -15,6 +16,7 @@
     import { usePulse } from '../usePulse';
     import { useScreenshotDownload } from '../useScreenshotDownload';
     import AdminActions from './AdminActions.vue';
+    import FeedbackMessages from './FeedbackMessages.vue';
     import FeedbackTriage from './FeedbackTriage.vue';
     import LineImport from './LineImport.vue';
     import MergePicker from './MergePicker.vue';
@@ -164,6 +166,58 @@
     }
     // #endregion
 
+    // #region [P] 等你回（Flowsker #600、#616）：回報者回了、開發者還沒回
+    /** 只看等你回的：後端篩，整體的，不是只有這一頁 */
+    const awaitingOnly = ref(false);
+    /** 等你回的件數，跟「只看等你回」＋全部狀態的 total 一致；舊後端是 0 */
+    const awaitingTotal = computed(() => stats.value?.awaitingReply ?? 0);
+    /**
+     * 審過的回報，回報者後來又回了也算等你回：只看「待審」會漏掉，所以切過去時狀態改成全部。
+     * 之後要再縮小狀態可以自己選
+     */
+    /** 進來前的狀態篩選：取消時，如果這段時間沒動過狀態（還是「全部」）就還原，不然會停在一個沒選過的「全部」 */
+    let statusBeforeAwaiting: FeedbackFilter | null = null;
+    function showAwaiting(on: boolean) {
+        awaitingOnly.value = on;
+        if (on) {
+            statusBeforeAwaiting = status.value;
+            status.value = 'all';
+        } else {
+            if (statusBeforeAwaiting && status.value === 'all') status.value = statusBeforeAwaiting;
+            statusBeforeAwaiting = null;
+        }
+        closeDetail();
+        void load(1);
+    }
+    /** 按鈕上的是整體的件數；點進來少了，是類型、來源這些篩選擋掉的，要講，不然會以為數字錯了 */
+    const awaitingHidden = computed(() => (awaitingOnly.value && !loading.value ? Math.max(awaitingTotal.value - total.value, 0) : 0));
+    // 本頁排序：有了上面的篩選就不那麼必要，預設關，維持後端的新的在前
+    const awaitingOnTop = ref(false);
+    const shownReports = computed(() => (awaitingOnTop.value ? awaitingFirst(reports.value) : reports.value));
+    /**
+     * 在詳情裡回了：那幾則就不等了，不用重抓整頁。看模組層級的記號而不是聽元件的事件：
+     * 寄信中換看別則，送出的那張卡片已經卸載，它的事件傳不出來
+     */
+    watch(pendingReplied, (count) => {
+        if (!count) return;
+        for (const reportId of takeReplied()) {
+            const index = reports.value.findIndex(r => r.id === reportId);
+            if (index !== -1) reports.value[index] = { ...reports.value[index], awaitingReply: false };
+            if (detail.value?.id === reportId) detail.value = { ...detail.value, awaitingReply: false };
+        }
+        void refreshAwaitingCounts();
+    }, { immediate: true });
+    /** 回了之後，工具列與側欄的件數跟著變：直接重抓統計，比自己減一可靠（同時有人回、重送撞到的都對得上） */
+    async function refreshAwaitingCounts() {
+        try {
+            stats.value = await call(token => adminApi.feedbackStats(token));
+        } catch {
+            // 統計抓不到不擋回覆，下次重新整理再對
+        }
+        void pulse.refresh();
+    }
+    // #endregion
+
     // #region [P] 同一台裝置的回報摺起來（純前端，只看這一頁的 50 則；相似度後端沒提供，只依 device_id）
     interface Group {
         /** 裝置是 d:id；沒綁定的 device_id 都是 0，改用名字（後端同名不分大小寫算同一個人） */
@@ -173,6 +227,8 @@
         name: string;
         reports: FeedbackReport[];
         pending: number;
+        /** 等你回的則數：摺起來的時候也要看得到 */
+        awaiting: number;
     }
     const groupKey = (report: FeedbackReport) => (report.reporterName !== null ? `n:${report.reporterName.toLowerCase()}` : `d:${report.deviceId}`);
     /** 列表上誰送的：沒綁定的名字後面標一下，看得出這則不算分 */
@@ -182,17 +238,18 @@
     const expanded = ref<Set<string>>(new Set());
     const groups = computed<Group[]>(() => {
         const map = new Map<string, Group>();
-        for (const report of reports.value) {
+        for (const report of shownReports.value) {
             const key = groupKey(report);
             let group = map.get(key);
             if (!group) {
-                group = { key, deviceId: report.reporterName !== null ? 0 : report.deviceId, name: whoLabel(report), reports: [], pending: 0 };
+                group = { key, deviceId: report.reporterName !== null ? 0 : report.deviceId, name: whoLabel(report), reports: [], pending: 0, awaiting: 0 };
                 map.set(key, group);
             }
             group.reports.push(report);
             if (report.status === 'pending') group.pending++;
+            if (report.awaitingReply) group.awaiting++;
         }
-        return [...map.values()]; // Map 保留插入順序：第一次出現的裝置在前，跟後端「新的在前」一致
+        return [...map.values()]; // Map 保留插入順序：第一次出現的裝置在前，跟後端「新的在前」一致（等你回的排前面時，有等你回的那組在前）
     });
     /** 只有一則的不摺：摺了反而多一次點擊 */
     const isFolded = (group: Group) => group.reports.length > 1 && !expanded.value.has(group.key);
@@ -217,6 +274,7 @@
                     progress: progress.value,
                     bound: bound.value,
                     reporterName: reporterFilter.value,
+                    awaitingReply: awaitingOnly.value,
                     page: nextPage,
                     perPage: PER_PAGE
                 }),
@@ -575,6 +633,24 @@
                 <input v-model="grouped" type="checkbox" />
                 同一台的摺起來
             </label>
+            <span v-if="!triage && awaitingOnly" class="dd-feedback__chip">
+                只看等你回
+                <button type="button" aria-label="不只看等你回" @click="showAwaiting(false)">✕</button>
+            </span>
+            <span v-if="!triage && awaitingHidden" class="dd-overview__muted">其他篩選擋掉了 {{ formatInt(awaitingHidden) }} 則</span>
+            <button
+                v-else-if="!triage && awaitingTotal"
+                type="button"
+                class="dd-feedback__awaiting dd-feedback__awaiting--button"
+                title="回報者回了、你還沒回的（含已經審過的），點了只看這些"
+                @click="showAwaiting(true)"
+            >
+                {{ formatInt(awaitingTotal) }} 則等你回
+            </button>
+            <label v-if="!triage" class="dd-feedback__check" title="只排這一頁的">
+                <input v-model="awaitingOnTop" type="checkbox" />
+                等你回的排前面
+            </label>
             <span v-if="!triage" class="dd-overview__muted">共 {{ formatInt(total) }} 則</span>
             <AdminActions v-if="!triage">
                 <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load()">重新整理</button>
@@ -670,6 +746,7 @@
                                         <span class="dd-overview__muted">
                                             · 本頁 {{ formatInt(group.reports.length) }} 則{{ group.pending ? `，${formatInt(group.pending)} 則待審` : '' }}
                                         </span>
+                                        <span v-if="group.awaiting" class="dd-feedback__awaiting">{{ formatInt(group.awaiting) }} 則等你回</span>
                                         <!-- 沒綁定的沒有裝置可以「這台的待審」一次處理 -->
                                         <template v-if="group.pending && group.deviceId">
                                             <template v-if="confirmingDevice === group.deviceId">
@@ -695,7 +772,10 @@
                                     <td class="check" @click.stop>
                                         <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
                                     </td>
-                                    <td>#{{ report.id }}</td>
+                                    <td>
+                                        #{{ report.id }}
+                                        <span v-if="report.awaitingReply" class="dd-feedback__awaiting" title="回報者回了，你還沒回">等你回</span>
+                                    </td>
                                     <td>
                                         {{ whoLabel(report) }}
                                         <span v-if="report.reporterName !== null" class="dd-feedback__source">沒綁定</span>
@@ -717,9 +797,9 @@
                                     <td>{{ formatRelative(report.createdAt) }}</td>
                                 </tr>
                             </template>
-                            <!-- 不摺疊：照後端的順序一則一列 -->
+                            <!-- 不摺疊：一則一列，預設等你回的排前面，其他照後端的順序 -->
                             <tr
-                                v-for="report in (grouped ? [] : reports)"
+                                v-for="report in (grouped ? [] : shownReports)"
                                 :key="report.id"
                                 :class="{ 'is-selected': report.id === selectedId }"
                                 tabindex="0"
@@ -729,7 +809,10 @@
                                 <td class="check" @click.stop>
                                     <input type="checkbox" :checked="checked.has(report.id)" :aria-label="`勾選 #${report.id}`" @change="setChecked([report.id], ($event.target as HTMLInputElement).checked)" />
                                 </td>
-                                <td>#{{ report.id }}</td>
+                                <td>
+                                    #{{ report.id }}
+                                    <span v-if="report.awaitingReply" class="dd-feedback__awaiting" title="回報者回了，你還沒回">等你回</span>
+                                </td>
                                 <td>
                                     {{ whoLabel(report) }}
                                     <span v-if="report.reporterName !== null" class="dd-feedback__source">沒綁定</span>
@@ -821,6 +904,8 @@
                             <pre class="dd-feedback__log">{{ detail.log }}</pre>
                         </details>
                     </section>
+
+                    <FeedbackMessages :key="detail.id" :report="detail" />
 
                     <section class="dd-detail__card">
                         <h3>採計</h3>
@@ -1058,6 +1143,26 @@
         &__check {
             @include setFlex(flex-start, center, 6px);
             cursor: pointer;
+        }
+
+        // 等你回：對方在等，要比「沒綁定」「LINE」這種說明性的標籤顯眼，用品牌色塊
+        &__awaiting {
+            background: var(--vp-c-brand-soft);
+            padding: 0 6px;
+            border-radius: 999px;
+            margin-left: 4px;
+            color: var(--vp-c-brand-1);
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+
+            // 工具列上那顆：點了切到「只看等你回」，大小跟旁邊的選單差不多
+            &--button {
+                padding: 4px 12px;
+                margin-left: 0;
+                font-size: var(--font-size-s);
+                cursor: pointer;
+            }
         }
 
         // 勾了才出現的批次列：用品牌淡色跟一般工具列分開，讓人知道現在有東西被勾著

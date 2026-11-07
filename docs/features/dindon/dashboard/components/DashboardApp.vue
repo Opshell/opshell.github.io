@@ -118,6 +118,13 @@
         feedback: pulse.pendingReports.value ?? 0,
         watch: pulse.flaggedDevices.value?.length ?? 0
     }));
+    /**
+     * 回報分頁的第二顆：等你回（Flowsker #616）。不加進待審的紅點：待審是「要判採不採計」，
+     * 等你回是「有人在等回覆」，加總了點進去對不上任何一個篩選，所以分開、換顏色
+     */
+    const replyBadges = computed<Partial<Record<Tab, number>>>(() => ({
+        feedback: pulse.awaitingReply.value ?? 0
+    }));
 
     const timeFormat = new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', hour: '2-digit', minute: '2-digit', hour12: false });
 
@@ -318,8 +325,13 @@
                         <span class="label">{{ t.label }}</span>
                         <kbd class="dd-admin__key" aria-hidden="true">{{ tabKey(index) }}</kbd>
                         <!-- 待辦數字（transitions-dev 03 Notification badge）：外框一直在，數字從 0 變多時滑進來、彈一下，歸零時縮掉 -->
-                        <span v-if="t.key in badges" class="t-badge dd-admin__badge-wrap" :data-open="!!badges[t.key]" :aria-hidden="!badges[t.key]">
-                            <span class="t-badge-dot dd-admin__badge" :aria-label="badges[t.key] ? `${badges[t.key]} 件待處理` : undefined">{{ badges[t.key] || '' }}</span>
+                        <span v-if="t.key in badges" class="dd-admin__badges">
+                            <span v-if="t.key in replyBadges" class="t-badge dd-admin__badge-wrap" :data-open="!!replyBadges[t.key]" :aria-hidden="!replyBadges[t.key]">
+                                <span class="t-badge-dot dd-admin__badge dd-admin__badge--reply" :aria-label="replyBadges[t.key] ? `${replyBadges[t.key]} 則等你回` : undefined">{{ replyBadges[t.key] || '' }}</span>
+                            </span>
+                            <span class="t-badge dd-admin__badge-wrap" :data-open="!!badges[t.key]" :aria-hidden="!badges[t.key]">
+                                <span class="t-badge-dot dd-admin__badge" :aria-label="badges[t.key] ? `${badges[t.key]} 件待處理` : undefined">{{ badges[t.key] || '' }}</span>
+                            </span>
                         </span>
                     </button>
                 </nav>
@@ -594,17 +606,54 @@
             font-size: 12px;
             line-height: 18px;
             text-align: center;
+
+            // 等你回：跟待審的紅色分開，一看就知道是兩件事
+            &--reply {
+                background: var(--vp-c-brand-3);
+
+                // 窄螢幕（側欄變成頂端一條）縮成一個點：兩個數字擠在一起會蓋掉分頁名稱，
+                // 件數留在 aria-label 與回報頁的工具列。收合時同理，寫在下面收合那段
+                @include setRWD(900px) {
+                    width: 8px;
+                    min-width: 0;
+                    height: 8px;
+                    padding: 0;
+                    border-radius: 50%;
+                    font-size: 0;
+                }
+            }
         }
 
-        // 數字的外框（.t-badge）一直在、絕對定位，數字出現或歸零都不會讓分頁的字跳位：
-        // 展開時在快捷鍵那一格的左邊，收合時在圖示右上角，窄螢幕在分頁右上角
-        &__badge-wrap.t-badge {
+        // 數字的外框一直在、絕對定位，數字出現或歸零都不會讓分頁的字跳位：
+        // 展開時在快捷鍵那一格的左邊，收合時在圖示右上角，窄螢幕在分頁右上角。
+        // 回報分頁有兩顆，並排在同一個框裡，往左長
+        &__badges {
+            @include setFlex(flex-end, center, 4px);
+            position: absolute;
             top: calc(50% - 10px);
             right: 36px;
+            pointer-events: none;
             @include setRWD(900px) {
                 top: 0;
                 right: 0;
             }
+        }
+        &__badge-wrap.t-badge {
+            position: static;
+
+            // 窄螢幕（側欄是頂端一條）只有紅點的位置：藍點貼在紅點左邊靠上，不往左長去蓋分頁名稱。
+            // 不能超出分頁上緣：頂端那條會橫向捲動，超出去的部分會被裁掉
+            &:has(.dd-admin__badge--reply) {
+                @include setRWD(900px) {
+                    position: absolute;
+                    top: 1px;
+                    left: -10px;
+                    z-index: 2;
+                }
+            }
+
+            // 歸零的那顆不佔位置，另一顆才會貼著右邊
+            &[data-open=false] { width: 0; }
         }
         &__collapse {
             @include setRWD(900px) { display: none; }
@@ -634,7 +683,7 @@
             }
             .dd-admin__brand { padding: 0; }
             .dd-admin__key { display: none; }
-            .dd-admin__badge-wrap.t-badge {
+            .dd-admin__badges {
                 top: 3px;
                 right: 3px;
             }
@@ -643,6 +692,14 @@
                 padding: 0 4px;
                 font-size: 10px;
                 line-height: 16px;
+            }
+            .dd-admin__badge--reply {
+                width: 8px;
+                min-width: 0;
+                height: 8px;
+                padding: 0;
+                border-radius: 50%;
+                font-size: 0;
             }
         }
         @include setRWD(900px) {
@@ -978,6 +1035,9 @@
         --dd-series-3: #d95926;
         --dd-chart-grid: #2c2c2a;
         --dd-chart-axis: #383835;
+
+        // 深色的 brand-3 是淺藍，白字看不清，改用底色當字
+        .dd-admin__badge--reply { color: var(--vp-c-bg); }
     }
     @keyframes dd-admin-spin {
         to { transform: rotate(360deg); }
