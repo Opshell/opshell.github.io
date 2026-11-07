@@ -3,6 +3,7 @@
     import type { BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
     import type { FeedbackIssue, FeedbackProgress, FeedbackReport, FeedbackReporter, FeedbackStats, FeedbackStatus } from '../schemas/admin.schema';
+    import type { FoundShots } from '../useScreenshotDownload';
     import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
     import { adminApi } from '../api';
     import ColumnChart from '../charts/ColumnChart.vue';
@@ -293,35 +294,40 @@
     function withLoadedBlobs(refs: { reportId: number; position: number }[]) {
         return refs.map(r => ({ ...r, blob: r.reportId === selectedId.value ? shots.value.find(s => s.position === r.position)?.blob : undefined }));
     }
-    async function runDownload(key: string, label: string, findRefs: () => Promise<{ reportId: number; position: number }[]> | { reportId: number; position: number }[]) {
+    /** subject 是「回報 #12」「問題「標題」」，同時當 zip 檔名與提示訊息的主詞 */
+    async function runDownload(key: string, subject: string, find: () => Promise<FoundShots> | FoundShots) {
         if (shotDownload.downloading.value) return;
         error.value = '';
         notice.value = '';
+        // 下載途中換看另一則的話，openReport 已經清了訊息、畫面是那一則的事，結果就不寫回去蓋掉它
+        // （檔案照樣存；有抓不到的也寫在 zip 裡的清單）
+        const openedId = selectedId.value;
         try {
-            const refs = withLoadedBlobs(await findRefs());
-            if (!refs.length) {
-                notice.value = `${label}沒有截圖`;
-                return;
-            }
-            const { saved, failed } = await shotDownload.download(key, label, refs);
-            if (saved) notice.value = `已下載 ${label}的 ${formatInt(saved)} 張截圖${saved > 1 ? '（zip）' : ''}`;
-            if (failed) error.value = `${saved ? '這幾張沒抓到' : '一張都沒抓到'}：${failed}`;
+            const result = await shotDownload.download(key, subject, async () => {
+                const found = await find();
+                return { ...found, refs: withLoadedBlobs(found.refs) };
+            });
+            if (!result || selectedId.value !== openedId) return;
+            const note = result.note ? `；${result.note}` : '';
+            if (!result.saved && !result.failed) notice.value = `沒有截圖可以下載（${subject}）${note}`;
+            if (result.saved) notice.value = `已下載 ${formatInt(result.saved)} 張截圖（${subject}${result.saved > 1 ? '，zip' : ''}）${note}`;
+            if (result.failed) error.value = `${result.saved ? '這幾張沒抓到（zip 裡附了清單）' : '一張都沒抓到'}：${result.failed}`;
         } catch (e) {
-            error.value = errorMessage(e);
+            if (selectedId.value === openedId) error.value = errorMessage(e);
         }
     }
     function downloadReportShots() {
         const current = detail.value;
         if (!current) return;
-        void runDownload(`report:${current.id}`, `回報 #${current.id} `, () => current.screenshots.map(position => ({ reportId: current.id, position })));
+        void runDownload(`report:${current.id}`, `回報 #${current.id}`, () => ({ refs: current.screenshots.map(position => ({ reportId: current.id, position })) }));
     }
     function downloadIssueShots(issue: FeedbackIssue) {
-        void runDownload(`issue:${issue.id}`, `問題「${issue.title}」`, () => shotDownload.issueShotRefs(issue));
+        void runDownload(`issue:${issue.id}`, `問題「${issue.title}」`, async () => shotDownload.issueShotRefs(issue));
     }
     const detailIssue = computed(() => issues.value.find(i => i.id === detail.value?.issueId) ?? null);
     /** 按鈕上的字：正在下載的那顆顯示進度 */
     const downloadLabel = (key: string, idle: string) =>
-        (shotDownload.downloading.value === key ? `打包中${shotDownload.progress.value ? ` ${shotDownload.progress.value}` : ''}…` : idle);
+        (shotDownload.downloading.value === key ? shotDownload.progress.value || '準備中…' : idle);
     // #endregion
 
     // #region [P] 審核與合併

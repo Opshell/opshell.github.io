@@ -46,6 +46,12 @@ export function zipFileName(label: string): string {
     return `叮咚-${safe || '截圖'}.zip`;
 }
 
+/** 有抓不到的就在 zip 裡附一份清單：畫面上的提示可能被下一個動作蓋掉，檔案不會 */
+export function failureNote(failed: CollectedShots['failed']): ZipEntry {
+    const lines = failed.map(f => `回報 #${f.reportId} 第 ${f.position + 1} 張：${f.message}`);
+    return { name: '沒抓到的截圖.txt', data: new TextEncoder().encode(`${lines.join('\r\n')}\r\n`) };
+}
+
 export function failureSummary(failed: CollectedShots['failed']): string {
     return failed.map(f => `#${f.reportId} 第 ${f.position + 1} 張（${f.message}）`).join('、');
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { collectShots, failureSummary, shotFileName, zipFileName } from './screenshotZip';
+import { collectShots, failureNote, failureSummary, shotFileName, zipFileName } from './screenshotZip';
 
 describe('截圖檔名', () => {
     it('帶回報編號，第幾張從 1 數、補零；副檔名照圖片類型', () => {
@@ -42,6 +42,9 @@ describe('collectShots', () => {
         expect(new TextDecoder().decode(files[0].data)).toBe('cached');
         expect(failed).toEqual([{ reportId: 2, position: 0, message: '找不到這張截圖' }]);
         expect(failureSummary(failed)).toBe('#2 第 1 張（找不到這張截圖）');
+        const note = failureNote(failed);
+        expect(note.name).toBe('沒抓到的截圖.txt');
+        expect(new TextDecoder().decode(note.data)).toBe('回報 #2 第 1 張：找不到這張截圖\r\n');
         expect(progress).toEqual([1, 2, 3, 4]);
     });
 });
