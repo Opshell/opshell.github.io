@@ -868,6 +868,15 @@
             font-size: var(--font-size-s);
         }
 
+        // 兩段式確認的第二步：按下去會影響所有使用者（例如示警跳通知）時，在按鈕上方說清楚
+        &__warn {
+            background: var(--vp-c-danger-soft);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--vp-c-danger-1);
+            font-size: var(--font-size-s);
+        }
+
         &__login {
             @include setFlex(flex-start, flex-start, 16px, column);
             max-width: 520px;
