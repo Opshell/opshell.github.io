@@ -299,6 +299,12 @@ describe('回報的來往訊息與寄信（Flowsker #600、#457）', () => {
     });
 
     const rawEmail = { id: 1, direction: 'out', from: 'f', to: 'user@gmail.com', subject: '主旨', body: '內文', status: 'sent', actor: 'boss@example.com', created_at: '2026-10-31T09:00:00Z' };
+    it('統計的等你回件數：照給，舊後端沒有當 0', () => {
+        const base = { total: 3, by_status: null, by_kind: null, per_day: null, participants: 2, accepted_without_issue: 1 };
+        expect(GetFeedbackStatsParser.parse({ ...base, awaiting_reply: 4 }).awaitingReply).toBe(4);
+        expect(GetFeedbackStatsParser.parse(base).awaitingReply).toBe(0);
+    });
+
     it('寄信：寄不了時 to 是 null、原因是字串，emails 是 null 也接', () => {
         expect(GetFeedbackEmailsParser.parse({ emails: null, can_send: false, to: null, cannot_send_reason: '沒有綁定' }))
             .toEqual({ emails: [], canSend: false, to: null, cannotSendReason: '沒有綁定' });

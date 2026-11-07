@@ -246,6 +246,8 @@ export const adminApi = {
         progress?: FeedbackProgressFilter;
         bound?: FeedbackBoundFilter;
         reporterName?: string;
+        /** 只看等你回的（Flowsker #616）。要找審過又被回的，status 要給 all */
+        awaitingReply?: boolean;
         deviceId?: number;
         page?: number;
         perPage?: number;
@@ -257,6 +259,7 @@ export const adminApi = {
         if (params.progress && params.progress !== 'all') query.set('progress', params.progress);
         if (params.bound && params.bound !== 'all') query.set('bound', params.bound);
         if (params.reporterName) query.set('reporter_name', params.reporterName);
+        if (params.awaitingReply) query.set('awaiting_reply', 'true');
         if (params.deviceId) query.set('device_id', String(params.deviceId));
         query.set('page', String(params.page ?? 1));
         query.set('per_page', String(params.perPage ?? 50));

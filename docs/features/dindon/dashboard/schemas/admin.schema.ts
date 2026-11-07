@@ -694,7 +694,9 @@ export const GetFeedbackStatsParser = z
         /** 採計了、還沒處理的件數：修 bug、做建議的待辦 */
         accepted_open: z.number().optional(),
         /** 沒綁定裝置的回報者有幾位（同名算一個）；participants 不含他們 */
-        unbound_reporters: z.number().optional()
+        unbound_reporters: z.number().optional(),
+        /** 等你回的件數（Flowsker #616），含測試裝置，跟 status=all&awaiting_reply=true 的 total 一致 */
+        awaiting_reply: z.number().optional()
     })
     // by_status 的 key 是狀態值（accepted_bug），不能轉駝峰：手動搬欄位
     .transform(data => ({
@@ -706,7 +708,9 @@ export const GetFeedbackStatsParser = z
         acceptedWithoutIssue: data.accepted_without_issue,
         byProgress: data.by_progress ?? {},
         acceptedOpen: data.accepted_open ?? null,
-        unboundReporters: data.unbound_reporters ?? 0
+        unboundReporters: data.unbound_reporters ?? 0,
+        // 舊後端（#616 以前）沒有這個數字：當成沒有等著回的，紅點不亮
+        awaitingReply: data.awaiting_reply ?? 0
     }));
 
 // #endregion

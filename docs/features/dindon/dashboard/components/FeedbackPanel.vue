@@ -166,11 +166,24 @@
     }
     // #endregion
 
-    // #region [P] 等你回（Flowsker #600）：回報者回了、開發者還沒回
-    // 後端沒有這個篩選條件、統計也沒有這個數字，只能在這一頁的 50 則裡排前面；側欄的紅點因此不算它
-    const awaitingOnTop = ref(true);
+    // #region [P] 等你回（Flowsker #600、#616）：回報者回了、開發者還沒回
+    /** 只看等你回的：後端篩，整體的，不是只有這一頁 */
+    const awaitingOnly = ref(false);
+    /** 等你回的件數，跟「只看等你回」＋全部狀態的 total 一致；舊後端是 0 */
+    const awaitingTotal = computed(() => stats.value?.awaitingReply ?? 0);
+    /**
+     * 審過的回報，回報者後來又回了也算等你回：只看「待審」會漏掉，所以切過去時狀態改成全部。
+     * 之後要再縮小狀態可以自己選
+     */
+    function showAwaiting(on: boolean) {
+        awaitingOnly.value = on;
+        if (on) status.value = 'all';
+        closeDetail();
+        void load(1);
+    }
+    // 本頁排序：有了上面的篩選就不那麼必要，預設關，維持後端的新的在前
+    const awaitingOnTop = ref(false);
     const shownReports = computed(() => (awaitingOnTop.value ? awaitingFirst(reports.value) : reports.value));
-    const awaitingCount = computed(() => reports.value.filter(r => r.awaitingReply).length);
     /**
      * 在詳情裡回了：那幾則就不等了，不用重抓整頁。看模組層級的記號而不是聽元件的事件：
      * 寄信中換看別則，送出的那張卡片已經卸載，它的事件傳不出來
@@ -182,7 +195,17 @@
             if (index !== -1) reports.value[index] = { ...reports.value[index], awaitingReply: false };
             if (detail.value?.id === reportId) detail.value = { ...detail.value, awaitingReply: false };
         }
+        void refreshAwaitingCounts();
     }, { immediate: true });
+    /** 回了之後，工具列與側欄的件數跟著變：直接重抓統計，比自己減一可靠（同時有人回、重送撞到的都對得上） */
+    async function refreshAwaitingCounts() {
+        try {
+            stats.value = await call(token => adminApi.feedbackStats(token));
+        } catch {
+            // 統計抓不到不擋回覆，下次重新整理再對
+        }
+        void pulse.refresh();
+    }
     // #endregion
 
     // #region [P] 同一台裝置的回報摺起來（純前端，只看這一頁的 50 則；相似度後端沒提供，只依 device_id）
@@ -241,6 +264,7 @@
                     progress: progress.value,
                     bound: bound.value,
                     reporterName: reporterFilter.value,
+                    awaitingReply: awaitingOnly.value,
                     page: nextPage,
                     perPage: PER_PAGE
                 }),
@@ -599,10 +623,22 @@
                 <input v-model="grouped" type="checkbox" />
                 同一台的摺起來
             </label>
-            <label v-if="!triage" class="dd-feedback__check" title="後端沒有這個篩選，只排這一頁的">
+            <span v-if="!triage && awaitingOnly" class="dd-feedback__chip">
+                只看等你回
+                <button type="button" aria-label="不只看等你回" @click="showAwaiting(false)">✕</button>
+            </span>
+            <button
+                v-else-if="!triage && awaitingTotal"
+                type="button"
+                class="dd-feedback__awaiting dd-feedback__awaiting--button"
+                title="回報者回了、你還沒回的（含已經審過的），點了只看這些"
+                @click="showAwaiting(true)"
+            >
+                {{ formatInt(awaitingTotal) }} 則等你回
+            </button>
+            <label v-if="!triage" class="dd-feedback__check" title="只排這一頁的">
                 <input v-model="awaitingOnTop" type="checkbox" />
                 等你回的排前面
-                <span v-if="awaitingCount" class="dd-feedback__awaiting">本頁 {{ formatInt(awaitingCount) }}</span>
             </label>
             <span v-if="!triage" class="dd-overview__muted">共 {{ formatInt(total) }} 則</span>
             <AdminActions v-if="!triage">
@@ -1108,6 +1144,14 @@
             font-size: 12px;
             font-weight: 600;
             white-space: nowrap;
+
+            // 工具列上那顆：點了切到「只看等你回」，大小跟旁邊的選單差不多
+            &--button {
+                padding: 4px 12px;
+                margin-left: 0;
+                font-size: var(--font-size-s);
+                cursor: pointer;
+            }
         }
 
         // 勾了才出現的批次列：用品牌淡色跟一般工具列分開，讓人知道現在有東西被勾著
