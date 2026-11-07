@@ -4,7 +4,7 @@
 // 後端回的格式對不上就丟 ApiSchemaError，錯誤訊息會指出是哪支 API、哪個欄位。
 
 import type { z } from 'zod';
-import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
+import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, PublishNewsDraftInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
 import { apiBase } from '@shared/utils/apiBase';
 import { parseResponse } from '@shared/utils/zod';
 import { GetApiCatalogParser } from './console/catalog.schema';
@@ -19,6 +19,7 @@ import {
     CreateFeedbackIssuePayload,
     CreateFeedbackParser,
     CreateFeedbackPayload,
+    DiscardNewsDraftParser,
     GeminiBillingParser,
     GetAnnouncementListParser,
     GetDeviceCheckinsParser,
@@ -30,12 +31,16 @@ import {
     GetFeedbackParser,
     GetFeedbackReportersParser,
     GetFeedbackStatsParser,
+    GetNewsDraftListParser,
     GetPromoCodeListParser,
     GetPromoCodeParser,
     GetUsageByDeviceParser,
     GetUsageReportParser,
+    NewsScanParser,
     PlayReportsParser,
     PlayVitalsParser,
+    PublishNewsDraftParser,
+    PublishNewsDraftPayload,
     ReviewFeedbackPayload,
     SaveAnnouncementParser,
     SaveAnnouncementPayload,
@@ -312,6 +317,16 @@ export const adminApi = {
     /** 只改有給的欄位；{ withdrawn: true } 下架、false 重新上架。不能刪 */
     updateAnnouncement: async (token: string, id: number, body: SaveAnnouncementInput) =>
         call(SaveAnnouncementParser, token, 'PATCH', `/v1/admin/announcements/${id}`, SaveAnnouncementPayload.parse(body)),
+    // #endregion
+
+    // #region [P] 新聞示警草稿（Flowsker #531）：發佈才會變成示警公告，409 是別人已經發了或丟了
+    listNewsDrafts: async (token: string, status: 'all' | 'pending' | 'published' | 'discarded' = 'all') =>
+        call(GetNewsDraftListParser, token, 'GET', `/v1/admin/news/drafts?status=${status}`),
+    publishNewsDraft: async (token: string, id: number, body: PublishNewsDraftInput) =>
+        call(PublishNewsDraftParser, token, 'POST', `/v1/admin/news/drafts/${id}/publish`, PublishNewsDraftPayload.parse(body)),
+    discardNewsDraft: async (token: string, id: number) => call(DiscardNewsDraftParser, token, 'POST', `/v1/admin/news/drafts/${id}/discard`),
+    /** 手動掃一輪新聞，跟排程做一樣的事 */
+    scanNews: async (token: string) => call(NewsScanParser, token, 'POST', '/v1/admin/news/scan'),
     // #endregion
 
     // #region [P] Google 實際帳單與 Play（#0084）：後端快取 3 小時，refresh 才重查
