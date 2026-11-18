@@ -3,7 +3,7 @@
     import type { Announcement } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
-    import { announcementError, APP_PAGES, buildRangeText, fromTaipeiLocal, LINK_URL, linkChoice, linkLabel, splitList, toTaipeiLocal } from '../appAdmin';
+    import { announcementError, APP_1_0_0_BUILD, APP_PAGES, buildRangeText, fromTaipeiLocal, LEGACY_MESSAGE_MAX, LINK_URL, linkChoice, linkLabel, messageLength, messageVersionHints, normalizeMessage, splitList, toTaipeiLocal } from '../appAdmin';
     import { formatDateTime } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import AdminActions from './AdminActions.vue';
@@ -25,7 +25,9 @@
     const editing = ref<number | null>(null);
     const form = ref<AnnouncementDraft>(emptyForm());
     const formError = computed(() => announcementError(form.value, messageMax.value));
-    const messageLength = computed(() => [...form.value.message.trim()].length);
+    const messageCount = computed(() => messageLength(form.value.message));
+    // 舊版 App 顯示不好的內容（長、換行、{暱稱}）只提醒不擋：要不要讓舊版看到是管理員決定的（#745、#736）
+    const versionHints = computed(() => messageVersionHints(form.value.message, form.value.minAppBuild));
     // 示警會讓所有使用者的手機跳系統通知（Flowsker #532）：新增一則示警、把一般公告改成示警、改已結束的示警（延長了會再播），
     // 送出前要再按一次；按過之後改了任何一欄就收回提醒，免得確認的跟送出的不一樣。
     // 播放中的示警改字不用：App 用 id 記講過了沒，改內容不會再跳一次
@@ -102,7 +104,8 @@
         error.value = '';
         notice.value = '';
         const body = {
-            message: form.value.message.trim(),
+            // 送後端會存的樣子，畫面上的字數跟存進去的才一致
+            message: normalizeMessage(form.value.message),
             link: form.value.link.trim(),
             startsAt: fromTaipeiLocal(form.value.startsAt),
             endsAt: fromTaipeiLocal(form.value.endsAt),
@@ -193,8 +196,10 @@
                 <h3>{{ editing ? `編輯公告 #${editing}` : '新增公告' }}</h3>
                 <label class="wide">
                     內容
-                    <textarea v-model="form.message" rows="2" :maxlength="messageMax + 20" placeholder="0.7.0 可以用 Google 帳號備份了，記得更新" />
-                    <span class="counter" :class="{ 'is-danger': messageLength > messageMax }">{{ messageLength }} / {{ messageMax }}（建議 60 字內，不能換行）</span>
+                    <!-- 不用 maxlength：它算的是 UTF-16 長度，emoji 會被提早截掉；超過由計數變紅與 formError 擋 -->
+                    <textarea v-model="form.message" rows="4" placeholder="0.7.0 可以用 Google 帳號備份了，記得更新" />
+                    <span class="counter" :class="{ 'is-danger': messageCount > messageMax }">{{ messageCount }} / {{ messageMax }}（可以換行，換行算一個字）</span>
+                    <span class="counter">寫 {暱稱} 會換成使用者的名字（1.0.0 起的 App；用到時把最低版本設成 1.0.0 的 build {{ APP_1_0_0_BUILD }}）</span>
                 </label>
                 <label class="wide">
                     按下去去哪裡
@@ -237,6 +242,13 @@
                     版本範圍 0 是不限。有限版本的公告，沒帶版本的舊 App（0.6.7 以前）看不到。
                     {{ editing ? '改內容不會讓已經講過的 App 再講一次；要重講請新增一則。' : '' }}
                 </p>
+                <p v-if="versionHints.long" class="wide dd-admin__warn">
+                    超過 {{ LEGACY_MESSAGE_MAX }} 字或有換行：0.9.16 以前的小夥伴泡泡沒有高度上限、不照換行，會整段攤開。
+                    建議「只給這個 build 以上」設 {{ APP_1_0_0_BUILD }}（1.0.0），舊版另發一則 {{ LEGACY_MESSAGE_MAX }} 字內的短版。
+                </p>
+                <p v-if="versionHints.nickname" class="wide dd-admin__warn">
+                    內容有 {暱稱}，1.0.0 以前的 App 會照字面顯示「{暱稱}」。最低版本要設 {{ APP_1_0_0_BUILD }}。
+                </p>
                 <p v-if="formError" class="wide dd-admin__error">{{ formError }}</p>
                 <p v-if="confirmingAlert" class="wide dd-admin__warn" role="alert">這會讓所有使用者的手機跳通知。內容與機構確定沒寫錯再按一次。</p>
                 <div class="wide dd-app__actions">
@@ -268,7 +280,7 @@
                                 <span v-if="item.level === 'alert'" class="dd-status is-alert">示警</span>
                             </td>
                             <td class="message">
-                                {{ item.message }}
+                                <span class="text">{{ item.message }}</span>
                                 <small v-if="item.link">→ {{ linkLabel(item.link) }}</small>
                                 <small v-if="item.institutions.length || item.bankCodes.length" class="targets">
                                     相關：{{ item.institutions.join('、') || '—' }}{{ item.bankCodes.length ? `（${item.bankCodes.join('、')}）` : '' }}
@@ -355,6 +367,9 @@
                     color: var(--vp-c-text-2);
                     font-family: var(--dd-mono);
                 }
+
+                // 公告可以換行（#737），照 App 的樣子分行
+                .text { white-space: pre-line; }
                 .targets { font-family: inherit; }
             }
             .period {

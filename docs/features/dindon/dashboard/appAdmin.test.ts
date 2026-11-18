@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { alertTargetsError, announcementError, APP_PAGES, blockedCount, buildRangeText, configError, fromTaipeiLocal, LINK_URL, linkChoice, linkLabel, newsDraftError, splitList, toTaipeiLocal } from './appAdmin';
+import { alertTargetsError, announcementError, APP_1_0_0_BUILD, APP_PAGES, blockedCount, buildRangeText, configError, fromTaipeiLocal, LINK_URL, linkChoice, linkLabel, messageLength, messageVersionHints, newsDraftError, normalizeMessage, splitList, toTaipeiLocal } from './appAdmin';
 
 describe('台灣時間', () => {
     it('伺服器的 RFC3339 換成 datetime-local，再換回來帶 +08:00', () => {
@@ -40,20 +40,78 @@ describe('announcementError', () => {
         expect(announcementError({ ...ok, link: 'https://opshell.me/dindon/' }, 80)).toBe('');
     });
 
-    it('擋掉空白、太長、換行、怪連結、時間顛倒、版本範圍反了', () => {
+    it('擋掉空白、太長、控制字元、怪連結、時間顛倒、版本範圍反了', () => {
         expect(announcementError({ ...ok, message: '  ' }, 80)).toContain('空白');
+        expect(announcementError({ ...ok, message: ' \n\n ' }, 80)).toContain('空白');
         expect(announcementError({ ...ok, message: '字'.repeat(81) }, 80)).toContain('80');
-        expect(announcementError({ ...ok, message: '一\n二' }, 80)).toContain('換行');
+        expect(announcementError({ ...ok, message: '一\t二' }, 80)).toContain('控制字元');
+        expect(announcementError({ ...ok, message: '一\r二' }, 80)).toContain('控制字元');
+        expect(announcementError({ ...ok, message: '一\0二' }, 80)).toContain('控制字元');
         expect(announcementError({ ...ok, link: 'http://x' }, 80)).toContain('連結');
         expect(announcementError({ ...ok, link: 'app:Settings' }, 80)).toContain('連結');
         expect(announcementError({ ...ok, endsAt: '2026-09-30T00:00' }, 80)).toContain('晚');
         expect(announcementError({ ...ok, minAppBuild: 53, maxAppBuild: 52 }, 80)).toContain('反');
     });
 
+    it('換行是合法的（#737），\r\n 也是', () => {
+        expect(announcementError({ ...ok, message: '一\n二' }, 255)).toBe('');
+        expect(announcementError({ ...ok, message: '一\r\n\r\n二' }, 255)).toBe('');
+    });
+
+    it('上限照 messageMax，字數照字元算：255 個 emoji 過、256 個不過', () => {
+        expect(announcementError({ ...ok, message: '😀'.repeat(255) }, 255)).toBe('');
+        expect(announcementError({ ...ok, message: '😀'.repeat(256) }, 255)).toContain('255');
+        // 整理掉的尾端空白不算字
+        expect(announcementError({ ...ok, message: `${'字'.repeat(255)}   \n  ` }, 255)).toBe('');
+    });
+
     it('示警的機構與代碼照後端的規則擋', () => {
         expect(announcementError({ ...ok, level: 'alert', institutions: '永豐銀行', bankCodes: '807' }, 80)).toBe('');
         expect(announcementError({ ...ok, level: 'alert', bankCodes: '80' }, 80)).toContain('三碼');
         expect(announcementError({ ...ok, level: 'alert', institutions: 'LINE Pay', bankCodes: '807 013' }, 80)).toBe('');
+    });
+});
+
+describe('normalizeMessage', () => {
+    it('跟後端存進去的一樣：\\r\\n→\\n、每行去尾端空白、頭尾空行去掉、連續空行留一個', () => {
+        expect(normalizeMessage('  一  \r\n二 \n')).toBe('一\n二');
+        expect(normalizeMessage('\n\n一\n\n\n\n二\n\n')).toBe('一\n\n二');
+        // 行首的空白留著（後端只去尾端），全形空白也算空白
+        expect(normalizeMessage('一\n  二\u3000')).toBe('一\n  二');
+    });
+
+    it('字數照 code point：emoji 一個字、換行一個字', () => {
+        expect(messageLength('😀\n😀')).toBe(3);
+        expect(messageLength(' 一 \r\n')).toBe(1);
+    });
+});
+
+describe('messageVersionHints', () => {
+    const short = '0.7.0 可以用 Google 備份了';
+
+    it('短的、一行、沒有暱稱：不用提醒', () => {
+        expect(messageVersionHints(short, 0)).toEqual({ long: false, nickname: false });
+    });
+
+    it('超過 80 字或有換行，最低版本沒設到 1.0.0 就提醒（#745）', () => {
+        expect(messageVersionHints('字'.repeat(80), 0).long).toBe(false);
+        expect(messageVersionHints('字'.repeat(81), 0).long).toBe(true);
+        expect(messageVersionHints('一\n二', 0).long).toBe(true);
+        expect(messageVersionHints('一\n二', APP_1_0_0_BUILD - 1).long).toBe(true);
+        expect(messageVersionHints('一\n二', APP_1_0_0_BUILD).long).toBe(false);
+        // 尾端的換行後端會去掉，不算
+        expect(messageVersionHints(`${short}\n\n`, 0).long).toBe(false);
+    });
+
+    it('有 {暱稱}、最低版本小於 103 就提醒（#736）', () => {
+        expect(messageVersionHints('{暱稱}，記得更新', 0).nickname).toBe(true);
+        expect(messageVersionHints('{暱稱}，記得更新', 102).nickname).toBe(true);
+        expect(messageVersionHints('{暱稱}，記得更新', 103).nickname).toBe(false);
+        expect(messageVersionHints('暱稱，記得更新', 0).nickname).toBe(false);
+    });
+
+    it('1.0.0 是 build 103（Android #714）', () => {
+        expect(APP_1_0_0_BUILD).toBe(103);
     });
 });
 
