@@ -127,13 +127,63 @@ export function alertTargetsError(institutions: string[], bankCodes: string[]): 
     return '';
 }
 
-/** 公告與示警的內容：一行、不空、不超過字數 */
+/**
+ * 公告內容照後端存進去的樣子整理（api.md 第 21 節；後端 appinfo.NormalizeMessage，#737）：
+ * \r\n 換成 \n、每行去尾端空白、頭尾空白與空行去掉、連續空行壓成一個。字數照整理完的算，計數才跟後端一致。
+ * 空白用 Unicode 的 White_Space，對應 Go 的 unicode.IsSpace（JS 的 \s 多收了 U+FEFF）
+ */
+export function normalizeMessage(raw: string): string {
+    const kept: string[] = [];
+    for (const line of raw.replace(/\r\n/g, '\n').split('\n')) {
+        const trimmed = line.replace(/\p{White_Space}+$/u, '');
+        if (!trimmed && kept.length && !kept[kept.length - 1]) continue;
+        kept.push(trimmed);
+    }
+    return kept.join('\n').replace(/^\p{White_Space}+|\p{White_Space}+$/gu, '');
+}
+
+/** 字數照字元（code point）算，不是 UTF-16 長度：emoji 算一個字，跟後端的 RuneCount 一樣 */
+export const messageLength = (raw: string) => [...normalizeMessage(raw)].length;
+
+/** 換行以外的控制字元（Go 的 unicode.IsControl：C0、DEL、C1）。單獨的 \r 也算，後端只把 \r\n 當換行 */
+// eslint-disable-next-line no-control-regex -- 就是要找控制字元
+const MESSAGE_CONTROL = /[\0-\x09\x0B-\x1F\x7F-\x9F]/;
+
+/** 公告與示警的內容：不空、不超過字數、換行以外沒有控制字元 */
 function messageError(text: string, messageMax: number): string {
-    const message = text.trim();
+    if (MESSAGE_CONTROL.test(text.replace(/\r\n/g, '\n'))) return '內容不能有 tab 或其他看不見的控制字元（換行可以）';
+    const message = normalizeMessage(text);
     if (!message) return '內容不能空白';
     if ([...message].length > messageMax) return `內容最多 ${messageMax} 字`;
-    if (/\n/.test(message)) return '內容不能換行（會放在小夥伴的一個對話框裡）';
     return '';
+}
+
+/**
+ * 1.0.0 的 versionCode（Android #714 升版、#689 驗收摘要）。從這版起 App 才：
+ * 照 message 的換行顯示、泡泡有高度上限（#737），以及把 {暱稱} 換成使用者的名字（#736）
+ */
+export const APP_1_0_0_BUILD = 103;
+
+/** 舊版（0.9.16 以前）泡泡能好好放下的長度：原本的公告上限 */
+export const LEGACY_MESSAGE_MAX = 80;
+
+export const NICKNAME_PLACEHOLDER = '{暱稱}';
+
+export interface MessageVersionHints {
+    /** 超過 80 字或有換行，舊版會整段攤開（#745） */
+    long: boolean;
+    /** 寫了 {暱稱}，舊版會照字面顯示（#736） */
+    nickname: boolean;
+}
+
+/** 這則公告要不要提醒設最低版本。只提醒、不擋送出：要不要讓舊版看到是管理員的判斷 */
+export function messageVersionHints(raw: string, minAppBuild: number): MessageVersionHints {
+    const message = normalizeMessage(raw);
+    const oldAppsSeeIt = minAppBuild < APP_1_0_0_BUILD;
+    return {
+        long: oldAppsSeeIt && ([...message].length > LEGACY_MESSAGE_MAX || message.includes('\n')),
+        nickname: oldAppsSeeIt && message.includes(NICKNAME_PLACEHOLDER)
+    };
 }
 
 const linkError = (link: string) => (link && !link.startsWith('https://') && !APP_LINK.test(link) ? '連結要是 https:// 網址，或 app:頁面代號' : '');

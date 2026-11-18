@@ -3,7 +3,7 @@
     import type { Announcement, NewsDraft, NewsDraftStatus, NewsScanReport } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi, AdminApiError } from '../api';
-    import { fromTaipeiLocal, newsDraftError, splitList, toTaipeiLocal } from '../appAdmin';
+    import { APP_1_0_0_BUILD, fromTaipeiLocal, LEGACY_MESSAGE_MAX, messageLength, messageVersionHints, newsDraftError, normalizeMessage, splitList, toTaipeiLocal } from '../appAdmin';
     import { formatDateTime } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import NewsSourceList from './NewsSourceList.vue';
@@ -123,7 +123,7 @@
         try {
             if (action === 'publish') {
                 const body = {
-                    message: edit.message.trim(),
+                    message: normalizeMessage(edit.message),
                     institutions: splitList(edit.institutions),
                     bankCodes: splitList(edit.bankCodes, true),
                     // 一律明確送：空字串是不帶連結，不讓後端再補第一篇來源
@@ -155,8 +155,13 @@
         return [head, draft.decidedBy, draft.decidedAt ? formatDateTime(draft.decidedAt) : ''].filter(Boolean).join('・');
     }
 
-    function messageLength(id: number) {
-        return [...(edits.value[id]?.message.trim() ?? '')].length;
+    function messageCount(id: number) {
+        return messageLength(edits.value[id]?.message ?? '');
+    }
+
+    /** 發佈的 body 沒有版本欄位，一律全部版本：長的、有 {暱稱} 的只能發佈後到公告列表改最低版本（#745、#736） */
+    function versionHints(id: number) {
+        return messageVersionHints(edits.value[id]?.message ?? '', 0);
     }
 
     onMounted(load);
@@ -206,8 +211,8 @@
             <form v-if="draft.status === 'pending' && edits[draft.id]" class="dd-announce__form" @submit.prevent="decide(draft, 'publish')">
                 <label class="wide">
                     示警內容
-                    <textarea v-model="edits[draft.id].message" rows="2" :maxlength="messageMax + 20" @input="markTouched(draft.id)" />
-                    <span class="counter" :class="{ 'is-danger': messageLength(draft.id) > messageMax }">{{ messageLength(draft.id) }} / {{ messageMax }}（不能換行）</span>
+                    <textarea v-model="edits[draft.id].message" rows="4" @input="markTouched(draft.id)" />
+                    <span class="counter" :class="{ 'is-danger': messageCount(draft.id) > messageMax }">{{ messageCount(draft.id) }} / {{ messageMax }}（可以換行，換行算一個字）</span>
                 </label>
                 <label>
                     相關機構
@@ -230,6 +235,11 @@
                     <span class="counter">按下發佈就開始</span>
                 </label>
 
+                <p v-if="versionHints(draft.id).long || versionHints(draft.id).nickname" class="wide dd-admin__warn">
+                    {{ versionHints(draft.id).long ? `超過 ${LEGACY_MESSAGE_MAX} 字或有換行，0.9.16 以前的泡泡會整段攤開。` : '' }}
+                    {{ versionHints(draft.id).nickname ? '內容有 {暱稱}，1.0.0 以前的 App 會照字面顯示。' : '' }}
+                    發佈不能設版本，發佈後到下面公告列表按「編輯」，把「只給這個 build 以上」設成 {{ APP_1_0_0_BUILD }}（1.0.0）。
+                </p>
                 <p v-if="errors[draft.id]" class="wide dd-admin__error">{{ errors[draft.id] }}</p>
                 <p v-if="isConfirming(draft.id, 'publish')" class="wide dd-admin__warn" role="alert">
                     這會讓所有使用者的手機跳通知。內容與機構確定沒寫錯再按一次。
@@ -324,7 +334,10 @@
         &__message {
             font-size: var(--font-size-s);
         }
-        &__message { color: var(--vp-c-text-1); }
+        &__message {
+            color: var(--vp-c-text-1);
+            white-space: pre-line;
+        }
         &__sources {
             font-size: var(--font-size-s);
 
