@@ -116,7 +116,7 @@ export const frontierSteps: FrontierStep[] = [
 /** 三顆季後絕版的紀念徽章（api.md 29.7）。條件照 App 徽章牆的字（strings.xml badge_frontier_* 等） */
 export const frontierBadges: { title: string; condition: string; extra?: string }[] = [
     { title: '荒野開拓者', condition: '拓荒季內有 7 天讓叮咚自動記帳，再拍照或用語音記一筆。' },
-    { title: '建鎮元老', condition: '拓荒季內訂閱（試用中也算）。' },
+    { title: '建鎮元老', condition: '拓荒季內訂閱。' },
     { title: '酒館大亨', condition: '拓荒季內贊助，哪一階都算。', extra: '同時解鎖西部配色，季後也一直留著。' }
 ];
 
