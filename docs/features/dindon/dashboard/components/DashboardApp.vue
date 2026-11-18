@@ -934,6 +934,15 @@
             font-size: var(--font-size-s);
         }
 
+        // 版本提醒只是建議設最低版本，不是錯誤：用中性的淡灰，紅色留給上面那種會影響所有人的確認
+        &__hint {
+            background: var(--vp-c-default-soft);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--vp-c-text-2);
+            font-size: var(--font-size-s);
+        }
+
         &__login {
             @include setFlex(flex-start, flex-start, 16px, column);
             max-width: 520px;
