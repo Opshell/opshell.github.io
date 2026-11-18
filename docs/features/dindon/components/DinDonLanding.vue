@@ -3,19 +3,21 @@
     import { ref } from 'vue';
     import {
         ACCOUNT_PATH,
-        BETA_SEATS,
-        betaRewards,
         CONTACT_EMAIL,
+        FRONTIER_PERIOD,
+        frontierBadges,
+        frontierStatuses,
+        frontierSteps,
         helperPoints,
         invoicePains,
         lazyPoints,
         photoSources,
+        PLAY_STORE_URL,
         PRIVACY_PATH,
-        SIGNUP_HREF,
         withoutNotice
     } from '../constants';
-    import BetaJoinGuide from './BetaJoinGuide.vue';
     import DinDonBell from './DinDonBell.vue';
+    import FrontierArt from './FrontierArt.vue';
     import PromoStory from './PromoStory.vue';
     import PromoVideo from './PromoVideo.vue';
 
@@ -50,11 +52,16 @@
                     </p>
 
                     <div class="dindon-landing__actions">
-                        <!-- 先到下面看兩步驟：直接連去群組的話，很多人會漏掉第二步的測試連結 -->
-                        <a class="dindon-landing__btn dindon-landing__btn--primary" href="#beta">加入封閉測試<span class="arrow arrow--down" aria-hidden="true">↓</span></a>
+                        <a class="dindon-landing__btn dindon-landing__btn--primary" :href="PLAY_STORE_URL">到 Google Play 下載<span class="arrow" aria-hidden="true">→</span></a>
                         <a class="dindon-landing__btn" href="#why">看看怎麼做到<span class="arrow arrow--down" aria-hidden="true">↓</span></a>
                     </div>
-                    <p class="dindon-landing__note">僅限 Android 7.0 以上 · 封測限額 {{ BETA_SEATS }} 名 · 即將在 Google Play 上架</p>
+                    <p class="dindon-landing__note">僅限 Android 7.0 以上 · 免費下載 · 不用註冊</p>
+                    <!-- 上架活動的入口：只寫起訖，不寫「進行中」，靜態頁過了期限也不會說錯 -->
+                    <a class="dindon-landing__season" href="#frontier">
+                        <FrontierArt art="star" :size="20" />
+                        <span>西部拓荒季 {{ FRONTIER_PERIOD }}</span>
+                        <span class="arrow" aria-hidden="true">↓</span>
+                    </a>
                 </div>
 
                 <div class="dindon-landing__hero-shot">
@@ -220,62 +227,69 @@
         </section>
         <!-- #endregion -->
 
-        <!-- #region [P] 封測招募 -->
-        <section id="beta" class="dindon-landing__section dindon-landing__section--sunken">
+        <!-- #region [P] 西部拓荒季（#756，上架活動）：不寫領地的數字與清單，宣傳頁拿不到即時資料，靜態數字會過時 -->
+        <section id="frontier" class="dindon-landing__section dindon-landing__frontier">
             <div class="dindon-landing__container">
-                <!-- 加入方式放整個寬度：兩步驟並排，一眼看出「要做兩件事」 -->
-                <div class="dindon-landing__join">
-                    <p class="dindon-landing__seats" data-reveal>
-                        <strong>限額 {{ BETA_SEATS }} 名</strong>
-                        <span>僅限 Android · 額滿為止</span>
-                    </p>
-                    <h2 class="dindon-landing__title" data-reveal :style="delay(1)">加入封閉測試</h2>
-                    <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">
-                        Google Play 規定新 App 上架前，要先經過一段封閉測試。體驗最無腦的記帳，順手幫幫叮咚記帳上架。
-                    </p>
+                <p class="dindon-landing__eyebrow" data-reveal>上架活動 · {{ FRONTIER_PERIOD }}</p>
+                <h2 class="dindon-landing__title dindon-landing__frontier-title" data-reveal :style="delay(1)">
+                    <FrontierArt art="star" :size="40" class="star" />
+                    西部拓荒季
+                </h2>
+                <p class="dindon-landing__subtitle" data-reveal :style="delay(2)">
+                    每一家銀行、支付、電信，都是一塊領地。叮咚認得越多家的付款通知，大家就越不用動手——一起把領地馴服下來。
+                </p>
 
-                    <p class="dindon-landing__join-lead" data-reveal :style="delay(3)">
-                        <strong>要兩個步驟</strong>：先加入封測群組，被核准之後再打開測試連結。只做第一步的話，Play 商店還找不到測試版。
-                    </p>
-                    <BetaJoinGuide data-reveal data-loop :style="delay(4)" />
-                    <div>
-                        <p class="dindon-landing__note">
-                            裝好之後，每天打開一次、連續 14 天，中途退出測試要重新算。遇到問題或有想法，在 App 裡回報。
-                        </p>
-                        <p class="dindon-landing__note">
-                            需要：Android 7.0 以上的手機、一個 Google 帳號（要和 Play 商店登入的是同一個）。有問題寫信到 <a :href="SIGNUP_HREF" class="email">{{ CONTACT_EMAIL }}</a>。
-                        </p>
+                <dl class="dindon-landing__frontier-status">
+                    <div v-for="(status, index) in frontierStatuses" :key="status.key" :class="`is-${status.key}`" data-reveal :style="delay(index + 3, 80)">
+                        <dt>{{ status.label }}</dt>
+                        <dd>{{ status.text }}</dd>
                     </div>
+                </dl>
+
+                <p class="dindon-landing__frontier-heading" data-reveal>怎麼領賞金</p>
+                <ol class="dindon-landing__frontier-steps">
+                    <li v-for="(step, index) in frontierSteps" :key="step.title" class="dindon-landing__card" data-reveal :style="delay(index, 90)">
+                        <span class="feature-icon" aria-hidden="true"><FrontierArt :art="step.art" /></span>
+                        <h3><span class="num">{{ index + 1 }}</span>{{ step.title }}</h3>
+                        <p>{{ step.text }}</p>
+                    </li>
+                </ol>
+
+                <p class="dindon-landing__frontier-heading" data-reveal>三顆季後絕版的徽章</p>
+                <ul class="dindon-landing__frontier-badges">
+                    <li v-for="(badge, index) in frontierBadges" :key="badge.title" data-reveal :style="delay(index, 90)">
+                        <span class="tag">季後絕版</span>
+                        <h3>{{ badge.title }}</h3>
+                        <p>{{ badge.condition }}</p>
+                        <p v-if="badge.extra" class="extra">{{ badge.extra }}</p>
+                    </li>
+                </ul>
+
+                <p class="dindon-landing__note dindon-landing__frontier-note" data-reveal>
+                    哪幾家已馴服、哪幾家還在通緝、誰在哪塊領地署名，都在 App 的活動頁。拓荒季結束後，領地與署名都會留著。
+                </p>
+            </div>
+        </section>
+        <!-- #endregion -->
+
+        <!-- #region [P] 下載＋謝謝封測的白老鼠（#756：封測獎勵表拿掉，名次與獎勵以 App 的活動頁為準） -->
+        <section id="download" class="dindon-landing__section dindon-landing__section--sunken">
+            <div class="dindon-landing__container dindon-landing__download">
+                <h2 class="dindon-landing__title" data-reveal>準備好當個懶人了嗎？</h2>
+                <p class="dindon-landing__subtitle" data-reveal :style="delay(1)">免費下載，不用註冊，裝好打開就能記。</p>
+                <div class="dindon-landing__actions" data-reveal :style="delay(2)">
+                    <a class="dindon-landing__btn dindon-landing__btn--primary" :href="PLAY_STORE_URL">到 Google Play 下載<span class="arrow" aria-hidden="true">→</span></a>
                 </div>
+                <p class="dindon-landing__note" data-reveal :style="delay(3)">
+                    僅限 Android 7.0 以上。有問題寫信到 <a :href="`mailto:${CONTACT_EMAIL}`" class="email">{{ CONTACT_EMAIL }}</a>，或在 App 裡回報。
+                </p>
 
-                <div class="dindon-landing__beta">
-                    <div class="beta-copy">
-                        <figure class="dindon-landing__figure dindon-landing__figure--event" data-reveal>
-                            <div class="dindon-landing__phone" data-parallax="-.05">
-                                <img src="/images/dindon/event.webp" alt="Beta 貢獻活動的排行榜：前三名、自己的名次與每個人的回報件數" loading="lazy" width="720" height="1600" />
-                            </div>
-                            <figcaption>App 裡的排行榜（畫面中的名字為示範資料）</figcaption>
-                        </figure>
-                    </div>
-
+                <div class="dindon-landing__thanks" data-reveal :style="delay(4)">
+                    <span class="mouse" aria-hidden="true">🐭</span>
                     <div>
-                        <p class="dindon-landing__rewards-title" data-reveal>參加封測可以拿到的未來優惠</p>
-                        <ul class="dindon-landing__rewards">
-                            <li v-for="(reward, index) in betaRewards" :key="reward.title" data-reveal="right" :style="delay(index + 1, 120)">
-                                <span class="tag">{{ reward.tag }}</span>
-                                <h3>{{ reward.title }}</h3>
-                                <p class="condition">{{ reward.condition }}</p>
-                                <p class="reward">→ {{ reward.reward }}</p>
-                                <dl v-if="reward.tiers" class="tiers">
-                                    <div v-for="tier in reward.tiers" :key="tier.rank">
-                                        <dt>{{ tier.rank }}</dt>
-                                        <dd>{{ tier.reward }}</dd>
-                                    </div>
-                                </dl>
-                            </li>
-                        </ul>
-                        <p class="dindon-landing__note dindon-landing__note--fine" data-reveal>
-                            名次不並列：同分時先達到這個分數的人排前面。名次獎與全勤另外算，一筆接一筆排，從正式版上線那天開始算；實際發放以活動結束時公布為準。活動結束後，打卡、名次和紀念徽章的紀錄都會留著。換手機也拿得回來：記得在 App 裡綁定 Google 帳號。
+                        <h3>謝謝每一隻白老鼠</h3>
+                        <p>
+                            叮咚記帳能走到正式上架，要謝謝封測期間的每一位測試者。你們回報的問題、提的建議、每天打開的那一下，都讓它更穩一點。封測的名次與獎勵，在 App 的活動頁看得到。
                         </p>
                     </div>
                 </div>
@@ -420,6 +434,7 @@
             > :nth-child(3) { animation-delay: .16s; }
             > :nth-child(4) { animation-delay: .24s; }
             > :nth-child(5) { animation-delay: .32s; }
+            > :nth-child(6) { animation-delay: .4s; }
         }
         &__brand {
             @include setFlex(flex-start, center, 14px);
@@ -600,17 +615,6 @@
             figcaption {
                 color: var(--dd-muted);
                 font-weight: 700;
-            }
-
-            // 封測區左欄的排行榜：比其他手機小一點，是佐證不是主角
-            &--event {
-                margin-top: 36px;
-
-                .dindon-landing__phone { max-width: 250px; }
-                figcaption {
-                    font-size: var(--font-size-s);
-                    font-weight: 400;
-                }
             }
         }
         &__links {
@@ -829,104 +833,178 @@
 
         // #endregion
 
-        // #region [P] beta
-        &__beta {
-            display: grid;
-            grid-template-columns: 1.1fr .9fr;
-            gap: 48px;
-            align-items: start;
-            @include setRWD(1024px) { grid-template-columns: 1fr; }
-
-            .beta-copy {
-                @include setFlex(flex-start, flex-start, 22px, column);
-            }
+        // #region [P] 西部拓荒季
+        // 段落自己換成 App 的西部配色（DinDon_Android ui/theme/Color.kt 的 Western*），卡片沿用 __card，跟著吃這組變數
+        &__frontier {
+            --dd-surface: #FFFBF4;
+            --dd-border: #D3C1A4;
+            --dd-muted: #6B5643;
+            --dd-accent-tint: #F6E7C6;
+            --dd-accent-border: #8A6414;
+            --dd-west-ink: #5C3A15;
+            --dd-west-gold: #D9A441;
+            --dd-west-tamed: #2E6720;
+            --dd-west-wanted: #CF6E37;
+            --dd-west-badge: #2A1D12;
+            background: #E9DCC6;
         }
-        &__seats {
+        &__frontier-title {
             @include setFlex(flex-start, center, 12px);
-            flex-wrap: wrap;
 
-            strong {
-                background: var(--dd-primary);
-                padding: 4px 14px;
+            .star { color: var(--dd-west-gold); }
+        }
+
+        // 已馴服／通緝中：兩塊並排，左邊一條色塊標狀態，窄螢幕疊起來
+        &__frontier-status {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 32px 0 0;
+            @include setRWD(640px) { grid-template-columns: 1fr; }
+
+            div {
+                @include setFlex(flex-start, flex-start, 6px, column);
+                background: var(--dd-surface);
+                padding: 18px 22px;
+                border-radius: var(--dd-radius);
+            }
+            dt {
+                padding: 2px 12px;
                 border-radius: 999px;
-                color: var(--dd-on-primary);
+                color: #FFFBF4;
+                font-size: var(--font-size-s);
+                font-weight: 700;
             }
-            span {
+            dd {
+                margin: 0;
                 color: var(--dd-muted);
-                font-weight: 600;
             }
+            .is-tamed dt { background: var(--dd-west-tamed); }
+            .is-wanted dt { background: var(--dd-west-wanted); }
         }
-        &__join {
-            @include setFlex(flex-start, flex-start, 22px, column);
-            margin-bottom: 72px;
-        }
-        &__join-lead {
-            background: var(--dd-accent-tint);
-            padding: 12px 16px;
-            border-left: 4px solid var(--dd-accent);
-            border-radius: 8px;
-            color: #1B1815;
-
-            strong { color: #1B1815; }
-        }
-
-        &__rewards-title {
-            margin-bottom: 14px !important;
+        &__frontier-heading {
+            margin-top: 48px !important;
+            color: var(--dd-west-ink);
             font-size: var(--font-size-l);
             font-weight: 800;
         }
-        &__rewards {
-            @include setFlex(flex-start, stretch, 14px, column);
+        &__frontier-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 16px !important;
             list-style: none;
+            @include setRWD(900px) { grid-template-columns: 1fr; }
+
+            .feature-icon { color: var(--dd-west-ink); }
+            .num {
+                @include setFlex();
+                display: inline-flex;
+                background: var(--dd-west-ink);
+                width: 1.6em;
+                height: 1.6em;
+                border-radius: 50%;
+                margin-right: 8px;
+                color: #FFFBF4;
+                font-size: var(--font-size-s);
+                vertical-align: .1em;
+            }
+        }
+
+        // 絕版徽章：深色卡，兩個模式一樣（跟 App 徽章牆的紀念徽章卡一樣是深底）
+        &__frontier-badges {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px !important;
+            list-style: none;
+            @include setRWD(900px) { grid-template-columns: 1fr; }
 
             li {
                 @include setFlex(flex-start, flex-start, 6px, column);
-
-                // 和 App 徽章牆的紀念徽章卡同色（BadgeWallScreen.kt 的 LEGEND_*）
-                background: #2A1752;
+                background: var(--dd-west-badge);
                 padding: 20px 22px;
                 border-radius: var(--dd-radius);
-                color: #F4EFE3;
+                color: #F3E9D8;
             }
             .tag {
-                background: #F6C443;
+                background: var(--dd-west-gold);
                 padding: 2px 10px;
                 border-radius: 999px;
-                color: #1B1815;
+                color: #2A1D12;
                 font-size: var(--font-size-xs);
                 font-weight: 700;
             }
             h3 {
-                color: #FFD98A;
+                color: #E5CD77;
                 font-size: var(--font-size-l);
             }
-            .condition { color: #D9D1E8; }
-            .reward {
-                color: #F4EFE3;
+            p { color: #D9CBB4; }
+            .extra {
+                color: #F3E9D8;
                 font-weight: 700;
             }
+        }
+        &__frontier-note {
+            margin-top: 28px !important;
+            font-size: var(--font-size-m);
+        }
 
-            // 名次級距：兩欄對齊，第 1 名那一列最亮
-            .tiers {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 4px 20px;
-                width: 100%;
-                margin: 6px 0 0;
+        // hero 裡拓荒季的入口：深色小膠囊，黃底上一眼分得出來
+        &__season {
+            @include setFlex(flex-start, center, 8px);
+            display: inline-flex;
+            background: #2A1D12;
+            padding: 6px 16px 6px 12px;
+            border-radius: 999px;
+            color: #F3E9D8;
+            font-size: var(--font-size-s);
+            font-weight: 700;
+            text-decoration: none;
+            transition: translate .25s var(--cubic-FiSo);
 
-                div {
-                    @include setFlex(space-between, baseline, 8px);
-                    padding: 3px 0;
-                    border-bottom: 1px solid rgb(244 239 227 / 12%);
+            .frontier-art { color: #D9A441; }
+            .arrow { transition: transform .25s var(--cubic-FiSo); }
+            @media (hover: hover) {
+                &:hover {
+                    translate: 0 -2px;
+
+                    .arrow { transform: translateY(3px); }
                 }
-                dt { color: #D9D1E8; }
-                dd {
-                    margin: 0;
-                    color: #FFD98A;
-                    font-weight: 700;
-                }
-                div:first-child dd { color: #F6C443; }
-                @include setRWD(420px) { grid-template-columns: 1fr; }
+            }
+            &:focus-visible {
+                outline: 3px solid var(--dd-primary);
+                outline-offset: 3px;
+            }
+        }
+
+        // #endregion
+
+        // #region [P] 下載＋謝謝白老鼠
+        &__download {
+            @include setFlex(flex-start, center, 16px, column);
+            text-align: center;
+
+            .dindon-landing__subtitle { margin-top: 0 !important; }
+        }
+        &__thanks {
+            @include setFlex(flex-start, flex-start, 16px);
+            background: var(--dd-surface);
+            max-width: 40em;
+            padding: 20px 24px;
+            border-radius: var(--dd-radius);
+            margin-top: 32px;
+            text-align: left;
+
+            .mouse {
+                flex: none;
+                font-size: 2rem;
+                line-height: 1.2;
+            }
+            h3 { font-size: var(--font-size-l); }
+            p {
+                margin-top: 4px !important;
+                color: var(--dd-muted);
             }
         }
 
@@ -953,7 +1031,7 @@
         @media (prefers-reduced-motion: reduce) {
             &__hero-copy > *,
             &__hero-stage { animation: none; }
-            &__btn, &__btn .arrow, &__card, &__link .arrow { transition: none; }
+            &__btn, &__btn .arrow, &__card, &__link .arrow, &__season, &__season .arrow { transition: none; }
         }
 
         // #endregion
@@ -979,6 +1057,20 @@
             --dd-on-primary: #FFFDF8;
         }
         .dindon-landing__card .feature-icon { background: #332912; }
+
+        // 拓荒季段落的深色：App 的 WesternDark*
+        .dindon-landing__frontier {
+            --dd-surface: #35291C;
+            --dd-border: #4F3E2A;
+            --dd-muted: #BFAA8D;
+            --dd-accent-border: #D9A441; // 段落眉標的字色，深底上要亮一點
+            --dd-west-ink: #E5CD77;
+            --dd-west-badge: #3A2C1C;
+            background: #211910;
+
+            .feature-icon { background: #3A3016; }
+            .num { color: #1A120B; }
+        }
     }
     @keyframes dd-rise {
         from {

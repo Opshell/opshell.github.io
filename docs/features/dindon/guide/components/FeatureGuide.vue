@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
-    import { ACCOUNT_PATH, CONTACT_EMAIL, DEMO_PATH, PRIVACY_PATH } from '../../constants';
+    import { ACCOUNT_PATH, CONTACT_EMAIL, DEMO_PATH, PLAY_STORE_URL, PRIVACY_PATH } from '../../constants';
     import { branches, features, findFeature, REVIEWED_APP_VERSION, stages } from '../featureMap';
     import FeatureDetail from './FeatureDetail.vue';
     import FeatureMindMap from './FeatureMindMap.vue';
@@ -162,7 +162,7 @@
             <!-- #endregion -->
 
             <p class="dindon-guide__outro">
-                想自己玩玩看？<a href="/dindon/#beta">加入封閉測試</a>，或先看<a :href="DEMO_PATH">功能演示影片</a>。
+                想自己玩玩看？<a :href="PLAY_STORE_URL">到 Google Play 下載</a>，或先看<a :href="DEMO_PATH">功能演示影片</a>。
             </p>
         </main>
 

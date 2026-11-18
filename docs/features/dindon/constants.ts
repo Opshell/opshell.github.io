@@ -1,8 +1,8 @@
 // [-] App 專用的聯絡信箱，和 App 的隱私權政策、問題回報頁是同一個（DinDon_Android 的 strings.xml report_email）
 export const CONTACT_EMAIL = 'dindon.ledger@gmail.com';
 
-/** 封測名額。OAuth 同意畫面「測試中」的測試使用者上限也是 100（見外層 google-group-setup.md） */
-export const BETA_SEATS = 100;
+/** Play 商店頁（2026-11-20 正式版上架，#756）。宣傳頁、演示頁、功能地圖的「下載」都連這裡 */
+export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=me.opshell.dindon';
 
 export const PRIVACY_PATH = '/dindon/privacy/';
 
@@ -14,27 +14,6 @@ export const GUIDE_PATH = '/dindon/guide/';
 
 /** 刪除資料與帳號。Google Play 要求「帳號刪除」有一個不用裝 App 也打得開的網址 */
 export const ACCOUNT_PATH = '/dindon/account/';
-
-/** 封測的 Google 群組。加入群組才拿得到 Play 的測試版（見外層 google-group-setup.md） */
-export const GROUP_URL = 'https://groups.google.com/g/dindon-beta';
-
-/**
- * Play 的「加入測試」連結（2026-09-25 封閉測試審查通過）。
- * 要先加入上面的群組，這個連結才有用：Play 看的是「這個帳號在不在測試群組裡」。
- */
-export const PLAY_OPTIN_URL = 'https://play.google.com/apps/testing/me.opshell.dindon';
-
-// 報名信的範本：Play Console 加測試者要的是對方 Play 商店登入的那個 Gmail
-const SIGNUP_SUBJECT = '叮咚記帳封閉測試';
-const SIGNUP_BODY = [
-    '（申請加入 Google 群組之後，有問題再用這封信問；報名本身不用寄信。）',
-    '',
-    'Play 商店登入的 Gmail：',
-    '手機型號（限 Android）：',
-    '想問的問題：'
-].join('\n');
-
-export const SIGNUP_HREF = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(SIGNUP_SUBJECT)}&body=${encodeURIComponent(SIGNUP_BODY)}`;
 
 export interface LandingPoint {
     icon: string;
@@ -95,72 +74,50 @@ export const lazyPoints: LandingPoint[] = [
     { icon: '🧘', title: '沒有複雜的設定', text: '不用設預算、不用建帳戶。打開統計就知道錢去哪了；想找某一筆，直接用講的：「上個月在超商花了多少」。' }
 ];
 
-/** 加入封測的兩步（流程見外層 docs/ops/google-group-setup.md 第三節）；宣傳頁的 BetaJoinGuide 用 */
-export interface JoinStep {
+/**
+ * 上架活動「西部拓荒季」（#756）。規格：工作區 docs/devlog/android/Android_開發記錄0.8.0.md「2026-11-16 做 1.0.0」、
+ * DinDon_BackEnd/docs/api.md 第 29 節；文字盡量照 App 的 frontier_report.xml 與徽章牆的說法。
+ * 期間照使用者 2026-11-18 的話寫死日期（「活動是到12月底」），不寫「30 天」。
+ */
+export const FRONTIER_PERIOD = '2026/11/20～2026/12/31';
+
+/** 領地的兩種狀態。對外一律說「已用真實通知驗證」，不說「支援」（api.md 29.2 末段）：通緝中的很多其實也記得到 */
+export const frontierStatuses: { key: 'tamed' | 'wanted'; label: string; text: string }[] = [
+    { key: 'tamed', label: '已馴服', text: '已用真實通知驗證：拿到那一家真的付款通知，跑過叮咚的整套判斷，記得對。' },
+    { key: 'wanted', label: '通緝中', text: '還缺真實通知樣本。不代表記不到，只是還沒拿到真的通知驗證過。' }
+];
+
+export interface FrontierStep {
+    /** 意象：套索、警長星、仙人掌（不用槍，#756） */
+    art: 'cactus' | 'lasso' | 'star';
     title: string;
     text: string;
-    action: string;
-    href: string;
-    /** 容易讓人以為出錯、其實正常的地方 */
-    note?: string;
-    /** 容易做錯的地方 */
-    caution?: string;
-    /** 裝不起來時的排查：問題一句、怎麼辦一句。mail 為真的在後面接聯絡信箱（排查順序見外層 docs/ops/google-group-setup.md 第三節） */
-    troubleshoot?: { q: string; a: string; mail?: boolean }[];
 }
 
-export const joinSteps: JoinStep[] = [
+/** 怎麼參加：三步。賞金天數照 api.md 29.5 的建議值；署名照 29.3 */
+export const frontierSteps: FrontierStep[] = [
     {
-        title: '申請加入封測群組',
-        text: '用你在 Play 商店登入的那個 Google 帳號打開群組，按「申請加入群組」。核准後 Google 會寄信通知你。',
-        action: '申請加入群組',
-        href: GROUP_URL,
-        caution: '帳號一定要和 Play 商店的同一個，不然 Play 認不出你是測試者。'
+        art: 'cactus',
+        title: '發現漏網之魚',
+        text: '付款沒被記到、或記錯了？那一家很可能還在通緝中。'
     },
     {
-        title: '成為測試人員，下載安裝',
-        text: '收到核准信之後，打開測試連結，按藍色的「Become a tester」（成為測試人員）。下一頁再點裡面的 Google Play 連結，進到 Play 商店照一般 App 安裝。',
-        action: '打開測試連結',
-        href: PLAY_OPTIN_URL,
-        // Google 的測試頁只有英文：帳號語言、加 ?hl=zh-TW 都沒用（板 #0062，使用者實測）
-        note: '測試連結打開是英文頁面，這是 Google 的固定頁面，不是連錯。到了 Play 商店就會照手機語言顯示中文。',
-        caution: '還沒被核准就打開，會加入不了——先做第 1 步。',
-        // 2026-09-29 真的有測試者卡在這兩個（板 #0069）
-        troubleshoot: [
-            { q: 'Play 商店顯示「找不到項目」？', a: '看一下 Play 商店右上角頭像的帳號，要跟加入群組、按 Become a tester 的是同一個 Gmail。' },
-            { q: '人在國外？', a: '封測目前只開放台灣，開 VPN 也沒用。寫信告訴我們你在哪個國家，我們幫你開通：', mail: true }
-        ]
+        art: 'lasso',
+        title: '套住那則通知',
+        text: '在 App 的「回報」頁點「回報漏抓的通知」，勾出那則通知帶進回報。送出前會先遮掉卡號、帳號、餘額這些個資。'
+    },
+    {
+        art: 'star',
+        title: '領賞金，在領地署名',
+        text: '確認是有效的新樣本，就送進階方案：一般 7 天，全新的通知格式 14 天。第一位回報那家有效樣本的人，會用當時的暱稱在那家的領地上署名，永久保留。'
     }
 ];
 
-export interface Reward {
-    tag: string;
-    title: string;
-    condition: string;
-    reward: string;
-    /** 依名次分級的獎勵，一列一級 */
-    tiers?: { rank: string; reward: string }[];
-}
-
-/**
- * 封測獎勵，數字以 App 的「獎勵說明」為準（新板溝通板 #2）。
- * 名次獎與全勤另外算，都從正式版上線那天開始算。
- */
-export const betaRewards: Reward[] = [
-    { tag: '所有人', title: '勇敢白老鼠', condition: '加入封測', reward: '封測期間，所有功能免費用' },
-    {
-        tag: '依名次',
-        title: '抓蟲排行榜',
-        condition: '在 App 裡回報 bug 或建議，被採計的越多，名次越前。',
-        reward: '正式版上線後，免費用「進階」方案',
-        tiers: [
-            { rank: '第 1 名', reward: '3 個月' },
-            { rank: '第 2 名', reward: '2 個月' },
-            { rank: '第 3～20 名，或送出過回報', reward: '1 個月' }
-        ]
-    },
-    // 鐵人跟名次獎怎麼合（api.md「beta 獎勵」）：第 1、2 名兩筆都發、接著排；第 3 名之後直接升級成深度一個月，不另外加進階
-    { tag: '+1 個月', title: '全勤小鐵人', condition: '封測期間連續 14 天打開叮咚記帳自動打卡（沒有網路的那天不會補打）', reward: '第 1、2 名再接「深度」1 個月；第 3 名之後直接升級成「深度」1 個月' }
+/** 三顆季後絕版的紀念徽章（api.md 29.7）。條件照 App 徽章牆的字（strings.xml badge_frontier_* 等） */
+export const frontierBadges: { title: string; condition: string; extra?: string }[] = [
+    { title: '荒野開拓者', condition: '拓荒季內有 7 天讓叮咚自動記帳，再拍照或用語音記一筆。' },
+    { title: '建鎮元老', condition: '拓荒季內訂閱（試用中也算）。' },
+    { title: '酒館大亨', condition: '拓荒季內贊助，哪一階都算。', extra: '同時解鎖西部配色，季後也一直留著。' }
 ];
 
 /** 宣傳短片的一段：at 是這段開始的秒數（點了從這裡播），文字和影片裡的字幕對得上 */

@@ -7,7 +7,7 @@ description: 叮咚記帳在官網上的五頁（宣傳頁、功能演示、後�
 
 | 網址 | 頁面 md | 元件 | 給誰看 |
 |---|---|---|---|
-| `/dindon/` | `docs/pages/dindon/index.md` | `features/dindon/components/DinDonLanding.vue` | 大眾、招募封測 |
+| `/dindon/` | `docs/pages/dindon/index.md` | `features/dindon/components/DinDonLanding.vue` | 大眾：下載（Play 商店）、西部拓荒季 |
 | `/dindon/demo/` | `docs/pages/dindon/demo/index.md` | `features/dindon/demo/components/DemoPage.vue` | 大眾：41 項功能的錄影演示（溝通板 #0055） |
 | `/dindon/privacy/` | `docs/pages/dindon/privacy/index.md`（**產生的**） | 純 markdown，`layout: doc` | Play Console 要交出去的網址 |
 | `/dindon/account/` | `docs/pages/dindon/account/index.md` | `features/dindon/account/components/AccountDeletion.vue` | Play 要求「不用裝 App 也能刪帳號」的網址 |
@@ -27,12 +27,11 @@ description: 叮咚記帳在官網上的五頁（宣傳頁、功能演示、後�
 
 ```
 features/dindon/
-├── constants.ts            ← 宣傳頁全部文案與數字：BETA_SEATS、GROUP_URL、PLAY_OPTIN_URL、betaRewards…
+├── constants.ts            ← 宣傳頁全部文案與數字：PLAY_STORE_URL、FRONTIER_PERIOD、frontierSteps、frontierBadges…
 ├── useGoogleAuth.ts        ← Google 登入，後台與刪除頁共用；client ID 在這（公開的）
 ├── components/
 │   ├── DinDonLanding.vue   ← 宣傳頁；配色是 App 的 Sicily 色票（--dd-* 變數）
-│   ├── BetaJoinGuide.vue   ← 加入封測的兩步（群組 → 測試連結）＋示意小手機；文案是 constants.ts 的 joinSteps。
-│   │                         手指的 top 是量出來的按鈕位置，改了示意畫面的排版要重量
+│   ├── FrontierArt.vue     ← 西部拓荒季的小圖（警長星、套索、仙人掌），平面單色、吃外層 color；意象不用槍
 │   └── DinDonBell.vue      ← 鈴鐺動畫，讀 --dd-story-duration / --dd-story-delay
 ├── hooks/useLandingMotion.ts ← data-reveal 進場、data-parallax 視差；reduced-motion 時不動
 ├── account/
@@ -130,8 +129,9 @@ pnpm dindon:demos --prune           # 順便刪 R2 上不在清單裡的舊檔
 
 ## 文案數字要對得上
 
-`constants.ts` 裡的封測名額（`BETA_SEATS`）、獎勵（`betaRewards`）、群組網址、Play 測試連結（`PLAY_OPTIN_URL`，2026-09-25 審查通過後填上，兩步驟引導的第 2 步用它）
-都是對外承諾，要跟 App 的「獎勵說明」、`docs/roadmap/beta-todo.md`、Play Console 一致。
+`constants.ts` 裡的 Play 商店網址（`PLAY_STORE_URL`）、拓荒季的期間（`FRONTIER_PERIOD`）、賞金天數與三顆絕版徽章的條件（`frontierSteps`、`frontierBadges`）
+都是對外承諾，要跟 App 的字串（`frontier_report.xml`、徽章牆）與 api.md 第 29 節一致。領地**不寫數字與清單**（靜態頁會過時，引導到 App 的活動頁）；
+對外說「已用真實通知驗證」，不說「支援」。2026-11-20 正式版上架時（#756）封測的招募、名額、群組、兩步引導與獎勵表都拿掉了。
 改了要開單通知前端（App 內文案）與上架小精靈（Play 的商店資訊）。
 
 ## 上線

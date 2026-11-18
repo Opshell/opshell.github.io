@@ -12,7 +12,7 @@ export const launchpads = {
     dindon: {
         title: 'DinDon 記帳',
         status: '開發中',
-        text: '付款的那一刻，帳就記好了。我正在做的 Android 記帳 App，封閉測試中。',
+        text: '付款的那一刻，帳就記好了。我正在做的 Android 記帳 App，已在 Google Play 上架。',
         href: '/dindon/',
         icon: '/images/dindon/icon.webp',
         screen: '/images/dindon/home.webp',

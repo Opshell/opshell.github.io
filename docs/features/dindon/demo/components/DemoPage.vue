@@ -2,7 +2,7 @@
     import type { Component } from 'vue';
     import type { DemoItem, DemoStep } from '../types';
     import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue';
-    import { ACCOUNT_PATH, CONTACT_EMAIL, GUIDE_PATH, PRIVACY_PATH } from '../../constants';
+    import { ACCOUNT_PATH, CONTACT_EMAIL, GUIDE_PATH, PLAY_STORE_URL, PRIVACY_PATH } from '../../constants';
     import { countByStatus, demoIndex, findItem, isOpenable, MEDIA_BASE, openableItems } from '../catalog';
     import DemoPlayer from './DemoPlayer.vue';
 
@@ -172,7 +172,7 @@
             </section>
 
             <p class="dindon-demo__outro">
-                想自己玩玩看？<a href="/dindon/#beta">加入封閉測試</a>
+                想自己玩玩看？<a :href="PLAY_STORE_URL">到 Google Play 下載</a>
             </p>
             <p class="dindon-demo__outro dindon-demo__outro--sub">
                 想知道功能之間怎麼接起來、該從哪個開始用？看<a :href="GUIDE_PATH">功能地圖與養成路線</a>
