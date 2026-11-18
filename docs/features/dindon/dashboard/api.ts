@@ -5,7 +5,7 @@
 
 import type { z } from 'zod';
 import type { PaidFilter } from './payments';
-import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, PublishNewsDraftInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, SendFeedbackEmailInput, SendFeedbackMessageInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
+import type { AdminDevice, BatchReviewFeedbackInput, BountyInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, CreateTerritoryInput, PublishNewsDraftInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, SendFeedbackEmailInput, SendFeedbackMessageInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput, UpdateTerritoryInput } from './schemas/admin.schema';
 import { apiBase } from '@shared/utils/apiBase';
 import { parseResponse } from '@shared/utils/zod';
 import { GetApiCatalogParser } from './console/catalog.schema';
@@ -15,11 +15,14 @@ import {
     AppVersionsParser,
     BatchReviewFeedbackParser,
     BatchReviewFeedbackPayload,
+    BountyParser,
+    BountyPayload,
     ChangeCheckinsPayload,
     CreateFeedbackIssueParser,
     CreateFeedbackIssuePayload,
     CreateFeedbackParser,
     CreateFeedbackPayload,
+    CreateTerritoryPayload,
     DiscardNewsDraftParser,
     GeminiBillingParser,
     GetAnnouncementListParser,
@@ -34,6 +37,7 @@ import {
     GetFeedbackParser,
     GetFeedbackReportersParser,
     GetFeedbackStatsParser,
+    GetFrontierTerritoriesParser,
     GetNewsDraftListParser,
     GetPromoCodeListParser,
     GetPromoCodeParser,
@@ -53,6 +57,7 @@ import {
     SaveFeatureCandidatePayload,
     SavePromoCodeParser,
     SavePromoCodePayload,
+    SaveTerritoryParser,
     SendFeedbackEmailParser,
     SendFeedbackEmailPayload,
     SendFeedbackMessageParser,
@@ -63,7 +68,8 @@ import {
     UpdateDeviceParser,
     UpdateDevicePayload,
     UpdateFeedbackIssueParser,
-    UpdateFeedbackIssuePayload
+    UpdateFeedbackIssuePayload,
+    UpdateTerritoryPayload
 } from './schemas/admin.schema';
 
 // #region [P] 查詢條件（送出用的參數，不是 API 的資料）
@@ -79,6 +85,8 @@ export type FeedbackSourceFilter = 'all' | 'app' | 'line' | 'email';
 export type FeedbackProgressFilter = 'all' | 'open' | 'in_progress' | 'done' | 'wont_do';
 /** 有沒有綁定裝置：false 是 LINE 上沒裝 App、後台給名字建的 */
 export type FeedbackBoundFilter = 'all' | 'true' | 'false';
+/** 回報的主題（api.md 29.6）：missed_notification 是「回報漏抓的通知」，描述第一行標了【漏抓的通知】的也算 */
+export type FeedbackTopicFilter = 'all' | 'missed_notification';
 // #endregion
 
 export class AdminApiError extends Error {
@@ -246,6 +254,7 @@ export const adminApi = {
         progress?: FeedbackProgressFilter;
         bound?: FeedbackBoundFilter;
         reporterName?: string;
+        topic?: FeedbackTopicFilter;
         /** 只看等你回的（Flowsker #616）。要找審過又被回的，status 要給 all */
         awaitingReply?: boolean;
         deviceId?: number;
@@ -259,6 +268,7 @@ export const adminApi = {
         if (params.progress && params.progress !== 'all') query.set('progress', params.progress);
         if (params.bound && params.bound !== 'all') query.set('bound', params.bound);
         if (params.reporterName) query.set('reporter_name', params.reporterName);
+        if (params.topic && params.topic !== 'all') query.set('topic', params.topic);
         if (params.awaitingReply) query.set('awaiting_reply', 'true');
         if (params.deviceId) query.set('device_id', String(params.deviceId));
         query.set('page', String(params.page ?? 1));
@@ -305,6 +315,12 @@ export const adminApi = {
     /** 改處理狀況會一併改掛在上面的回報，回傳改了幾則（reportsUpdated） */
     updateIssue: async (token: string, id: number, body: UpdateFeedbackIssueInput) =>
         call(UpdateFeedbackIssueParser, token, 'PATCH', `/v1/admin/feedback/issues/${id}`, UpdateFeedbackIssuePayload.parse(body)),
+    /**
+     * 採計時發拓荒季賞金（api.md 29.5）：還沒審的一起採計；判成不採計、已經發過的回 409。
+     * 不代寫回報串的訊息，告訴回報者要另外用 sendFeedbackMessage
+     */
+    bounty: async (token: string, id: number, body: BountyInput) =>
+        call(BountyParser, token, 'POST', `/v1/admin/feedback/${id}/bounty`, BountyPayload.parse(body)),
     // 回應元件用不到，不解析
     addReportsToIssue: async (token: string, id: number, reportIds: number[]) =>
         request(token, `/v1/admin/feedback/issues/${id}/reports`, { method: 'POST', body: { report_ids: reportIds } }),
@@ -320,6 +336,18 @@ export const adminApi = {
     /** code 不能改，所以 body 裡不要帶 */
     updatePromoCode: async (token: string, code: string, body: SavePromoCodeInput) =>
         call(SavePromoCodeParser, token, 'PATCH', `/v1/admin/promo-codes/${encodeURIComponent(code)}`, SavePromoCodePayload.parse(body)),
+    // #endregion
+
+    // #region [P] 拓荒季的領地（api.md 29.4）：同名不分大小寫 409、發過賞金的不能刪（409）
+    listTerritories: async (token: string) => call(GetFrontierTerritoriesParser, token, 'GET', '/v1/admin/frontier/territories'),
+    createTerritory: async (token: string, body: CreateTerritoryInput) =>
+        call(SaveTerritoryParser, token, 'POST', '/v1/admin/frontier/territories', CreateTerritoryPayload.parse(body)),
+    updateTerritory: async (token: string, id: number, body: UpdateTerritoryInput) =>
+        call(SaveTerritoryParser, token, 'PATCH', `/v1/admin/frontier/territories/${id}`, UpdateTerritoryPayload.parse(body)),
+    /** 回 204 沒有內容 */
+    deleteTerritory: async (token: string, id: number) => {
+        await request(token, `/v1/admin/frontier/territories/${id}`, { method: 'DELETE' });
+    },
     // #endregion
 
     // #region [P] 新功能投票的候選（沒有刪除：不要了就改成「不做了」）

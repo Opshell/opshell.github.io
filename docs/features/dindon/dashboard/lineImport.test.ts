@@ -202,10 +202,11 @@ describe('沒有綁定的回報者（Flowsker #61）', () => {
         expect(report.payload).not.toHaveProperty('deviceId');
     });
 
-    it('名稱照暱稱的規則擋：空白、太長、白老鼠開頭、零寬字元', () => {
+    it('名稱照暱稱的規則擋：空白、太長、白老鼠與拓荒者開頭、零寬字元', () => {
         expect(draftProblem({ ...unbound, reporterName: '  ' }, now)).toContain('空');
         expect(draftProblem({ ...unbound, reporterName: '一二三四五六七八九十一二三四五六七八九十一' }, now)).toContain('20');
         expect(draftProblem({ ...unbound, reporterName: '白老鼠 #1234' }, now)).toContain('白老鼠');
+        expect(draftProblem({ ...unbound, reporterName: '拓荒者 #1234' }, now)).toContain('拓荒者');
         expect(draftProblem({ ...unbound, reporterName: '阿\u200B明' }, now)).toContain('看不見');
     });
 
