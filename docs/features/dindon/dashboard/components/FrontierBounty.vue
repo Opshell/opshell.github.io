@@ -2,7 +2,7 @@
     import type { BountyDraft } from '../frontier';
     import type { AdminTerritory, BountyResult, FeedbackReport } from '../schemas/admin.schema';
     import { computed, onMounted, reactive, ref } from 'vue';
-    import { adminApi } from '../api';
+    import { adminApi, AdminApiError } from '../api';
     import { formatDateTime } from '../format';
     import { BOUNTY_DAYS_NEW_FORMAT, BOUNTY_DAYS_NORMAL, BOUNTY_TITLE_MAX, bountyBlocked, bountyBody, bountyError, defaultBountyTitle, KIND_LABELS, KINDS, openTerritories, STATUS_LABELS } from '../frontier';
     import { errorMessage, useAdminCall } from '../useAdminCall';
@@ -72,6 +72,8 @@
         } catch (e) {
             // 409（不採計、已經發過、剛被別人審過）與 404 的中文訊息直接顯示
             error.value = errorMessage(e);
+            // 409 多半是另一位管理員剛發過或審過：重抓這一則，畫面才會換成「已經發過」那段，不停在表單
+            if (e instanceof AdminApiError && e.status === 409) emit('changed');
         } finally {
             busy.value = false;
             confirming.value = false;
@@ -176,7 +178,7 @@
             <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
 
             <div v-if="confirming" class="dd-bounty__confirm" role="alertdialog" aria-label="確認發賞金">
-                <p>發給 {{ report.deviceName || `#${report.deviceId}` }}：{{ summary }}。一則只能發一次。</p>
+                <p>發給 {{ report.reporterName ?? (report.deviceName || `#${report.deviceId}`) }}：{{ summary }}。一則只能發一次。</p>
                 <div class="dd-detail__actions">
                     <button type="submit" class="dd-admin__btn" :disabled="busy">確定發</button>
                     <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirming = false">返回</button>

@@ -1170,7 +1170,6 @@
             cursor: pointer;
         }
 
-        // 等你回：對方在等，要比「沒綁定」「LINE」這種說明性的標籤顯眼，用品牌色塊
         // 拓荒季（api.md 29.5、29.6）：發過賞金、漏抓的通知。純色塊，不加描邊
         &__bounty, &__topic {
             padding: 0 6px;
@@ -1189,6 +1188,8 @@
             margin-right: 4px;
             color: var(--vp-c-warning-1);
         }
+
+        // 等你回：對方在等，要比「沒綁定」「LINE」這種說明性的標籤顯眼，用品牌色塊
         &__awaiting {
             background: var(--vp-c-brand-soft);
             padding: 0 6px;
