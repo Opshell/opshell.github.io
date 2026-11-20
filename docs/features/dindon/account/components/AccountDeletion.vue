@@ -4,7 +4,7 @@
     import { CONTACT_EMAIL, PRIVACY_PATH } from '../../constants';
     import { useGoogleAuth } from '../../useGoogleAuth';
     import { DeleteUnavailableError, requestDeletion } from '../api';
-    import { accountErased, accountKept, partialItems } from '../content';
+    import { accountErased, accountKept, partialItems, subscriptionCancelFailed } from '../content';
 
     // 刪除資料與帳號。Google Play 要求「帳號刪除」有一個不用裝 App 也打得開的網址，
     // 手機掉了、App 已經移除的人也要有辦法處理，所以這一頁自己做完整流程，不只是說明。
@@ -22,7 +22,7 @@
     const agreed = ref(false);
     const busy = ref(false);
     const error = ref('');
-    const done = ref<{ scope: DeleteScope; devices: number } | null>(null);
+    const done = ref<{ scope: DeleteScope; devices: number; subscriptionCancelFailed: boolean } | null>(null);
     /** 後端那支還沒開通時改走寄信 */
     const fallback = ref(false);
 
@@ -33,12 +33,13 @@
             value: 'link' as const,
             title: '只解除 Google 綁定',
             text: '清除伺服器上的 email、帳號識別碼與 Google 大頭貼。方案、額度、暱稱、徽章與活動紀錄都留著，App 照常使用。',
-            note: '換手機時不能再用 Google 拿回權益。之後想綁回來隨時可以。'
+            // 解除綁定會收回投的票（api.md 第 16 節 scope=link，#765）：票要綁著 Google 帳號才算數
+            note: '你在 App 裡投的新功能票會收回。換手機時不能再用 Google 拿回權益。之後想綁回來隨時可以。'
         },
         {
             value: 'account' as const,
             title: '刪除伺服器上的帳戶資料',
-            text: '上面那些全部清除，另外停用這台裝置：之後不能再使用需要連線的 AI 功能。',
+            text: '上面那些全部清除，另外停用這台裝置：之後不能再使用需要連線的 AI 功能。有在續訂的訂閱，會幫你向 Google 取消之後的扣款（已經付的那一期不退）。',
             note: '手機裡的帳本不受影響，要一起刪請用 App 的「資料與備份 → 刪除所有資料」。'
         }
     ];
@@ -142,13 +143,18 @@
                         伺服器上沒有跟這個帳號有關的資料。
                     </p>
                     <p v-else-if="done.scope === 'link'">
-                        已經清除伺服器上的 Google 帳號 email、帳號識別碼與大頭貼（{{ done.devices }} 台裝置）。
+                        已經清除伺服器上的 Google 帳號 email、帳號識別碼與大頭貼（{{ done.devices }} 台裝置），投過的新功能票也收回了。
                         方案、額度與活動紀錄都留著，App 照常使用。
                     </p>
                     <p v-else>
                         已經清除伺服器上跟你有關的資料，並停用那 {{ done.devices }} 台裝置。
                         手機裡的帳本不受影響，要一起刪請用 App 的「資料與備份 → 刪除所有資料」。
                     </p>
+                    <div v-if="done.subscriptionCancelFailed" class="dd-account__alert" role="alert">
+                        <h4>{{ subscriptionCancelFailed.title }}</h4>
+                        <p>{{ subscriptionCancelFailed.text }}</p>
+                        <p class="path">{{ subscriptionCancelFailed.path }}</p>
+                    </div>
                     <p class="dd-account__note">已經幫你登出。有疑問寫信到 <a :href="`mailto:${CONTACT_EMAIL}`">{{ CONTACT_EMAIL }}</a>。</p>
                     <button type="button" class="dd-account__btn" @click="restart">回到上一步</button>
                 </div>
@@ -215,6 +221,9 @@
                             {{ busy ? '處理中…' : `確認${chosen.title}` }}
                         </button>
 
+                        <p v-if="busy && scope === 'account'" class="dd-account__note" role="status">
+                            有訂閱的話要等 Google 取消續扣，可能要十幾秒，請不要關掉這頁。
+                        </p>
                         <p v-if="error" class="dd-account__error" role="alert">{{ error }}</p>
                         <div v-if="fallback" class="dd-account__error" role="alert">
                             <p>線上刪除目前無法使用（後端還沒開通，或連線被擋住）。</p>
@@ -467,6 +476,22 @@
             font-size: var(--font-size-s);
             text-decoration: underline;
             cursor: pointer;
+        }
+
+        // 刪除完成、但訂閱沒取消成功：使用者一定要自己去做的事，用危險色的底，不只是一行小字
+        &__alert {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: color-mix(in srgb, var(--dd-danger) 10%, var(--dd-surface));
+            padding: 16px;
+            border-radius: 12px;
+
+            h4 { color: var(--dd-danger); }
+            .path {
+                font-size: var(--font-size-s);
+                font-weight: 600;
+            }
         }
         &__error {
             display: flex;

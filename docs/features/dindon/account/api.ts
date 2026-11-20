@@ -12,6 +12,11 @@ export interface DeleteResult {
     scope: DeleteScope;
     /** 這個 Google 帳號綁到的裝置數。0 代表沒有東西可刪（已經解除過，或從來沒綁過） */
     devices: number;
+    /**
+     * 刪除完成了，但後端沒能向 Google 取消還會續扣的訂閱（api.md 第 16 節，Flowsker #766、#770）。
+     * 只有 account 會是 true；舊的後端沒有這個欄位，當成 false
+     */
+    subscriptionCancelFailed: boolean;
 }
 
 /** 後端還沒開這支、或跨來源被擋掉時丟這個：畫面改走寄信那條路，不要讓使用者卡住 */
@@ -37,8 +42,12 @@ export async function requestDeletion(idToken: string, scope: DeleteScope): Prom
     if (response.status === 429) throw new Error('太多次了，請過一小時再試（每個帳號每小時 5 次）。');
     if (response.status === 502) throw new Error('伺服器一時連不上 Google 驗證，請過幾分鐘再試一次。');
 
-    const data = await response.json().catch(() => ({})) as Partial<DeleteResult> & { error?: string };
+    const data = await response.json().catch(() => ({})) as { devices?: unknown; subscription_cancel_failed?: unknown; error?: string };
     if (!response.ok) throw new Error(data.error || `刪除失敗（${response.status}）`);
 
-    return { scope, devices: typeof data.devices === 'number' ? data.devices : 0 };
+    return {
+        scope,
+        devices: typeof data.devices === 'number' ? data.devices : 0,
+        subscriptionCancelFailed: data.subscription_cancel_failed === true
+    };
 }
