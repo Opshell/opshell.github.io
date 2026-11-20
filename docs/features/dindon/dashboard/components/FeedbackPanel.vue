@@ -17,6 +17,7 @@
     import { useScreenshotDownload } from '../useScreenshotDownload';
     import AdminActions from './AdminActions.vue';
     import FeedbackMessages from './FeedbackMessages.vue';
+    import FeedbackPurge from './FeedbackPurge.vue';
     import FeedbackTriage from './FeedbackTriage.vue';
     import LineImport from './LineImport.vue';
     import MergePicker from './MergePicker.vue';
@@ -50,7 +51,15 @@
     const reporterFilter = ref('');
     const reporters = ref<FeedbackReporter[]>([]);
     const importing = ref(false);
+    /** 清回報內容（#770）：不常用、不可逆，按了才展開，跟匯入一樣放在列表上方 */
+    const purging = ref(false);
     const pulse = usePulse();
+
+    /** 清完重新載入：待審的可能被強制清掉了，列表與側欄的數字都要跟著變 */
+    function onPurged() {
+        void load();
+        void pulse.refresh();
+    }
 
     function onImported(created: number) {
         importing.value = false;
@@ -655,12 +664,14 @@
             <AdminActions v-if="!triage">
                 <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="loading" @click="load()">重新整理</button>
                 <button v-if="!importing" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="importing = true">匯入 LINE 回報</button>
+                <button v-if="!purging" type="button" class="dd-admin__btn dd-admin__btn--ghost" @click="purging = true">清回報內容…</button>
                 <button type="button" class="dd-admin__btn" :disabled="loading || !(stats?.byStatus.pending ?? 0)" @click="triage = true">
                     快速審核{{ stats?.byStatus.pending ? `（${formatInt(stats.byStatus.pending)} 則待審）` : '' }}
                 </button>
             </AdminActions>
         </div>
         <LineImport v-if="importing && !triage" @done="onImported" @close="importing = false" />
+        <FeedbackPurge v-if="purging && !triage" @done="onPurged" @close="purging = false" />
         <!-- #region [P] 批次：勾了才出現 -->
         <div v-if="!triage && checked.size" class="dd-feedback__batch" role="region" aria-label="批次審核">
             <strong>已勾 {{ formatInt(checked.size) }} 則</strong>

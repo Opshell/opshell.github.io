@@ -5,7 +5,7 @@
 
 import type { z } from 'zod';
 import type { PaidFilter } from './payments';
-import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, PublishNewsDraftInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, SendFeedbackEmailInput, SendFeedbackMessageInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
+import type { AdminDevice, BatchReviewFeedbackInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, PublishNewsDraftInput, PurgeEventInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, SendFeedbackEmailInput, SendFeedbackMessageInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput } from './schemas/admin.schema';
 import { apiBase } from '@shared/utils/apiBase';
 import { parseResponse } from '@shared/utils/zod';
 import { GetApiCatalogParser } from './console/catalog.schema';
@@ -21,6 +21,7 @@ import {
     CreateFeedbackParser,
     CreateFeedbackPayload,
     DiscardNewsDraftParser,
+    EraseIdentityParser,
     GeminiBillingParser,
     GetAnnouncementListParser,
     GetDeviceCheckinsParser,
@@ -45,6 +46,8 @@ import {
     PlayVitalsParser,
     PublishNewsDraftParser,
     PublishNewsDraftPayload,
+    PurgeEventParser,
+    PurgeEventPayload,
     ReviewFeedbackPayload,
     SaveAnnouncementParser,
     SaveAnnouncementPayload,
@@ -82,7 +85,8 @@ export type FeedbackBoundFilter = 'all' | 'true' | 'false';
 // #endregion
 
 export class AdminApiError extends Error {
-    constructor(public status: number, message: string) {
+    /** data：錯誤回應的整個 body。大多只有 error，少數 409 會多帶件數（清回報內容的 pending，#770），由呼叫端自己用 Parser 讀 */
+    constructor(public status: number, message: string, public data: unknown = null) {
         super(message);
     }
 
@@ -139,7 +143,7 @@ async function request(token: string, path: string, init: { method?: string; bod
         const message = (data && typeof data.error === 'string') ? data.error : fallbackMessage(response.status);
         // 後端代讀 Google 的資料（帳單、Play）被 Google 拒絕時回 502，附 Google 的原文：查權限問題全靠這一句（#0084）
         const google = data && typeof data.google_message === 'string' ? `（Google ${data.google_status ?? ''}：${data.google_message}）` : '';
-        throw new AdminApiError(response.status, message + google);
+        throw new AdminApiError(response.status, message + google, data);
     }
     return data;
 }
@@ -215,10 +219,11 @@ export const adminApi = {
         call(UpdateDeviceParser, token, 'PATCH', `/v1/admin/devices/${id}`, UpdateDevicePayload.parse(patch)),
     /**
      * 清除身分。`freeze` 決定強度（api.md 第 8 節，溝通板 #35）：
-     * true = 連這台裝置都不要了，清資料並停用；false = 只是不想留著 email，App 繼續用
+     * true = 連這台裝置都不要了，清資料並停用；false = 只是不想留著 email，App 繼續用。
+     * freeze 時有還會扣款的訂閱，後端會向 Google 取消續扣，最多多等 20 秒；沒取消成功回 subscriptionCancelFailed（#770）
      */
     eraseIdentity: async (token: string, id: number, freeze: boolean) =>
-        call(UpdateDeviceParser, token, 'POST', `/v1/admin/devices/${id}/erase-identity`, { freeze }),
+        call(EraseIdentityParser, token, 'POST', `/v1/admin/devices/${id}/erase-identity`, { freeze }),
     /** 打開 App 的紀錄（每天的打卡與來源，#0067） */
     deviceCheckins: async (token: string, id: number) =>
         call(GetDeviceCheckinsParser, token, 'GET', `/v1/admin/devices/${id}/checkins`),
@@ -308,6 +313,12 @@ export const adminApi = {
     // 回應元件用不到，不解析
     addReportsToIssue: async (token: string, id: number, reportIds: number[]) =>
         request(token, `/v1/admin/feedback/issues/${id}/reports`, { method: 'POST', body: { report_ids: reportIds } }),
+    /**
+     * 清回報的內容（api.md 第 8 節 event/purge）。不可逆、沒有備份。
+     * 409：活動還開著、拓荒季還沒結束、範圍裡還有待審的；後兩種第二次確認後帶 force 放行
+     */
+    purgeEvent: async (token: string, body: PurgeEventInput) =>
+        call(PurgeEventParser, token, 'POST', '/v1/admin/event/purge', PurgeEventPayload.parse(body)),
     // #endregion
 
     // #region [P] 優惠碼

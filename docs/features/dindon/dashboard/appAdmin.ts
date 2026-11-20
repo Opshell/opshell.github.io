@@ -42,6 +42,8 @@ export interface ConfigDraft {
 export function configError(draft: ConfigDraft): string {
     const { minAppBuild, latestAppBuild, latestAppVersion } = draft;
     if ([minAppBuild, latestAppBuild].some(n => !Number.isInteger(n) || n < 0)) return '版本號要是 0 以上的整數';
+    // 後端整份取代（api.md 第 8 節 app-config，#767）：最新版是 0 就檢查不到「最低不能高於最新」，所以設最低一定要有最新
+    if (minAppBuild > 0 && latestAppBuild === 0) return '設了最低版本，也要填最新版本號（不然後端會擋下來）';
     if (latestAppBuild > 0 && minAppBuild > latestAppBuild) return '最低版本不能比最新版本新（不然最新版也會被擋）';
     if (latestAppVersion && !VERSION_NAME.test(latestAppVersion)) return '版本名稱寫成 0.7.1 這種三段數字';
     if (latestAppBuild > 0 && !latestAppVersion) return '有最新版本號，也要填它的名稱（App 會顯示）';

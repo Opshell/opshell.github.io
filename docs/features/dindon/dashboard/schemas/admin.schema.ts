@@ -359,6 +359,15 @@ export const UpdateDeviceFormSchema = z.object({
 export const UpdateDevicePayload = UpdateDeviceFormSchema.transform(camelToSnake);
 export const UpdateDeviceParser = z.object({ device: AdminDeviceParser }).transform(data => data.device);
 
+/**
+ * 清除身分的回應（api.md 第 8 節 erase-identity，2026-11-19）。subscription_cancel_failed 是 true 時清除照樣完成，
+ * 只是後端沒能向 Google 取消續扣，要轉告使用者自己取消。舊的後端沒有這個欄位，當成 false
+ */
+export const EraseIdentityParser = z
+    .object({ device: AdminDeviceParser, subscription_cancel_failed: z.boolean().nullish() })
+    .transform(data => ({ device: data.device, subscriptionCancelFailed: data.subscription_cancel_failed ?? false }));
+export type EraseIdentityResult = z.output<typeof EraseIdentityParser>;
+
 /** 建立測試裝置、重發測試裝置的 key（#0074）：key 只有這一次看得到 */
 export const TestDeviceKeyParser = z
     .object({ api_key: z.string().min(1), device: AdminDeviceParser })
@@ -1033,6 +1042,50 @@ export const CreateFeedbackParser = z.object({ report: FeedbackReportParser }).t
 export type UpdateFeedbackIssueInput = z.input<typeof UpdateFeedbackIssuePayload>;
 
 // #endregion
+
+// #endregion
+
+// #region [P] 清回報內容 POST /v1/admin/event/purge（api.md 第 8 節，Flowsker #767、#770）
+// 沒有排程、沒有備份：描述、日誌、截圖、來往訊息整筆刪掉，回報那一列留著。後端照 created_at（匯入的是 said_at）挑
+
+export const PurgeEventPayload = z
+    .object({
+        /** 一定要是 PURGE：後端沒帶就 400，前端讓管理員自己打這幾個字 */
+        confirm: z.literal('PURGE'),
+        /** 台灣時間的日期，清這一天 00:00 之前送出的。沒給＝只清 beta 截止前的（拓荒季的不動） */
+        before: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+        /** 範圍裡還有待審的、或拓荒季還沒結束時，第二次確認才帶 */
+        force: z.boolean().optional()
+    })
+    .transform(camelToSnake);
+export type PurgeEventInput = z.input<typeof PurgeEventPayload>;
+
+export const PurgeEventParser = z
+    .object({
+        before: z.string().nullish(),
+        /** 實際的界線，早於它送出的才清。只有後端的測試會是 null（沒有截止時間） */
+        cutoff: z.string().nullish(),
+        force: z.boolean().nullish(),
+        /** 已經清過的不算，重複執行是 0 */
+        reports_purged: z.number(),
+        /** 清掉的裡面當時還是待審的，帶 force 才會大於 0 */
+        pending_purged: z.number(),
+        screenshots_deleted: z.number(),
+        message_images_deleted: z.number(),
+        messages_deleted: z.number(),
+        emails_deleted: z.number()
+    })
+    .transform(data => snakeToCamel({ ...data, before: data.before ?? null, cutoff: data.cutoff ?? null, force: data.force ?? false }));
+export type PurgeEventResult = z.output<typeof PurgeEventParser>;
+
+/**
+ * 409 的 body（給 AdminApiError.data 用）。範圍裡有待審的會帶件數；活動還開著、拓荒季還沒結束只有 error。
+ * 件數也寫在 error 那句話裡，這裡拆出來是為了在畫面上分開顯示「人寫的」與「閃退紀錄」
+ */
+export const PurgeConflictParser = z
+    .object({ error: z.string(), pending: z.number().nullish(), pending_crash: z.number().nullish() })
+    .transform(data => ({ error: data.error, pending: data.pending ?? null, pendingCrash: data.pending_crash ?? null }));
+export type PurgeConflict = z.output<typeof PurgeConflictParser>;
 
 // #endregion
 

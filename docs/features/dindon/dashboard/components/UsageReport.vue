@@ -101,6 +101,8 @@
 
             <h2 class="dd-usage__title">各功能</h2>
             <p class="dd-usage__desc">「每點額度值」三個功能應該差不多；哪個明顯偏高，代表它的點數訂便宜了。延遲與成本看 P95，不看平均。金額{{ costNote }}。</p>
+            <!-- 後端 usage-analytics.md「記錄的結果類型」（Flowsker #764）：被擋的一台一個功能一天只記一筆，數字是台·天，不是次數 -->
+            <p class="dd-usage__desc">「付費牆」「每日上限」是<strong>幾台·天撞到</strong>，不是被擋了幾次：11-19 起被擋的一台裝置、一個功能一天只算 1，撞頂後又按幾下看不到。</p>
             <div class="dd-usage__scroll dd-table-scroll">
                 <table class="dd-table dd-table--static">
                     <thead>
@@ -110,8 +112,8 @@
                             <th scope="col" class="num">成功</th>
                             <th scope="col" class="num">拒絕</th>
                             <th scope="col" class="num">失敗</th>
-                            <th scope="col" class="num">付費牆</th>
-                            <th scope="col" class="num">每日上限</th>
+                            <th scope="col" class="num" title="一台一個功能一天只算 1（台·天），不是被擋的次數">付費牆（台·天）</th>
+                            <th scope="col" class="num" title="一台一個功能一天只算 1（台·天），不是被擋的次數">每日上限（台·天）</th>
                             <th scope="col" class="num">裝置</th>
                             <th scope="col" class="num">加問率</th>
                             <th scope="col" class="num">延遲 P50／P95</th>
