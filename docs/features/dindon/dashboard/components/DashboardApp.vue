@@ -66,7 +66,7 @@
         { key: 'announce', label: '重要公告', hint: 'App 打開時小夥伴會講的公告：新增、排時間、下架' },
         { key: 'api', label: 'API', hint: '每一支 API 的說明，直接在這裡試打' },
         // 上架活動（api.md 第 29 節，#706）：放最後，前面十個的快捷鍵不變；終端機打 cd frontier 或 cd 拓荒季
-        { key: 'frontier', label: '拓荒季', hint: '領地的馴服狀態與開拓者；賞金在回報頁採計時發' }
+        { key: 'frontier', label: '拓荒季', hint: '領地的馴服狀態與開拓者、金幣商店；署名在回報頁採計時設' }
     ];
     const PANELS: Record<DashboardTab, Component> = {
         overview: OverviewPanel,

@@ -151,8 +151,10 @@ describe('發賞金（api.md 29.5）', () => {
 
     it('送出的 body 不帶空的選填欄位', () => {
         expect(bountyBody(draft)).toEqual({ days: 7 });
+        // 2026-11-20 起的預設：只署名，body 只有 territory_id（#791）
+        expect(bountyBody({ days: '0', territoryId: '35', title: '' })).toEqual({ territoryId: 35 });
         expect(bountyBody({ days: '14', territoryId: '35', title: ' 全新格式 ' })).toEqual({ days: 14, territoryId: 35, title: '全新格式' });
-        expect(bountyBody({ days: '0', territoryId: '35', title: '只署名' })).toEqual({ days: 0, territoryId: 35 });
+        expect(bountyBody({ days: '0', territoryId: '35', title: '只署名' })).toEqual({ territoryId: 35 });
         expect(defaultBountyTitle('街口支付')).toBe('拓荒季賞金：街口支付');
         expect(defaultBountyTitle(null)).toBe('拓荒季賞金');
     });

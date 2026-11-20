@@ -8,6 +8,7 @@
     import { reporterNameProblem } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import AdminActions from './AdminActions.vue';
+    import CoinShop from './CoinShop.vue';
 
     // 拓荒季的領地（api.md 29.4，Flowsker #706）：上架首 30 天的活動，每家銀行／支付／電信是一塊地。
     // 「已馴服」要出版：那一版上架之後才翻、填 tamed_in。開拓者通常是回報頁發賞金時自動設的，這裡是補登與更正。
@@ -399,6 +400,9 @@
             <p v-if="loading && !loaded" class="dd-frontier__muted t-shimmer" data-text="載入中…">載入中…</p>
         </div>
         <!-- #endregion -->
+
+        <!-- 金幣商店（30.7）：採計的獎勵 2026-11-20 起改成金幣，買什麼在這裡定 -->
+        <CoinShop />
     </section>
 </template>
 

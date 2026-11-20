@@ -19,6 +19,7 @@
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import DeviceBadges from './DeviceBadges.vue';
     import DeviceCheckins from './DeviceCheckins.vue';
+    import DeviceCoins from './DeviceCoins.vue';
     import DevicePayments from './DevicePayments.vue';
 
     const { deviceId } = defineProps<{ deviceId: number }>();
@@ -537,6 +538,9 @@
                 </div>
             </section>
             <!-- #endregion -->
+
+            <!-- 拓荒季的金幣（30.7）：採計的獎勵 2026-11-20 起改成金幣，權益之前看 -->
+            <DeviceCoins :device-id="deviceId" />
 
             <!-- #region [P] 權益與邀請 -->
             <section v-if="perks.length" class="dd-detail__card">

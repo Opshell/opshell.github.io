@@ -96,7 +96,8 @@ export const PERK_SOURCE_LABELS: Record<string, string> = {
     'promo': '優惠碼',
     'referral': '邀請好友',
     'admin': '後台手動',
-    'frontier': '拓荒季賞金'
+    'frontier': '拓荒季賞金',
+    'coins': '金幣購買'
 };
 
 export const PLAN_SOURCE_LABELS: Record<string, string> = {

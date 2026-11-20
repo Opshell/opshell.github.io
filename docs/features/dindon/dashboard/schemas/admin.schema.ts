@@ -226,8 +226,9 @@ export const AdminDeviceParser = AdminDeviceRawSchema
 export const PerkSchema = z.object({
     id: z.number().int(),
     title: z.string(),
-    // frontier 是拓荒季的賞金（api.md 29.5）；第 14 節的列舉還沒寫上它，後端 models/perk.go 已經會發
-    source: z.enum(['beta-rank', 'beta-iron', 'promo', 'referral', 'admin', 'frontier']),
+    // frontier 是拓荒季的賞金（api.md 29.5）、coins 是用金幣買的方案（30.4）；第 14 節的列舉還沒寫上它們，後端 models/perk.go 已經會發。
+    // 少一個，買過的那台裝置頁就整頁格式不符
+    source: z.enum(['beta-rank', 'beta-iron', 'promo', 'referral', 'admin', 'frontier', 'coins']),
     planTier: PlanTierSchema,
     months: z.number().int(),
     days: z.number().int(),
@@ -1843,9 +1844,10 @@ export type UpdateTerritoryInput = z.input<typeof UpdateTerritoryPayload>;
 
 // #region [P] 採計時發賞金 POST /v1/admin/feedback/:id/bounty（29.5）
 
+/** 2026-11-20 起採計的獎勵是金幣（30.1，後端自動算），days 只留給特例：0 天就不送，body 只有 territory_id */
 export const BountyPayload = z
     .object({
-        days: z.number().int().min(0),
+        days: z.number().int().min(1).optional(),
         territoryId: z.number().int().positive().optional(),
         title: z.string().optional()
     })
@@ -1896,6 +1898,181 @@ export const BountyParser = z
     })
     .transform(data => ({ bounty: data.bounty, perk: data.perk ?? null, territory: data.territory ?? null, pioneerSet: data.pioneer_set }));
 export type BountyResult = z.output<typeof BountyParser>;
+
+// #endregion
+
+// #endregion
+
+// #region [P] 金幣與商店（api.md 第 30 節，Flowsker #791）
+
+export const CoinItemKindSchema = z.enum(['plan', 'badge', 'title_prefix', 'title_suffix']);
+export type CoinItemKind = z.infer<typeof CoinItemKindSchema>;
+/** 方案商品的等級（30.7）。free 不能賣 */
+export const CoinPlanTierSchema = z.enum(['lite', 'pro', 'max']);
+export type CoinPlanTier = z.infer<typeof CoinPlanTierSchema>;
+
+/** 後台看到的一樣商品（30.7）：比 App 的多了上下架、排序與時間 */
+export const AdminCoinItemSchema = z.object({
+    id: z.number().int(),
+    /** App 認得的代號，建了就不能改 */
+    code: z.string(),
+    kind: CoinItemKindSchema,
+    name: z.string(),
+    price: z.number().int(),
+    /** 只有 plan 有，其他是 null */
+    planTier: CoinPlanTierSchema.nullable(),
+    /** 只有 plan 有，其他是 0 */
+    days: z.number().int(),
+    active: z.boolean(),
+    sortOrder: z.number().int(),
+    createdAt: z.string(),
+    updatedAt: z.string()
+});
+export type AdminCoinItem = z.infer<typeof AdminCoinItemSchema>;
+
+const AdminCoinItemParser = z
+    .object({
+        id: z.number(),
+        code: z.string(),
+        kind: CoinItemKindSchema,
+        name: z.string(),
+        price: z.number(),
+        plan_tier: CoinPlanTierSchema.nullish(),
+        days: z.number(),
+        active: z.boolean(),
+        sort_order: z.number(),
+        created_at: z.string(),
+        updated_at: z.string()
+    })
+    .transform(data => ({ ...data, plan_tier: data.plan_tier ?? null }))
+    .transform(snakeToCamel)
+    .pipe(AdminCoinItemSchema);
+
+// #region [P] 商品 GET、POST、PATCH /v1/admin/coins/items(/:id)
+
+/** 全部（含下架的），後端照 sort_order、id 排好 */
+export const GetCoinItemsParser = z.object({ items: nullableList(AdminCoinItemParser) }).transform(data => data.items);
+export const SaveCoinItemParser = z.object({ item: AdminCoinItemParser }).transform(data => data.item);
+
+/** 欄位規則在 coins.ts（給人看的錯誤訊息），這裡只管形狀；後端不認得的欄位回 400 */
+export const CreateCoinItemPayload = z
+    .object({
+        code: z.string(),
+        kind: CoinItemKindSchema,
+        name: z.string(),
+        price: z.number().int(),
+        planTier: CoinPlanTierSchema.optional(),
+        days: z.number().int().optional(),
+        active: z.boolean().optional(),
+        sortOrder: z.number().int().optional()
+    })
+    .transform(camelToSnake);
+export type CreateCoinItemInput = z.input<typeof CreateCoinItemPayload>;
+
+/** 至少一個；code 與 kind 改不了（給了回 400），所以這裡沒有 */
+export const UpdateCoinItemPayload = z
+    .object({
+        name: z.string(),
+        price: z.number().int(),
+        active: z.boolean(),
+        sortOrder: z.number().int(),
+        planTier: CoinPlanTierSchema,
+        days: z.number().int()
+    })
+    .partial()
+    .refine(data => Object.keys(data).length > 0, '沒有要改的欄位')
+    .transform(camelToSnake);
+export type UpdateCoinItemInput = z.input<typeof UpdateCoinItemPayload>;
+
+// #endregion
+
+// #region [P] 一台的帳 GET /v1/admin/devices/:id/coins
+
+/** balance＝earned＋adjusted－spent，可能是負的（30.1：賺到的是動態算的，改判、合併問題會變） */
+export const CoinSummarySchema = z.object({
+    balance: z.number().int(),
+    earned: z.number().int(),
+    adjusted: z.number().int(),
+    spent: z.number().int(),
+    seasonEarned: z.number().int()
+});
+export type CoinSummary = z.infer<typeof CoinSummarySchema>;
+
+const CoinSummaryParser = z
+    .object({ balance: z.number(), earned: z.number(), adjusted: z.number(), spent: z.number(), season_earned: z.number() })
+    .transform(snakeToCamel)
+    .pipe(CoinSummarySchema);
+
+export const CoinOwnedSchema = z.object({ code: z.string(), kind: CoinItemKindSchema, name: z.string(), acquiredAt: z.string() });
+export type CoinOwned = z.infer<typeof CoinOwnedSchema>;
+
+const CoinOwnedParser = z
+    .object({ code: z.string(), kind: CoinItemKindSchema, name: z.string(), acquired_at: z.string() })
+    .transform(snakeToCamel)
+    .pipe(CoinOwnedSchema);
+
+export const CoinLedgerKindSchema = z.enum(['purchase', 'adjust']);
+export type CoinLedgerKind = z.infer<typeof CoinLedgerKindSchema>;
+
+/** 帳本一筆：只記花掉的與手動調整的，賺到的不在帳本裡（30.1） */
+export const AdminCoinLedgerEntrySchema = z.object({
+    id: z.number().int(),
+    kind: CoinLedgerKindSchema,
+    /** 購買是負的價格 */
+    amount: z.number().int(),
+    countsForRank: z.boolean(),
+    /** 商品當時的名稱，或調整的原因（App 看得到） */
+    note: z.string(),
+    itemCode: z.string().nullable(),
+    requestId: z.string().nullable(),
+    perkId: z.number().int().nullable(),
+    /** 調整的管理員；購買是空字串 */
+    createdBy: z.string(),
+    createdAt: z.string()
+});
+export type AdminCoinLedgerEntry = z.infer<typeof AdminCoinLedgerEntrySchema>;
+
+const AdminCoinLedgerEntryParser = z
+    .object({
+        id: z.number(),
+        kind: CoinLedgerKindSchema,
+        amount: z.number(),
+        counts_for_rank: z.boolean(),
+        note: z.string(),
+        item_code: z.string().nullish(),
+        request_id: z.string().nullish(),
+        perk_id: z.number().nullish(),
+        created_by: z.string().nullish(),
+        created_at: z.string()
+    })
+    .transform(data => ({
+        ...data,
+        item_code: data.item_code ?? null,
+        request_id: data.request_id ?? null,
+        perk_id: data.perk_id ?? null,
+        created_by: data.created_by ?? ''
+    }))
+    .transform(snakeToCamel)
+    .pipe(AdminCoinLedgerEntrySchema);
+
+/** 形狀同 30.2，但 ledger 是全部（新的在前），沒有 season */
+export const GetDeviceCoinsParser = z.object({
+    coins: CoinSummaryParser,
+    owned: nullableList(CoinOwnedParser),
+    ledger: nullableList(AdminCoinLedgerEntryParser)
+});
+export type DeviceCoins = z.output<typeof GetDeviceCoinsParser>;
+
+// #endregion
+
+// #region [P] 手動調整 POST /v1/admin/devices/:id/coins/adjustments
+
+export const AdjustCoinsPayload = z
+    .object({ amount: z.number().int(), reason: z.string(), countsForRank: z.boolean() })
+    .transform(camelToSnake);
+export type AdjustCoinsInput = z.input<typeof AdjustCoinsPayload>;
+
+export const AdjustCoinsParser = z.object({ entry: AdminCoinLedgerEntryParser }).transform(data => data.entry);
 
 // #endregion
 

@@ -14,9 +14,6 @@ export const TERRITORY_NOTE_MAX = 100;
 export const BOUNTY_TITLE_MAX = 40;
 /** 權益天數的上限（api.md 29.5：0～366） */
 export const BOUNTY_DAYS_MAX = 366;
-/** 使用者定的建議值（29.5）：一般 7 天、全新格式 14 天，按鈕帶這兩個，可以改 */
-export const BOUNTY_DAYS_NORMAL = 7;
-export const BOUNTY_DAYS_NEW_FORMAT = 14;
 
 /** 後端照字元數算（Go 的 rune），emoji 算一個字 */
 const runes = (value: string) => [...value].length;
@@ -149,6 +146,7 @@ export function seasonLine(season: FrontierSeason | null, now = Date.now()): str
 export const openTerritories = (list: readonly AdminTerritory[]) => list.filter(t => !t.pioneer);
 
 export interface BountyDraft {
+    /** 2026-11-20 起預設 0：採計的獎勵是金幣（30.1，後端自動算），天數只留給特例（Flowsker #791） */
     days: string;
     /** 空字串＝不署名 */
     territoryId: string;
@@ -169,7 +167,7 @@ export function bountyError(draft: BountyDraft, unbound: boolean): string {
     const days = Number(daysText);
     if (days > BOUNTY_DAYS_MAX) return `天數最多 ${BOUNTY_DAYS_MAX} 天`;
     if (unbound && days > 0) return '沒綁 App 的回報者發不了天數：天數填 0，只署名';
-    if (days === 0 && !draft.territoryId) return '天數是 0 就要選一塊領地署名，不然沒有賞金';
+    if (days === 0 && !draft.territoryId) return '選一塊領地署名；特例要另外發天數才可以不選';
     const title = draft.title.trim();
     if (runes(title) > BOUNTY_TITLE_MAX) return `名稱最多 ${BOUNTY_TITLE_MAX} 字`;
     if (BAD_CHARS.test(title)) return '名稱不能換行，也不能有看不見的字元';
@@ -179,12 +177,12 @@ export function bountyError(draft: BountyDraft, unbound: boolean): string {
 /** 沒填名稱時後端用的預設，表單的 placeholder 照它寫 */
 export const defaultBountyTitle = (territoryName: string | null) => (territoryName ? `拓荒季賞金：${territoryName}` : '拓荒季賞金');
 
-/** 送出的 body：選填的空值不送（空的 title 後端回 400）；0 天沒有權益，名稱也不送 */
-export function bountyBody(draft: BountyDraft): { days: number; territoryId?: number; title?: string } {
+/** 送出的 body：選填的空值不送（空的 title 後端回 400）；0 天不送 days（後端預設 0），沒有權益，名稱也不送 */
+export function bountyBody(draft: BountyDraft): { days?: number; territoryId?: number; title?: string } {
     const days = Number(draft.days.trim());
     const title = draft.title.trim();
     return {
-        days,
+        ...(days > 0 ? { days } : {}),
         ...(draft.territoryId ? { territoryId: Number(draft.territoryId) } : {}),
         ...(title && days > 0 ? { title } : {})
     };

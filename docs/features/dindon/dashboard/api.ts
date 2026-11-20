@@ -5,12 +5,14 @@
 
 import type { z } from 'zod';
 import type { PaidFilter } from './payments';
-import type { AdminDevice, BatchReviewFeedbackInput, BountyInput, ChangeCheckinsInput, CreateFeedbackInput, CreateFeedbackIssueInput, CreateTerritoryInput, PublishNewsDraftInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, SendFeedbackEmailInput, SendFeedbackMessageInput, TriageFeedbackInput, UpdateDeviceInput, UpdateFeedbackIssueInput, UpdateTerritoryInput } from './schemas/admin.schema';
+import type { AdjustCoinsInput, AdminDevice, BatchReviewFeedbackInput, BountyInput, ChangeCheckinsInput, CreateCoinItemInput, CreateFeedbackInput, CreateFeedbackIssueInput, CreateTerritoryInput, PublishNewsDraftInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, SendFeedbackEmailInput, SendFeedbackMessageInput, TriageFeedbackInput, UpdateCoinItemInput, UpdateDeviceInput, UpdateFeedbackIssueInput, UpdateTerritoryInput } from './schemas/admin.schema';
 import { apiBase } from '@shared/utils/apiBase';
 import { parseResponse } from '@shared/utils/zod';
 import { GetApiCatalogParser } from './console/catalog.schema';
 import {
     ActiveDevicesParser,
+    AdjustCoinsParser,
+    AdjustCoinsPayload,
     AppConfigParser,
     AppVersionsParser,
     BatchReviewFeedbackParser,
@@ -18,6 +20,7 @@ import {
     BountyParser,
     BountyPayload,
     ChangeCheckinsPayload,
+    CreateCoinItemPayload,
     CreateFeedbackIssueParser,
     CreateFeedbackIssuePayload,
     CreateFeedbackParser,
@@ -26,7 +29,9 @@ import {
     DiscardNewsDraftParser,
     GeminiBillingParser,
     GetAnnouncementListParser,
+    GetCoinItemsParser,
     GetDeviceCheckinsParser,
+    GetDeviceCoinsParser,
     GetDeviceDetailParser,
     GetDeviceListParser,
     GetFeatureCandidateListParser,
@@ -53,6 +58,7 @@ import {
     SaveAnnouncementParser,
     SaveAnnouncementPayload,
     SaveAppConfigPayload,
+    SaveCoinItemParser,
     SaveFeatureCandidateParser,
     SaveFeatureCandidatePayload,
     SavePromoCodeParser,
@@ -65,6 +71,7 @@ import {
     TestDeviceKeyParser,
     TriageFeedbackParser,
     TriageFeedbackPayload,
+    UpdateCoinItemPayload,
     UpdateDeviceParser,
     UpdateDevicePayload,
     UpdateFeedbackIssueParser,
@@ -348,6 +355,18 @@ export const adminApi = {
     deleteTerritory: async (token: string, id: number) => {
         await request(token, `/v1/admin/frontier/territories/${id}`, { method: 'DELETE' });
     },
+    // #endregion
+
+    // #region [P] 金幣與商店（api.md 30.7）：商品沒有刪除，下架就好；code、kind 建了不能改
+    listCoinItems: async (token: string) => call(GetCoinItemsParser, token, 'GET', '/v1/admin/coins/items'),
+    createCoinItem: async (token: string, body: CreateCoinItemInput) =>
+        call(SaveCoinItemParser, token, 'POST', '/v1/admin/coins/items', CreateCoinItemPayload.parse(body)),
+    updateCoinItem: async (token: string, id: number, body: UpdateCoinItemInput) =>
+        call(SaveCoinItemParser, token, 'PATCH', `/v1/admin/coins/items/${id}`, UpdateCoinItemPayload.parse(body)),
+    deviceCoins: async (token: string, id: number) => call(GetDeviceCoinsParser, token, 'GET', `/v1/admin/devices/${id}/coins`),
+    /** 可以扣成負的（作弊收回）；reason App 看得到 */
+    adjustCoins: async (token: string, id: number, body: AdjustCoinsInput) =>
+        call(AdjustCoinsParser, token, 'POST', `/v1/admin/devices/${id}/coins/adjustments`, AdjustCoinsPayload.parse(body)),
     // #endregion
 
     // #region [P] 新功能投票的候選（沒有刪除：不要了就改成「不做了」）
