@@ -117,9 +117,10 @@
             <!-- #region [P] 手動調整 -->
             <form class="dd-device-coins__form" @submit.prevent="submit">
                 <h4>手動調整</h4>
+                <!-- 不用 inputmode="numeric"：iOS 的數字鍵盤沒有減號，收回打不出負的 -->
                 <label class="dd-detail__field">
                     <span>金額</span>
-                    <input v-model="draft.amount" type="text" inputmode="numeric" placeholder="10 或 -10" class="amount" :disabled="busy" @input="edited" />
+                    <input v-model="draft.amount" type="text" placeholder="10 或 -10" class="amount" :disabled="busy" @input="edited" />
                     <span class="dd-detail__muted">枚，負的是收回（可以扣成負的）</span>
                 </label>
                 <label class="dd-detail__field">
