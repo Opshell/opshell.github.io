@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
-    import { ACCOUNT_PATH, CONTACT_EMAIL, DEMO_PATH, PLAY_STORE_URL, PRIVACY_PATH } from '../../constants';
+    import { ACCOUNT_PATH, CONTACT_EMAIL, DEMO_PATH, LAUNCHED, PLAY_STORE_URL, PRIVACY_PATH } from '../../constants';
     import { branches, features, findFeature, REVIEWED_APP_VERSION, stages } from '../featureMap';
     import FeatureDetail from './FeatureDetail.vue';
     import FeatureMindMap from './FeatureMindMap.vue';
@@ -162,7 +162,9 @@
             <!-- #endregion -->
 
             <p class="dindon-guide__outro">
-                想自己玩玩看？<a :href="PLAY_STORE_URL">到 Google Play 下載</a>，或先看<a :href="DEMO_PATH">功能演示影片</a>。
+                <!-- 還沒上架時商店頁是 404，不放連結（constants.ts 的 LAUNCHED） -->
+                <template v-if="LAUNCHED">想自己玩玩看？<a :href="PLAY_STORE_URL">到 Google Play 下載</a>，或先看<a :href="DEMO_PATH">功能演示影片</a>。</template>
+                <template v-else>叮咚記帳即將在 Google Play 上架，先看<a :href="DEMO_PATH">功能演示影片</a>。</template>
             </p>
         </main>
 

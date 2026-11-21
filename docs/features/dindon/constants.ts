@@ -1,8 +1,14 @@
 // [-] App 專用的聯絡信箱，和 App 的隱私權政策、問題回報頁是同一個（DinDon_Android 的 strings.xml report_email）
 export const CONTACT_EMAIL = 'dindon.ledger@gmail.com';
 
-/** Play 商店頁（2026-11-20 正式版上架，#756）。宣傳頁、演示頁、功能地圖的「下載」都連這裡 */
+/** Play 商店頁。宣傳頁、演示頁、功能地圖的「下載」都連這裡 */
 export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=me.opshell.dindon';
+
+/**
+ * 正式版上架了沒（#756，2026-11-21）。商店頁還沒公開時連過去是 404，所以沒上架前不放下載連結，
+ * 只寫「即將在 Google Play 上架」。上架那天改成 true，宣傳頁、演示頁、功能地圖的按鈕就換成下載。
+ */
+export const LAUNCHED = false;
 
 export const PRIVACY_PATH = '/dindon/privacy/';
 
@@ -23,36 +29,61 @@ export interface LandingPoint {
     tag?: string;
 }
 
-/** 電子發票的痛點。叮咚記帳要回答的就是「那不是已經有電子發票 App 了嗎？」 */
-export const invoicePains: LandingPoint[] = [
-    { icon: '⏳', title: '最久要等兩天', text: '消費資料從店家上傳、再同步到載具，常常隔天甚至兩天後才看得到。' },
-    { icon: '🧩', title: '總覽不直覺', text: '一張張發票排在一起，看不出這個月的錢都花去哪了。' },
-    { icon: '💵', title: '付現的帳記不到', text: '夜市、早餐店、傳統市場，沒有電子發票的消費，全部不見。' },
-    { icon: '😮‍💨', title: '養不成習慣', text: '等看得到的時候，早就忘了那筆是什麼。記帳的動力就這樣斷掉了。' }
-];
-
 /**
- * 沒有通知也能記：自動歸類、拍照、語音、隨手記（2026-10-08 對 App 0.7.19：帳單截圖 0.7.17 併進拍照的「從相簿選」，
- * 語音 0.7.13 起一句記多筆，隨手記 0.7.6～0.7.8 重做、0.7.12 有桌面小工具）
+ * 隨身記帳助手的三件事（#756，使用者 2026-11-21：「APP 最大的賣點是隨身記帳助手，自動幫忙記帳、總結、歸納，
+ * 還有里程碑可以引導養成記帳習慣、理財方式，而不是只是記流水帳」）。開頭底下那一排，也是整頁的順序。
  */
-export const withoutNotice: LandingPoint[] = [
-    { icon: '🏷️', title: '自動歸類', text: '記住你改過的店家和分類，下次同一家店自動分對。分類也能自己增減。' },
-    { icon: '📷', title: '拍照記帳', text: '拍一張，AI 讀出店家、金額和每個品項。從相簿選信用卡帳單截圖，整頁一次記好。' },
-    { icon: '🎙️', title: '語音記帳', text: '「早餐蛋餅 45，豆漿 25」一句話記好幾筆；轉帳、借錢、分期也聽得懂。' },
-    { icon: '✍️', title: '隨手記', text: '桌面小工具點一下就能記；寫「飲料 60」就好，猜不到分類才問 AI。' }
+export const pillars: LandingPoint[] = [
+    { icon: '🔔', title: '幫你記', text: '付款通知一跳就記好、分好類；電子發票每天自動同步；拍一張、說一句也行。' },
+    { icon: '🧮', title: '幫你理', text: '退刷、分期、代墊都幫你算好；每個月初花兩分鐘月結，知道錢去哪、多花在哪。' },
+    { icon: '🧭', title: '陪你走', text: '記帳里程碑從「記滿一個月」開始，一階一階帶你看懂錢流、存得下來。' }
 ];
 
 /**
- * 記好之後，小精靈還會幫你想（2026-10-08 新增這一段，對 App 0.7.19）。
- * 都是「本來要自己算、自己記得」的事：智能導正 0.7.18、退刷抵銷 0.7.9、分期與每月可支配 0.7.10、借貸與存錢目標 0.7.11～0.7.12
+ * 幫你記：帳從哪裡來（2026-11-21 對 App 1.0.0）。電子發票雲端同步 #747 起所有人都有，凌晨 0～5 點同步，
+ * 免費版登入後同步 14 天（strings.xml einvoice_*、menu 的說明）。
+ */
+export const autoPoints: LandingPoint[] = [
+    { icon: '🔔', title: '付款通知自動記', text: '銀行、信用卡、行動支付的付款通知一跳出來，就記好、分好類。同一筆跳好幾則通知，只記一次。' },
+    { icon: '🧾', title: '電子發票自動同步', text: '登入財政部平台一次，小精靈每天凌晨幫你把雲端發票記進帳本。' },
+    { icon: '🎙️', title: '用說的', text: '「早餐蛋餅 45，豆漿 25」一句話記好幾筆；轉帳、借錢、分期也聽得懂。' },
+    { icon: '✍️', title: '隨手記與小工具', text: '寫「飲料 60」就好；記帳、快選、每日預算、手機條碼都能放在桌面，點一下就到。' }
+];
+
+/**
+ * 幫你理：那些本來要自己算、自己記得的事。照例記帳是 0.8.9 從「智能導正」改的名（strings.xml），
+ * 大筆支出確認與銀行新聞示警是 0.9.6 的安全示警
  */
 export const helperPoints: LandingPoint[] = [
-    { icon: '🧠', title: '智能導正', text: '通知只寫「消費 400」？照你教過一次的範例記對，下次就不用再改。', tag: '新功能' },
+    { icon: '🧠', title: '照例記帳', text: '通知只寫「消費 400」？照你教過一次的範例記對，下次就不用再改。' },
     { icon: '↩️', title: '退刷自動抵銷', text: '刷退的通知一來，小精靈先問一聲，按了就把原本那筆沖掉。' },
     { icon: '🗓️', title: '信用卡分期', text: '記帳時選分 N 期，之後每個月自動記一期，不會一次算爆預算。' },
     { icon: '🎯', title: '每天能花多少', text: '收入扣掉固定支出、分期、存錢，算出每月可支配，一鍵變成每日預算。' },
     { icon: '🤝', title: '借貸與代墊', text: '幫朋友墊的、借出去的都記著，還了按一下就收回；有利息的也算得出來。' },
-    { icon: '🐷', title: '存錢目標', text: '同時存好幾個，省下來的錢照順序先存滿上面那個；填了每月存多少，會告訴你大約還要幾個月。' }
+    { icon: '🛡️', title: '大筆支出問一聲', text: '突然一筆大額支出，小精靈會問：「剛剛這筆是你本人嗎？」' }
+];
+
+/** 月結：每個月初問的事（milestone.xml month_close_*）。這是「總結歸納」那一段的主角 */
+export const monthCloseSteps: { title: string; text: string }[] = [
+    { title: '比平常多花在哪', text: '先看花最多的三類，跟你平常的月份比。' },
+    { title: '固定支出有沒有變', text: '房租、電信、訂閱，這個月實際扣了多少，有沒有新的。' },
+    { title: '收入留下幾成', text: '這個月收入多少、花了多少、留下幾成，一句話講完。' },
+    { title: '三題復盤（選填）', text: '最值得的一筆、最後悔的一筆、下個月想少一點的。點一筆就好，不用打字；下個月月結會拿出來對照。' }
+];
+
+export interface MilestoneStage {
+    name: string;
+    lesson: string;
+    /** 這一階的里程碑徽章 */
+    milestones: string[];
+}
+
+/** 記帳里程碑的四階與六個里程碑，字照 App 的 milestone.xml（milestone_stage_*、milestone_lesson_*、milestone_name_*） */
+export const milestoneStages: MilestoneStage[] = [
+    { name: '無腦記', lesson: '記帳不用花力氣。先記滿一個月，什麼都不用懂。', milestones: ['帳本滿月'] },
+    { name: '看懂錢流', lesson: '錢分成三種：不花也得付的、一定會花但每月不同的、可以選的。', milestones: ['第一次關帳', '定錨', '先付給自己'] },
+    { name: '存得下來', lesson: '先付給自己，剩下的才拿來花。', milestones: ['安全網'] },
+    { name: '錢生錢', lesson: '多出來的錢，讓它自己長大。', milestones: ['第一筆獲利'] }
 ];
 
 /** 拍照記帳能拍的東西：不只電子發票 */
@@ -75,16 +106,19 @@ export const lazyPoints: LandingPoint[] = [
 ];
 
 /**
- * 上架活動「西部拓荒季」（#756）。規格：工作區 docs/devlog/android/Android_開發記錄0.8.0.md「2026-11-16 做 1.0.0」、
- * DinDon_BackEnd/docs/api.md 第 29 節；文字盡量照 App 的 frontier_report.xml 與徽章牆的說法。
- * 期間照使用者 2026-11-18 的話寫死日期（「活動是到12月底」），不寫「30 天」。
+ * 上架活動「西部拓荒季」（#756）。規格：DinDon_BackEnd/docs/api.md 第 29～30 節；字照 App 1.0.0 的
+ * frontier_page.xml、frontier_store.xml、strings.xml badge_frontier_*（2026-11-21 對過）。
+ * 期間照後端 GET /v1/frontier 的 season（starts_on 2026-11-20、ends_on 2026-12-31），使用者 11-18：「活動是到12月底」。
  */
 export const FRONTIER_PERIOD = '2026/11/20～2026/12/31';
 
-/** 領地的兩種狀態。對外一律說「已用真實通知驗證」，不說「支援」（api.md 29.2 末段）：通緝中的很多其實也記得到 */
+/**
+ * 銀行與支付的兩種狀態。11-19 起 App 從「已馴服」改叫「已緝拿」（佈告欄 frontier_page.xml）。
+ * 對外一律說「用真實通知驗證過」，不說「支援」（api.md 29.2 末段）：通緝中的很多其實也記得到
+ */
 export const frontierStatuses: { key: 'tamed' | 'wanted'; label: string; text: string }[] = [
-    { key: 'tamed', label: '已馴服', text: '已用真實通知驗證：拿到那一家真的付款通知，跑過叮咚的整套判斷，記得對。' },
-    { key: 'wanted', label: '通緝中', text: '還缺真實通知樣本。不代表記不到，只是還沒拿到真的通知驗證過。' }
+    { key: 'tamed', label: '已緝拿', text: '叮咚用那一家真實的付款通知驗證過，記得對。' },
+    { key: 'wanted', label: '通緝中', text: '還缺一則真實樣本——不一定記不到，只是還沒人確認過。' }
 ];
 
 export interface FrontierStep {
@@ -94,7 +128,10 @@ export interface FrontierStep {
     text: string;
 }
 
-/** 怎麼參加：三步。賞金天數照 api.md 29.5 的建議值；署名照 29.3 */
+/**
+ * 怎麼參加：三步。11-20 起賞金改發金幣（#788，api.md 29.5），不再直接送方案天數；
+ * 第一位回報的署名成那家的賞金獵人（App 畫面不說「領地」，frontier_page.xml）
+ */
 export const frontierSteps: FrontierStep[] = [
     {
         art: 'cactus',
@@ -103,21 +140,38 @@ export const frontierSteps: FrontierStep[] = [
     },
     {
         art: 'lasso',
-        title: '套住那則通知',
-        text: '在 App 的「回報」頁點「回報漏抓的通知」，勾出那則通知帶進回報。送出前會先遮掉卡號、帳號、餘額這些個資。'
+        title: '把那則通知抓回來',
+        text: '在警視廳的通緝令點「回報這家的通知」，或在回報頁點「回報漏抓的通知」，勾出那則通知帶進來。送出前會先遮掉卡號、帳號、餘額這些個資。'
     },
     {
         art: 'star',
-        title: '領賞金，在領地署名',
-        text: '確認是有效的新樣本，就送至少 7 天的進階方案。第一位回報那家有效樣本的人，會用當時的暱稱在那家的領地上署名，之後不會換人。'
+        title: '領金幣，當賞金獵人',
+        text: '回報被採計就發金幣。第一個帶回真實通知的人，會用當時的暱稱署名成那一家的賞金獵人，之後不會換人。'
     }
 ];
 
-/** 三顆季後絕版的紀念徽章（api.md 29.7）。條件照 App 徽章牆的字（strings.xml badge_frontier_* 等） */
-export const frontierBadges: { title: string; condition: string; extra?: string }[] = [
-    { title: '荒野開拓者', condition: '拓荒季內有 7 天讓叮咚自動記帳，再拍照或用語音記一筆。' },
+/** 鎮上的地方：App 拓荒季小鎮的建築與說明（照 1.0.0 畫面上「鎮上的地方」那張清單，2026-11-21 在模擬器看的） */
+export const frontierPlaces: { name: string; text: string }[] = [
+    { name: '警視廳', text: '處理通緝令' },
+    { name: '雜貨店', text: '拿金幣換東西' },
+    { name: '賞金榜', text: '這一季誰賺的金幣最多' },
+    { name: '佈告欄', text: '拓荒季的說明與進度' },
+    { name: '消防局', text: '回報問題、給建議' },
+    { name: '小酒館', text: '看公告、許願、贊助' },
+    { name: '戶政廳', text: '邀朋友一起拓荒' }
+];
+
+/** 金幣怎麼來、能換什麼（frontier_store.xml store_how 與雜貨店的貨架） */
+export const FRONTIER_COINS = '金幣不能用錢買：回報問題或建議被採計才有。到雜貨店換進階方案的天數，也能換徽章、稱號與主題。';
+
+/**
+ * 三顆季後絕版的紀念勳章（api.md 29.7）。條件照 App 的 badge_frontier_*_desc；建鎮元老照使用者 11-19 不寫「（試用中也算）」。
+ * 酒館大亨 #805 起不再附送西部主題，原本的 extra 拿掉
+ */
+export const frontierBadges: { title: string; condition: string }[] = [
+    { title: '荒野開拓者', condition: '拓荒季內有 7 天讓叮咚自動記帳、拍照或用語音記一筆，再回報一個問題或交一張通緝令。' },
     { title: '建鎮元老', condition: '拓荒季內訂閱。' },
-    { title: '酒館大亨', condition: '拓荒季內贊助，哪一階都算。', extra: '同時解鎖西部配色，季後也一直留著。' }
+    { title: '酒館大亨', condition: '拓荒季內贊助，哪一階都算。' }
 ];
 
 /** 宣傳短片的一段：at 是這段開始的秒數（點了從這裡播），文字和影片裡的字幕對得上 */

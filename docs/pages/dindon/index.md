@@ -1,6 +1,6 @@
 ---
 title: 叮咚記帳 DinDon Ledger
-description: 付款的那一刻，帳就記好了。叮咚記帳會讀付款通知自動記帳，拍照、語音也能記。已在 Google Play 上架。
+description: 你的隨身記帳助手：付款通知一跳就記好，月初幫你結帳、告訴你錢去哪，記帳里程碑陪你養成習慣、存得下錢。即將在 Google Play 上架。
 layout: page
 class: dindon-page
 sidebar: false

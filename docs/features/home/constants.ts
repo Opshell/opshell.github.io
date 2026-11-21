@@ -11,13 +11,13 @@ export const BLOG_MOTTO = '平凡即卓越.';
 export const launchpads = {
     dindon: {
         title: 'DinDon 記帳',
-        status: '開發中',
-        text: '付款的那一刻，帳就記好了。我正在做的 Android 記帳 App，已在 Google Play 上架。',
+        status: '即將上線',
+        text: '你的隨身記帳助手：付款就記好，月初幫你結帳，里程碑陪你存下錢。我做的 Android 記帳 App，即將在 Google Play 上架。',
         href: '/dindon/',
         icon: '/images/dindon/icon.webp',
         screen: '/images/dindon/home.webp',
         /** 卡片左下的小標籤：它會做什麼，一眼看完 */
-        features: ['付款通知自動記帳', '拍照', '用說的', '帳單截圖', '小精靈提醒', '徽章'],
+        features: ['付款通知自動記帳', '電子發票同步', '月結', '記帳里程碑', '拍照', '用說的'],
         // 原本是功能地圖、功能演示，2026-10-22 先拿掉入口（怕被當成反編譯重上架的教材），頁面還在
         links: [] as { text: string; href: string }[]
     },
