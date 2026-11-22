@@ -226,8 +226,13 @@
     const outcomeSeries: BarSeries[] = [
         { key: 'ok', label: '成功', color: 'var(--dd-series-1)' },
         { key: 'rejected', label: '被拒（不是記帳內容）', color: 'var(--dd-series-2)' },
-        { key: 'failed', label: '失敗或被擋', color: 'var(--dd-series-3)' }
+        { key: 'failed', label: '失敗或被擋＊', color: 'var(--dd-series-3)' }
     ];
+    /**
+     * 被擋的那部分不是次數（api.md 第 8 節 usage/devices 的 failed、後端 usage-analytics.md「逐日資料」，Flowsker #764）：
+     * 2026-11-19 起一台裝置、一個功能、一種原因一天只記 1 筆，撞頂後又按幾下看不到。標籤的＊對到這句
+     */
+    const BLOCKED_NOTE = '＊被擋的（額度不足、撞到每日上限）一台一個功能一天只算 1，是「幾台·天撞到」，不是被擋了幾次（11-19 起）';
     const sortedFeatures = computed(() => [...(report.value?.features ?? [])]
         .sort((a, b) => FEATURE_ORDER.indexOf(a.feature) - FEATURE_ORDER.indexOf(b.feature)));
     const outcomeRows = computed<BarRow[]>(() => sortedFeatures.value.map(f => ({
@@ -292,6 +297,7 @@
                 <article v-if="hasDaily" class="dd-overview__card dd-overview__card--wide">
                     <h3>每日 AI 請求<button type="button" class="more" @click="emit('navigate', 'usage')">詳細 →</button></h3>
                     <p class="sub">近 {{ days }} 天。橙色是沒做成的（Gemini 出錯、額度不足、撞到每日上限）</p>
+                    <p class="sub">{{ BLOCKED_NOTE }}</p>
                     <ColumnChart :points="dailyPoints" :series="outcomeSeries" unit=" 次" />
                     <details>
                         <summary>看數字</summary>
@@ -355,6 +361,7 @@
                 <article class="dd-overview__card">
                     <h3>各功能的請求結果<button type="button" class="more" @click="emit('navigate', 'usage')">詳細 →</button></h3>
                     <p class="sub">近 {{ days }} 天。橙色多代表 Gemini 出錯，或撞到額度、每日上限</p>
+                    <p class="sub">{{ BLOCKED_NOTE }}</p>
                     <BarChart v-if="outcomeRows.length" :rows="outcomeRows" :series="outcomeSeries" unit=" 次" />
                     <p v-else class="dd-overview__muted">這段期間沒有 AI 請求</p>
                     <details>

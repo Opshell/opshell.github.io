@@ -29,6 +29,12 @@ describe('configError', () => {
         expect(configError({ minAppBuild: 0, latestAppBuild: 53, latestAppVersion: '' })).toContain('名稱');
         expect(configError({ minAppBuild: 0, latestAppBuild: 0, latestAppVersion: 'v1' })).toContain('三段');
     });
+
+    it('設了最低版本就要有最新版本號（#770）；兩個都 0、只設最新版照舊可以', () => {
+        expect(configError({ minAppBuild: 52, latestAppBuild: 0, latestAppVersion: '' })).toContain('最新版本號');
+        expect(configError({ minAppBuild: 0, latestAppBuild: 0, latestAppVersion: '' })).toBe('');
+        expect(configError({ minAppBuild: 0, latestAppBuild: 53, latestAppVersion: '0.7.1' })).toBe('');
+    });
 });
 
 describe('announcementError', () => {

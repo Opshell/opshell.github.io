@@ -123,6 +123,13 @@
     // 清除身分：做不回來，要輸入裝置 id 才能按
     const eraseConfirmText = ref('');
     const canErase = computed(() => eraseConfirmText.value.trim() === String(deviceId));
+    /** 正在清哪一種：有訂閱時向 Google 取消最多等 20 秒，按鈕上要讓人知道不是卡住了 */
+    const erasing = ref<'keep' | 'freeze' | null>(null);
+    /**
+     * 後端沒能向 Google 取消續扣（api.md 第 8 節 erase-identity，#770）。清除本身已經完成，
+     * 但使用者會繼續被扣款，管理員一定要轉告；清完這張卡片就消失了，所以提醒放在最上面、關掉詳情才不見
+     */
+    const subscriptionCancelFailed = ref(false);
 
     async function load() {
         loading.value = true;
@@ -252,10 +259,17 @@
     // #endregion
 
     async function eraseIdentity(freeze: boolean) {
+        erasing.value = freeze ? 'freeze' : 'keep';
+        subscriptionCancelFailed.value = false;
         await mutate(
-            token => adminApi.eraseIdentity(token, deviceId, freeze),
+            async (token) => {
+                const result = await adminApi.eraseIdentity(token, deviceId, freeze);
+                subscriptionCancelFailed.value = result.subscriptionCancelFailed;
+                return result.device;
+            },
             freeze ? '已清除身分，這台裝置也已停用' : '已清除身分，這台裝置可以繼續使用'
         );
+        erasing.value = null;
         eraseConfirmText.value = '';
     }
 
@@ -329,6 +343,10 @@
         <p v-if="loading && !device" class="dd-detail__muted t-shimmer" data-text="載入中…">載入中…</p>
         <p v-if="error" class="dd-admin__error" role="alert">{{ error }}</p>
         <p v-if="notice" class="dd-detail__notice" role="status">✓ {{ notice }}</p>
+        <p v-if="subscriptionCancelFailed" class="dd-detail__warn" role="alert">
+            <strong>訂閱沒取消成功</strong>：身分已經清掉，但後端沒能向 Google 取消這台的續扣。
+            請轉告使用者自己到 Google Play 的「付款與訂閱」取消，不然會繼續被扣款。
+        </p>
 
         <template v-if="device">
             <dl class="dd-detail__info">
@@ -585,14 +603,25 @@
                     對方自己在 <a href="/dindon/account/" target="_blank" rel="noopener">刪除頁</a>
                     也做得到這兩件事，不一定要經過這裡。
                 </p>
+                <p class="dd-detail__muted">
+                    <strong>訂閱</strong>：「並停用」會向 Google 取消之後的續扣（不退已經付的那一期），有訂閱時最多要多等 20 秒；
+                    「保留使用」不動還在進行的訂閱。
+                </p>
                 <label class="dd-detail__field">
                     <span>輸入裝置 id「{{ deviceId }}」確認</span>
                     <input v-model="eraseConfirmText" type="text" inputmode="numeric" autocomplete="off" />
                 </label>
                 <div class="dd-detail__actions">
-                    <button type="button" class="dd-admin__btn" :disabled="!canErase || busy" @click="eraseIdentity(false)">清除身分，保留使用</button>
-                    <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="!canErase || busy" @click="eraseIdentity(true)">清除身分並停用</button>
+                    <button type="button" class="dd-admin__btn" :disabled="!canErase || busy" @click="eraseIdentity(false)">
+                        {{ erasing === 'keep' ? '清除中…' : '清除身分，保留使用' }}
+                    </button>
+                    <button type="button" class="dd-admin__btn dd-admin__btn--danger" :disabled="!canErase || busy" @click="eraseIdentity(true)">
+                        {{ erasing === 'freeze' ? '清除中，可能要等…' : '清除身分並停用' }}
+                    </button>
                 </div>
+                <p v-if="erasing === 'freeze'" class="dd-detail__muted" role="status">
+                    有訂閱的話後端要向 Google 取消續扣，最多要等 20 秒，請不要關掉這頁。
+                </p>
             </section>
             <!-- #endregion -->
 
