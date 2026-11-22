@@ -24,6 +24,7 @@
     import DinDonBell from './DinDonBell.vue';
     import FrontierArt from './FrontierArt.vue';
     import PromoStory from './PromoStory.vue';
+    import PromoVideo from './PromoVideo.vue';
 
     const rootRef = ref<HTMLElement>();
     useLandingMotion(rootRef);
@@ -323,8 +324,12 @@
         </section>
         <!-- #endregion -->
 
-        <!-- #region [P] 18 秒看懂：宣傳短片先拿掉（#756，2026-11-21）：片尾燒著「Android 封閉測試招募中」，
-             正式版官網放它會叫人去報名已經結束的封測。重做影片（docs/marketing/promo-video/）再放回 <PromoVideo /> -->
+        <!-- #region [P] 18 秒看懂：宣傳短片，留給想分享給朋友的人。片尾 2026-11-22 從「封閉測試招募中」重做成「即將在 Google Play 上架」（#756） -->
+        <section id="video" class="dindon-landing__section dindon-landing__section--sunken">
+            <div class="dindon-landing__container">
+                <PromoVideo />
+            </div>
+        </section>
         <!-- #endregion -->
 
         <!-- #region [P] 西部拓荒季（#756，上架活動）：不寫已緝拿幾家，宣傳頁拿不到即時資料，靜態數字會過時 -->
