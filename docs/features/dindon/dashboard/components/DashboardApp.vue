@@ -14,6 +14,7 @@
     import DeviceManager from './DeviceManager.vue';
     import FeatureVotePanel from './FeatureVotePanel.vue';
     import FeedbackPanel from './FeedbackPanel.vue';
+    import FrontierPanel from './FrontierPanel.vue';
     import OverviewPanel from './OverviewPanel.vue';
     import PromoPanel from './PromoPanel.vue';
     import UsageReport from './UsageReport.vue';
@@ -43,6 +44,7 @@
         app: 'M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z M11 18h2',
         announce: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9 M10.3 21a1.94 1.94 0 0 0 3.4 0',
         api: 'M4 17l6-6-6-6 M12 19h8',
+        frontier: 'M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z M4 22v-7',
         refresh: 'M21 12a9 9 0 1 1-2.64-6.36L21 8 M21 3v5h-5',
         collapse: 'M3 3h18v18H3z M9 3v18 M16 9l-3 3 3 3',
         expand: 'M3 3h18v18H3z M9 3v18 M13 9l3 3-3 3',
@@ -62,7 +64,9 @@
         { key: 'features', label: '功能投票', hint: '測試者投票決定下一個做什麼' },
         { key: 'app', label: 'App 版本', hint: '各版本有幾台、Play 的當機率、最低可用版本' },
         { key: 'announce', label: '重要公告', hint: 'App 打開時小夥伴會講的公告：新增、排時間、下架' },
-        { key: 'api', label: 'API', hint: '每一支 API 的說明，直接在這裡試打' }
+        { key: 'api', label: 'API', hint: '每一支 API 的說明，直接在這裡試打' },
+        // 上架活動（api.md 第 29 節，#706）：放最後，前面十個的快捷鍵不變；終端機打 cd frontier 或 cd 拓荒季
+        { key: 'frontier', label: '拓荒季', hint: '領地的馴服狀態與開拓者、金幣商店；署名在回報頁採計時設' }
     ];
     const PANELS: Record<DashboardTab, Component> = {
         overview: OverviewPanel,
@@ -74,7 +78,8 @@
         features: FeatureVotePanel,
         app: AppPanel,
         announce: AnnouncementPanel,
-        api: ApiConsole
+        api: ApiConsole,
+        frontier: FrontierPanel
     };
     /** 側欄上寫的快捷鍵：1～9，第 10 個是 0（鍵盤上 9 的右邊） */
     const tabKey = (index: number) => (index === 9 ? '0' : index < 9 ? String(index + 1) : '');
@@ -318,12 +323,13 @@
                         class="dd-admin__nav-item"
                         :aria-selected="tab === t.key"
                         :class="{ 'is-active': tab === t.key }"
-                        :title="collapsed ? `${t.label}（${tabKey(index)}）` : undefined"
+                        :title="collapsed ? (tabKey(index) ? `${t.label}（${tabKey(index)}）` : t.label) : undefined"
                         @click="selectTab(t.key)"
                     >
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path :d="ICONS[t.key]" /></svg>
                         <span class="label">{{ t.label }}</span>
-                        <kbd class="dd-admin__key" aria-hidden="true">{{ tabKey(index) }}</kbd>
+                        <!-- 第 11 個以後沒有數字鍵，不畫空框 -->
+                        <kbd v-if="tabKey(index)" class="dd-admin__key" aria-hidden="true">{{ tabKey(index) }}</kbd>
                         <!-- 待辦數字（transitions-dev 03 Notification badge）：外框一直在，數字從 0 變多時滑進來、彈一下，歸零時縮掉 -->
                         <span v-if="t.key in badges" class="dd-admin__badges">
                             <span v-if="t.key in replyBadges" class="t-badge dd-admin__badge-wrap" :data-open="!!replyBadges[t.key]" :aria-hidden="!replyBadges[t.key]">

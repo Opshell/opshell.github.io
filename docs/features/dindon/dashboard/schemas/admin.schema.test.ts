@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BatchReviewFeedbackPayload, CreateFeedbackPayload, GetDeviceDetailParser, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackEmailsParser, GetFeedbackListParser, GetFeedbackMessagesParser, GetFeedbackStatsParser, GetUsageReportParser, PaymentsSummaryParser, SaveFeatureCandidatePayload, SendFeedbackEmailParser, SendFeedbackEmailPayload, SendFeedbackMessageParser, SendFeedbackMessagePayload, UpdateDevicePayload, UpdateFeedbackIssueParser } from './admin.schema';
+import { BatchReviewFeedbackPayload, BountyParser, BountyPayload, CreateFeedbackPayload, CreateTerritoryPayload, GetDeviceDetailParser, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackEmailsParser, GetFeedbackListParser, GetFeedbackMessagesParser, GetFeedbackStatsParser, GetFrontierTerritoriesParser, GetUsageReportParser, PaymentsSummaryParser, SaveFeatureCandidatePayload, SendFeedbackEmailParser, SendFeedbackEmailPayload, SendFeedbackMessageParser, SendFeedbackMessagePayload, UpdateDevicePayload, UpdateFeedbackIssueParser, UpdateTerritoryPayload } from './admin.schema';
 
 // 後端是 Go：nil 的 slice、map 會送 null，沒設的指標欄位可能整個不送。這裡測的都是這類邊界
 
@@ -317,5 +317,73 @@ describe('回報的來往訊息與寄信（Flowsker #600、#457）', () => {
         expect(SendFeedbackEmailPayload.parse({ subject: '', body: '內文', draftId: 'abc' })).toEqual({ subject: '', body: '內文', draft_id: 'abc' });
         expect(SendFeedbackEmailParser.parse({ email: rawEmail, duplicate: true }).duplicate).toBe(true);
         expect(SendFeedbackEmailParser.parse({ email: rawEmail }).duplicate).toBe(false);
+    });
+});
+
+describe('拓荒季（api.md 第 29 節，Flowsker #706）', () => {
+    const rawTerritory = {
+        id: 35,
+        name: '街口支付',
+        kind: 'payment',
+        status: 'wanted',
+        tamed_in: null,
+        note: '',
+        pioneer: null,
+        pioneer_device_id: null,
+        pioneer_feedback_id: null,
+        pioneer_set_at: null,
+        sort_order: 35,
+        created_at: '2026-11-17T00:00:00Z',
+        updated_at: '2026-11-17T00:00:00Z'
+    };
+    const rawBounty = { id: 3, feedback_id: 123, device_id: 42, territory_id: 35, perk_id: 88, days: 7, created_by: 'admin@example.com', created_at: '2026-12-03T05:00:00Z' };
+
+    it('季還沒定是 null；Go 的 nil slice 補空陣列', () => {
+        expect(GetFrontierTerritoriesParser.parse({ season: null, progress: { tamed: 0, total: 0 }, territories: null }))
+            .toEqual({ season: null, progress: { tamed: 0, total: 0 }, territories: [] });
+    });
+
+    it('領地與季轉駝峰', () => {
+        const result = GetFrontierTerritoriesParser.parse({
+            season: { starts_on: '2026-12-01', ends_on: '2026-12-30', starts_at: '2026-11-30T16:00:00Z', ends_at: '2026-12-30T16:00:00Z', days: 30, state: 'upcoming' },
+            progress: { tamed: 10, total: 44 },
+            territories: [rawTerritory, { ...rawTerritory, id: 6, status: 'tamed', tamed_in: '1.0.0', pioneer: '阿明', pioneer_device_id: 42, pioneer_feedback_id: 123 }]
+        });
+        expect(result.season).toMatchObject({ startsOn: '2026-12-01', state: 'upcoming' });
+        expect(result.territories[0]).toMatchObject({ id: 35, tamedIn: null, pioneer: null, sortOrder: 35 });
+        expect(result.territories[1]).toMatchObject({ tamedIn: '1.0.0', pioneer: '阿明', pioneerDeviceId: 42, pioneerFeedbackId: 123 });
+    });
+
+    it('送出轉 snake_case；修改至少一個欄位', () => {
+        expect(CreateTerritoryPayload.parse({ name: '街口支付', kind: 'payment', tamedIn: null, sortOrder: 50 }))
+            .toEqual({ name: '街口支付', kind: 'payment', tamed_in: null, sort_order: 50 });
+        expect(UpdateTerritoryPayload.parse({ pioneerDeviceId: null })).toEqual({ pioneer_device_id: null });
+        expect(UpdateTerritoryPayload.safeParse({}).success).toBe(false);
+        expect(BountyPayload.parse({ days: 7, territoryId: 35 })).toEqual({ days: 7, territory_id: 35 });
+    });
+
+    it('發賞金的回應：只署名時 perk 是 null', () => {
+        const result = BountyParser.parse({ bounty: { ...rawBounty, perk_id: null, days: 0 }, perk: null, territory: rawTerritory, pioneer_set: true });
+        expect(result).toMatchObject({ perk: null, pioneerSet: true, bounty: { perkId: null, days: 0 }, territory: { id: 35 } });
+        const withPerk = BountyParser.parse({
+            bounty: rawBounty,
+            perk: { id: 88, device_id: 42, source: 'frontier', source_ref: 'feedback:123', title: '拓荒季賞金：街口支付', plan_tier: 'pro', months: 0, days: 7, starts_on: '2026-12-03T00:00:00Z', revoked_at: null, created_at: '2026-12-03T05:00:00Z' },
+            territory: null,
+            pioneer_set: false
+        });
+        expect(withPerk.perk).toMatchObject({ sourceRef: 'feedback:123', planTier: 'pro', revokedAt: null });
+    });
+
+    it('回報多了 topic 與 bounty；舊後端沒有就是 null', () => {
+        const base = { id: 1, device_id: 42, device_name: '阿明', kind: 'bug', status: 'pending', description: '', app_version: '', device_model: '', android_version: '', created_at: '2026-11-17T00:00:00Z' };
+        const list = (report: object) => GetFeedbackListParser.parse({ reports: [report], total: 1, page: 1, per_page: 50 }).reports[0];
+        expect(list(base)).toMatchObject({ topic: null, bounty: null });
+        expect(list({ ...base, topic: 'missed_notification', bounty: rawBounty })).toMatchObject({ topic: 'missed_notification', bounty: { feedbackId: 123, perkId: 88 } });
+    });
+
+    it('裝置詳情的權益認得 frontier 來源', () => {
+        const perk = { id: 88, title: '拓荒季賞金', source: 'frontier', plan_tier: 'pro', months: 0, days: 7, status: 'active', starts_on: '2026-12-03', ends_on: '2026-12-10' };
+        const detail = GetDeviceDetailParser.parse({ device: rawDevice, audit: null, perks: [perk], plan: { plan_tier: 'pro', plan_source: 'perk' }, referrals: null });
+        expect(detail.perks[0].source).toBe('frontier');
     });
 });

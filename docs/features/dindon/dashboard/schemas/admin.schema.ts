@@ -33,15 +33,18 @@ export type FeedbackProgress = z.infer<typeof FeedbackProgressSchema>;
 /** 修在哪一版：英數開頭，只能有英數、點、加號、減號，最多 20 字（後端同一條規則，前端先擋） */
 export const FIXED_IN_PATTERN = /^[A-Z0-9][A-Z0-9.+-]{0,19}$/i;
 
-/** 沒綁定的回報者名稱，規則比照暱稱：1～20 字、不能有換行與控制字元（含零寬字元）、不能用「白老鼠」開頭 */
+/** 沒綁定的回報者名稱，規則比照暱稱：1～20 字、不能有換行與控制字元（含零寬字元）、不能用「白老鼠」「拓荒者」開頭 */
 export const REPORTER_NAME_MAX = 20;
 export function reporterNameProblem(name: string): string {
     const trimmed = name.trim();
     if (!trimmed) return '名稱是空的';
     if ([...trimmed].length > REPORTER_NAME_MAX) return `名稱最多 ${REPORTER_NAME_MAX} 字`;
     if (/\p{C}/u.test(trimmed)) return '名稱不能有換行或看不見的字元';
-    // 「白老鼠 #編號」是 App 給沒設暱稱的人的名字，用它開頭會跟排行榜上的人混在一起
-    if (trimmed.startsWith('白老鼠')) return '名稱不能用「白老鼠」開頭';
+    // 「白老鼠 #編號」「拓荒者 #編號」是 App 給沒設暱稱的人的名字（beta 測試者／正式版新裝置，後端 #750），
+    // 用它開頭會跟排行榜上的人混在一起
+    for (const prefix of ['白老鼠', '拓荒者']) {
+        if (trimmed.startsWith(prefix)) return `名稱不能用「${prefix}」開頭`;
+    }
     return '';
 }
 
@@ -223,7 +226,9 @@ export const AdminDeviceParser = AdminDeviceRawSchema
 export const PerkSchema = z.object({
     id: z.number().int(),
     title: z.string(),
-    source: z.enum(['beta-rank', 'beta-iron', 'promo', 'referral', 'admin']),
+    // frontier 是拓荒季的賞金（api.md 29.5）、coins 是用金幣買的方案（30.4）；第 14 節的列舉還沒寫上它們，後端 models/perk.go 已經會發。
+    // 少一個，買過的那台裝置頁就整頁格式不符
+    source: z.enum(['beta-rank', 'beta-iron', 'promo', 'referral', 'admin', 'frontier', 'coins']),
     planTier: PlanTierSchema,
     months: z.number().int(),
     days: z.number().int(),
@@ -551,6 +556,39 @@ export type DayModel = UsageReport['dailyModels'][number];
 
 // #endregion
 
+// #region [P] 拓荒季的賞金（api.md 29.5）：回報物件與發賞金的回應共用
+
+export const FrontierBountySchema = z.object({
+    id: z.number().int(),
+    feedbackId: z.number().int(),
+    /** 沒綁 App 的回報者是 0（只署名、沒有權益） */
+    deviceId: z.number().int(),
+    territoryId: z.number().int().nullable(),
+    /** 只署名沒發天數的是 null */
+    perkId: z.number().int().nullable(),
+    days: z.number().int(),
+    createdBy: z.string(),
+    createdAt: z.string()
+});
+export type FrontierBounty = z.infer<typeof FrontierBountySchema>;
+
+const FrontierBountyRawSchema = z
+    .object({
+        id: z.number(),
+        feedback_id: z.number(),
+        device_id: z.number(),
+        territory_id: z.number().nullish(),
+        perk_id: z.number().nullish(),
+        days: z.number(),
+        created_by: z.string(),
+        created_at: z.string()
+    })
+    .transform(data => ({ ...data, territory_id: data.territory_id ?? null, perk_id: data.perk_id ?? null }))
+    .transform(snakeToCamel)
+    .pipe(FrontierBountySchema);
+
+// #endregion
+
 // #region [P] 審回報（api.md 第 8 節「審回報」）
 
 /** 回報從哪來：app 是 App 送的；line／email 是後台替使用者建的（#0068） */
@@ -583,6 +621,10 @@ export const FeedbackReportSchema = z.object({
     issueId: z.number().int().nullable(),
     /** 最新一則送達的訊息是回報者寫的，開發者還沒回（Flowsker #600）。寄信中、寄失敗的不算回過 */
     awaitingReply: z.boolean(),
+    /** missed_notification＝「回報漏抓的通知」，一般回報是 null（api.md 29.6）。後端只存認得的主題，這裡照收字串 */
+    topic: z.string().nullable(),
+    /** 發過的拓荒季賞金，沒發過是 null（api.md 29.5）。一則回報只能發一次 */
+    bounty: FrontierBountySchema.nullable(),
     /** 只有單則才有，可能 32 KB */
     log: z.string().optional()
 });
@@ -613,7 +655,10 @@ const FeedbackReportParser = z
         content_purged_at: z.string().nullish(),
         created_at: z.string(),
         // 2026-11-08 起才有（Flowsker #600）；舊後端沒有訊息，當成沒有等著回的
-        awaiting_reply: z.boolean().nullish()
+        awaiting_reply: z.boolean().nullish(),
+        // 2026-11-17 起才有（Flowsker #705）
+        topic: z.string().nullish(),
+        bounty: FrontierBountyRawSchema.nullish()
     })
     .transform(({ log, ...data }) => ({
         ...data,
@@ -627,7 +672,9 @@ const FeedbackReportParser = z
         reviewed_by: data.reviewed_by ?? null,
         reviewed_at: data.reviewed_at ?? null,
         content_purged_at: data.content_purged_at ?? null,
-        awaiting_reply: data.awaiting_reply ?? false
+        awaiting_reply: data.awaiting_reply ?? false,
+        topic: data.topic || null,
+        bounty: data.bounty ?? null
     }))
     .transform(snakeToCamel)
     .pipe(FeedbackReportSchema);
@@ -1715,5 +1762,371 @@ export const PlayReportsParser = z
     })
     .transform(data => ({ bucket: data.bucket, objects: data.objects, cachedAt: data.cached_at ?? null }));
 export type PlayReports = z.output<typeof PlayReportsParser>;
+
+// #endregion
+
+// #region [P] 拓荒季（api.md 第 29 節，Flowsker #705、#706）
+
+/** 季的起訖（29.1）。OFFICIAL_LAUNCH_DATE 與 FRONTIER_SEASON_START 都沒設時整個是 null */
+export const FrontierSeasonStateSchema = z.enum(['upcoming', 'active', 'ended']);
+export type FrontierSeasonState = z.infer<typeof FrontierSeasonStateSchema>;
+
+export const FrontierSeasonSchema = z.object({
+    /** 第一天、最後一天（含），台灣時間的日期，顯示用 */
+    startsOn: z.string(),
+    endsOn: z.string(),
+    /** 第一天 00:00、最後一天的隔天 00:00（不含），比對用 */
+    startsAt: z.string(),
+    endsAt: z.string(),
+    days: z.number().int(),
+    /** 伺服器回應當下算的 */
+    state: FrontierSeasonStateSchema
+});
+export type FrontierSeason = z.infer<typeof FrontierSeasonSchema>;
+
+const FrontierSeasonParser = z
+    .object({ starts_on: z.string(), ends_on: z.string(), starts_at: z.string(), ends_at: z.string(), days: z.number(), state: FrontierSeasonStateSchema })
+    .transform(snakeToCamel)
+    .pipe(FrontierSeasonSchema);
+
+export const TerritoryKindSchema = z.enum(['bank', 'payment', 'telecom']);
+export type TerritoryKind = z.infer<typeof TerritoryKindSchema>;
+export const TerritoryStatusSchema = z.enum(['tamed', 'wanted']);
+export type TerritoryStatus = z.infer<typeof TerritoryStatusSchema>;
+
+/** 後台看到的一塊領地（29.4）：比 App 的多了署名從哪來、排序與時間 */
+export const AdminTerritorySchema = z.object({
+    id: z.number().int(),
+    name: z.string(),
+    kind: TerritoryKindSchema,
+    status: TerritoryStatusSchema,
+    /** 哪一版 App 馴服的；beta 期間就驗過的是 null */
+    tamedIn: z.string().nullable(),
+    /** 給使用者看的備註，沒有是空字串 */
+    note: z.string(),
+    /** 開拓者署名，沒有是 null */
+    pioneer: z.string().nullable(),
+    /** 署名是哪台；手打的或沒綁 App 的是 null */
+    pioneerDeviceId: z.number().int().nullable(),
+    /** 從哪則回報來的；手動設的是 null */
+    pioneerFeedbackId: z.number().int().nullable(),
+    pioneerSetAt: z.string().nullable(),
+    sortOrder: z.number().int(),
+    createdAt: z.string(),
+    updatedAt: z.string()
+});
+export type AdminTerritory = z.infer<typeof AdminTerritorySchema>;
+
+const AdminTerritoryParser = z
+    .object({
+        id: z.number(),
+        name: z.string(),
+        kind: TerritoryKindSchema,
+        status: TerritoryStatusSchema,
+        tamed_in: z.string().nullish(),
+        note: z.string().nullish(),
+        pioneer: z.string().nullish(),
+        pioneer_device_id: z.number().nullish(),
+        pioneer_feedback_id: z.number().nullish(),
+        pioneer_set_at: z.string().nullish(),
+        sort_order: z.number(),
+        created_at: z.string(),
+        updated_at: z.string()
+    })
+    .transform(data => ({
+        ...data,
+        tamed_in: data.tamed_in || null,
+        note: data.note ?? '',
+        pioneer: data.pioneer || null,
+        pioneer_device_id: data.pioneer_device_id ?? null,
+        pioneer_feedback_id: data.pioneer_feedback_id ?? null,
+        pioneer_set_at: data.pioneer_set_at ?? null
+    }))
+    .transform(snakeToCamel)
+    .pipe(AdminTerritorySchema);
+
+// #region [P] 列出領地 GET /v1/admin/frontier/territories
+
+/** 順序是後端排好的（sort_order、id），照著顯示 */
+export const GetFrontierTerritoriesParser = z
+    .object({
+        season: FrontierSeasonParser.nullish(),
+        progress: z.object({ tamed: z.number(), total: z.number() }),
+        territories: nullableList(AdminTerritoryParser)
+    })
+    .transform(data => ({ season: data.season ?? null, progress: data.progress, territories: data.territories }));
+export type FrontierTerritories = z.output<typeof GetFrontierTerritoriesParser>;
+
+// #endregion
+
+// #region [P] 新增 POST、修改 PATCH /v1/admin/frontier/territories(/:id)
+
+export const SaveTerritoryParser = z.object({ territory: AdminTerritoryParser }).transform(data => data.territory);
+
+/** 欄位規則在 frontier.ts（給人看的錯誤訊息），這裡只管形狀；後端不認得的欄位回 400，所以不多送 */
+export const CreateTerritoryPayload = z
+    .object({
+        name: z.string(),
+        kind: TerritoryKindSchema,
+        status: TerritoryStatusSchema.optional(),
+        tamedIn: z.string().nullable().optional(),
+        note: z.string().optional(),
+        sortOrder: z.number().int().optional()
+    })
+    .transform(camelToSnake);
+export type CreateTerritoryInput = z.input<typeof CreateTerritoryPayload>;
+
+/** 都選填、至少一個。開拓者：pioneerDeviceId（照那台現在的名字）與 pioneerName（手打）擇一，給 null 是清掉 */
+export const UpdateTerritoryPayload = z
+    .object({
+        name: z.string(),
+        kind: TerritoryKindSchema,
+        status: TerritoryStatusSchema,
+        tamedIn: z.string().nullable(),
+        note: z.string(),
+        sortOrder: z.number().int(),
+        pioneerDeviceId: z.number().int().positive().nullable(),
+        pioneerName: z.string().nullable()
+    })
+    .partial()
+    .refine(data => Object.keys(data).length > 0, '沒有要改的欄位')
+    .transform(camelToSnake);
+export type UpdateTerritoryInput = z.input<typeof UpdateTerritoryPayload>;
+
+// #endregion
+
+// #region [P] 採計時發賞金 POST /v1/admin/feedback/:id/bounty（29.5）
+
+/** 2026-11-20 起採計的獎勵是金幣（30.1，後端自動算），days 只留給特例：0 天就不送，body 只有 territory_id */
+export const BountyPayload = z
+    .object({
+        days: z.number().int().min(1).optional(),
+        territoryId: z.number().int().positive().optional(),
+        title: z.string().optional()
+    })
+    .transform(camelToSnake);
+export type BountyInput = z.input<typeof BountyPayload>;
+
+/** 回應裡的權益是後端的資料列本身（models.Perk），不是第 14 節的 perks.View：沒有 status 與 ends_on */
+export const BountyPerkSchema = z.object({
+    id: z.number().int(),
+    deviceId: z.number().int(),
+    source: z.string(),
+    sourceRef: z.string(),
+    title: z.string(),
+    planTier: z.string(),
+    months: z.number().int(),
+    days: z.number().int(),
+    startsOn: z.string().nullable(),
+    revokedAt: z.string().nullable(),
+    createdAt: z.string()
+});
+export type BountyPerk = z.infer<typeof BountyPerkSchema>;
+
+const BountyPerkParser = z
+    .object({
+        id: z.number(),
+        device_id: z.number(),
+        source: z.string(),
+        source_ref: z.string(),
+        title: z.string(),
+        plan_tier: z.string(),
+        months: z.number(),
+        days: z.number(),
+        starts_on: z.string().nullish(),
+        revoked_at: z.string().nullish(),
+        created_at: z.string()
+    })
+    .transform(data => ({ ...data, starts_on: data.starts_on ?? null, revoked_at: data.revoked_at ?? null }))
+    .transform(snakeToCamel)
+    .pipe(BountyPerkSchema);
+
+/** perk 在 days 0 時是 null；territory 沒給 territory_id 時是 null；pioneerSet false＝那塊已經有人了 */
+export const BountyParser = z
+    .object({
+        bounty: FrontierBountyRawSchema,
+        perk: BountyPerkParser.nullish(),
+        territory: AdminTerritoryParser.nullish(),
+        pioneer_set: z.boolean()
+    })
+    .transform(data => ({ bounty: data.bounty, perk: data.perk ?? null, territory: data.territory ?? null, pioneerSet: data.pioneer_set }));
+export type BountyResult = z.output<typeof BountyParser>;
+
+// #endregion
+
+// #endregion
+
+// #region [P] 金幣與商店（api.md 第 30 節，Flowsker #791）
+
+export const CoinItemKindSchema = z.enum(['plan', 'badge', 'title_prefix', 'title_suffix']);
+export type CoinItemKind = z.infer<typeof CoinItemKindSchema>;
+/** 方案商品的等級（30.7）。free 不能賣 */
+export const CoinPlanTierSchema = z.enum(['lite', 'pro', 'max']);
+export type CoinPlanTier = z.infer<typeof CoinPlanTierSchema>;
+
+/** 後台看到的一樣商品（30.7）：比 App 的多了上下架、排序與時間 */
+export const AdminCoinItemSchema = z.object({
+    id: z.number().int(),
+    /** App 認得的代號，建了就不能改 */
+    code: z.string(),
+    kind: CoinItemKindSchema,
+    name: z.string(),
+    price: z.number().int(),
+    /** 只有 plan 有，其他是 null */
+    planTier: CoinPlanTierSchema.nullable(),
+    /** 只有 plan 有，其他是 0 */
+    days: z.number().int(),
+    active: z.boolean(),
+    sortOrder: z.number().int(),
+    createdAt: z.string(),
+    updatedAt: z.string()
+});
+export type AdminCoinItem = z.infer<typeof AdminCoinItemSchema>;
+
+const AdminCoinItemParser = z
+    .object({
+        id: z.number(),
+        code: z.string(),
+        kind: CoinItemKindSchema,
+        name: z.string(),
+        price: z.number(),
+        plan_tier: CoinPlanTierSchema.nullish(),
+        days: z.number(),
+        active: z.boolean(),
+        sort_order: z.number(),
+        created_at: z.string(),
+        updated_at: z.string()
+    })
+    .transform(data => ({ ...data, plan_tier: data.plan_tier ?? null }))
+    .transform(snakeToCamel)
+    .pipe(AdminCoinItemSchema);
+
+// #region [P] 商品 GET、POST、PATCH /v1/admin/coins/items(/:id)
+
+/** 全部（含下架的），後端照 sort_order、id 排好 */
+export const GetCoinItemsParser = z.object({ items: nullableList(AdminCoinItemParser) }).transform(data => data.items);
+export const SaveCoinItemParser = z.object({ item: AdminCoinItemParser }).transform(data => data.item);
+
+/** 欄位規則在 coins.ts（給人看的錯誤訊息），這裡只管形狀；後端不認得的欄位回 400 */
+export const CreateCoinItemPayload = z
+    .object({
+        code: z.string(),
+        kind: CoinItemKindSchema,
+        name: z.string(),
+        price: z.number().int(),
+        planTier: CoinPlanTierSchema.optional(),
+        days: z.number().int().optional(),
+        active: z.boolean().optional(),
+        sortOrder: z.number().int().optional()
+    })
+    .transform(camelToSnake);
+export type CreateCoinItemInput = z.input<typeof CreateCoinItemPayload>;
+
+/** 至少一個；code 與 kind 改不了（給了回 400），所以這裡沒有 */
+export const UpdateCoinItemPayload = z
+    .object({
+        name: z.string(),
+        price: z.number().int(),
+        active: z.boolean(),
+        sortOrder: z.number().int(),
+        planTier: CoinPlanTierSchema,
+        days: z.number().int()
+    })
+    .partial()
+    .refine(data => Object.keys(data).length > 0, '沒有要改的欄位')
+    .transform(camelToSnake);
+export type UpdateCoinItemInput = z.input<typeof UpdateCoinItemPayload>;
+
+// #endregion
+
+// #region [P] 一台的帳 GET /v1/admin/devices/:id/coins
+
+/** balance＝earned＋adjusted－spent，可能是負的（30.1：賺到的是動態算的，改判、合併問題會變） */
+export const CoinSummarySchema = z.object({
+    balance: z.number().int(),
+    earned: z.number().int(),
+    adjusted: z.number().int(),
+    spent: z.number().int(),
+    seasonEarned: z.number().int()
+});
+export type CoinSummary = z.infer<typeof CoinSummarySchema>;
+
+const CoinSummaryParser = z
+    .object({ balance: z.number(), earned: z.number(), adjusted: z.number(), spent: z.number(), season_earned: z.number() })
+    .transform(snakeToCamel)
+    .pipe(CoinSummarySchema);
+
+export const CoinOwnedSchema = z.object({ code: z.string(), kind: CoinItemKindSchema, name: z.string(), acquiredAt: z.string() });
+export type CoinOwned = z.infer<typeof CoinOwnedSchema>;
+
+const CoinOwnedParser = z
+    .object({ code: z.string(), kind: CoinItemKindSchema, name: z.string(), acquired_at: z.string() })
+    .transform(snakeToCamel)
+    .pipe(CoinOwnedSchema);
+
+export const CoinLedgerKindSchema = z.enum(['purchase', 'adjust']);
+export type CoinLedgerKind = z.infer<typeof CoinLedgerKindSchema>;
+
+/** 帳本一筆：只記花掉的與手動調整的，賺到的不在帳本裡（30.1） */
+export const AdminCoinLedgerEntrySchema = z.object({
+    id: z.number().int(),
+    kind: CoinLedgerKindSchema,
+    /** 購買是負的價格 */
+    amount: z.number().int(),
+    countsForRank: z.boolean(),
+    /** 商品當時的名稱，或調整的原因（App 看得到） */
+    note: z.string(),
+    itemCode: z.string().nullable(),
+    requestId: z.string().nullable(),
+    perkId: z.number().int().nullable(),
+    /** 調整的管理員；購買是空字串 */
+    createdBy: z.string(),
+    createdAt: z.string()
+});
+export type AdminCoinLedgerEntry = z.infer<typeof AdminCoinLedgerEntrySchema>;
+
+const AdminCoinLedgerEntryParser = z
+    .object({
+        id: z.number(),
+        kind: CoinLedgerKindSchema,
+        amount: z.number(),
+        counts_for_rank: z.boolean(),
+        note: z.string(),
+        item_code: z.string().nullish(),
+        request_id: z.string().nullish(),
+        perk_id: z.number().nullish(),
+        created_by: z.string().nullish(),
+        created_at: z.string()
+    })
+    .transform(data => ({
+        ...data,
+        item_code: data.item_code ?? null,
+        request_id: data.request_id ?? null,
+        perk_id: data.perk_id ?? null,
+        created_by: data.created_by ?? ''
+    }))
+    .transform(snakeToCamel)
+    .pipe(AdminCoinLedgerEntrySchema);
+
+/** 形狀同 30.2，但 ledger 是全部（新的在前），沒有 season */
+export const GetDeviceCoinsParser = z.object({
+    coins: CoinSummaryParser,
+    owned: nullableList(CoinOwnedParser),
+    ledger: nullableList(AdminCoinLedgerEntryParser)
+});
+export type DeviceCoins = z.output<typeof GetDeviceCoinsParser>;
+
+// #endregion
+
+// #region [P] 手動調整 POST /v1/admin/devices/:id/coins/adjustments
+
+export const AdjustCoinsPayload = z
+    .object({ amount: z.number().int(), reason: z.string(), countsForRank: z.boolean() })
+    .transform(camelToSnake);
+export type AdjustCoinsInput = z.input<typeof AdjustCoinsPayload>;
+
+export const AdjustCoinsParser = z.object({ entry: AdminCoinLedgerEntryParser }).transform(data => data.entry);
+
+// #endregion
 
 // #endregion

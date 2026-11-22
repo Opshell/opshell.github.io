@@ -95,7 +95,9 @@ export const PERK_SOURCE_LABELS: Record<string, string> = {
     'beta-iron': 'Beta 鐵人',
     'promo': '優惠碼',
     'referral': '邀請好友',
-    'admin': '後台手動'
+    'admin': '後台手動',
+    'frontier': '拓荒季賞金',
+    'coins': '金幣購買'
 };
 
 export const PLAN_SOURCE_LABELS: Record<string, string> = {

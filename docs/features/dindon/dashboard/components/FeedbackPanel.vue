@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { FeedbackBoundFilter, FeedbackFilter, FeedbackKind, FeedbackProgressFilter, FeedbackSourceFilter } from '../api';
+    import type { FeedbackBoundFilter, FeedbackFilter, FeedbackKind, FeedbackProgressFilter, FeedbackSourceFilter, FeedbackTopicFilter } from '../api';
     import type { BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
     import type { FeedbackIssue, FeedbackProgress, FeedbackReport, FeedbackReporter, FeedbackStats, FeedbackStatus } from '../schemas/admin.schema';
@@ -9,6 +9,7 @@
     import ColumnChart from '../charts/ColumnChart.vue';
     import { awaitingFirst, pendingReplied, takeReplied } from '../feedbackMessages';
     import { formatDateTime, formatInt, formatRelative, KIND_LABELS, PROGRESS_LABELS, PROGRESSES } from '../format';
+    import { isMissedNotification } from '../frontier';
     import { takePanelPreset } from '../navigation';
     import { FIXED_IN_PATTERN, reporterNameProblem } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
@@ -19,6 +20,7 @@
     import FeedbackMessages from './FeedbackMessages.vue';
     import FeedbackPurge from './FeedbackPurge.vue';
     import FeedbackTriage from './FeedbackTriage.vue';
+    import FrontierBounty from './FrontierBounty.vue';
     import LineImport from './LineImport.vue';
     import MergePicker from './MergePicker.vue';
 
@@ -47,6 +49,8 @@
     const progress = ref<FeedbackProgressFilter>(takePanelPreset('feedbackProgress') ?? 'all');
     // 沒綁定的（LINE 上沒裝 App 的人）不算分，採計了列進 App 的「特別感謝」
     const bound = ref<FeedbackBoundFilter>('all');
+    // 拓荒季（api.md 29.6）：App「回報漏抓的通知」送來的，採計時發賞金、把那家記成領地
+    const topic = ref<FeedbackTopicFilter>('all');
     /** 只看某一位沒綁定的人的回報；詳情裡按「只看他的」設的，工具列上可以拿掉 */
     const reporterFilter = ref('');
     const reporters = ref<FeedbackReporter[]>([]);
@@ -283,6 +287,7 @@
                     progress: progress.value,
                     bound: bound.value,
                     reporterName: reporterFilter.value,
+                    topic: topic.value,
                     awaitingReply: awaitingOnly.value,
                     page: nextPage,
                     perPage: PER_PAGE
@@ -419,6 +424,8 @@
         }
     }
 
+    /** 發完賞金：後端可能順手採計了這則，重抓這一則、統計與問題清單 */
+    const refreshDetail = () => mutate(token => adminApi.getFeedback(token, selectedId.value!), '已發拓荒季賞金');
     const review = (next: FeedbackStatus) =>
         mutate(token => adminApi.reviewFeedback(token, selectedId.value!, { status: next }), `已改成「${STATUS_LABELS[next]}」`);
     /** 正在看的這一則掛在哪個問題上（模板裡的箭頭函式拿不到 detail 非 null 的收窄，所以算在這） */
@@ -634,6 +641,13 @@
                     <option value="false">沒有綁定</option>
                 </select>
             </label>
+            <label v-if="!triage">
+                主題
+                <select v-model="topic" @change="load(1)">
+                    <option value="all">全部</option>
+                    <option value="missed_notification">漏抓的通知</option>
+                </select>
+            </label>
             <span v-if="!triage && reporterFilter" class="dd-feedback__chip">
                 只看「{{ reporterFilter }}」
                 <button type="button" aria-label="不只看這位" @click="filterReporter('')">✕</button>
@@ -786,6 +800,7 @@
                                     <td>
                                         #{{ report.id }}
                                         <span v-if="report.awaitingReply" class="dd-feedback__awaiting" title="回報者回了，你還沒回">等你回</span>
+                                        <span v-if="report.bounty" class="dd-feedback__bounty" title="發過拓荒季賞金">賞金</span>
                                     </td>
                                     <td>
                                         {{ whoLabel(report) }}
@@ -804,7 +819,10 @@
                                         <span class="dd-feedback__progress" :class="`is-${report.progress.replace('_', '-')}`">{{ PROGRESS_LABELS[report.progress] }}</span>
                                         <span v-if="report.fixedIn" class="dd-overview__muted"> {{ report.fixedIn }}</span>
                                     </td>
-                                    <td class="summary">{{ report.contentPurgedAt ? '（內容已清除）' : report.description }}</td>
+                                    <td class="summary">
+                                        <span v-if="isMissedNotification(report)" class="dd-feedback__topic">漏抓的通知</span>
+                                        {{ report.contentPurgedAt ? '（內容已清除）' : report.description }}
+                                    </td>
                                     <td>{{ formatRelative(report.createdAt) }}</td>
                                 </tr>
                             </template>
@@ -823,6 +841,7 @@
                                 <td>
                                     #{{ report.id }}
                                     <span v-if="report.awaitingReply" class="dd-feedback__awaiting" title="回報者回了，你還沒回">等你回</span>
+                                    <span v-if="report.bounty" class="dd-feedback__bounty" title="發過拓荒季賞金">賞金</span>
                                 </td>
                                 <td>
                                     {{ whoLabel(report) }}
@@ -841,7 +860,10 @@
                                     <span class="dd-feedback__progress" :class="`is-${report.progress.replace('_', '-')}`">{{ PROGRESS_LABELS[report.progress] }}</span>
                                     <span v-if="report.fixedIn" class="dd-overview__muted"> {{ report.fixedIn }}</span>
                                 </td>
-                                <td class="summary">{{ report.contentPurgedAt ? '（內容已清除）' : report.description }}</td>
+                                <td class="summary">
+                                    <span v-if="isMissedNotification(report)" class="dd-feedback__topic">漏抓的通知</span>
+                                    {{ report.contentPurgedAt ? '（內容已清除）' : report.description }}
+                                </td>
                                 <td>{{ formatRelative(report.createdAt) }}</td>
                             </tr>
                             <tr v-if="!loading && reports.length === 0">
@@ -870,7 +892,7 @@
                     <dl class="dd-detail__info">
                         <div v-if="detail.reporterName !== null"><dt>回報者</dt><dd>{{ detail.reporterName }}（沒有綁定裝置）</dd></div>
                         <div v-else><dt>裝置</dt><dd>{{ detail.deviceName || '未命名' }}（#{{ detail.deviceId }}）</dd></div>
-                        <div><dt>類型</dt><dd>{{ KIND_LABELS[detail.kind] ?? detail.kind }}</dd></div>
+                        <div><dt>類型</dt><dd>{{ KIND_LABELS[detail.kind] ?? detail.kind }}{{ isMissedNotification(detail) ? '（漏抓的通知）' : '' }}</dd></div>
                         <div><dt>App 版本</dt><dd>{{ detail.appVersion || '—' }}</dd></div>
                         <div><dt>手機</dt><dd>{{ detail.deviceModel || '—' }}（Android {{ detail.androidVersion || '?' }}）</dd></div>
                         <div><dt>送出</dt><dd>{{ formatDateTime(detail.createdAt) }}</dd></div>
@@ -935,6 +957,9 @@
                             </button>
                         </div>
                     </section>
+
+                    <!-- 拓荒季（api.md 29.5）：採計時順手發。還沒審的會一起採計，發完重抓這一則 -->
+                    <FrontierBounty :key="`bounty-${detail.id}`" :report="detail" @changed="refreshDetail" />
 
                     <section class="dd-detail__card">
                         <h3>處理狀況</h3>
@@ -1154,6 +1179,25 @@
         &__check {
             @include setFlex(flex-start, center, 6px);
             cursor: pointer;
+        }
+
+        // 拓荒季（api.md 29.5、29.6）：發過賞金、漏抓的通知。純色塊，不加描邊
+        &__bounty, &__topic {
+            padding: 0 6px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        &__bounty {
+            background: var(--vp-c-green-soft);
+            margin-left: 4px;
+            color: var(--vp-c-green-1);
+        }
+        &__topic {
+            background: var(--vp-c-warning-soft);
+            margin-right: 4px;
+            color: var(--vp-c-warning-1);
         }
 
         // 等你回：對方在等，要比「沒綁定」「LINE」這種說明性的標籤顯眼，用品牌色塊
