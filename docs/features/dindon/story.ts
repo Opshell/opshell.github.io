@@ -93,7 +93,7 @@ export const STORY_SCENES: StoryScene[] = [
         id: 'end',
         // 結尾卡上已經寫了「你負責花錢，我負責記帳」：字幕改成邀請
         caption: '準備好當個懶人了嗎？',
-        sub: '加入封閉測試，封測期間所有功能免費用。',
+        sub: '到 Google Play 下載，不用註冊就能記。',
         ms: 0
     }
 ];

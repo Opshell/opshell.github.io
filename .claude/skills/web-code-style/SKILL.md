@@ -22,7 +22,7 @@ description: 這個網站的 Vue／TypeScript／SCSS 寫法——4 空格與 .vu
 - import 順序：`import type` 最前面，再套件（`vue`、`vitepress`），再自己的（`../api`、`../constants`）。同一組內按字母。
 - `console.log` 是 warning；正式程式不留。
 - 不用 `any` 逃避型別；真的要接第三方鬆散型別時（markdown-it、three）用 `as any` 並註明原因。
-- 常數全大寫：`MAX_MONTHS`、`PRODUCTION_API`、`CONTACT_EMAIL`。資料陣列 camelCase：`invoicePains`、`betaRewards`。
+- 常數全大寫：`MAX_MONTHS`、`PRODUCTION_API`、`CONTACT_EMAIL`。資料陣列 camelCase：`invoicePains`、`frontierBadges`。
 - hook 檔名 `useXxx.ts`，放 feature 的 `hooks/` 或 feature 根目錄；回傳函式或物件，不回傳元件。
 - 模組層級的 `ref` 當單例狀態是可以的（`useGoogleAuth.ts`：同一個分頁共用一份 token），要在檔頭註解說明。
 
