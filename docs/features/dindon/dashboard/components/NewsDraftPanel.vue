@@ -235,7 +235,7 @@
                     <span class="counter">按下發佈就開始</span>
                 </label>
 
-                <p v-if="versionHints(draft.id).long || versionHints(draft.id).nickname" class="wide dd-admin__warn">
+                <p v-if="versionHints(draft.id).long || versionHints(draft.id).nickname" class="wide dd-admin__hint">
                     {{ versionHints(draft.id).long ? `超過 ${LEGACY_MESSAGE_MAX} 字或有換行，0.9.16 以前的泡泡會整段攤開。` : '' }}
                     {{ versionHints(draft.id).nickname ? '內容有 {暱稱}，1.0.0 以前的 App 會照字面顯示。' : '' }}
                     發佈不能設版本，發佈後到下面公告列表按「編輯」，把「只給這個 build 以上」設成 {{ APP_1_0_0_BUILD }}（1.0.0）。

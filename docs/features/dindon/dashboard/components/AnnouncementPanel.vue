@@ -242,11 +242,11 @@
                     版本範圍 0 是不限。有限版本的公告，沒帶版本的舊 App（0.6.7 以前）看不到。
                     {{ editing ? '改內容不會讓已經講過的 App 再講一次；要重講請新增一則。' : '' }}
                 </p>
-                <p v-if="versionHints.long" class="wide dd-admin__warn">
+                <p v-if="versionHints.long" class="wide dd-admin__hint">
                     超過 {{ LEGACY_MESSAGE_MAX }} 字或有換行：0.9.16 以前的小夥伴泡泡沒有高度上限、不照換行，會整段攤開。
                     建議「只給這個 build 以上」設 {{ APP_1_0_0_BUILD }}（1.0.0），舊版另發一則 {{ LEGACY_MESSAGE_MAX }} 字內的短版。
                 </p>
-                <p v-if="versionHints.nickname" class="wide dd-admin__warn">
+                <p v-if="versionHints.nickname" class="wide dd-admin__hint">
                     內容有 {暱稱}，1.0.0 以前的 App 會照字面顯示「{暱稱}」。最低版本要設 {{ APP_1_0_0_BUILD }}。
                 </p>
                 <p v-if="formError" class="wide dd-admin__error">{{ formError }}</p>
