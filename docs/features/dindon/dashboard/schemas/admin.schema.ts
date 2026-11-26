@@ -1228,12 +1228,17 @@ export type SavePromoCodeInput = z.input<typeof SavePromoCodePayload>;
 export const FeatureCandidateStatusSchema = z.enum(['voting', 'in_progress', 'shipped', 'dropped']);
 export type FeatureCandidateStatus = z.infer<typeof FeatureCandidateStatusSchema>;
 
+/** 候選屬於哪個活動（api.md 第 19 節「分活動」，Flowsker #849）。代碼跟權益的 source 同一套，只有這兩個，沒有活動清單的端點 */
+export const FeatureEventSchema = z.enum(['beta', 'frontier']);
+export type FeatureEvent = z.infer<typeof FeatureEventSchema>;
+
 export const FeatureCandidateSchema = z.object({
     id: z.number().int(),
     title: z.string(),
     /** 可能是空字串，可能有換行 */
     description: z.string(),
     status: FeatureCandidateStatusSchema,
+    event: FeatureEventSchema,
     /** 不含被停用裝置的票。看不到是誰投的，後台也一樣 */
     votes: z.number().int(),
     createdBy: z.string(),
@@ -1248,6 +1253,7 @@ const FeatureCandidateParser = z
         title: z.string(),
         description: z.string().nullish(),
         status: FeatureCandidateStatusSchema,
+        event: FeatureEventSchema,
         votes: z.number(),
         created_by: z.string(),
         created_at: z.string(),
@@ -1257,7 +1263,7 @@ const FeatureCandidateParser = z
     .transform(snakeToCamel)
     .pipe(FeatureCandidateSchema);
 
-/** 順序後端排好了（投票中、票多的在前），照著顯示 */
+/** 順序後端排好了（投票中、票多的在前），照著顯示。沒帶 ?event= 是全部活動混著排，max_votes 是每個活動各自的上限 */
 export const GetFeatureCandidateListParser = z
     .object({ max_votes: z.number(), features: nullableList(FeatureCandidateParser) })
     .transform(data => ({ maxVotes: data.max_votes, features: data.features }));
@@ -1286,7 +1292,7 @@ const FeatureDescriptionInput = z
 
 /** 建立與修改共用，都是選填、只送有給的。標題不能換行；說明可以。控制字元由後端擋，它的錯誤訊息可以直接顯示 */
 export const SaveFeatureCandidatePayload = z
-    .object({ title: FeatureTitleInput, description: FeatureDescriptionInput, status: FeatureCandidateStatusSchema })
+    .object({ title: FeatureTitleInput, description: FeatureDescriptionInput, status: FeatureCandidateStatusSchema, event: FeatureEventSchema })
     .partial();
 
 export type SaveFeatureCandidateInput = z.input<typeof SaveFeatureCandidatePayload>;
