@@ -15,6 +15,7 @@
     import FeatureVotePanel from './FeatureVotePanel.vue';
     import FeedbackPanel from './FeedbackPanel.vue';
     import FrontierPanel from './FrontierPanel.vue';
+    import GlobalSettingsPanel from './GlobalSettingsPanel.vue';
     import OverviewPanel from './OverviewPanel.vue';
     import PromoPanel from './PromoPanel.vue';
     import UsageReport from './UsageReport.vue';
@@ -45,6 +46,7 @@
         announce: 'M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9 M10.3 21a1.94 1.94 0 0 0 3.4 0',
         api: 'M4 17l6-6-6-6 M12 19h8',
         frontier: 'M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z M4 22v-7',
+        settings: 'M4 21v-7 M4 10V3 M12 21v-9 M12 8V3 M20 21v-5 M20 12V3 M1 14h6 M9 8h6 M17 16h6',
         refresh: 'M21 12a9 9 0 1 1-2.64-6.36L21 8 M21 3v5h-5',
         collapse: 'M3 3h18v18H3z M9 3v18 M16 9l-3 3 3 3',
         expand: 'M3 3h18v18H3z M9 3v18 M13 9l3 3-3 3',
@@ -66,7 +68,9 @@
         { key: 'announce', label: '重要公告', hint: 'App 打開時小夥伴會講的公告：新增、排時間、下架' },
         { key: 'api', label: 'API', hint: '每一支 API 的說明，直接在這裡試打' },
         // 上架活動（api.md 第 29 節，#706）：放最後，前面十個的快捷鍵不變；終端機打 cd frontier 或 cd 拓荒季
-        { key: 'frontier', label: '拓荒季', hint: '領地的馴服狀態與開拓者、金幣商店；署名在回報頁採計時設' }
+        { key: 'frontier', label: '拓荒季', hint: '領地的馴服狀態與開拓者、金幣商店；署名在回報頁採計時設' },
+        // 全域設定（api.md 第 8 節「全域設定」，#885）：以前要改環境變數重新部署的上限與開關
+        { key: 'settings', label: '全域設定', hint: 'AI 每日上限、深度方案硬上限、提醒與驗證碼、邀請開關；改了不用重新部署' }
     ];
     const PANELS: Record<DashboardTab, Component> = {
         overview: OverviewPanel,
@@ -79,7 +83,8 @@
         app: AppPanel,
         announce: AnnouncementPanel,
         api: ApiConsole,
-        frontier: FrontierPanel
+        frontier: FrontierPanel,
+        settings: GlobalSettingsPanel
     };
     /** 側欄上寫的快捷鍵：1～9，第 10 個是 0（鍵盤上 9 的右邊） */
     const tabKey = (index: number) => (index === 9 ? '0' : index < 9 ? String(index + 1) : '');
