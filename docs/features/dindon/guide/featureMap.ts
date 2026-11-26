@@ -21,9 +21,6 @@ export interface Branch {
     side: 'left' | 'right';
 }
 
-/** 正式版的方案：beta 期間全部開放，只是先標出來 */
-export type PlanNote = 'lite' | 'beta-only';
-
 export interface Feature {
     /** 也是網址錨點 #f-xxx */
     id: string;
@@ -40,7 +37,12 @@ export interface Feature {
     demo?: string;
     /** 藏在手勢或捷徑裡、不說就不知道的操作，一句話寫那個動作 */
     hidden?: string;
-    plan?: PlanNote;
+    /**
+     * 方案的提示，顯示成功能說明上的標籤。2026-11-26 正式版上線（#896）：原本只有「輕量以上」「封測限定」兩種，
+     * 但免費版其實每個 AI 功能都有幾次，數字又各不相同，所以改成每個功能自己寫一句。
+     * 數字照工作區 docs/product/方案規劃-四階.md 第 1 節與後端 api.md「額度」一節，要跟 App 的方案頁一起改。
+     */
+    plan?: string;
     /** 哪一版加進來的。0.7.3 以前就有的不寫；比 REVIEWED_APP_VERSION 新的會標「即將推出」 */
     since?: string;
 }
@@ -114,7 +116,8 @@ export const features: Feature[] = [
             '讀到金額就直接記好回首頁，按提示上的「查看」再改；讀不到金額才停下來讓你補。',
             '同一張發票掃兩次會被擋下。'
         ],
-        related: ['items', 'duplicate', 'recordFan', 'statement']
+        related: ['items', 'duplicate', 'recordFan', 'statement'],
+        plan: '免費每月 8 張，輕量 50 張'
     },
     {
         id: 'voice',
@@ -127,7 +130,8 @@ export const features: Feature[] = [
             '「從玉山轉一萬到郵局，手續費十五」直接記成轉帳，不用 AI 額度。',
             '「晚餐我先付，小明 300、小華 250」會記成幫兩個人的代墊。'
         ],
-        related: ['transfer', 'lending', 'recordFan', 'voiceMulti']
+        related: ['transfer', 'lending', 'recordFan', 'voiceMulti'],
+        plan: '免費每月 20 次，輕量 150 次'
     },
     {
         id: 'voiceMulti',
@@ -153,11 +157,12 @@ export const features: Feature[] = [
         tips: [
             '標「不太確定」的列預設不勾，看過再放行。',
             '帳單只印月／日時年份是推的，點日期可以改。',
-            '一次最多 60 列；本期應繳、循環利息、紅利不會被記進去。'
+            '一次最多 60 列；本期應繳、循環利息、紅利不會被記進去。',
+            '每月的張數跟持股截圖合計。'
         ],
         related: ['duplicate', 'photo', 'memory'],
         demo: '14-statement',
-        plan: 'lite'
+        plan: '免費每月 2 張，輕量 15 張'
     },
     {
         id: 'quick',
@@ -274,7 +279,7 @@ export const features: Feature[] = [
         tips: [
             '輸入很寬容：# 有沒有打、前後空白、大小寫重複都會自動整理。',
             '第一個標籤是「主要標籤」，統計下鑽時用它分組。',
-            '排除詞上限：免費 5 個、輕量 15 個、進階與深度 35 個。'
+            '排除詞上限：免費 5 個、輕量 15 個、進階與深度 50 個。'
         ],
         related: ['drill', 'search', 'categories'],
         demo: '27-tags'
@@ -330,10 +335,10 @@ export const features: Feature[] = [
     {
         id: 'journal',
         branch: 'tidy',
-        // 0.7.19 選單上叫「AI 除錯日誌」，除了通知也收語音、拍照；目前 beta 版才看得到
+        // 0.7.19 選單上叫「AI 除錯日誌」，除了通知也收語音、拍照；1.0 正式版也看得到（App #730）
         name: '沒記到自己查（除錯日誌）',
         purpose: '「為什麼沒記到」不用猜：每則通知、每次語音和拍照的原文和判定過程都看得到。',
-        how: '選單 →「問題回報」下面的「AI 除錯日誌」（beta 版）；「通知記帳與權限」頁也列出每個 App 最近送了幾則。',
+        how: '選單 →「問題回報」下面的「AI 除錯日誌」；「通知記帳與權限」頁也列出每個 App 最近送了幾則。',
         tips: [
             '最常見的原因是手機的省電把 App 停了，「通知記帳與權限」頁會照你的手機品牌把該關的開關排在最前面。',
             '直接安裝 APK 的話，Android 13 起要先「允許受限制的設定」才開得了通知存取權。'
@@ -432,7 +437,7 @@ export const features: Feature[] = [
         related: ['tags', 'range'],
         demo: '21-search',
         hidden: '搜尋框打 `#早餐`、`>500`，空白隔開就是都要符合。',
-        plan: 'lite'
+        plan: '用講的找：免費每月 2 次，輕量 60 次'
     },
     {
         id: 'monthReview',
@@ -758,12 +763,13 @@ export const features: Feature[] = [
         id: 'event',
         branch: 'habit',
         name: '養叮咚：活動與投票',
+        // 2026-11-20 封測活動截止，正式版的活動頁只剩成果（App strings.xml event_title_ended）
         purpose: '封測期間回報問題、給建議、每天打開都算貢獻；下一個做什麼也由大家投票。',
         how: '首頁左上角寫著 EVENT 的小火。投票要先綁定 Google 帳號。',
         tips: ['回報要被採計才會加進件數；連續打開 14 天是「全勤小鐵人」。'],
         related: ['streak', 'titles', 'report'],
         demo: '34-event',
-        plan: 'beta-only'
+        plan: '封測排行已結束，投票照常'
     },
     // #endregion
 
@@ -951,11 +957,6 @@ export function relatedOf(id: string): Feature[] {
 
 /** 這個功能在養成路線的哪幾段出現 */
 export const stagesOf = (id: string) => stages.filter(stage => stage.features.includes(id));
-
-export const PLAN_LABEL: Record<PlanNote, string> = {
-    'lite': '正式版：輕量方案以上',
-    'beta-only': '封測期間限定'
-};
 
 /**
  * 比兩個版本號，a 比較新回正數。一段一段當數字比：字串比的話 '0.7.19' 會小於 '0.7.3'。
