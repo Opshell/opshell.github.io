@@ -1,6 +1,6 @@
-import type { AdminTerritory, FrontierSeason } from './schemas/admin.schema';
+import type { AdminTerritory, FrontierBounty, FrontierSeason } from './schemas/admin.schema';
 import { describe, expect, it } from 'vitest';
-import { bountyBlocked, bountyBody, bountyError, defaultBountyTitle, emptyDraft, isMissedNotification, moveTerritory, openTerritories, pioneerOrigin, seasonLine, tamedInProblem, territoryFormError, territoryNameProblem, territoryNoteProblem, territoryPatch } from './frontier';
+import { bountyBlocked, bountyBody, bountyError, cancelBountyBody, daysPaid, defaultBountyTitle, emptyDraft, isMissedNotification, moveTerritory, pioneerOrigin, reviewBody, seasonLine, tamedInProblem, targetError, targetOf, territoryFormError, territoryNameProblem, territoryNoteProblem, territoryOptionLabel, territoryPatch } from './frontier';
 
 const territory = (patch: Partial<AdminTerritory> = {}): AdminTerritory => ({
     id: 1,
@@ -16,6 +16,7 @@ const territory = (patch: Partial<AdminTerritory> = {}): AdminTerritory => ({
     sortOrder: 1,
     createdAt: '2026-11-17T00:00:00Z',
     updatedAt: '2026-11-17T00:00:00Z',
+    members: [],
     ...patch
 });
 
@@ -84,9 +85,9 @@ describe('排序', () => {
 });
 
 describe('開拓者', () => {
-    it('發賞金只列還沒有開拓者的', () => {
-        const list = [territory({ id: 1, pioneer: '阿明' }), territory({ id: 2 }), territory({ id: 3, status: 'wanted' })];
-        expect(openTerritories(list).map(t => t.id)).toEqual([2, 3]);
+    it('選項列全部領地，寫出現在的開拓者（署名照送出時間重算，#871 第 3 點）', () => {
+        expect(territoryOptionLabel(territory({ name: '街口支付', status: 'wanted' }))).toBe('街口支付（通緝中）');
+        expect(territoryOptionLabel(territory({ pioneer: '阿明' }))).toBe('中華郵政（已馴服，開拓者：阿明）');
     });
 
     it('署名從哪來：回報、裝置、手動', () => {
@@ -119,14 +120,70 @@ describe('季（api.md 29.1）', () => {
     });
 });
 
-describe('發賞金（api.md 29.5）', () => {
-    const draft = { days: '7', territoryId: '', title: '' };
+const bounty = (patch: Partial<FrontierBounty> = {}): FrontierBounty => ({
+    id: 1,
+    feedbackId: 123,
+    deviceId: 42,
+    territoryId: 35,
+    memberId: null,
+    perkId: null,
+    days: 0,
+    createdBy: 'admin@example.com',
+    createdAt: '2026-11-24T00:00:00Z',
+    ...patch
+});
 
-    it('發過、不採計的不能發', () => {
-        const report = { bounty: null, status: 'pending' as const, contentPurgedAt: null };
-        expect(bountyBlocked(report)).toBe('');
-        expect(bountyBlocked({ ...report, status: 'rejected' })).toContain('不採計');
-        expect(bountyBlocked({ ...report, bounty: { id: 1, feedbackId: 1, deviceId: 2, territoryId: null, perkId: 3, days: 7, createdBy: 'a', createdAt: '' } })).toContain('發過');
+describe('審核時採計成懸賞（api.md 第 8 節，#871）', () => {
+    const list = [
+        territory({ id: 35, name: '街口支付', members: [{ id: 5, code: 'payment', name: '付款', status: 'wanted', tamedIn: null }] }),
+        territory({ id: 36 })
+    ];
+
+    it('採計時帶領地，成員一律明給（沒選是 null）', () => {
+        expect(reviewBody('accepted_bug', { territoryId: '35', memberId: '5' })).toEqual({ status: 'accepted_bug', territoryId: 35, memberId: 5 });
+        expect(reviewBody('accepted_suggestion', { territoryId: '36', memberId: '' })).toEqual({ status: 'accepted_suggestion', territoryId: 36, memberId: null });
+    });
+
+    it('沒選領地只送狀態', () => {
+        expect(reviewBody('accepted_bug', { territoryId: '', memberId: '' })).toEqual({ status: 'accepted_bug' });
+    });
+
+    it('待審、不採計不帶領地（明給又帶領地後端回 409）', () => {
+        expect(reviewBody('pending', { territoryId: '35', memberId: '5' })).toEqual({ status: 'pending' });
+        expect(reviewBody('rejected', { territoryId: '35', memberId: '' })).toEqual({ status: 'rejected' });
+    });
+
+    it('只選成員不選領地：不送成員（只給 member_id 後端回 400），表單先擋', () => {
+        const body = reviewBody('accepted_bug', { territoryId: '', memberId: '5' });
+        expect(body).toEqual({ status: 'accepted_bug' });
+        expect('memberId' in body).toBe(false);
+        expect(targetError({ territoryId: '', memberId: '5' }, list)).toContain('先選領地');
+    });
+
+    it('成員要屬於選的領地', () => {
+        expect(targetError({ territoryId: '35', memberId: '5' }, list)).toBe('');
+        expect(targetError({ territoryId: '36', memberId: '5' }, list)).toContain('不屬於');
+        expect(targetError({ territoryId: '36', memberId: '' }, list)).toBe('');
+    });
+
+    it('取消懸賞只送 territory_id: null，不帶成員與狀態', () => {
+        expect(cancelBountyBody()).toEqual({ territoryId: null });
+    });
+
+    it('表單初值照現在的懸賞', () => {
+        expect(targetOf(null)).toEqual({ territoryId: '', memberId: '' });
+        expect(targetOf(bounty({ memberId: 5 }))).toEqual({ territoryId: '35', memberId: '5' });
+        expect(targetOf(bounty({ territoryId: null, days: 7 }))).toEqual({ territoryId: '', memberId: '' });
+    });
+});
+
+describe('賞金卡（api.md 29.5）', () => {
+    const draft = { days: '7', territoryId: '', memberId: '', title: '' };
+
+    it('判成不採計的不能按；已經有懸賞的可以重按', () => {
+        expect(bountyBlocked({ status: 'pending' })).toBe('');
+        expect(bountyBlocked({ status: 'accepted_bug' })).toBe('');
+        expect(bountyBlocked({ status: 'rejected' })).toContain('不採計');
     });
 
     it('天數 0～366；0 天要選領地', () => {
@@ -149,12 +206,33 @@ describe('發賞金（api.md 29.5）', () => {
         expect(bountyError({ ...draft, title: '字'.repeat(41) }, false)).toContain('40');
     });
 
-    it('送出的 body 不帶空的選填欄位', () => {
+    it('已經有懸賞：改領地、改成員、補發天數可以；什麼都沒變擋下', () => {
+        const current = bounty({ memberId: 5 });
+        const same = { days: '0', territoryId: '35', memberId: '5', title: '' };
+        expect(bountyError(same, false, current)).toContain('沒有要改');
+        expect(bountyError({ ...same, territoryId: '36', memberId: '' }, false, current)).toBe('');
+        expect(bountyError({ ...same, memberId: '' }, false, current)).toBe('');
+        expect(bountyError({ ...same, days: '7' }, false, current)).toBe('');
+    });
+
+    it('天數一則只發一次', () => {
+        const paid = bounty({ days: 7, perkId: 88 });
+        expect(daysPaid(paid)).toBe(true);
+        expect(daysPaid(bounty())).toBe(false);
+        expect(daysPaid(null)).toBe(false);
+        expect(bountyError({ days: '7', territoryId: '35', memberId: '', title: '' }, false, paid)).toContain('發過');
+        expect(bountyError({ days: '0', territoryId: '36', memberId: '', title: '' }, false, paid)).toBe('');
+    });
+
+    it('送出的 body 不帶空的選填欄位，成員只跟著領地送', () => {
         expect(bountyBody(draft)).toEqual({ days: 7 });
-        // 2026-11-20 起的預設：只署名，body 只有 territory_id（#791）
-        expect(bountyBody({ days: '0', territoryId: '35', title: '' })).toEqual({ territoryId: 35 });
-        expect(bountyBody({ days: '14', territoryId: '35', title: ' 全新格式 ' })).toEqual({ days: 14, territoryId: 35, title: '全新格式' });
-        expect(bountyBody({ days: '0', territoryId: '35', title: '只署名' })).toEqual({ territoryId: 35 });
+        // 2026-11-20 起的預設：只署名（#791）；成員明給 null，重按不會沿用畫面上看不到的舊成員
+        expect(bountyBody({ ...draft, days: '0', territoryId: '35' })).toEqual({ territoryId: 35, memberId: null });
+        expect(bountyBody({ ...draft, days: '0', territoryId: '35', memberId: '5' })).toEqual({ territoryId: 35, memberId: 5 });
+        expect(bountyBody({ days: '14', territoryId: '35', memberId: '', title: ' 全新格式 ' })).toEqual({ days: 14, territoryId: 35, memberId: null, title: '全新格式' });
+        expect(bountyBody({ ...draft, days: '0', territoryId: '35', title: '只署名' })).toEqual({ territoryId: 35, memberId: null });
+        // 只補天數、沒選領地：不送成員（只給 member_id 後端回 400）
+        expect(bountyBody({ ...draft, memberId: '5' })).toEqual({ days: 7 });
         expect(defaultBountyTitle('街口支付')).toBe('拓荒季賞金：街口支付');
         expect(defaultBountyTitle(null)).toBe('拓荒季賞金');
     });
