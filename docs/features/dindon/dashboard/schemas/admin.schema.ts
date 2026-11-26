@@ -1418,6 +1418,88 @@ export type PaymentsSummary = z.output<typeof PaymentsSummaryParser>;
 
 // #endregion
 
+// #region [P] 全域設定 GET／PATCH /v1/admin/global-settings（api.md 第 8 節「全域設定」，Flowsker #876、#885）
+// 項目與分組都照後端回的畫，前端不寫死有哪幾項：後端加一項，這裡不用改。
+
+/** 生效的值是哪一層來的：後台設的 → 環境變數 → 程式預設 */
+export const SettingSourceSchema = z.enum(['admin', 'env', 'default']);
+export type SettingSource = z.infer<typeof SettingSourceSchema>;
+
+/** int 是數字框（min～max，含兩端），bool 是開關 */
+const SettingScalarSchema = z.union([z.number(), z.boolean()]);
+
+const GlobalSettingItemRaw = z.object({
+    key: z.string(),
+    name: z.string(),
+    description: z.string().nullish(),
+    group: z.string(),
+    type: z.enum(['int', 'bool']),
+    unit: z.string().nullish(),
+    /** 照資料庫存的值算的；可能超出 min～max（環境變數那層不受範圍限制），不是錯誤 */
+    value: SettingScalarSchema,
+    source: SettingSourceSchema,
+    admin_value: SettingScalarSchema.nullable(),
+    /** 清掉後台的設定之後會回到的值 */
+    fallback: SettingScalarSchema,
+    fallback_source: SettingSourceSchema,
+    default: SettingScalarSchema,
+    min: z.number().nullable(),
+    max: z.number().nullable(),
+    env: z.string().nullish(),
+    /** 只有 ai_daily_limit_total 有；查不到時欄位不見 */
+    used_today: z.number().optional(),
+    /** 只有 ai_daily_limit_total 有。估算，以 Google Cloud 帳單為準 */
+    cost_estimate: z.object({
+        typical_usd_per_1000: z.number(),
+        worst_usd_per_1000: z.number(),
+        note: z.string()
+    }).optional()
+});
+
+const GlobalSettingReadonlyRaw = z.object({
+    key: z.string(),
+    name: z.string(),
+    env: z.string(),
+    /** 機密一律 null，只看 set；非機密的沒設時是程式的預設值或 null */
+    value: z.union([z.string(), z.number(), z.boolean()]).nullable(),
+    secret: z.boolean(),
+    /** 那個環境變數有沒有設（不是有沒有值） */
+    set: z.boolean(),
+    reason: z.string()
+});
+
+export const GlobalSettingsParser = z
+    .object({
+        groups: z.array(z.object({ key: z.string(), name: z.string() })).nullable(),
+        items: z.array(GlobalSettingItemRaw).nullable(),
+        readonly: z.array(GlobalSettingReadonlyRaw).nullable(),
+        updated_by: z.string().nullish(),
+        updated_at: z.string().nullish(),
+        cache_ttl_seconds: z.number()
+    })
+    .transform(data => snakeToCamel({
+        ...data,
+        groups: data.groups ?? [],
+        items: (data.items ?? []).map(item => ({ ...item, description: item.description ?? '', unit: item.unit ?? '', env: item.env ?? '' })),
+        readonly: data.readonly ?? [],
+        updated_by: data.updated_by ?? '',
+        updated_at: data.updated_at ?? null
+    }));
+export type GlobalSettings = z.output<typeof GlobalSettingsParser>;
+export type GlobalSettingItem = GlobalSettings['items'][number];
+export type GlobalSettingReadonly = GlobalSettings['readonly'][number];
+
+/**
+ * PATCH 的內容：key 就是後端的 snake_case 項目名，不用轉。沒送的不動、null 是清掉後台的設定。
+ * 一項不對後端整份 400（error 是中文），這裡只擋型別
+ */
+export const UpdateGlobalSettingsPayload = z
+    .record(z.string(), z.union([z.number().int(), z.boolean(), z.null()]))
+    .refine(body => Object.keys(body).length > 0, '沒有要改的項目');
+export type UpdateGlobalSettingsInput = z.input<typeof UpdateGlobalSettingsPayload>;
+
+// #endregion
+
 // #region [P] App 版本 GET /v1/admin/app-versions、GET／PUT /v1/admin/app-config（api.md 第 8 節，溝通板 #0076）
 
 export const AppConfigSchema = z.object({

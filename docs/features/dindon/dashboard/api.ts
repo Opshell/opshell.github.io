@@ -5,7 +5,7 @@
 
 import type { z } from 'zod';
 import type { PaidFilter } from './payments';
-import type { AdjustCoinsInput, AdminDevice, BatchReviewFeedbackInput, BountyInput, ChangeCheckinsInput, CreateCoinItemInput, CreateFeedbackInput, CreateFeedbackIssueInput, CreateTerritoryInput, PublishNewsDraftInput, PurgeEventInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, SendFeedbackEmailInput, SendFeedbackMessageInput, TriageFeedbackInput, UpdateCoinItemInput, UpdateDeviceInput, UpdateFeedbackIssueInput, UpdateTerritoryInput } from './schemas/admin.schema';
+import type { AdjustCoinsInput, AdminDevice, BatchReviewFeedbackInput, BountyInput, ChangeCheckinsInput, CreateCoinItemInput, CreateFeedbackInput, CreateFeedbackIssueInput, CreateTerritoryInput, PublishNewsDraftInput, PurgeEventInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, SendFeedbackEmailInput, SendFeedbackMessageInput, TriageFeedbackInput, UpdateCoinItemInput, UpdateDeviceInput, UpdateFeedbackIssueInput, UpdateGlobalSettingsInput, UpdateTerritoryInput } from './schemas/admin.schema';
 import { apiBase } from '@shared/utils/apiBase';
 import { parseResponse } from '@shared/utils/zod';
 import { GetApiCatalogParser } from './console/catalog.schema';
@@ -49,6 +49,7 @@ import {
     GetPromoCodeParser,
     GetUsageByDeviceParser,
     GetUsageReportParser,
+    GlobalSettingsParser,
     NewsScanParser,
     PaymentsSummaryParser,
     PlayReportsParser,
@@ -79,6 +80,7 @@ import {
     UpdateDevicePayload,
     UpdateFeedbackIssueParser,
     UpdateFeedbackIssuePayload,
+    UpdateGlobalSettingsPayload,
     UpdateTerritoryPayload
 } from './schemas/admin.schema';
 
@@ -397,6 +399,10 @@ export const adminApi = {
     /** 整個換掉。調高最低版本會讓舊版除了 /v1/me 全部 426：畫面上一定要先確認 */
     saveAppConfig: async (token: string, body: SaveAppConfigInput) =>
         call(AppConfigParser, token, 'PUT', '/v1/admin/app-config', SaveAppConfigPayload.parse(body)),
+    getGlobalSettings: async (token: string) => call(GlobalSettingsParser, token, 'GET', '/v1/admin/global-settings'),
+    /** 改一項或多項（api.md 第 8 節「全域設定」），回傳同 GET。null 清掉後台的設定；一項不對整份 400、一項都不改 */
+    updateGlobalSettings: async (token: string, body: UpdateGlobalSettingsInput) =>
+        call(GlobalSettingsParser, token, 'PATCH', '/v1/admin/global-settings', UpdateGlobalSettingsPayload.parse(body)),
     listAnnouncements: async (token: string) => call(GetAnnouncementListParser, token, 'GET', '/v1/admin/announcements'),
     createAnnouncement: async (token: string, body: SaveAnnouncementInput) =>
         call(SaveAnnouncementParser, token, 'POST', '/v1/admin/announcements', SaveAnnouncementPayload.parse(body)),
