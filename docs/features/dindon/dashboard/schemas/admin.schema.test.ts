@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BatchReviewFeedbackPayload, BountyParser, BountyPayload, CreateFeedbackPayload, CreateTerritoryPayload, GetDeviceDetailParser, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackEmailsParser, GetFeedbackListParser, GetFeedbackMessagesParser, GetFeedbackStatsParser, GetFrontierTerritoriesParser, GetUsageReportParser, PaymentsSummaryParser, SaveFeatureCandidatePayload, SendFeedbackEmailParser, SendFeedbackEmailPayload, SendFeedbackMessageParser, SendFeedbackMessagePayload, UpdateDevicePayload, UpdateFeedbackIssueParser, UpdateTerritoryPayload } from './admin.schema';
+import { BatchReviewFeedbackPayload, BountyParser, BountyPayload, CreateFeedbackPayload, CreateTerritoryPayload, GetDeviceDetailParser, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackEmailsParser, GetFeedbackListParser, GetFeedbackMessagesParser, GetFeedbackStatsParser, GetFrontierTerritoriesParser, GetUsageReportParser, PaymentsSummaryParser, ReviewFeedbackPayload, SaveFeatureCandidatePayload, SendFeedbackEmailParser, SendFeedbackEmailPayload, SendFeedbackMessageParser, SendFeedbackMessagePayload, UpdateDevicePayload, UpdateFeedbackIssueParser, UpdateTerritoryPayload } from './admin.schema';
 
 // 後端是 Go：nil 的 slice、map 會送 null，沒設的指標欄位可能整個不送。這裡測的都是這類邊界
 
@@ -365,6 +365,26 @@ describe('拓荒季（api.md 第 29 節，Flowsker #706）', () => {
         expect(UpdateTerritoryPayload.parse({ pioneerDeviceId: null })).toEqual({ pioneer_device_id: null });
         expect(UpdateTerritoryPayload.safeParse({}).success).toBe(false);
         expect(BountyPayload.parse({ days: 7, territoryId: 35 })).toEqual({ days: 7, territory_id: 35 });
+    });
+
+    it('成員（#839）：沒有是 []，轉駝峰；賞金記的成員沒有是 null', () => {
+        const result = GetFrontierTerritoriesParser.parse({
+            season: null,
+            progress: { tamed: 0, total: 1 },
+            territories: [{ ...rawTerritory, members: [{ id: 5, code: 'payment', name: '付款', status: 'wanted', tamed_in: null, sort_order: 3 }] }, rawTerritory]
+        });
+        expect(result.territories[0].members).toEqual([{ id: 5, code: 'payment', name: '付款', status: 'wanted', tamedIn: null }]);
+        expect(result.territories[1].members).toEqual([]);
+        expect(BountyParser.parse({ bounty: rawBounty, perk: null, territory: null, pioneer_set: false }).bounty.memberId).toBeNull();
+        expect(BountyParser.parse({ bounty: { ...rawBounty, member_id: 5 }, perk: null, territory: null, pioneer_set: true }).bounty.memberId).toBe(5);
+    });
+
+    it('採計成懸賞的 body（#871）：null 照送，0 擋下', () => {
+        expect(ReviewFeedbackPayload.parse({ status: 'accepted_bug', territoryId: 35, memberId: null }))
+            .toEqual({ status: 'accepted_bug', territory_id: 35, member_id: null });
+        expect(ReviewFeedbackPayload.parse({ territoryId: null })).toEqual({ territory_id: null });
+        expect(ReviewFeedbackPayload.safeParse({ territoryId: 0 }).success).toBe(false);
+        expect(BountyPayload.parse({ territoryId: 35, memberId: null })).toEqual({ territory_id: 35, member_id: null });
     });
 
     it('發賞金的回應：只署名時 perk 是 null', () => {

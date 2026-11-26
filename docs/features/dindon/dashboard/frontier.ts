@@ -1,4 +1,4 @@
-import type { AdminTerritory, FeedbackReport, FrontierSeason, TerritoryKind, TerritoryStatus, UpdateTerritoryInput } from './schemas/admin.schema';
+import type { AdminTerritory, BountyInput, FeedbackReport, FeedbackStatus, FrontierBounty, FrontierSeason, ReviewFeedbackInput, TerritoryKind, TerritoryMember, TerritoryStatus, UpdateTerritoryInput } from './schemas/admin.schema';
 import { FIXED_IN_PATTERN } from './schemas/admin.schema';
 
 // 拓荒季的純邏輯（api.md 第 29 節，Flowsker #705、#706）。畫面在 components/FrontierPanel.vue 與 FrontierBounty.vue。
@@ -140,34 +140,97 @@ export function seasonLine(season: FrontierSeason | null, now = Date.now()): str
 
 // #endregion
 
-// #region [P] 發賞金（29.5）
+// #region [P] 懸賞對象（29.3、29.5、第 8 節，Flowsker #855、#871）
 
-/** 能署名的領地：還沒有開拓者的才會設成這個回報者（已經有人的選了也只會發天數，不換人） */
-export const openTerritories = (list: readonly AdminTerritory[]) => list.filter(t => !t.pioneer);
-
-export interface BountyDraft {
-    /** 2026-11-20 起預設 0：採計的獎勵是金幣（30.1，後端自動算），天數只留給特例（Flowsker #791） */
-    days: string;
-    /** 空字串＝不署名 */
-    territoryId: string;
-    title: string;
+/**
+ * 2026-11-24 起署名照回報送出時間最早的那位重算（29.3），已經有開拓者的領地照樣能設懸賞：清單列全部，
+ * 選項上寫出現在的開拓者，管理員知道這則不一定會換掉他
+ */
+export function territoryOptionLabel(territory: AdminTerritory): string {
+    const pioneer = territory.pioneer ? `，開拓者：${territory.pioneer}` : '';
+    return `${territory.name}（${STATUS_LABELS[territory.status]}${pioneer}）`;
 }
 
-/** 回報能不能發：已經發過、判成不採計的直接講原因（後端也會 409） */
-export function bountyBlocked(report: Pick<FeedbackReport, 'bounty' | 'status' | 'contentPurgedAt'>): string {
-    if (report.bounty) return '這則已經發過賞金（一則只能發一次）';
-    if (report.status === 'rejected') return '這則判成不採計，不能發賞金；要發先改判';
+/** 懸賞對象的選擇。空字串＝沒選：領地沒選是不設懸賞，成員沒選是不記哪種通知 */
+export interface BountyTarget {
+    territoryId: string;
+    memberId: string;
+}
+
+/** 表單的初值：已經有懸賞的照現在的對象 */
+export const targetOf = (bounty: FrontierBounty | null): BountyTarget => ({
+    territoryId: bounty?.territoryId ? String(bounty.territoryId) : '',
+    memberId: bounty?.memberId ? String(bounty.memberId) : ''
+});
+
+export const isAccepted = (status: FeedbackStatus) => status === 'accepted_bug' || status === 'accepted_suggestion';
+
+/** 選了的領地底下的成員；沒選或那塊沒有成員是 [] */
+export const membersOf = (list: readonly AdminTerritory[], territoryId: string): TerritoryMember[] =>
+    list.find(t => String(t.id) === territoryId)?.members ?? [];
+
+/** 成員要屬於選的那塊（後端回 400）；換領地時畫面會清掉成員，這裡防清單重抓後對不上 */
+export function targetError(target: BountyTarget, list: readonly AdminTerritory[]): string {
+    if (!target.memberId) return '';
+    if (!target.territoryId) return '要先選領地才能選成員';
+    if (!membersOf(list, target.territoryId).some(m => String(m.id) === target.memberId)) return '這個成員不屬於選的領地，請重選';
     return '';
 }
 
-/** unbound：沒綁 App 的回報者（device_id 0），沒有裝置可以掛權益，只能署名 */
-export function bountyError(draft: BountyDraft, unbound: boolean): string {
+/** 送出的領地與成員：成員一律明給（null＝不記），不靠後端「不帶就沿用」——畫面上看到什麼就存什麼 */
+function targetFields(target: BountyTarget): { territoryId: number; memberId: number | null } | Record<string, never> {
+    if (!target.territoryId) return {};
+    return { territoryId: Number(target.territoryId), memberId: target.memberId ? Number(target.memberId) : null };
+}
+
+/**
+ * 審核（第 8 節 PATCH）按某個狀態時送的 body：採計的才帶領地，一次採計成懸賞。
+ * 後端會擋的組合在這裡就不組：明給待審／不採計又帶領地是 409，只給成員不給領地是 400
+ */
+export function reviewBody(status: FeedbackStatus, target: BountyTarget): ReviewFeedbackInput {
+    if (!isAccepted(status)) return { status };
+    return { status, ...targetFields(target) };
+}
+
+/** 取消懸賞（第 8 節 territory_id: null）：任何狀態都能給，不帶成員 */
+export const cancelBountyBody = (): ReviewFeedbackInput => ({ territoryId: null });
+
+// #endregion
+
+// #region [P] 賞金卡：改懸賞對象、補發天數（29.5）
+
+export interface BountyDraft extends BountyTarget {
+    /** 2026-11-20 起預設 0：採計的獎勵是金幣（30.1，後端自動算），天數只留給特例（Flowsker #791） */
+    days: string;
+    title: string;
+}
+
+/** 回報能不能按：判成不採計的直接講原因（後端也會 409）。已經發過的 2026-11-24 起可以重按（改對象、補天數） */
+export function bountyBlocked(report: Pick<FeedbackReport, 'status'>): string {
+    if (report.status === 'rejected') return '這則判成不採計，不能設懸賞；要設先改判';
+    return '';
+}
+
+/** 天數發過了沒：一則只發一次，再給 days 是 409 */
+export const daysPaid = (bounty: FrontierBounty | null) => !!bounty && bounty.days > 0;
+
+/** 已經有懸賞、表單跟現在一樣：按鈕擋著就好，不用紅字 */
+export const BOUNTY_UNCHANGED = '跟現在的懸賞一樣，沒有要改的';
+
+const sameTarget = (draft: BountyTarget, bounty: FrontierBounty) =>
+    draft.territoryId === (bounty.territoryId ? String(bounty.territoryId) : '')
+    && draft.memberId === (bounty.memberId ? String(bounty.memberId) : '');
+
+/** unbound：沒綁 App 的回報者（device_id 0），沒有裝置可以掛權益，只能署名。bounty：這則現在的賞金紀錄 */
+export function bountyError(draft: BountyDraft, unbound: boolean, bounty: FrontierBounty | null = null): string {
     const daysText = draft.days.trim();
     if (!/^\d+$/.test(daysText)) return `天數要是 0～${BOUNTY_DAYS_MAX} 的整數`;
     const days = Number(daysText);
     if (days > BOUNTY_DAYS_MAX) return `天數最多 ${BOUNTY_DAYS_MAX} 天`;
+    if (days > 0 && daysPaid(bounty)) return '天數已經發過了（一則只發一次）';
     if (unbound && days > 0) return '沒綁 App 的回報者發不了天數：天數填 0，只署名';
-    if (days === 0 && !draft.territoryId) return '選一塊領地署名；特例要另外發天數才可以不選';
+    if (days === 0 && !draft.territoryId) return bounty ? '選要改成哪塊領地，或補發天數' : '選一塊領地署名；特例要另外發天數才可以不選';
+    if (days === 0 && bounty && sameTarget(draft, bounty)) return BOUNTY_UNCHANGED;
     const title = draft.title.trim();
     if (runes(title) > BOUNTY_TITLE_MAX) return `名稱最多 ${BOUNTY_TITLE_MAX} 字`;
     if (BAD_CHARS.test(title)) return '名稱不能換行，也不能有看不見的字元';
@@ -177,13 +240,16 @@ export function bountyError(draft: BountyDraft, unbound: boolean): string {
 /** 沒填名稱時後端用的預設，表單的 placeholder 照它寫 */
 export const defaultBountyTitle = (territoryName: string | null) => (territoryName ? `拓荒季賞金：${territoryName}` : '拓荒季賞金');
 
-/** 送出的 body：選填的空值不送（空的 title 後端回 400）；0 天不送 days（後端預設 0），沒有權益，名稱也不送 */
-export function bountyBody(draft: BountyDraft): { days?: number; territoryId?: number; title?: string } {
+/**
+ * 送出的 body：選填的空值不送（空的 title 後端回 400）；0 天不送 days（後端預設 0），沒有權益，名稱也不送。
+ * 成員只跟著領地送（只給成員是 400）
+ */
+export function bountyBody(draft: BountyDraft): BountyInput {
     const days = Number(draft.days.trim());
     const title = draft.title.trim();
     return {
         ...(days > 0 ? { days } : {}),
-        ...(draft.territoryId ? { territoryId: Number(draft.territoryId) } : {}),
+        ...targetFields(draft),
         ...(title && days > 0 ? { title } : {})
     };
 }

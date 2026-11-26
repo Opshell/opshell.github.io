@@ -564,6 +564,8 @@ export const FrontierBountySchema = z.object({
     /** 沒綁 App 的回報者是 0（只署名、沒有權益） */
     deviceId: z.number().int(),
     territoryId: z.number().int().nullable(),
+    /** 這則是那塊領地哪個成員（哪種通知）的樣本（#839），沒記是 null */
+    memberId: z.number().int().nullable(),
     /** 只署名沒發天數的是 null */
     perkId: z.number().int().nullable(),
     days: z.number().int(),
@@ -578,12 +580,13 @@ const FrontierBountyRawSchema = z
         feedback_id: z.number(),
         device_id: z.number(),
         territory_id: z.number().nullish(),
+        member_id: z.number().nullish(),
         perk_id: z.number().nullish(),
         days: z.number(),
         created_by: z.string(),
         created_at: z.string()
     })
-    .transform(data => ({ ...data, territory_id: data.territory_id ?? null, perk_id: data.perk_id ?? null }))
+    .transform(data => ({ ...data, territory_id: data.territory_id ?? null, member_id: data.member_id ?? null, perk_id: data.perk_id ?? null }))
     .transform(snakeToCamel)
     .pipe(FrontierBountySchema);
 
@@ -701,7 +704,11 @@ export const ReviewFeedbackPayload = z
         progress: FeedbackProgressSchema,
         fixedIn: z.string().nullable(),
         deviceId: z.number().int().positive(),
-        reporterName: z.string()
+        reporterName: z.string(),
+        /** 採計成懸賞（#855、#871）：null 是取消懸賞。組法與會被後端擋的組合在 frontier.ts 的 reviewBody */
+        territoryId: z.number().int().positive().nullable(),
+        /** 要跟 territoryId 一起給；null 是清掉成員 */
+        memberId: z.number().int().positive().nullable()
     })
     .partial()
     .transform(camelToSnake);
@@ -1882,6 +1889,21 @@ export type TerritoryKind = z.infer<typeof TerritoryKindSchema>;
 export const TerritoryStatusSchema = z.enum(['tamed', 'wanted']);
 export type TerritoryStatus = z.infer<typeof TerritoryStatusSchema>;
 
+/** 領地底下的成員（29.2「成員」，#839）：一種通知一個。後台還有排序與時間，這裡用不到就不收 */
+export const TerritoryMemberSchema = z.object({
+    id: z.number().int(),
+    code: z.string(),
+    name: z.string(),
+    status: TerritoryStatusSchema,
+    tamedIn: z.string().nullable()
+});
+export type TerritoryMember = z.infer<typeof TerritoryMemberSchema>;
+
+const TerritoryMemberParser = z
+    .object({ id: z.number(), code: z.string(), name: z.string(), status: TerritoryStatusSchema, tamed_in: z.string().nullish() })
+    .transform(data => ({ id: data.id, code: data.code, name: data.name, status: data.status, tamedIn: data.tamed_in || null }))
+    .pipe(TerritoryMemberSchema);
+
 /** 後台看到的一塊領地（29.4）：比 App 的多了署名從哪來、排序與時間 */
 export const AdminTerritorySchema = z.object({
     id: z.number().int(),
@@ -1901,7 +1923,9 @@ export const AdminTerritorySchema = z.object({
     pioneerSetAt: z.string().nullable(),
     sortOrder: z.number().int(),
     createdAt: z.string(),
-    updatedAt: z.string()
+    updatedAt: z.string(),
+    /** 沒有成員是 [] */
+    members: z.array(TerritoryMemberSchema)
 });
 export type AdminTerritory = z.infer<typeof AdminTerritorySchema>;
 
@@ -1919,7 +1943,8 @@ const AdminTerritoryParser = z
         pioneer_set_at: z.string().nullish(),
         sort_order: z.number(),
         created_at: z.string(),
-        updated_at: z.string()
+        updated_at: z.string(),
+        members: nullableList(TerritoryMemberParser)
     })
     .transform(data => ({
         ...data,
@@ -1990,6 +2015,8 @@ export const BountyPayload = z
     .object({
         days: z.number().int().min(1).optional(),
         territoryId: z.number().int().positive().optional(),
+        /** 要跟 territoryId 一起給（#839）；null 是清掉成員，不給是沿用原本的（#855 第 5 點） */
+        memberId: z.number().int().positive().nullable().optional(),
         title: z.string().optional()
     })
     .transform(camelToSnake);

@@ -2,14 +2,15 @@
     import type { FeedbackBoundFilter, FeedbackFilter, FeedbackKind, FeedbackProgressFilter, FeedbackSourceFilter, FeedbackTopicFilter } from '../api';
     import type { BarSeries } from '../charts/BarChart.vue';
     import type { ColumnPoint } from '../charts/ColumnChart.vue';
-    import type { FeedbackIssue, FeedbackProgress, FeedbackReport, FeedbackReporter, FeedbackStats, FeedbackStatus } from '../schemas/admin.schema';
+    import type { BountyTarget } from '../frontier';
+    import type { AdminTerritory, FeedbackIssue, FeedbackProgress, FeedbackReport, FeedbackReporter, FeedbackStats, FeedbackStatus } from '../schemas/admin.schema';
     import type { FoundShots } from '../useScreenshotDownload';
-    import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+    import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
     import { adminApi } from '../api';
     import ColumnChart from '../charts/ColumnChart.vue';
     import { awaitingFirst, pendingReplied, takeReplied } from '../feedbackMessages';
     import { formatDateTime, formatInt, formatRelative, KIND_LABELS, PROGRESS_LABELS, PROGRESSES } from '../format';
-    import { isMissedNotification } from '../frontier';
+    import { isAccepted, isMissedNotification, reviewBody, targetError, targetOf } from '../frontier';
     import { takePanelPreset } from '../navigation';
     import { FIXED_IN_PATTERN, reporterNameProblem } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
@@ -17,6 +18,7 @@
     import { usePulse } from '../usePulse';
     import { useScreenshotDownload } from '../useScreenshotDownload';
     import AdminActions from './AdminActions.vue';
+    import BountyTargetPicker from './BountyTargetPicker.vue';
     import FeedbackMessages from './FeedbackMessages.vue';
     import FeedbackPurge from './FeedbackPurge.vue';
     import FeedbackTriage from './FeedbackTriage.vue';
@@ -424,10 +426,57 @@
         }
     }
 
-    /** 發完賞金：後端可能順手採計了這則，重抓這一則、統計與問題清單 */
-    const refreshDetail = () => mutate(token => adminApi.getFeedback(token, selectedId.value!), '已發拓荒季賞金');
-    const review = (next: FeedbackStatus) =>
-        mutate(token => adminApi.reviewFeedback(token, selectedId.value!, { status: next }), `已改成「${STATUS_LABELS[next]}」`);
+    // #region [P] 採計成懸賞（api.md 第 8 節、29.3，Flowsker #855、#871）
+    // 採計時直接選領地，送出就是懸賞，不用再按賞金卡。領地清單審核卡與賞金卡共用，打開一則時才抓、抓一次；
+    // 署名照送出時間重算，按完重抓才看得到新的開拓者
+    const territories = ref<AdminTerritory[]>([]);
+    const territoriesError = ref('');
+    let territoriesLoaded = false;
+    async function loadTerritories() {
+        territoriesError.value = '';
+        try {
+            territories.value = (await call(token => adminApi.listTerritories(token))).territories;
+            territoriesLoaded = true;
+        } catch (e) {
+            // 領地抓不到還是能照常審
+            territoriesError.value = `領地清單抓不到：${errorMessage(e)}`;
+        }
+    }
+    const reviewTarget = reactive<BountyTarget>(targetOf(null));
+    const reviewTargetError = computed(() => targetError(reviewTarget, territories.value));
+    /** 已經署名到某塊的，改對象與取消在賞金卡；審核卡只在還沒有懸賞領地時給選 */
+    const detailBountyTerritory = computed(() => {
+        const id = detail.value?.bounty?.territoryId;
+        if (!id) return null;
+        const territory = territories.value.find(t => t.id === id);
+        const member = territory?.members.find(m => m.id === detail.value?.bounty?.memberId);
+        return `${territory?.name ?? `#${id}`}${member ? `的${member.name}` : ''}`;
+    });
+    watch(() => detail.value?.id, (id) => {
+        Object.assign(reviewTarget, targetOf(null));
+        if (id !== undefined && !territoriesLoaded) void loadTerritories();
+    });
+    /** 同一個狀態再按一次只有在要補設懸賞時才有意義 */
+    const reviewDisabled = (s: FeedbackStatus) => {
+        if (busy.value) return true;
+        const withTarget = isAccepted(s) && !!reviewTarget.territoryId && !detailBountyTerritory.value;
+        if (withTarget && reviewTargetError.value) return true;
+        return detail.value?.status === s && !withTarget;
+    };
+    async function review(next: FeedbackStatus) {
+        const body = reviewBody(next, detailBountyTerritory.value ? targetOf(null) : reviewTarget);
+        const territory = body.territoryId ? territories.value.find(t => t.id === body.territoryId) : null;
+        await mutate(
+            token => adminApi.reviewFeedback(token, selectedId.value!, body),
+            territory ? `已${STATUS_LABELS[next]}，設成「${territory.name}」的懸賞` : `已改成「${STATUS_LABELS[next]}」`
+        );
+        // 懸賞有異動（含改判不採計、改回採計）那塊的署名都會重算
+        if (territory || detail.value?.bounty?.territoryId) void loadTerritories();
+    }
+    // #endregion
+
+    /** 賞金卡按完：後端可能順手採計了這則、署名也重算了，重抓這一則、統計、問題清單與領地 */
+    const refreshDetail = () => mutate(token => adminApi.getFeedback(token, selectedId.value!), '已更新拓荒季賞金').then(loadTerritories);
     /** 正在看的這一則掛在哪個問題上（模板裡的箭頭函式拿不到 detail 非 null 的收窄，所以算在這） */
     const detailIssueTitle = computed(() => {
         const current = detail.value;
@@ -943,6 +992,20 @@
                     <section class="dd-detail__card">
                         <h3>採計</h3>
                         <p class="dd-detail__muted">跟使用者選的類型無關：選 bug 的也可以採計為建議。改判會記一筆操作紀錄。</p>
+                        <p v-if="detailBountyTerritory" class="dd-detail__muted">懸賞：{{ detailBountyTerritory }}（改對象、取消在下面的賞金卡）</p>
+                        <template v-else>
+                            <BountyTargetPicker
+                                v-model:territory-id="reviewTarget.territoryId"
+                                v-model:member-id="reviewTarget.memberId"
+                                :territories="territories"
+                                :disabled="busy"
+                                none-label="不設懸賞"
+                            />
+                            <p class="dd-detail__muted">
+                                選了領地，按「採計為 bug／建議」就是懸賞（金幣基數 6），不用再按賞金；署名照送出時間最早的那位。待審、不採計不會帶領地。
+                            </p>
+                            <p v-if="reviewTargetError" class="dd-admin__error">{{ reviewTargetError }}</p>
+                        </template>
                         <div class="dd-detail__actions">
                             <button
                                 v-for="s in STATUSES"
@@ -950,7 +1013,7 @@
                                 type="button"
                                 class="dd-admin__btn"
                                 :class="{ 'dd-admin__btn--ghost': detail.status !== s }"
-                                :disabled="busy || detail.status === s"
+                                :disabled="reviewDisabled(s)"
                                 @click="review(s)"
                             >
                                 {{ STATUS_LABELS[s] }}
@@ -958,8 +1021,8 @@
                         </div>
                     </section>
 
-                    <!-- 拓荒季（api.md 29.5）：採計時順手發。還沒審的會一起採計，發完重抓這一則 -->
-                    <FrontierBounty :key="`bounty-${detail.id}`" :report="detail" @changed="refreshDetail" />
+                    <!-- 拓荒季（api.md 29.5）：改懸賞對象、補發天數。還沒審的會一起採計，按完重抓這一則 -->
+                    <FrontierBounty :key="`bounty-${detail.id}`" :report="detail" :territories="territories" :territories-error="territoriesError" @changed="refreshDetail" />
 
                     <section class="dd-detail__card">
                         <h3>處理狀況</h3>
