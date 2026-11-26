@@ -1,7 +1,9 @@
 <script setup lang="ts">
-    import type { FeatureCandidate, FeatureCandidateStatus, SaveFeatureCandidateInput } from '../schemas/admin.schema';
+    import type { FeatureEventFilter, FeatureForm } from '../featureVotes';
+    import type { FeatureCandidate, FeatureCandidateStatus } from '../schemas/admin.schema';
     import { computed, onMounted, reactive, ref } from 'vue';
     import { adminApi } from '../api';
+    import { buildFeaturePatch, countByEvent, defaultEventFor, EVENT_LABELS, EVENTS, filterByEvent } from '../featureVotes';
     import { formatDateTime, formatInt } from '../format';
     import { countChars, FEATURE_DESCRIPTION_MAX, FEATURE_TITLE_MAX, SaveFeatureCandidatePayload } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
@@ -10,6 +12,7 @@
     // 新功能投票的候選（api.md 第 8 節，規則第 19 節，溝通板 #0061）。
     // 測試者在 App 裡投票，決定下一個做什麼；這裡列候選、新增、改標題說明與狀態、看票數。
     // 沒有刪除：打錯字就改標題，不要了就改成「不做了」。看不到是誰投的，後台也一樣。
+    // 候選分活動（#849、#850）：Beta 活動與拓荒季各自一份清單、各自 3 票。一次拿全部，畫面上照活動篩。
     const call = useAdminCall();
 
     const STATUS_LABELS: Record<FeatureCandidateStatus, string> = {
@@ -33,17 +36,13 @@
     /** 從投票中改成別的狀態，要先確認一次：投的人會拿回那一票 */
     const confirming = ref(false);
 
-    const form = reactive({ title: '', description: '', status: 'voting' as FeatureCandidateStatus });
+    const eventFilter = ref<FeatureEventFilter>('all');
+    const shown = computed(() => filterByEvent(features.value, eventFilter.value));
+    const eventCounts = computed(() => countByEvent(features.value));
 
-    /** 只送真的變了的欄位（後端的操作紀錄也只記變了的） */
-    const patch = computed<SaveFeatureCandidateInput>(() => {
-        if (isNew.value || !current.value) return { title: form.title, description: form.description, status: form.status };
-        const changes: SaveFeatureCandidateInput = {};
-        if (form.title.trim() !== current.value.title) changes.title = form.title;
-        if (form.description.trim() !== current.value.description) changes.description = form.description;
-        if (form.status !== current.value.status) changes.status = form.status;
-        return changes;
-    });
+    const form = reactive<FeatureForm>({ title: '', description: '', status: 'voting', event: 'frontier' });
+
+    const patch = computed(() => buildFeaturePatch(form, isNew.value ? undefined : current.value));
     const hasChanges = computed(() => Object.keys(patch.value).length > 0);
 
     // 跟送出用的是同一份 Schema，錯誤訊息一致
@@ -54,6 +53,8 @@
 
     /** 會把票還給使用者的那種改法 */
     const returnsVotes = computed(() => !isNew.value && current.value?.status === 'voting' && form.status !== 'voting');
+    /** 搬到別的活動：票跟著候選走，改佔新活動的額度（api.md 第 8 節） */
+    const movesEvent = computed(() => !isNew.value && !!current.value && form.event !== current.value.event);
 
     async function load() {
         loading.value = true;
@@ -70,7 +71,7 @@
     }
 
     function startCreate() {
-        Object.assign(form, { title: '', description: '', status: 'voting' });
+        Object.assign(form, { title: '', description: '', status: 'voting', event: defaultEventFor(eventFilter.value) });
         notice.value = '';
         error.value = '';
         confirming.value = false;
@@ -78,7 +79,7 @@
     }
 
     function open(feature: FeatureCandidate) {
-        Object.assign(form, { title: feature.title, description: feature.description, status: feature.status });
+        Object.assign(form, { title: feature.title, description: feature.description, status: feature.status, event: feature.event });
         notice.value = '';
         error.value = '';
         confirming.value = false;
@@ -123,7 +124,7 @@
         <div class="dd-feature-vote__bar">
             <p class="dd-feature-vote__muted">
                 <!-- 中文之間換行會變成空格，所以寫成一行 -->
-                測試者在 App 裡投票，每人同時最多 {{ maxVotes }} 票，只有「投票中」的能投。改成其他狀態時，投的人會拿回那一票，票數留著。<strong>沒有刪除</strong>：不要了就改成「不做了」。看不到是誰投的。
+                測試者在 App 裡投票，Beta 活動與拓荒季各自一份清單，每人在每個活動同時最多 {{ maxVotes }} 票，只有「投票中」的能投。改成其他狀態時，投的人會拿回那一票，票數留著。<strong>沒有刪除</strong>：不要了就改成「不做了」。看不到是誰投的。
             </p>
             <AdminActions>
                 <button type="button" class="dd-admin__btn" @click="startCreate">新增候選</button>
@@ -154,6 +155,17 @@
             </label>
 
             <label class="dd-feature-vote__field">
+                <span>活動</span>
+                <select v-model="form.event">
+                    <option v-for="event in EVENTS" :key="event" :value="event">{{ EVENT_LABELS[event] }}</option>
+                </select>
+                <span v-if="movesEvent && current" class="dd-feature-vote__muted">
+                    搬到「{{ EVENT_LABELS[form.event] }}」：已投的 {{ formatInt(current.votes) }} 票跟著走，改佔那個活動的額度；有人可能暫時超過 {{ maxVotes }} 票，只是不能再投新的
+                </span>
+                <span v-else-if="isNew" class="dd-feature-vote__muted">App 只在這個活動的清單裡看得到它</span>
+            </label>
+
+            <label class="dd-feature-vote__field">
                 <span>狀態</span>
                 <select v-model="form.status" @change="confirming = false">
                     <option v-for="status in STATUS_ORDER" :key="status" :value="status">{{ STATUS_LABELS[status] }}</option>
@@ -181,12 +193,23 @@
         </form>
         <!-- #endregion -->
 
+        <div class="dd-feature-vote__filters">
+            <label>
+                活動
+                <select v-model="eventFilter">
+                    <option value="all">全部（{{ formatInt(features.length) }}）</option>
+                    <option v-for="event in EVENTS" :key="event" :value="event">{{ EVENT_LABELS[event] }}（{{ formatInt(eventCounts[event]) }}）</option>
+                </select>
+            </label>
+        </div>
+
         <div class="dd-feature-vote__scroll dd-table-scroll">
-            <h3 class="dd-feature-vote__sub-title">所有候選（{{ features.length }}）</h3>
+            <h3 class="dd-feature-vote__sub-title">{{ eventFilter === 'all' ? '所有候選' : `${EVENT_LABELS[eventFilter]}的候選` }}（{{ shown.length }}）</h3>
             <table class="dd-table">
                 <thead>
                     <tr>
                         <th scope="col">候選</th>
+                        <th scope="col">活動</th>
                         <th scope="col">狀態</th>
                         <th scope="col" class="num">票數</th>
                         <th scope="col">最後修改</th>
@@ -194,7 +217,7 @@
                 </thead>
                 <tbody>
                     <tr
-                        v-for="feature in features"
+                        v-for="feature in shown"
                         :key="feature.id"
                         :class="{ 'is-selected': feature.id === editing }"
                         tabindex="0"
@@ -205,14 +228,15 @@
                             <strong>{{ feature.title }}</strong>
                             <p v-if="feature.description" class="dd-feature-vote__description">{{ feature.description }}</p>
                         </td>
+                        <td class="dd-feature-vote__event">{{ EVENT_LABELS[feature.event] }}</td>
                         <td>
                             <span class="dd-feature-vote__status" :class="`dd-feature-vote__status--${feature.status.replace('_', '-')}`">{{ STATUS_LABELS[feature.status] }}</span>
                         </td>
                         <td class="num">{{ formatInt(feature.votes) }}</td>
                         <td>{{ formatDateTime(feature.updatedAt) }}</td>
                     </tr>
-                    <tr v-if="!loading && !features.length">
-                        <td colspan="4" class="dd-table__empty">還沒有候選，按「新增候選」開始</td>
+                    <tr v-if="!loading && !shown.length">
+                        <td colspan="5" class="dd-table__empty">{{ features.length ? '這個活動還沒有候選' : '還沒有候選' }}，按「新增候選」開始</td>
                     </tr>
                 </tbody>
             </table>
@@ -282,6 +306,12 @@
             @include setFlex(flex-start, center, 8px);
             flex-wrap: wrap;
         }
+        &__filters {
+            @include setFlex(flex-start, center, 8px 16px);
+            flex-wrap: wrap;
+            font-size: var(--font-size-s);
+        }
+        &__event { white-space: nowrap; }
         &__sub-title {
             margin: 0 0 8px;
             font-size: var(--font-size-m);
