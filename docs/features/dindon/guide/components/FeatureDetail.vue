@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { computed } from 'vue';
     import { DEMO_PATH } from '../../constants';
-    import { branches, findFeature, PLAN_LABEL, relatedOf, stagesOf } from '../featureMap';
+    import { branches, findFeature, relatedOf, stagesOf } from '../featureMap';
 
     // 功能地圖右邊（手機是從底下拉上來）的說明：為什麼有它、怎麼用、小訣竅、跟誰一起用、出現在養成路線哪一段。
     // 沒選功能時是「怎麼看這張圖」。
@@ -29,7 +29,7 @@
             <h3 class="dd-feature-detail__title">{{ feature.name }}</h3>
             <p v-if="feature.plan || feature.hidden" class="dd-feature-detail__tags">
                 <span v-if="feature.hidden">藏起來的操作</span>
-                <span v-if="feature.plan">{{ PLAN_LABEL[feature.plan] }}</span>
+                <span v-if="feature.plan">{{ feature.plan }}</span>
             </p>
 
             <h4>為什麼有它</h4>
