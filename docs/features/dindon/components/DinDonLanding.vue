@@ -324,7 +324,7 @@
         </section>
         <!-- #endregion -->
 
-        <!-- #region [P] 18 秒看懂：宣傳短片，留給想分享給朋友的人。片尾 2026-11-22 從「封閉測試招募中」重做成「即將在 Google Play 上架」（#756） -->
+        <!-- #region [P] 18 秒看懂：宣傳短片，留給想分享給朋友的人。片尾 2026-11-22 從「封閉測試招募中」重做成「即將在 Google Play 上架」（#756），11-26 上架後改成「Google Play 上架了」（#897） -->
         <section id="video" class="dindon-landing__section dindon-landing__section--sunken">
             <div class="dindon-landing__container">
                 <PromoVideo />

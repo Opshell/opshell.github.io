@@ -6,9 +6,10 @@ export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=me.
 
 /**
  * 正式版上架了沒（#756，2026-11-21）。商店頁還沒公開時連過去是 404，所以沒上架前不放下載連結，
- * 只寫「即將在 Google Play 上架」。上架那天改成 true，宣傳頁、演示頁、功能地圖的按鈕就換成下載。
+ * 只寫「即將在 Google Play 上架」。2026-11-26 正式上架改成 true（#897），宣傳頁、演示頁、功能地圖的按鈕換成下載。
+ * 開關留著：哪天要下架或換商店頁，翻回 false 就不會連到 404。
  */
-export const LAUNCHED = false;
+export const LAUNCHED = true;
 
 export const PRIVACY_PATH = '/dindon/privacy/';
 
