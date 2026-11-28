@@ -70,9 +70,11 @@ describe('版本與即將推出', () => {
     });
 
     it('比商店上的版本新才標即將推出，沒寫 since 的不算', () => {
-        expect(REVIEWED_APP_VERSION).toBe('0.7.19');
-        expect(isUpcoming(findFeature('milestone')!)).toBe(true);
-        expect(isUpcoming(findFeature('monthlyCategory')!)).toBe(true);
+        expect(REVIEWED_APP_VERSION).toBe('1.0.0');
+        expect(isUpcoming(findFeature('sharedSub')!)).toBe(true);
+        // 0.8.x 加的，正式版 1.0.0 都有了
+        expect(isUpcoming(findFeature('milestone')!)).toBe(false);
+        expect(isUpcoming(findFeature('monthlyCategory')!)).toBe(false);
         expect(isUpcoming(findFeature('smartFix')!)).toBe(false);
         expect(isUpcoming(findFeature('refund')!)).toBe(false);
         expect(isUpcoming(findFeature('notify')!)).toBe(false);

@@ -7,8 +7,11 @@
 // 2026-10-08 對到 Play 上的 0.7.19 再整理一次；倉庫已經做到 0.8.1，那幾個功能也先放進來，
 // 用 since 標版本，頁面看到 since 比 REVIEWED_APP_VERSION 新就寫「即將推出」——商店上還裝不到，不能寫得像已經有。
 
-/** 這份地圖對到哪一版 App（以 Google Play 上架的為準，不是倉庫的最新版） */
-export const REVIEWED_APP_VERSION = '0.7.19';
+/**
+ * 商店上的版本（以 Google Play 上架的為準，不是倉庫的最新版），只拿來判斷「即將推出」。
+ * 2026-11-28 從 0.7.19 改成 1.0.0：正式版 11-26 上架後，0.8.x 的功能早就裝得到了，卻還標著即將推出（#906 順手修）
+ */
+export const REVIEWED_APP_VERSION = '1.0.0';
 
 export type BranchId = 'capture' | 'tidy' | 'insight' | 'plan' | 'wallet' | 'habit' | 'trust';
 
@@ -553,6 +556,22 @@ export const features: Feature[] = [
         ],
         related: ['recurring', 'disposable', 'accounts', 'voiceMulti'],
         since: '0.7.10'
+    },
+    {
+        id: 'sharedSub',
+        branch: 'plan',
+        name: '合資訂閱',
+        // 文案照 App 的 shared_sub.xml（Android #902、#908），方案照 plans.xml 的 plan_f_shared_sub：免費「—」、輕量起（Flowsker #906）
+        purpose: '家庭方案跟朋友合資、一次預收一年：每期刷的是全額，但花費只該算你那一份，朋友先付的錢也要有人記著扣到哪了。',
+        how: '在「固定收支」打開一條固定支出，開「跟朋友合資」，加上每個人的名字與每期分攤的金額；朋友先付了，按「記預收」。',
+        tips: [
+            '每期照全額記，花費只算你的份；朋友的份從他預付的錢扣，帳戶頁的借貸看得到還剩多少。',
+            '預收只剩一期或用完時，小精靈提醒你跟他收下一輪；用完之後他的份先照代墊記。',
+            '朋友先付的錢記成「合資預付」，不算收入。'
+        ],
+        related: ['recurring', 'lending', 'loan', 'companion'],
+        plan: '輕量以上（免費版沒有）',
+        since: '1.0.1'
     },
     // #endregion
 
