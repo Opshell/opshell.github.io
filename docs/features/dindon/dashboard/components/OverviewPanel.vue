@@ -9,7 +9,7 @@
     import BarChart from '../charts/BarChart.vue';
     import ColumnChart from '../charts/ColumnChart.vue';
     import { addDays } from '../checkins';
-    import { FEATURE_LABELS, FEATURE_ORDER, formatInt } from '../format';
+    import { FEATURE_LABELS, FEATURE_ORDER, formatInt, formatUsd } from '../format';
     import { formatMoney } from '../googleData';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import { useCostCalibration } from '../useCostCalibration';
@@ -183,6 +183,8 @@
 
     // #region [P] 每日 AI 請求（堆疊直條）。後端 2026-09-20 起才有 daily，舊的回應就不畫這張
     const hasDaily = computed(() => Array.isArray(report.value?.daily));
+    /** 後端會算 JEV 影子才多三欄（#918）；成本欄是 Gemini 的，JEV 是 TypeSafe 的美元估算，兩邊不相加 */
+    const hasJev = computed(() => !!report.value?.jev);
     const dailyPoints = computed<ColumnPoint[]>(() => {
         const byDate = new Map((report.value?.daily ?? []).map(d => [d.date, d]));
         // 沒有請求的日子後端不會回，這裡補 0，趨勢才看得出空檔
@@ -307,7 +309,12 @@
                                     <th scope="col">日期</th>
                                     <th v-for="s in outcomeSeries" :key="s.key" scope="col" class="num">{{ s.label }}</th>
                                     <th scope="col" class="num">用過的裝置</th>
-                                    <th scope="col" class="num">成本</th>
+                                    <th scope="col" class="num">Gemini 成本</th>
+                                    <template v-if="hasJev">
+                                        <th scope="col" class="num">JEV 次數</th>
+                                        <th scope="col" class="num">JEV 輸入 token</th>
+                                        <th scope="col" class="num" title="TypeSafe AI 的美元估算，不含在 Gemini 成本裡">JEV 花費（另計）</th>
+                                    </template>
                                 </tr>
                             </thead>
                             <tbody>
@@ -318,9 +325,14 @@
                                     <td class="num">{{ formatInt(day.failed) }}</td>
                                     <td class="num">{{ formatInt(day.uniqueDevices) }}</td>
                                     <td class="num">{{ formatDayCost(day.date, day.costUsd) }}</td>
+                                    <template v-if="hasJev">
+                                        <td class="num">{{ formatInt(day.jevCalls) }}</td>
+                                        <td class="num">{{ formatInt(day.jevInputTokens) }}</td>
+                                        <td class="num">{{ formatUsd(day.jevCostUsd) }}</td>
+                                    </template>
                                 </tr>
                                 <tr v-if="!(report.daily ?? []).length">
-                                    <td colspan="6" class="dd-table__empty">這段期間沒有 AI 請求</td>
+                                    <td :colspan="hasJev ? 9 : 6" class="dd-table__empty">這段期間沒有 AI 請求</td>
                                 </tr>
                             </tbody>
                         </table>

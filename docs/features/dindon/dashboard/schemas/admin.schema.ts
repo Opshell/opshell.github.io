@@ -480,17 +480,42 @@ const DayModelRawSchema = z.object({
     canceled_cost_est_usd: z.number()
 });
 
+/** 2026-11-27 以前的後端沒有 JEV 影子的欄位（Flowsker #918）：沒有就是沒問過，當成 0 */
+const missingAsZero = z.number().nullish().transform(v => v ?? 0);
+
 const TestUsageRawSchema = z.object({
     devices: z.number(),
     requests: z.number(),
     gemini_calls: z.number(),
     cost_usd: z.number(),
     canceled_cost_est_usd: z.number(),
+    /** 測試裝置問 JEV 影子的次數與花費，不含在 cost_usd 裡（api.md 第 8 節，#918） */
+    jev_calls: missingAsZero,
+    jev_cost_usd: missingAsZero,
     models: nullableList(z.object({ model: z.string(), calls: z.number(), cost_usd: z.number() }).passthrough()),
-    daily: nullableList(z.object({ date: z.string(), requests: z.number(), cost_usd: z.number(), canceled_cost_est_usd: z.number() }))
+    daily: nullableList(z.object({ date: z.string(), requests: z.number(), cost_usd: z.number(), canceled_cost_est_usd: z.number(), jev_cost_usd: missingAsZero }))
 });
 
-const EMPTY_TEST_USAGE: z.input<typeof TestUsageRawSchema> = { devices: 0, requests: 0, gemini_calls: 0, cost_usd: 0, canceled_cost_est_usd: 0, models: [], daily: [] };
+/**
+ * TypeSafe AI 的 JEV 影子（api.md 第 3 節「JEV 影子」、usage-analytics.md「JEV 影子」，#918）：不含測試裝置，
+ * 任何 cost_usd 都不含它。late 是可能收了錢、拿不到 token 數的，估計值在 late_cost_est_usd、也不含在 cost_usd 裡
+ */
+const JevStatsRawSchema = z.object({
+    model: z.string(),
+    input_price_per_million_usd: z.number(),
+    calls: z.number(),
+    ok: z.number(),
+    errors: z.number(),
+    late: z.number(),
+    input_tokens: z.number(),
+    cost_usd: z.number(),
+    late_cost_est_usd: z.number(),
+    latency_ms: DistSchema,
+    /** P(是) 落在 [0,0.1)…[0.9,1] 各幾次，固定十格 */
+    p_yes_buckets: nullableList(z.number())
+});
+
+const EMPTY_TEST_USAGE: z.input<typeof TestUsageRawSchema> = { devices: 0, requests: 0, gemini_calls: 0, cost_usd: 0, canceled_cost_est_usd: 0, jev_calls: 0, jev_cost_usd: 0, models: [], daily: [] };
 
 export const GetUsageReportParser = z
     .object({
@@ -509,6 +534,10 @@ export const GetUsageReportParser = z
             cost_usd: z.number(),
             /** 這天被取消的加問估計的成本，不含在 cost_usd 裡（#0085；10-03 以前的後端沒有） */
             canceled_cost_est_usd: z.number().nullish().transform(v => v ?? 0),
+            /** 這天的 JEV 影子，cost_usd 不含它（#918） */
+            jev_calls: missingAsZero,
+            jev_input_tokens: missingAsZero,
+            jev_cost_usd: missingAsZero,
             features: nullableRecord(DayFeatureParser)
         // features 的 key 是功能名稱，原樣保留
         }).transform(({ features, ...day }) => ({ ...snakeToCamel(day), features }))),
@@ -539,7 +568,10 @@ export const GetUsageReportParser = z
         /** 每天 × 模型 × 群（users／test）的 token 與成本，含測試裝置：兩群加起來是後端看得到的全部（#0085） */
         daily_models: nullableList(DayModelRawSchema),
         /** 測試／開發用裝置的用量＝開發成本（#0086）。不混進其他任何數字 */
-        test: TestUsageRawSchema.nullish().transform(v => v ?? EMPTY_TEST_USAGE),
+        // 先補空值再解析：補的是輸入型別，交給 schema 轉，jev_* 這些會轉換的欄位輸出才是 number（直接回空值會讓型別漏出 null）
+        test: z.preprocess(v => v ?? EMPTY_TEST_USAGE, TestUsageRawSchema),
+        /** 舊後端沒有這一塊是 null：畫面分得出「後端還不會算」與「開關沒開、一次都沒問」（calls 是 0） */
+        jev: JevStatsRawSchema.nullish().transform(v => v ?? null),
         /** 估算用的價目表（模型 → 每一百萬 token 的美元）：拿來從帳單反推匯率（#0084 對帳） */
         prices_used: nullableRecord(z.object({ input_per_million_usd: z.number(), output_per_million_usd: z.number() })),
         notes: nullableList(z.string())
@@ -551,6 +583,7 @@ export type UsageReport = z.output<typeof GetUsageReportParser>;
 export type FeatureStats = UsageReport['features'][number];
 export type UsageDay = UsageReport['daily'][number];
 export type DayModel = UsageReport['dailyModels'][number];
+export type JevStats = NonNullable<UsageReport['jev']>;
 
 // #endregion
 

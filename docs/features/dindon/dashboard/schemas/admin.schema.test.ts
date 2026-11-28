@@ -155,6 +155,47 @@ describe('用量報表', () => {
         const [day] = GetUsageReportParser.parse({ ...usageReport, daily: [{ ...usageReport.daily[0], features: null }] }).daily;
         expect(day.features).toEqual({});
     });
+
+    // JEV 影子（api.md 第 8 節、usage-analytics.md「JEV 影子」，#918）：2026-11-27 以前的後端整個沒有這些欄位
+    it('舊回應沒有 JEV：jev 是 null，逐日與測試的 jev_* 當成 0', () => {
+        const report = GetUsageReportParser.parse({
+            ...usageReport,
+            test: { devices: 1, requests: 2, gemini_calls: 2, cost_usd: 0.001, canceled_cost_est_usd: 0, models: null, daily: [{ date: '2026-09-27', requests: 2, cost_usd: 0.001, canceled_cost_est_usd: 0 }] }
+        });
+        expect(report.jev).toBeNull();
+        expect(report.daily[0]).toMatchObject({ jevCalls: 0, jevInputTokens: 0, jevCostUsd: 0 });
+        expect(report.test).toMatchObject({ jevCalls: 0, jevCostUsd: 0 });
+        expect(report.test.daily[0].jevCostUsd).toBe(0);
+        // 連 test 都沒有的更舊回應，補的空值也要有 jev 欄位
+        expect(GetUsageReportParser.parse(usageReport).test).toMatchObject({ jevCalls: 0, jevCostUsd: 0 });
+    });
+
+    it('有 JEV：轉成 camelCase，跟 Gemini 的 cost_usd 分開', () => {
+        const jev = {
+            model: 'jev-1.13.0',
+            input_price_per_million_usd: 0.042,
+            calls: 120,
+            ok: 117,
+            errors: 1,
+            late: 2,
+            input_tokens: 52000,
+            cost_usd: 0.0022,
+            late_cost_est_usd: 0.00004,
+            latency_ms: { avg: 230, p50: 210, p90: 380, p95: 450, max: 900 },
+            p_yes_buckets: [70, 3, 1, 0, 2, 1, 2, 3, 5, 30]
+        };
+        const report = GetUsageReportParser.parse({
+            ...usageReport,
+            daily: [{ ...usageReport.daily[0], cost_usd: 0.01, jev_calls: 4, jev_input_tokens: 1800, jev_cost_usd: 0.0000756 }],
+            test: { devices: 1, requests: 2, gemini_calls: 2, cost_usd: 0.001, canceled_cost_est_usd: 0, jev_calls: 3, jev_cost_usd: 0.00005, models: [], daily: [{ date: '2026-09-27', requests: 2, cost_usd: 0.001, canceled_cost_est_usd: 0, jev_cost_usd: 0.00005 }] },
+            jev
+        });
+        expect(report.jev).toMatchObject({ model: 'jev-1.13.0', inputPricePerMillionUsd: 0.042, lateCostEstUsd: 0.00004, inputTokens: 52000, latencyMs: { p95: 450 } });
+        expect(report.jev?.pYesBuckets).toHaveLength(10);
+        expect(report.daily[0]).toMatchObject({ costUsd: 0.01, jevCalls: 4, jevInputTokens: 1800, jevCostUsd: 0.0000756 });
+        expect(report.test).toMatchObject({ jevCalls: 3, jevCostUsd: 0.00005 });
+        expect(report.test.daily[0].jevCostUsd).toBe(0.00005);
+    });
 });
 
 describe('新功能投票的候選', () => {
