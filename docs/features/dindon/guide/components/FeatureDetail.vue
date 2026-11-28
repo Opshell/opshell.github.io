@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { computed } from 'vue';
     import { DEMO_PATH } from '../../constants';
-    import { branches, findFeature, relatedOf, stagesOf } from '../featureMap';
+    import { branches, findFeature, isUpcoming, relatedOf, stagesOf } from '../featureMap';
 
     // 功能地圖右邊（手機是從底下拉上來）的說明：為什麼有它、怎麼用、小訣竅、跟誰一起用、出現在養成路線哪一段。
     // 沒選功能時是「怎麼看這張圖」。
@@ -19,6 +19,8 @@
     const branch = computed(() => branches.find(b => b.id === feature.value?.branch));
     const related = computed(() => relatedOf(props.id));
     const inStages = computed(() => stagesOf(props.id));
+    // 商店上還裝不到的功能要講明，不能寫得像已經有（featureMap 開頭那條規則；原本只有輪播標「下一版」）
+    const upcoming = computed(() => !!feature.value && isUpcoming(feature.value));
 </script>
 
 <template>
@@ -27,7 +29,8 @@
             <button type="button" class="dd-feature-detail__close" aria-label="關閉說明" @click="emit('close')">✕</button>
             <p class="dd-feature-detail__branch" :style="{ '--branch': `var(--g-${branch.id})` }">{{ branch.title }}</p>
             <h3 class="dd-feature-detail__title">{{ feature.name }}</h3>
-            <p v-if="feature.plan || feature.hidden" class="dd-feature-detail__tags">
+            <p v-if="feature.plan || feature.hidden || upcoming" class="dd-feature-detail__tags">
+                <span v-if="upcoming">v{{ feature.since }} 起・下一版才有</span>
                 <span v-if="feature.hidden">藏起來的操作</span>
                 <span v-if="feature.plan">{{ feature.plan }}</span>
             </p>
