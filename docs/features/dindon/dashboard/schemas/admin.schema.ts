@@ -1889,19 +1889,25 @@ export type TerritoryKind = z.infer<typeof TerritoryKindSchema>;
 export const TerritoryStatusSchema = z.enum(['tamed', 'wanted']);
 export type TerritoryStatus = z.infer<typeof TerritoryStatusSchema>;
 
-/** 領地底下的成員（29.2「成員」，#839）：一種通知一個。後台還有排序與時間，這裡用不到就不收 */
+/**
+ * 領地底下的成員（29.2「成員」，#839）：一種通知一個。後台形狀（29.4）多了排序與時間；
+ * 時間在畫面上用不到就不收，排序是調順序（#840）要的
+ */
 export const TerritoryMemberSchema = z.object({
     id: z.number().int(),
+    /** 建了不能改（App 拿它挑圖示）；要換就刪掉重建 */
     code: z.string(),
     name: z.string(),
     status: TerritoryStatusSchema,
-    tamedIn: z.string().nullable()
+    tamedIn: z.string().nullable(),
+    /** 小的在前，同一塊領地裡排 */
+    sortOrder: z.number().int()
 });
 export type TerritoryMember = z.infer<typeof TerritoryMemberSchema>;
 
 const TerritoryMemberParser = z
-    .object({ id: z.number(), code: z.string(), name: z.string(), status: TerritoryStatusSchema, tamed_in: z.string().nullish() })
-    .transform(data => ({ id: data.id, code: data.code, name: data.name, status: data.status, tamedIn: data.tamed_in || null }))
+    .object({ id: z.number(), code: z.string(), name: z.string(), status: TerritoryStatusSchema, tamed_in: z.string().nullish(), sort_order: z.number() })
+    .transform(data => ({ id: data.id, code: data.code, name: data.name, status: data.status, tamedIn: data.tamed_in || null, sortOrder: data.sort_order }))
     .pipe(TerritoryMemberSchema);
 
 /** 後台看到的一塊領地（29.4）：比 App 的多了署名從哪來、排序與時間 */
@@ -1958,13 +1964,30 @@ const AdminTerritoryParser = z
     .transform(snakeToCamel)
     .pipe(AdminTerritorySchema);
 
+/**
+ * 全體進度（29.2）。members_tamed／members_total 照成員算、沒有成員的領地算一個（#839）；
+ * 那之前的後端沒有這兩個欄位，那時還沒有成員，每塊都算一個，所以等於 tamed／total
+ */
+export const FrontierProgressSchema = z.object({
+    tamed: z.number().int(),
+    total: z.number().int(),
+    membersTamed: z.number().int(),
+    membersTotal: z.number().int()
+});
+export type FrontierProgress = z.infer<typeof FrontierProgressSchema>;
+
+const FrontierProgressParser = z
+    .object({ tamed: z.number(), total: z.number(), members_tamed: z.number().nullish(), members_total: z.number().nullish() })
+    .transform(data => ({ tamed: data.tamed, total: data.total, membersTamed: data.members_tamed ?? data.tamed, membersTotal: data.members_total ?? data.total }))
+    .pipe(FrontierProgressSchema);
+
 // #region [P] 列出領地 GET /v1/admin/frontier/territories
 
 /** 順序是後端排好的（sort_order、id），照著顯示 */
 export const GetFrontierTerritoriesParser = z
     .object({
         season: FrontierSeasonParser.nullish(),
-        progress: z.object({ tamed: z.number(), total: z.number() }),
+        progress: FrontierProgressParser,
         territories: nullableList(AdminTerritoryParser)
     })
     .transform(data => ({ season: data.season ?? null, progress: data.progress, territories: data.territories }));
@@ -2005,6 +2028,41 @@ export const UpdateTerritoryPayload = z
     .refine(data => Object.keys(data).length > 0, '沒有要改的欄位')
     .transform(camelToSnake);
 export type UpdateTerritoryInput = z.input<typeof UpdateTerritoryPayload>;
+
+// #endregion
+
+// #region [P] 成員 POST、PATCH、DELETE /v1/admin/frontier/territories/:id/members(/:member_id)（29.4，#840）
+
+/** 成功回改好的成員與整塊領地（含 members、重算過的 status）：畫面拿 territory 直接換掉那一塊 */
+export const SaveMemberParser = z
+    .object({ member: TerritoryMemberParser, territory: AdminTerritoryParser })
+    .transform(data => ({ member: data.member, territory: data.territory }));
+export type SavedMember = z.output<typeof SaveMemberParser>;
+
+/** 欄位規則在 frontier.ts；不認得的欄位後端回 400，所以選填的空值不送 */
+export const CreateMemberPayload = z
+    .object({
+        code: z.string(),
+        name: z.string(),
+        status: TerritoryStatusSchema.optional(),
+        tamedIn: z.string().nullable().optional(),
+        sortOrder: z.number().int().optional()
+    })
+    .transform(camelToSnake);
+export type CreateMemberInput = z.input<typeof CreateMemberPayload>;
+
+/** code 建了不能改（給了回 400），所以這裡沒有；只有 tamedIn 能給 null（清掉） */
+export const UpdateMemberPayload = z
+    .object({
+        name: z.string(),
+        status: TerritoryStatusSchema,
+        tamedIn: z.string().nullable(),
+        sortOrder: z.number().int()
+    })
+    .partial()
+    .refine(data => Object.keys(data).length > 0, '沒有要改的欄位')
+    .transform(camelToSnake);
+export type UpdateMemberInput = z.input<typeof UpdateMemberPayload>;
 
 // #endregion
 

@@ -5,7 +5,7 @@
 
 import type { z } from 'zod';
 import type { PaidFilter } from './payments';
-import type { AdjustCoinsInput, AdminDevice, BatchReviewFeedbackInput, BountyInput, ChangeCheckinsInput, CreateCoinItemInput, CreateFeedbackInput, CreateFeedbackIssueInput, CreateTerritoryInput, PublishNewsDraftInput, PurgeEventInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, SendFeedbackEmailInput, SendFeedbackMessageInput, TriageFeedbackInput, UpdateCoinItemInput, UpdateDeviceInput, UpdateFeedbackIssueInput, UpdateGlobalSettingsInput, UpdateTerritoryInput } from './schemas/admin.schema';
+import type { AdjustCoinsInput, AdminDevice, BatchReviewFeedbackInput, BountyInput, ChangeCheckinsInput, CreateCoinItemInput, CreateFeedbackInput, CreateFeedbackIssueInput, CreateMemberInput, CreateTerritoryInput, PublishNewsDraftInput, PurgeEventInput, ReviewFeedbackInput, SaveAnnouncementInput, SaveAppConfigInput, SaveFeatureCandidateInput, SavePromoCodeInput, SendFeedbackEmailInput, SendFeedbackMessageInput, TriageFeedbackInput, UpdateCoinItemInput, UpdateDeviceInput, UpdateFeedbackIssueInput, UpdateGlobalSettingsInput, UpdateMemberInput, UpdateTerritoryInput } from './schemas/admin.schema';
 import { apiBase } from '@shared/utils/apiBase';
 import { parseResponse } from '@shared/utils/zod';
 import { GetApiCatalogParser } from './console/catalog.schema';
@@ -25,6 +25,7 @@ import {
     CreateFeedbackIssuePayload,
     CreateFeedbackParser,
     CreateFeedbackPayload,
+    CreateMemberPayload,
     CreateTerritoryPayload,
     DiscardNewsDraftParser,
     EraseIdentityParser,
@@ -65,6 +66,7 @@ import {
     SaveCoinItemParser,
     SaveFeatureCandidateParser,
     SaveFeatureCandidatePayload,
+    SaveMemberParser,
     SavePromoCodeParser,
     SavePromoCodePayload,
     SaveTerritoryParser,
@@ -81,6 +83,7 @@ import {
     UpdateFeedbackIssueParser,
     UpdateFeedbackIssuePayload,
     UpdateGlobalSettingsPayload,
+    UpdateMemberPayload,
     UpdateTerritoryPayload
 } from './schemas/admin.schema';
 
@@ -367,6 +370,15 @@ export const adminApi = {
     /** 回 204 沒有內容 */
     deleteTerritory: async (token: string, id: number) => {
         await request(token, `/v1/admin/frontier/territories/${id}`, { method: 'DELETE' });
+    },
+    /** 成員（#840）：每次都在後端重算領地的 status，回的 territory 直接換掉那一塊。同領地 code 重複 409 */
+    createMember: async (token: string, territoryId: number, body: CreateMemberInput) =>
+        call(SaveMemberParser, token, 'POST', `/v1/admin/frontier/territories/${territoryId}/members`, CreateMemberPayload.parse(body)),
+    updateMember: async (token: string, territoryId: number, memberId: number, body: UpdateMemberInput) =>
+        call(SaveMemberParser, token, 'PATCH', `/v1/admin/frontier/territories/${territoryId}/members/${memberId}`, UpdateMemberPayload.parse(body)),
+    /** 回 204。有賞金紀錄指著它的 409，後端的訊息講了要改用 PATCH */
+    deleteMember: async (token: string, territoryId: number, memberId: number) => {
+        await request(token, `/v1/admin/frontier/territories/${territoryId}/members/${memberId}`, { method: 'DELETE' });
     },
     // #endregion
 

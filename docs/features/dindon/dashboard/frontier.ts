@@ -1,4 +1,4 @@
-import type { AdminTerritory, BountyInput, FeedbackReport, FeedbackStatus, FrontierBounty, FrontierSeason, ReviewFeedbackInput, TerritoryKind, TerritoryMember, TerritoryStatus, UpdateTerritoryInput } from './schemas/admin.schema';
+import type { AdminTerritory, BountyInput, CreateMemberInput, FeedbackReport, FeedbackStatus, FrontierBounty, FrontierProgress, FrontierSeason, ReviewFeedbackInput, TerritoryKind, TerritoryMember, TerritoryStatus, UpdateMemberInput, UpdateTerritoryInput } from './schemas/admin.schema';
 import { FIXED_IN_PATTERN } from './schemas/admin.schema';
 
 // 拓荒季的純邏輯（api.md 第 29 節，Flowsker #705、#706）。畫面在 components/FrontierPanel.vue 與 FrontierBounty.vue。
@@ -89,7 +89,8 @@ export function territoryPatch(current: AdminTerritory, draft: TerritoryDraft): 
     const sortOrder = Number(draft.sortOrder.trim());
     if (name !== current.name) patch.name = name;
     if (draft.kind !== current.kind) patch.kind = draft.kind;
-    if (draft.status !== current.status) patch.status = draft.status;
+    // 有成員時狀態跟著成員走，給了不一樣的是 409（#839）；成員一改，表單裡的舊值就跟現在對不上，所以乾脆不送
+    if (!current.members.length && draft.status !== current.status) patch.status = draft.status;
     if (tamedIn !== current.tamedIn) patch.tamedIn = tamedIn;
     if (note !== current.note) patch.note = note;
     if (draft.sortOrder.trim() && sortOrder !== current.sortOrder) patch.sortOrder = sortOrder;
@@ -98,9 +99,10 @@ export function territoryPatch(current: AdminTerritory, draft: TerritoryDraft): 
 
 /**
  * 上移／下移一格：跟鄰居交換 sort_order（後端照 sort_order、id 排）。回要送的 PATCH，最多兩筆。
- * 兩塊的 sort_order 一樣時交換沒有用，只把移動的那塊設成鄰居的前一號／後一號
+ * 兩塊的 sort_order 一樣時交換沒有用，只把移動的那塊設成鄰居的前一號／後一號。
+ * 領地與同一塊裡的成員（#840）排法一樣，都用這支
  */
-export function moveTerritory(list: readonly AdminTerritory[], id: number, direction: -1 | 1): { id: number; sortOrder: number }[] {
+export function moveTerritory(list: readonly { id: number; sortOrder: number }[], id: number, direction: -1 | 1): { id: number; sortOrder: number }[] {
     const index = list.findIndex(t => t.id === id);
     const neighbor = list[index + direction];
     if (index === -1 || !neighbor) return [];
@@ -116,6 +118,131 @@ export function pioneerOrigin(territory: AdminTerritory): string {
     if (territory.pioneerDeviceId) return `裝置 #${territory.pioneerDeviceId}`;
     return '手動';
 }
+
+// #endregion
+
+// #region [P] 成員（29.2「成員」、29.4，#839、#840）：一家是一個團伙，每種通知一個成員
+
+/** 成員用「緝拿」：團伙的成員是一個一個抓到的；領地整塊才說「馴服」 */
+export const MEMBER_STATUS_LABELS: Record<TerritoryStatus, string> = { tamed: '已緝拿', wanted: '通緝中' };
+export const MEMBER_NAME_MAX = 20;
+/** 後端 memberCodePattern：code 建了不能改（App 拿它挑圖示），只收穩定、好當檔名的字元 */
+export const MEMBER_CODE_PATTERN = /^[a-z0-9_]{1,30}$/;
+
+/** 29.2 的建議值；後台也可以自訂別的，App 不認得的用通用圖示 */
+export const SUGGESTED_MEMBERS: readonly { code: string; name: string }[] = [
+    { code: 'transfer', name: '轉帳' },
+    { code: 'income', name: '入帳' },
+    { code: 'credit_card', name: '信用卡' },
+    { code: 'top_up', name: '儲值' },
+    { code: 'auto_debit', name: '自動扣款' },
+    { code: 'payment', name: '付款' }
+];
+
+/** 這塊還沒用到的建議值：同一塊領地 code 不能重複（409） */
+export const unusedSuggestions = (members: readonly Pick<TerritoryMember, 'code'>[]) =>
+    SUGGESTED_MEMBERS.filter(s => !members.some(m => m.code === s.code));
+
+export function memberCodeProblem(code: string, members: readonly Pick<TerritoryMember, 'code'>[] = []): string {
+    const trimmed = code.trim();
+    if (!trimmed) return '代號不能空白';
+    if (!MEMBER_CODE_PATTERN.test(trimmed)) return '代號只能是 1～30 個小寫英數或底線，例如 credit_card';
+    if (members.some(m => m.code === trimmed)) return `這塊已經有代號 ${trimmed} 的成員`;
+    return '';
+}
+
+export function memberNameProblem(name: string): string {
+    const trimmed = name.trim();
+    if (!trimmed) return '名稱不能空白';
+    if (runes(trimmed) > MEMBER_NAME_MAX) return `名稱最多 ${MEMBER_NAME_MAX} 字`;
+    if (BAD_CHARS.test(trimmed)) return '名稱不能換行，也不能有看不見的字元';
+    return '';
+}
+
+/**
+ * 一列成員的草稿。code 只有新增時能填。排序不在草稿裡：一律用上下移（moveTerritory），
+ * 新增的不給 sort_order，後端排這塊的最後
+ */
+export interface MemberDraft {
+    code: string;
+    name: string;
+    status: TerritoryStatus;
+    tamedIn: string;
+}
+
+export const emptyMemberDraft = (): MemberDraft => ({ code: '', name: '', status: 'wanted', tamedIn: '' });
+
+export const memberDraftOf = (member: TerritoryMember): MemberDraft => ({
+    code: member.code,
+    name: member.name,
+    status: member.status,
+    tamedIn: member.tamedIn ?? ''
+});
+
+/** siblings：新增時檢查同一塊的 code 重複；修改時給 null，不檢查 code（不能改） */
+export function memberFormError(draft: MemberDraft, siblings: readonly Pick<TerritoryMember, 'code'>[] | null): string {
+    return (siblings ? memberCodeProblem(draft.code, siblings) : '')
+        || memberNameProblem(draft.name)
+        || tamedInProblem(draft.tamedIn);
+}
+
+/** 新增的 body：版本留空不送（＝沒有） */
+export function memberCreateBody(draft: MemberDraft): CreateMemberInput {
+    const tamedIn = draft.tamedIn.trim();
+    return {
+        code: draft.code.trim(),
+        name: draft.name.trim(),
+        status: draft.status,
+        ...(tamedIn ? { tamedIn } : {})
+    };
+}
+
+/** 只送變了的欄位（後端的操作紀錄記前後）；版本清空送 null */
+export function memberPatch(current: TerritoryMember, draft: MemberDraft): UpdateMemberInput {
+    const patch: UpdateMemberInput = {};
+    const name = draft.name.trim();
+    const tamedIn = draft.tamedIn.trim() || null;
+    if (name !== current.name) patch.name = name;
+    if (draft.status !== current.status) patch.status = draft.status;
+    if (tamedIn !== current.tamedIn) patch.tamedIn = tamedIn;
+    return patch;
+}
+
+/**
+ * 29.4「補成員的順序」：已緝拿、還沒有成員的領地，加進第一個通緝中的成員整塊會翻回通緝中。
+ * 照 note 補時要先補已緝拿的，所以按下去之前提醒（不擋：真的缺那一種就是要翻回去）
+ */
+export const flipsBackToWanted = (territory: Pick<AdminTerritory, 'status' | 'members'>, draft: Pick<MemberDraft, 'status'>) =>
+    territory.status === 'tamed' && draft.status === 'wanted';
+
+/** 列表上一塊的成員進度，「2/3」；沒有成員是空字串 */
+export function memberTally(territory: Pick<AdminTerritory, 'members'>): string {
+    if (!territory.members.length) return '';
+    return `${territory.members.filter(m => m.status === 'tamed').length}/${territory.members.length}`;
+}
+
+/**
+ * 照後端的規則（29.2 progress）在前端重算全體進度：改成員只回那一塊，不用為了頂端的數字重抓 44 塊。
+ * 每個成員算一個，沒有成員的領地用它自己的 status 算一個
+ */
+export function frontierProgress(list: readonly Pick<AdminTerritory, 'status' | 'members'>[]): FrontierProgress {
+    let membersTamed = 0;
+    let membersTotal = 0;
+    for (const territory of list) {
+        if (territory.members.length) {
+            membersTotal += territory.members.length;
+            membersTamed += territory.members.filter(m => m.status === 'tamed').length;
+        } else {
+            membersTotal += 1;
+            if (territory.status === 'tamed') membersTamed += 1;
+        }
+    }
+    return { tamed: list.filter(t => t.status === 'tamed').length, total: list.length, membersTamed, membersTotal };
+}
+
+/** 頂端進度條的比例照成員算（App 的「劃掉幾個成員」也是用這兩個） */
+export const progressPercent = (progress: FrontierProgress) =>
+    (progress.membersTotal ? Math.round(progress.membersTamed / progress.membersTotal * 100) : 0);
 
 // #endregion
 

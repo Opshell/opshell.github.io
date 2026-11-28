@@ -1,14 +1,15 @@
 <script setup lang="ts">
     import type { TerritoryDraft } from '../frontier';
-    import type { AdminTerritory, FrontierSeason, TerritoryKind, TerritoryStatus } from '../schemas/admin.schema';
+    import type { AdminTerritory, FrontierProgress, FrontierSeason, TerritoryKind, TerritoryStatus } from '../schemas/admin.schema';
     import { computed, onMounted, reactive, ref } from 'vue';
     import { adminApi } from '../api';
     import { formatDateTime, formatInt } from '../format';
-    import { draftOf, emptyDraft, KIND_LABELS, KINDS, moveTerritory, pioneerOrigin, seasonLine, STATUS_LABELS, STATUSES, TERRITORY_NAME_MAX, TERRITORY_NOTE_MAX, territoryFormError, territoryPatch } from '../frontier';
+    import { draftOf, emptyDraft, frontierProgress, KIND_LABELS, KINDS, memberTally, moveTerritory, pioneerOrigin, progressPercent, seasonLine, STATUS_LABELS, STATUSES, TERRITORY_NAME_MAX, TERRITORY_NOTE_MAX, territoryFormError, territoryPatch } from '../frontier';
     import { reporterNameProblem } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import AdminActions from './AdminActions.vue';
     import CoinShop from './CoinShop.vue';
+    import FrontierMembers from './FrontierMembers.vue';
 
     // 拓荒季的領地（api.md 29.4，Flowsker #706）：上架首 30 天的活動，每家銀行／支付／電信是一塊地。
     // 「已馴服」要出版：那一版上架之後才翻、填 tamed_in。開拓者通常是回報頁發賞金時自動設的，這裡是補登與更正。
@@ -16,7 +17,7 @@
 
     const territories = ref<AdminTerritory[]>([]);
     const season = ref<FrontierSeason | null>(null);
-    const progress = ref({ tamed: 0, total: 0 });
+    const progress = ref<FrontierProgress>({ tamed: 0, total: 0, membersTamed: 0, membersTotal: 0 });
     const loaded = ref(false);
     const loading = ref(false);
     const busy = ref(false);
@@ -32,7 +33,8 @@
         (kindFilter.value === 'all' || t.kind === kindFilter.value)
         && (statusFilter.value === 'all' || t.status === statusFilter.value)
         && (!openOnly.value || !t.pioneer)));
-    const percent = computed(() => (progress.value.total ? Math.round(progress.value.tamed / progress.value.total * 100) : 0));
+    // 進度條照成員算（#839）：沒有成員的領地算一個，所以還沒補成員之前跟照塊數算一樣
+    const percent = computed(() => progressPercent(progress.value));
     // #endregion
 
     async function load() {
@@ -142,6 +144,25 @@
     }
     // #endregion
 
+    // #region [P] 成員（#840）：增改刪在 FrontierMembers，這裡只接後端回的那一塊
+    /** 有成員時狀態跟著成員走：表單的狀態鎖住，送出時也不帶（frontier.ts 的 territoryPatch） */
+    const statusLocked = computed(() => !!current.value?.members.length);
+
+    function replaceTerritory(territory: AdminTerritory) {
+        const index = territories.value.findIndex(t => t.id === territory.id);
+        if (index !== -1) territories.value.splice(index, 1, territory);
+        // 改成員只回那一塊：頂端的數字照後端同一套規則在前端重算，不用重抓 44 塊
+        progress.value = frontierProgress(territories.value);
+        // 表單裡的狀態跟著重算過的走，不然成員刪光之後送出會把舊的值寫回去
+        if (territory.id === editing.value) form.status = territory.status;
+    }
+
+    async function reloadAfterMembers() {
+        await load();
+        if (current.value) form.status = current.value.status;
+    }
+    // #endregion
+
     // #region [P] 開拓者（29.4）：照裝置現在的名字、手打、或清掉；手動設的會蓋掉原本的
     const pioneerDeviceDraft = ref('');
     const pioneerDeviceId = computed(() => (/^\d+$/.test(pioneerDeviceDraft.value.trim()) && Number(pioneerDeviceDraft.value) > 0 ? Number(pioneerDeviceDraft.value.trim()) : null));
@@ -202,10 +223,13 @@
             <p class="dd-frontier__season" :class="`dd-frontier__season--${season?.state ?? 'unset'}`">
                 {{ loaded ? seasonLine(season) : '載入中…' }}
             </p>
-            <div class="dd-frontier__progress" :aria-label="`已馴服 ${progress.tamed} 塊，共 ${progress.total} 塊`">
-                <span class="dd-frontier__count">已馴服 {{ formatInt(progress.tamed) }} / {{ formatInt(progress.total) }}</span>
+            <div
+                class="dd-frontier__progress"
+                :aria-label="`照成員算已緝拿 ${progress.membersTamed} 個，共 ${progress.membersTotal} 個；領地已馴服 ${progress.tamed} 塊，共 ${progress.total} 塊`"
+            >
+                <span class="dd-frontier__count" title="每個成員算一個，沒有成員的領地算一個（App 的進度也是這樣算）">已緝拿 {{ formatInt(progress.membersTamed) }} / {{ formatInt(progress.membersTotal) }}</span>
                 <span class="dd-frontier__track"><span class="dd-frontier__fill" :style="{ width: `${percent}%` }" /></span>
-                <span class="dd-frontier__muted">{{ percent }}%</span>
+                <span class="dd-frontier__muted">{{ percent }}%・領地已馴服 {{ formatInt(progress.tamed) }} / {{ formatInt(progress.total) }}</span>
             </div>
         </div>
         <p class="dd-frontier__muted">
@@ -239,9 +263,10 @@
                 </label>
                 <label class="dd-frontier__field">
                     <span>狀態</span>
-                    <select v-model="form.status" :disabled="busy">
+                    <select v-model="form.status" :disabled="busy || statusLocked">
                         <option v-for="status in STATUSES" :key="status" :value="status">{{ STATUS_LABELS[status] }}</option>
                     </select>
+                    <span v-if="statusLocked" class="dd-frontier__muted">跟著成員走，改下面的成員</span>
                 </label>
                 <label class="dd-frontier__field">
                     <span>馴服於</span>
@@ -274,6 +299,9 @@
                 <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="close">關閉</button>
                 <button v-if="!isNew" type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy" @click="confirmingDelete = true">刪除…</button>
             </div>
+
+            <!-- 成員各自存：每一列一次請求，不跟上面的欄位混在一起 -->
+            <FrontierMembers v-if="current" v-model:busy="busy" :territory="current" @update="replaceTerritory" @reload="reloadAfterMembers" />
 
             <!-- 開拓者另外存：每一種都是一次 PATCH，不跟上面的欄位混在一起 -->
             <section v-if="current" class="dd-frontier__pioneer">
@@ -381,7 +409,10 @@
                         </td>
                         <td><strong>{{ territory.name }}</strong></td>
                         <td>{{ KIND_LABELS[territory.kind] }}</td>
-                        <td><span class="dd-frontier__status" :class="`dd-frontier__status--${territory.status}`">{{ STATUS_LABELS[territory.status] }}</span></td>
+                        <td>
+                            <span class="dd-frontier__status" :class="`dd-frontier__status--${territory.status}`">{{ STATUS_LABELS[territory.status] }}</span>
+                            <span v-if="memberTally(territory)" class="dd-frontier__muted" :title="`成員已緝拿 ${memberTally(territory)}`"> 成員 {{ memberTally(territory) }}</span>
+                        </td>
                         <td>{{ territory.tamedIn ?? '—' }}</td>
                         <td>
                             <template v-if="territory.pioneer">

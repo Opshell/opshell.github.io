@@ -1,6 +1,6 @@
-import type { AdminTerritory, FrontierBounty, FrontierSeason } from './schemas/admin.schema';
+import type { AdminTerritory, FrontierBounty, FrontierSeason, TerritoryMember } from './schemas/admin.schema';
 import { describe, expect, it } from 'vitest';
-import { bountyBlocked, bountyBody, bountyError, cancelBountyBody, daysPaid, defaultBountyTitle, emptyDraft, isMissedNotification, moveTerritory, pioneerOrigin, reviewBody, seasonLine, tamedInProblem, targetError, targetOf, territoryFormError, territoryNameProblem, territoryNoteProblem, territoryOptionLabel, territoryPatch } from './frontier';
+import { bountyBlocked, bountyBody, bountyError, cancelBountyBody, daysPaid, defaultBountyTitle, emptyDraft, emptyMemberDraft, flipsBackToWanted, frontierProgress, isMissedNotification, memberCodeProblem, memberCreateBody, memberDraftOf, memberFormError, memberNameProblem, memberPatch, memberTally, moveTerritory, pioneerOrigin, progressPercent, reviewBody, seasonLine, tamedInProblem, targetError, targetOf, territoryFormError, territoryNameProblem, territoryNoteProblem, territoryOptionLabel, territoryPatch, unusedSuggestions } from './frontier';
 
 const territory = (patch: Partial<AdminTerritory> = {}): AdminTerritory => ({
     id: 1,
@@ -61,6 +61,100 @@ describe('領地的欄位（api.md 29.4）', () => {
         expect(territoryPatch(current, draft)).toEqual({ status: 'wanted', tamedIn: null });
         expect(territoryPatch(current, { ...draft, status: 'tamed', tamedIn: '1.0.0' })).toEqual({});
         expect(territoryPatch(current, { ...draft, status: 'tamed', tamedIn: '1.0.0', sortOrder: '7' })).toEqual({ sortOrder: 7 });
+    });
+});
+
+const member = (patch: Partial<TerritoryMember> = {}): TerritoryMember => ({ id: 5, code: 'payment', name: '付款', status: 'wanted', tamedIn: null, sortOrder: 2, ...patch });
+
+describe('有成員的領地（#839、#840）', () => {
+    it('狀態跟著成員走：表單裡的狀態不送（不一樣會 409），其他欄位照送', () => {
+        const current = territory({ status: 'wanted', members: [member()] });
+        const draft = { name: '中華郵政', kind: 'bank' as const, status: 'tamed' as const, tamedIn: '', note: '改備註', sortOrder: '1' };
+        expect(territoryPatch(current, draft)).toEqual({ note: '改備註' });
+        // 成員刪光之後照舊能直接改
+        expect(territoryPatch({ ...current, members: [] }, draft)).toEqual({ status: 'tamed', note: '改備註' });
+    });
+});
+
+describe('成員的欄位（api.md 29.4）', () => {
+    it('code：小寫英數底線 1～30、同一塊不能重複', () => {
+        expect(memberCodeProblem('credit_card')).toBe('');
+        expect(memberCodeProblem(' top_up ')).toBe('');
+        expect(memberCodeProblem('')).toBe('代號不能空白');
+        expect(memberCodeProblem('Transfer')).toContain('小寫英數');
+        expect(memberCodeProblem('top-up')).toContain('小寫英數');
+        expect(memberCodeProblem('a'.repeat(31))).toContain('小寫英數');
+        expect(memberCodeProblem('payment', [member()])).toBe('這塊已經有代號 payment 的成員');
+    });
+
+    it('名稱 1～20 字（emoji 算一個）、不能換行', () => {
+        expect(memberNameProblem(' 信用卡 ')).toBe('');
+        expect(memberNameProblem(' ')).toBe('名稱不能空白');
+        expect(memberNameProblem('一'.repeat(20))).toBe('');
+        expect(memberNameProblem('一'.repeat(21))).toBe('名稱最多 20 字');
+        expect(memberNameProblem('😀'.repeat(20))).toBe('');
+        expect(memberNameProblem('儲\n值')).toContain('不能換行');
+    });
+
+    it('新增時檢查 code；修改時不看 code', () => {
+        const draft = { ...emptyMemberDraft(), code: 'transfer', name: '轉帳' };
+        expect(memberFormError(draft, [member()])).toBe('');
+        expect(memberFormError({ ...draft, code: 'payment' }, [member()])).toContain('已經有');
+        expect(memberFormError({ ...draft, tamedIn: '1.0 正式' }, [])).toContain('版本');
+        expect(memberFormError(memberDraftOf(member()), null)).toBe('');
+    });
+
+    it('新增的 body：空的版本不送、排序不送（排最後）', () => {
+        expect(memberCreateBody({ code: ' transfer ', name: ' 轉帳 ', status: 'wanted', tamedIn: '' }))
+            .toEqual({ code: 'transfer', name: '轉帳', status: 'wanted' });
+        expect(memberCreateBody({ code: 'top_up', name: '儲值', status: 'tamed', tamedIn: '1.0.1' }))
+            .toEqual({ code: 'top_up', name: '儲值', status: 'tamed', tamedIn: '1.0.1' });
+    });
+
+    it('修改只送變了的；清掉版本送 null；沒變是空物件', () => {
+        const current = member({ status: 'tamed', tamedIn: '1.0.1' });
+        const draft = memberDraftOf(current);
+        expect(memberPatch(current, draft)).toEqual({});
+        expect(memberPatch(current, { ...draft, name: ' 付款碼 ' })).toEqual({ name: '付款碼' });
+        expect(memberPatch(current, { ...draft, status: 'wanted', tamedIn: '' })).toEqual({ status: 'wanted', tamedIn: null });
+    });
+
+    it('建議值扣掉這塊已經有的', () => {
+        expect(unusedSuggestions([member()]).map(s => s.code)).toEqual(['transfer', 'income', 'credit_card', 'top_up', 'auto_debit']);
+    });
+
+    it('已緝拿的領地加通緝中的成員會翻回通緝中，先提醒', () => {
+        expect(flipsBackToWanted(territory({ status: 'tamed' }), { status: 'wanted' })).toBe(true);
+        expect(flipsBackToWanted(territory({ status: 'tamed' }), { status: 'tamed' })).toBe(false);
+        expect(flipsBackToWanted(territory({ status: 'wanted' }), { status: 'wanted' })).toBe(false);
+    });
+
+    it('成員也用上下移一格（同一套交換）', () => {
+        const members = [member({ id: 1, sortOrder: 0 }), member({ id: 2, sortOrder: 1 })];
+        expect(moveTerritory(members, 2, -1)).toEqual([{ id: 2, sortOrder: 0 }, { id: 1, sortOrder: 1 }]);
+    });
+});
+
+describe('全體進度（api.md 29.2 progress）', () => {
+    const list = [
+        territory({ status: 'tamed' }),
+        territory({ status: 'wanted' }),
+        territory({ status: 'wanted', members: [member({ status: 'tamed' }), member({ status: 'tamed' }), member()] })
+    ];
+
+    it('每個成員算一個，沒有成員的領地算一個', () => {
+        expect(frontierProgress(list)).toEqual({ tamed: 1, total: 3, membersTamed: 3, membersTotal: 5 });
+        expect(frontierProgress([])).toEqual({ tamed: 0, total: 0, membersTamed: 0, membersTotal: 0 });
+    });
+
+    it('進度條照成員算；空的是 0%', () => {
+        expect(progressPercent(frontierProgress(list))).toBe(60);
+        expect(progressPercent({ tamed: 0, total: 0, membersTamed: 0, membersTotal: 0 })).toBe(0);
+    });
+
+    it('列表上的「2/3」', () => {
+        expect(memberTally(list[2])).toBe('2/3');
+        expect(memberTally(list[0])).toBe('');
     });
 });
 
@@ -135,7 +229,7 @@ const bounty = (patch: Partial<FrontierBounty> = {}): FrontierBounty => ({
 
 describe('審核時採計成懸賞（api.md 第 8 節，#871）', () => {
     const list = [
-        territory({ id: 35, name: '街口支付', members: [{ id: 5, code: 'payment', name: '付款', status: 'wanted', tamedIn: null }] }),
+        territory({ id: 35, name: '街口支付', members: [{ id: 5, code: 'payment', name: '付款', status: 'wanted', tamedIn: null, sortOrder: 0 }] }),
         territory({ id: 36 })
     ];
 
