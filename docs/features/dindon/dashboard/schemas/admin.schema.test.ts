@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BatchReviewFeedbackPayload, BountyParser, BountyPayload, CreateFeedbackPayload, CreateTerritoryPayload, GetDeviceDetailParser, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackEmailsParser, GetFeedbackListParser, GetFeedbackMessagesParser, GetFeedbackStatsParser, GetFrontierTerritoriesParser, GetUsageReportParser, PaymentsSummaryParser, ReviewFeedbackPayload, SaveFeatureCandidatePayload, SendFeedbackEmailParser, SendFeedbackEmailPayload, SendFeedbackMessageParser, SendFeedbackMessagePayload, UpdateDevicePayload, UpdateFeedbackIssueParser, UpdateTerritoryPayload } from './admin.schema';
+import { BatchReviewFeedbackPayload, BountyParser, BountyPayload, CreateFeedbackPayload, CreateMemberPayload, CreateTerritoryPayload, GetDeviceDetailParser, GetDeviceListParser, GetFeatureCandidateListParser, GetFeedbackEmailsParser, GetFeedbackListParser, GetFeedbackMessagesParser, GetFeedbackStatsParser, GetFrontierTerritoriesParser, GetUsageReportParser, PaymentsSummaryParser, ReviewFeedbackPayload, SaveFeatureCandidatePayload, SaveMemberParser, SendFeedbackEmailParser, SendFeedbackEmailPayload, SendFeedbackMessageParser, SendFeedbackMessagePayload, UpdateDevicePayload, UpdateFeedbackIssueParser, UpdateMemberPayload, UpdateTerritoryPayload } from './admin.schema';
 
 // 後端是 Go：nil 的 slice、map 會送 null，沒設的指標欄位可能整個不送。這裡測的都是這類邊界
 
@@ -386,7 +386,7 @@ describe('拓荒季（api.md 第 29 節，Flowsker #706）', () => {
 
     it('季還沒定是 null；Go 的 nil slice 補空陣列', () => {
         expect(GetFrontierTerritoriesParser.parse({ season: null, progress: { tamed: 0, total: 0 }, territories: null }))
-            .toEqual({ season: null, progress: { tamed: 0, total: 0 }, territories: [] });
+            .toEqual({ season: null, progress: { tamed: 0, total: 0, membersTamed: 0, membersTotal: 0 }, territories: [] });
     });
 
     it('領地與季轉駝峰', () => {
@@ -414,10 +414,34 @@ describe('拓荒季（api.md 第 29 節，Flowsker #706）', () => {
             progress: { tamed: 0, total: 1 },
             territories: [{ ...rawTerritory, members: [{ id: 5, code: 'payment', name: '付款', status: 'wanted', tamed_in: null, sort_order: 3 }] }, rawTerritory]
         });
-        expect(result.territories[0].members).toEqual([{ id: 5, code: 'payment', name: '付款', status: 'wanted', tamedIn: null }]);
+        expect(result.territories[0].members).toEqual([{ id: 5, code: 'payment', name: '付款', status: 'wanted', tamedIn: null, sortOrder: 3 }]);
         expect(result.territories[1].members).toEqual([]);
         expect(BountyParser.parse({ bounty: rawBounty, perk: null, territory: null, pioneer_set: false }).bounty.memberId).toBeNull();
         expect(BountyParser.parse({ bounty: { ...rawBounty, member_id: 5 }, perk: null, territory: null, pioneer_set: true }).bounty.memberId).toBe(5);
+    });
+
+    it('進度（#839）：照成員算的兩個欄位轉駝峰；#839 之前的後端沒有，等於照塊數算', () => {
+        const parse = (progress: object) => GetFrontierTerritoriesParser.parse({ season: null, progress, territories: [] }).progress;
+        expect(parse({ tamed: 10, total: 44, members_tamed: 12, members_total: 46 })).toEqual({ tamed: 10, total: 44, membersTamed: 12, membersTotal: 46 });
+        expect(parse({ tamed: 10, total: 44 })).toEqual({ tamed: 10, total: 44, membersTamed: 10, membersTotal: 44 });
+    });
+
+    it('成員的後台形狀（29.4）：sort_order 轉駝峰、時間不收；舊回應沒有 members 補 []', () => {
+        const rawMember = { id: 3, code: 'transfer', name: '轉帳', status: 'tamed', tamed_in: '1.0.1', sort_order: 0, created_at: '2026-11-24T00:00:00Z', updated_at: '2026-11-24T00:00:00Z' };
+        const saved = SaveMemberParser.parse({ member: rawMember, territory: { ...rawTerritory, status: 'tamed', members: [rawMember] } });
+        expect(saved.member).toEqual({ id: 3, code: 'transfer', name: '轉帳', status: 'tamed', tamedIn: '1.0.1', sortOrder: 0 });
+        expect(saved.territory).toMatchObject({ id: 35, status: 'tamed', members: [{ id: 3, sortOrder: 0 }] });
+        expect(SaveMemberParser.parse({ member: { ...rawMember, tamed_in: null }, territory: rawTerritory }).territory.members).toEqual([]);
+        expect(SaveMemberParser.safeParse({ member: { ...rawMember, sort_order: undefined }, territory: rawTerritory }).success).toBe(false);
+    });
+
+    it('成員的 body：轉 snake_case；修改至少一個、不能帶 code', () => {
+        expect(CreateMemberPayload.parse({ code: 'top_up', name: '儲值', status: 'tamed', tamedIn: '1.0.1', sortOrder: 3 }))
+            .toEqual({ code: 'top_up', name: '儲值', status: 'tamed', tamed_in: '1.0.1', sort_order: 3 });
+        expect(UpdateMemberPayload.parse({ tamedIn: null, sortOrder: 2 })).toEqual({ tamed_in: null, sort_order: 2 });
+        expect(UpdateMemberPayload.safeParse({}).success).toBe(false);
+        // 型別上沒有 code；zod 會丟掉不認得的欄位，後端也就不會回 400「code 建了不能改」
+        expect(UpdateMemberPayload.parse({ name: '轉帳', code: 'x' })).toEqual({ name: '轉帳' });
     });
 
     it('採計成懸賞的 body（#871）：null 照送，0 擋下', () => {
