@@ -1,8 +1,10 @@
 <script setup lang="ts">
+    import type { BarRow, BarSeries } from '../charts/BarChart.vue';
     import type { Dist, UsageReport } from '../schemas/admin.schema';
     import { computed, onMounted, ref } from 'vue';
     import { adminApi } from '../api';
-    import { FEATURE_LABELS, FEATURE_ORDER, formatDateTime, formatInt, formatMs, formatPercent } from '../format';
+    import BarChart from '../charts/BarChart.vue';
+    import { FEATURE_LABELS, FEATURE_ORDER, formatDateTime, formatInt, formatMs, formatPercent, formatUsd } from '../format';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import { useCostCalibration } from '../useCostCalibration';
     import AdminActions from './AdminActions.vue';
@@ -41,6 +43,17 @@
     const test = computed(() => report.value?.test);
     const testUsd = computed(() => (test.value ? test.value.costUsd + test.value.canceledCostEstUsd : 0));
 
+    // #region [P] JEV 影子（api.md 第 3 節「JEV 影子」、usage-analytics.md「JEV 影子」，#918）
+    // TypeSafe AI 的花費，不在 Google 帳單上，所以一律寫美元、不乘 Google 的匯率；
+    // 後端的 cost_usd 都不含它，這裡也不加進任何 Gemini 的數字，免得看起來像 Gemini 變貴了
+    const jev = computed(() => report.value?.jev ?? null);
+    /** 有問過 JEV 的日子（舊到新跟後端一樣）：開關沒開時整段期間都是 0，不列一整排空白 */
+    const jevDays = computed(() => (report.value?.daily ?? []).filter(day => day.jevCalls > 0));
+    const P_YES_LABELS = ['0～0.1', '0.1～0.2', '0.2～0.3', '0.3～0.4', '0.4～0.5', '0.5～0.6', '0.6～0.7', '0.7～0.8', '0.8～0.9', '0.9～1'];
+    const pYesRows = computed<BarRow[]>(() => (jev.value?.pYesBuckets ?? []).map((count, i) => ({ label: P_YES_LABELS[i] ?? `${i}`, values: { count } })));
+    const pYesSeries: BarSeries[] = [{ key: 'count', label: '次數', color: 'var(--dd-series-1)' }];
+    // #endregion
+
     const tiles = computed(() => {
         const r = report.value;
         if (!r) return [];
@@ -49,6 +62,10 @@
             { label: 'AI 請求', value: formatInt(sum(f => f.requests)), hint: `成功 ${formatInt(sum(f => f.ok))}` },
             { label: '活躍裝置', value: formatInt(r.devices.activeDevices), hint: '期間內至少用過一次 AI' },
             { label: 'Gemini 成本（使用者）', value: formatCost(usersUsd.value), hint: costFormula(usersUsd.value) },
+            // 舊後端沒有 jev 就不放這張；JEV 分開一張，不跟 Gemini 加總（幣別也不同：JEV 不在 Google 帳單上）
+            ...(r.jev
+                ? [{ label: 'JEV 影子花費（另計）', value: formatUsd(r.jev.costUsd), usd: true, hint: `TypeSafe AI，問了 ${formatInt(r.jev.calls)} 次\n不含在 Gemini 成本裡${r.jev.late ? `\n另有 ${formatInt(r.jev.late)} 次 late，估 ${formatUsd(r.jev.lateCostEstUsd)}` : ''}` }]
+                : []),
             { label: 'Beta 免扣點', value: formatInt(sum(f => f.quotaWaived)), hint: '原本會扣的請求數' },
             { label: '撞到付費牆', value: formatInt(r.devices.devicesHitQuota), hint: '台裝置' },
             { label: '撞到每日上限', value: formatInt(r.devices.devicesHitDailyLimit), hint: '台裝置' }
@@ -90,7 +107,7 @@
 
         <template v-if="report">
             <ul class="dd-usage__tiles">
-                <li v-for="tile in tiles" :key="tile.label">
+                <li v-for="tile in tiles" :key="tile.label" :class="{ usd: 'usd' in tile }">
                     <p class="label">{{ tile.label }}</p>
                     <p class="value">{{ tile.value }}</p>
                     <p class="hint">{{ tile.hint }}</p>
@@ -210,6 +227,80 @@
                 </table>
             </div>
 
+            <!-- #region [P] JEV 影子（#918）：TypeSafe AI 的花費，跟 Gemini 分開列 -->
+            <template v-if="jev">
+                <h2 class="dd-usage__title">JEV 影子</h2>
+                <p class="dd-usage__desc">
+                    推播分類判成「交易憑據：無」時，另外問 TypeSafe AI 的 JEV「這是不是一筆已經發生的交易」，只記答案、不影響分類。
+                    花費是 TypeSafe 的、照輸入 token 估（每百萬 {{ formatUsd(jev.inputPricePerMillionUsd) }}），寫美元；<strong>不含在上面任何 Gemini 的成本裡</strong>。不含測試裝置。
+                </p>
+                <p v-if="!jev.calls" class="dd-usage__desc">這段期間沒有問過 JEV（後端開關 <code>JEV_SHADOW_ACTIVE</code> 沒開，或沒有判成「憑據：無」的推播）。</p>
+                <template v-else>
+                    <div class="dd-usage__scroll dd-table-scroll">
+                        <table class="dd-table dd-table--static">
+                            <thead>
+                                <tr>
+                                    <th scope="col">模型</th>
+                                    <th scope="col" class="num">呼叫</th>
+                                    <th scope="col" class="num">成功</th>
+                                    <th scope="col" class="num">錯誤</th>
+                                    <th scope="col" class="num" title="可能收了錢、拿不到 token 數的：還沒回、背景沒補上，或送出後逾時、斷線">late</th>
+                                    <th scope="col" class="num">輸入 token</th>
+                                    <th scope="col" class="num">延遲 P50／P95</th>
+                                    <th scope="col" class="num">花費</th>
+                                    <th scope="col" class="num" title="late 那幾次用成功的平均輸入 token 估，不含在花費裡">late 的估計</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">{{ jev.model || 'JEV' }}</th>
+                                    <td class="num">{{ formatInt(jev.calls) }}</td>
+                                    <td class="num">{{ formatInt(jev.ok) }}</td>
+                                    <td class="num">{{ formatInt(jev.errors) }}</td>
+                                    <td class="num">{{ formatInt(jev.late) }}</td>
+                                    <td class="num">{{ formatInt(jev.inputTokens) }}</td>
+                                    <td class="num">{{ formatMs(jev.latencyMs.p50) }}／{{ formatMs(jev.latencyMs.p95) }}</td>
+                                    <td class="num key">{{ formatUsd(jev.costUsd) }}</td>
+                                    <td class="num">{{ formatUsd(jev.lateCostEstUsd) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="dd-usage__subtitle">逐日：Gemini 與 JEV</h3>
+                    <p class="dd-usage__desc">只列有問 JEV 的日子。Gemini 成本{{ costNote }}；JEV 是美元估算，兩欄不相加。</p>
+                    <div class="dd-usage__scroll dd-table-scroll">
+                        <table class="dd-table dd-table--static">
+                            <thead>
+                                <tr>
+                                    <th scope="col">日期</th>
+                                    <th scope="col" class="num">AI 請求</th>
+                                    <th scope="col" class="num">Gemini 成本</th>
+                                    <th scope="col" class="num">JEV 次數</th>
+                                    <th scope="col" class="num">JEV 輸入 token</th>
+                                    <th scope="col" class="num">JEV 花費</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="day in jevDays" :key="day.date">
+                                    <th scope="row">{{ day.date }}</th>
+                                    <td class="num">{{ formatInt(day.requests) }}</td>
+                                    <td class="num">{{ formatCost(day.costUsd) }}</td>
+                                    <td class="num">{{ formatInt(day.jevCalls) }}</td>
+                                    <td class="num">{{ formatInt(day.jevInputTokens) }}</td>
+                                    <td class="num">{{ formatUsd(day.jevCostUsd) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="dd-usage__subtitle">P(是) 的分布</h3>
+                    <p class="dd-usage__desc">成功而且有答的那幾次，JEV 說「是交易」的機率落在哪一格。之後定門檻看這張：兩端越集中，越好切。</p>
+                    <BarChart :rows="pYesRows" :series="pYesSeries" unit=" 次" />
+                </template>
+            </template>
+            <!-- #endregion -->
+
             <!-- #region [P] 開發成本（#0086）：標成測試／開發用的裝置，不算在上面任何數字裡 -->
             <h2 class="dd-usage__title">開發成本</h2>
             <p class="dd-usage__desc">
@@ -231,6 +322,11 @@
                     <p class="label">AI 請求</p>
                     <p class="value">{{ formatInt(test.requests) }}</p>
                     <p class="hint">呼叫 Gemini {{ formatInt(test.geminiCalls) }} 次</p>
+                </li>
+                <li v-if="jev" class="usd">
+                    <p class="label">JEV 影子（另計）</p>
+                    <p class="value">{{ formatUsd(test.jevCostUsd) }}</p>
+                    <p class="hint">問了 {{ formatInt(test.jevCalls) }} 次，不含在開發成本裡</p>
                 </li>
             </ul>
             <p v-else class="dd-usage__desc">這段期間測試／開發用的裝置沒有 AI 請求。自己測試用的手機記得在裝置詳情標起來，用量才會算到這裡。</p>
@@ -289,10 +385,21 @@
                 font-size: var(--font-size-xs);
                 white-space: pre-line;
             }
+
+            // JEV 的花費一次只有幾十萬分之一美元，小數寫到六位：字小一級、不折行，數字才不會從中間斷開。
+            // 不叫 __tile--usd：後台把 class 含「__tile」的都當卡片改圓角（DashboardApp），會跟這裡的圓角打架
+            .usd .value {
+                font-size: var(--font-size-l);
+                white-space: nowrap;
+            }
         }
         &__title {
             margin-top: 32px !important;
             font-size: var(--font-size-l);
+        }
+        &__subtitle {
+            margin-top: 20px !important;
+            font-size: var(--font-size-m);
         }
         &__desc {
             margin: 4px 0 12px !important;
