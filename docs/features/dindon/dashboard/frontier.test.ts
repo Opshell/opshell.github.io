@@ -1,6 +1,6 @@
 import type { AdminTerritory, FrontierBounty, FrontierSeason, TerritoryMember } from './schemas/admin.schema';
 import { describe, expect, it } from 'vitest';
-import { bountyBlocked, bountyBody, bountyError, cancelBountyBody, daysPaid, defaultBountyTitle, emptyDraft, emptyMemberDraft, flipsBackToWanted, frontierProgress, isMissedNotification, memberCodeProblem, memberCreateBody, memberDraftOf, memberFormError, memberNameProblem, memberPatch, memberTally, moveTerritory, pioneerOrigin, progressPercent, reviewBody, seasonLine, tamedInProblem, targetError, targetOf, territoryFormError, territoryNameProblem, territoryNoteProblem, territoryOptionLabel, territoryPatch, unusedSuggestions } from './frontier';
+import { bountyBlocked, bountyBody, bountyError, cancelBountyBody, daysPaid, defaultBountyTitle, emptyDraft, emptyMemberDraft, flipsBackToWanted, frontierProgress, isMissedNotification, memberCodeProblem, memberCreateBody, memberDraftOf, memberFormError, memberNameProblem, memberPatch, memberTally, moveItem, pioneerOrigin, progressPercent, reviewBody, seasonLine, tamedInProblem, targetError, targetOf, territoryFormError, territoryNameProblem, territoryNoteProblem, territoryOptionLabel, territoryPatch, unusedSuggestions, withoutMember } from './frontier';
 
 const territory = (patch: Partial<AdminTerritory> = {}): AdminTerritory => ({
     id: 1,
@@ -100,7 +100,7 @@ describe('成員的欄位（api.md 29.4）', () => {
         const draft = { ...emptyMemberDraft(), code: 'transfer', name: '轉帳' };
         expect(memberFormError(draft, [member()])).toBe('');
         expect(memberFormError({ ...draft, code: 'payment' }, [member()])).toContain('已經有');
-        expect(memberFormError({ ...draft, tamedIn: '1.0 正式' }, [])).toContain('版本');
+        expect(memberFormError({ ...draft, tamedIn: '1.0 正式' }, [])).toContain('緝拿於');
         expect(memberFormError(memberDraftOf(member()), null)).toBe('');
     });
 
@@ -129,9 +129,23 @@ describe('成員的欄位（api.md 29.4）', () => {
         expect(flipsBackToWanted(territory({ status: 'wanted' }), { status: 'wanted' })).toBe(false);
     });
 
+    it('緝拿版本的錯誤訊息用成員的說法', () => {
+        expect(memberFormError({ ...emptyMemberDraft(), name: '轉帳', tamedIn: '1.0 正式' }, null)).toContain('緝拿於');
+        expect(tamedInProblem('1.0 正式')).toContain('馴服的版本');
+    });
+
+    it('刪成員後在前端照後端規則算領地狀態；刪到不剩保留原值', () => {
+        const t = territory({ status: 'wanted', members: [member({ id: 1, status: 'tamed' }), member({ id: 2 })] });
+        expect(withoutMember(t, 2)).toMatchObject({ status: 'tamed', members: [{ id: 1 }] });
+        expect(withoutMember(t, 1)).toMatchObject({ status: 'wanted', members: [{ id: 2 }] });
+        const last = territory({ status: 'wanted', members: [member({ id: 2 })] });
+        expect(withoutMember(last, 2)).toMatchObject({ status: 'wanted', members: [] });
+        expect(withoutMember(territory({ status: 'tamed', members: [member({ id: 2 })] }), 2).status).toBe('tamed');
+    });
+
     it('成員也用上下移一格（同一套交換）', () => {
         const members = [member({ id: 1, sortOrder: 0 }), member({ id: 2, sortOrder: 1 })];
-        expect(moveTerritory(members, 2, -1)).toEqual([{ id: 2, sortOrder: 0 }, { id: 1, sortOrder: 1 }]);
+        expect(moveItem(members, 2, -1)).toEqual([{ id: 2, sortOrder: 0 }, { id: 1, sortOrder: 1 }]);
     });
 });
 
@@ -162,19 +176,19 @@ describe('排序', () => {
     const list = [territory({ id: 1, sortOrder: 1 }), territory({ id: 2, sortOrder: 2 }), territory({ id: 3, sortOrder: 2 })];
 
     it('上下移一格是跟鄰居交換 sort_order', () => {
-        expect(moveTerritory(list, 2, -1)).toEqual([{ id: 2, sortOrder: 1 }, { id: 1, sortOrder: 2 }]);
-        expect(moveTerritory(list, 1, 1)).toEqual([{ id: 1, sortOrder: 2 }, { id: 2, sortOrder: 1 }]);
+        expect(moveItem(list, 2, -1)).toEqual([{ id: 2, sortOrder: 1 }, { id: 1, sortOrder: 2 }]);
+        expect(moveItem(list, 1, 1)).toEqual([{ id: 1, sortOrder: 2 }, { id: 2, sortOrder: 1 }]);
     });
 
     it('同號時只動自己，設成鄰居的前一號／後一號', () => {
-        expect(moveTerritory(list, 3, -1)).toEqual([{ id: 3, sortOrder: 1 }]);
-        expect(moveTerritory(list, 2, 1)).toEqual([{ id: 2, sortOrder: 3 }]);
+        expect(moveItem(list, 3, -1)).toEqual([{ id: 3, sortOrder: 1 }]);
+        expect(moveItem(list, 2, 1)).toEqual([{ id: 2, sortOrder: 3 }]);
     });
 
     it('頭尾再往外移沒有動作', () => {
-        expect(moveTerritory(list, 1, -1)).toEqual([]);
-        expect(moveTerritory(list, 3, 1)).toEqual([]);
-        expect(moveTerritory(list, 99, 1)).toEqual([]);
+        expect(moveItem(list, 1, -1)).toEqual([]);
+        expect(moveItem(list, 3, 1)).toEqual([]);
+        expect(moveItem(list, 99, 1)).toEqual([]);
     });
 });
 

@@ -3,7 +3,7 @@
     import type { AdminTerritory, TerritoryMember } from '../schemas/admin.schema';
     import { computed, reactive, ref, watch } from 'vue';
     import { adminApi } from '../api';
-    import { emptyMemberDraft, flipsBackToWanted, MEMBER_NAME_MAX, MEMBER_STATUS_LABELS, memberCreateBody, memberDraftOf, memberFormError, memberPatch, moveTerritory, STATUSES, unusedSuggestions } from '../frontier';
+    import { emptyMemberDraft, flipsBackToWanted, MEMBER_NAME_MAX, MEMBER_STATUS_LABELS, memberCreateBody, memberDraftOf, memberFormError, memberPatch, moveItem, STATUSES, unusedSuggestions, withoutMember } from '../frontier';
     import { errorMessage, useAdminCall } from '../useAdminCall';
 
     // 一塊領地的成員（api.md 29.4，Flowsker #840）：一家是一個團伙，每種通知一個成員，各自通緝中／已緝拿。
@@ -11,13 +11,13 @@
     // 成功時後端回整塊領地（status 重算過），交給外層直接換掉那一塊。
     interface Props {
         territory: AdminTerritory;
+        /** 調順序第二筆失敗時，畫面跟後端可能對不上，請外層重抓。用函式不用 emit：要等它抓完才放掉 busy */
+        reload: () => Promise<void>;
     }
     const props = defineProps<Props>();
     const emit = defineEmits<{
         /** 後端回的那一塊（含 members、重算過的 status） */
         update: [territory: AdminTerritory];
-        /** 調順序第二筆失敗時，畫面跟後端可能對不上，請外層重抓 */
-        reload: [];
     }>();
     /** 跟外層共用：送出中整個表單都停用，免得領地與成員同時送 */
     const busy = defineModel<boolean>('busy', { required: true });
@@ -98,10 +98,9 @@
         notice.value = '';
         try {
             await call(token => adminApi.deleteMember(token, props.territory.id, member.id));
-            // DELETE 是 204 沒有內容：自己把那一列拿掉。領地的 status 後端重算過，刪到不剩時保留最後的值，
-            // 這裡猜不準，請外層重抓
-            emit('update', { ...props.territory, members: props.territory.members.filter(m => m.id !== member.id) });
-            emit('reload');
+            // DELETE 是 204 沒有內容：領地的 status 照後端同一套規則在前端算（withoutMember），
+            // 不用重抓；重抓的話回來之前改別列，會被舊的回應蓋掉
+            emit('update', withoutMember(props.territory, member.id));
             notice.value = `已刪除「${member.name}」`;
         } catch (e) {
             rowErrors[member.id] = errorMessage(e);
@@ -114,7 +113,7 @@
 
     // #region [P] 調順序：跟領地清單一樣，跟鄰居交換 sort_order
     async function move(member: TerritoryMember, direction: -1 | 1) {
-        const changes = moveTerritory(members.value, member.id, direction);
+        const changes = moveItem(members.value, member.id, direction);
         if (!changes.length || busy.value) return;
         busy.value = true;
         rowErrors[member.id] = '';
@@ -127,8 +126,9 @@
             if (last) applied(last, null, '');
         } catch (e) {
             rowErrors[member.id] = errorMessage(e);
-            // 第二筆失敗的話第一筆已經改了：重抓，畫面照後端現在的順序
-            emit('reload');
+            // 第二筆失敗的話第一筆已經改了：重抓，畫面照後端現在的順序。
+            // 等重抓完才放掉 busy，不然這段時間改別列，會被重抓回來的舊資料蓋掉
+            await props.reload();
         } finally {
             busy.value = false;
         }
@@ -210,6 +210,7 @@
                             :aria-label="`${member.code} 的名稱`"
                             autocomplete="off"
                             :disabled="busy"
+                            @keydown.enter.prevent="save(member)"
                         />
                         <select v-model="drafts[member.id].status" :aria-label="`${member.code} 的狀態`" :disabled="busy">
                             <option v-for="status in STATUSES" :key="status" :value="status">{{ MEMBER_STATUS_LABELS[status] }}</option>
@@ -222,6 +223,7 @@
                             :aria-label="`${member.code} 哪一版緝拿`"
                             autocomplete="off"
                             :disabled="busy"
+                            @keydown.enter.prevent="save(member)"
                         />
                     </template>
                 </div>

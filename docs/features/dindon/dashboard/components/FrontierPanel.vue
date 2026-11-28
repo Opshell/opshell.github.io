@@ -4,7 +4,7 @@
     import { computed, onMounted, reactive, ref } from 'vue';
     import { adminApi } from '../api';
     import { formatDateTime, formatInt } from '../format';
-    import { draftOf, emptyDraft, frontierProgress, KIND_LABELS, KINDS, memberTally, moveTerritory, pioneerOrigin, progressPercent, seasonLine, STATUS_LABELS, STATUSES, TERRITORY_NAME_MAX, TERRITORY_NOTE_MAX, territoryFormError, territoryPatch } from '../frontier';
+    import { draftOf, emptyDraft, frontierProgress, KIND_LABELS, KINDS, memberTally, moveItem, pioneerOrigin, progressPercent, seasonLine, STATUS_LABELS, STATUSES, TERRITORY_NAME_MAX, TERRITORY_NOTE_MAX, territoryFormError, territoryPatch } from '../frontier';
     import { reporterNameProblem } from '../schemas/admin.schema';
     import { errorMessage, useAdminCall } from '../useAdminCall';
     import AdminActions from './AdminActions.vue';
@@ -196,7 +196,7 @@
 
     // #region [P] 排序：上下移一格＝跟鄰居交換 sort_order（29.4 的 PATCH）。篩選時鄰居不是真的鄰居，所以不給移
     async function move(territory: AdminTerritory, direction: -1 | 1) {
-        const changes = moveTerritory(territories.value, territory.id, direction);
+        const changes = moveItem(territories.value, territory.id, direction);
         if (!changes.length || busy.value) return;
         busy.value = true;
         error.value = '';
@@ -271,7 +271,7 @@
                 <label class="dd-frontier__field">
                     <span>馴服於</span>
                     <input v-model="form.tamedIn" type="text" class="version" placeholder="例如 1.0.0" autocomplete="off" :disabled="busy" />
-                    <span v-if="tamedWithoutVersion" class="dd-frontier__muted">沒填＝beta 期間就驗過</span>
+                    <span v-if="tamedWithoutVersion && !statusLocked" class="dd-frontier__muted">沒填＝beta 期間就驗過</span>
                 </label>
                 <label class="dd-frontier__field">
                     <span>備註</span>
@@ -301,7 +301,7 @@
             </div>
 
             <!-- 成員各自存：每一列一次請求，不跟上面的欄位混在一起 -->
-            <FrontierMembers v-if="current" v-model:busy="busy" :territory="current" @update="replaceTerritory" @reload="reloadAfterMembers" />
+            <FrontierMembers v-if="current" v-model:busy="busy" :territory="current" :reload="reloadAfterMembers" @update="replaceTerritory" />
 
             <!-- 開拓者另外存：每一種都是一次 PATCH，不跟上面的欄位混在一起 -->
             <section v-if="current" class="dd-frontier__pioneer">
@@ -313,14 +313,14 @@
                 <div class="dd-frontier__actions">
                     <label class="dd-frontier__field">
                         <span>照裝置 #</span>
-                        <input v-model="pioneerDeviceDraft" type="text" inputmode="numeric" class="version" placeholder="裝置 id" :disabled="busy" />
+                        <input v-model="pioneerDeviceDraft" type="text" inputmode="numeric" class="version" placeholder="裝置 id" :disabled="busy" @keydown.enter.prevent="pioneerByDevice" />
                     </label>
                     <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy || pioneerDeviceId === null" @click="pioneerByDevice">用那台現在的名字署名</button>
                 </div>
                 <div class="dd-frontier__actions">
                     <label class="dd-frontier__field">
                         <span>手打名字</span>
-                        <input v-model="pioneerNameDraft" type="text" placeholder="沒綁 App 的人" :disabled="busy" />
+                        <input v-model="pioneerNameDraft" type="text" placeholder="沒綁 App 的人" :disabled="busy" @keydown.enter.prevent="pioneerByName" />
                     </label>
                     <button type="button" class="dd-admin__btn dd-admin__btn--ghost" :disabled="busy || !!pioneerNameProblem" @click="pioneerByName">署名</button>
                 </div>

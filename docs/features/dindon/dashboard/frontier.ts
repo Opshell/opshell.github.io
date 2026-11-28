@@ -37,10 +37,13 @@ export function territoryNoteProblem(note: string): string {
     return '';
 }
 
-/** 空的＝沒有（beta 期間就驗過的）；有填要是版本號，規則同回報的「修在哪一版」 */
-export function tamedInProblem(tamedIn: string): string {
+/**
+ * 空的＝沒有（beta 期間就驗過的）；有填要是版本號，規則同回報的「修在哪一版」。
+ * label：領地說「馴服的版本」，成員說「緝拿於」（成員是一個一個抓到的）
+ */
+export function tamedInProblem(tamedIn: string, label = '馴服的版本'): string {
     const trimmed = tamedIn.trim();
-    if (trimmed && !FIXED_IN_PATTERN.test(trimmed)) return '馴服的版本：英數開頭，只能有英數、點、加號、減號，最多 20 字';
+    if (trimmed && !FIXED_IN_PATTERN.test(trimmed)) return `${label}：英數開頭，只能有英數、點、加號、減號，最多 20 字`;
     return '';
 }
 
@@ -102,7 +105,7 @@ export function territoryPatch(current: AdminTerritory, draft: TerritoryDraft): 
  * 兩塊的 sort_order 一樣時交換沒有用，只把移動的那塊設成鄰居的前一號／後一號。
  * 領地與同一塊裡的成員（#840）排法一樣，都用這支
  */
-export function moveTerritory(list: readonly { id: number; sortOrder: number }[], id: number, direction: -1 | 1): { id: number; sortOrder: number }[] {
+export function moveItem(list: readonly { id: number; sortOrder: number }[], id: number, direction: -1 | 1): { id: number; sortOrder: number }[] {
     const index = list.findIndex(t => t.id === id);
     const neighbor = list[index + direction];
     if (index === -1 || !neighbor) return [];
@@ -160,7 +163,7 @@ export function memberNameProblem(name: string): string {
 }
 
 /**
- * 一列成員的草稿。code 只有新增時能填。排序不在草稿裡：一律用上下移（moveTerritory），
+ * 一列成員的草稿。code 只有新增時能填。排序不在草稿裡：一律用上下移（moveItem），
  * 新增的不給 sort_order，後端排這塊的最後
  */
 export interface MemberDraft {
@@ -183,7 +186,7 @@ export const memberDraftOf = (member: TerritoryMember): MemberDraft => ({
 export function memberFormError(draft: MemberDraft, siblings: readonly Pick<TerritoryMember, 'code'>[] | null): string {
     return (siblings ? memberCodeProblem(draft.code, siblings) : '')
         || memberNameProblem(draft.name)
-        || tamedInProblem(draft.tamedIn);
+        || tamedInProblem(draft.tamedIn, '緝拿於');
 }
 
 /** 新增的 body：版本留空不送（＝沒有） */
@@ -209,11 +212,22 @@ export function memberPatch(current: TerritoryMember, draft: MemberDraft): Updat
 }
 
 /**
- * 29.4「補成員的順序」：已緝拿、還沒有成員的領地，加進第一個通緝中的成員整塊會翻回通緝中。
- * 照 note 補時要先補已緝拿的，所以按下去之前提醒（不擋：真的缺那一種就是要翻回去）
+ * 29.4「補成員的順序」：已馴服的領地，不管有沒有成員，加進一個通緝中的成員整塊就會翻回通緝中
+ * （有成員時要全部已緝拿才算已馴服）。照 note 補時要先補已緝拿的，所以按下去之前提醒；
+ * 不擋：真的缺那一種就是要翻回去
  */
-export const flipsBackToWanted = (territory: Pick<AdminTerritory, 'status' | 'members'>, draft: Pick<MemberDraft, 'status'>) =>
+export const flipsBackToWanted = (territory: Pick<AdminTerritory, 'status'>, draft: Pick<MemberDraft, 'status'>) =>
     territory.status === 'tamed' && draft.status === 'wanted';
+
+/**
+ * 刪掉一個成員之後的那一塊。DELETE 是 204 沒有內容，照後端 syncTerritoryStatus 的規則在前端算：
+ * 剩下的全部已緝拿才是已馴服，否則通緝中；刪到一個不剩時保留原本的值（29.4）
+ */
+export function withoutMember<T extends Pick<AdminTerritory, 'status' | 'members'>>(territory: T, memberId: number): T {
+    const members = territory.members.filter(m => m.id !== memberId);
+    if (!members.length) return { ...territory, members };
+    return { ...territory, members, status: members.every(m => m.status === 'tamed') ? 'tamed' : 'wanted' };
+}
 
 /** 列表上一塊的成員進度，「2/3」；沒有成員是空字串 */
 export function memberTally(territory: Pick<AdminTerritory, 'members'>): string {
